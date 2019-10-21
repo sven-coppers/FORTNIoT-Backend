@@ -325,4 +325,12 @@ public class HassioDeviceManager implements EventListener {
     public HassioDevice getDevice(String entityID) {
         return this.hassioDeviceMap.get(entityID);
     }
+
+    /**
+     * Get the hassio devices
+     * @return the hassio devices
+     */
+    public Map<String, HassioDevice> getDevices() {
+        return this.hassioDeviceMap;
+    }
 }

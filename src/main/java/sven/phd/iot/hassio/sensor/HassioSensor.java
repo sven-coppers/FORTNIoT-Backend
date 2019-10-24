@@ -23,10 +23,6 @@ public class HassioSensor extends HassioDevice {
         return new HassioSensorState(hassioStateRaw);
     }
 
-    public void logState(HassioState hassioState) {
-
-    }
-
     @Override
     public List<HassioState> predictFutureStates() {
         return null;

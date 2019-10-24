@@ -67,12 +67,18 @@ public class HassioDeviceManager implements EventListener {
             } else if(entity_id.contains("binary_sensor")) {
                 if(entity_id.contains("motion_sensor_motion")) {
                     device = new HassioBinarySensor(entity_id);
+                } else if(entity_id.contains("remote_ui")) {
+                    device = new HassioBinarySensor(entity_id);
                 }
             } else if(entity_id.contains("sensor.")) {
                 if(entity_id.contains("sensor.yr_symbol")) continue; // Ignore
 
                 if(entity_id.contains("sensor.agoralaan_diepenbeek")) {
                     device = new HassioBus(entity_id);
+                } else if(entity_id.contains("temperature_measurement")) {
+                    device = new HassioSensor(entity_id);
+                } else if(entity_id.contains("battery")) {
+                    device = new HassioSensor(entity_id);
                 }
             } else if(entity_id.contains("light.")) {
                 device = new HassioLight(entity_id);

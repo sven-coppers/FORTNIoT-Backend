@@ -12,6 +12,7 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.change.HassioChangeRaw;
 import sven.phd.iot.hassio.light.HassioLight;
 import sven.phd.iot.hassio.outlet.HassioOutlet;
+import sven.phd.iot.hassio.sensor.HassioBinarySensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
 import sven.phd.iot.hassio.services.HassioCallService;
 import sven.phd.iot.hassio.states.HassioContext;
@@ -63,6 +64,10 @@ public class HassioDeviceManager implements EventListener {
             } else if(entity_id.contains(".updater")) {
                 // Ignore
                 continue;
+            } else if(entity_id.contains("binary_sensor")) {
+                if(entity_id.contains("motion_sensor_motion")) {
+                    device = new HassioBinarySensor(entity_id);
+                }
             } else if(entity_id.contains("sensor.")) {
                 if(entity_id.contains("sensor.yr_symbol")) continue; // Ignore
 

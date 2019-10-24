@@ -162,10 +162,16 @@ public class HassioDeviceManager implements EventListener {
                 // Ignore
             } else if(message.contains("\"event_type\": \"call_service\"")) {
                 // Ignore service calls
-               // System.out.println(message);
+                // System.out.println(message);
 
                 HassioCallService hassioCallService = mapper.readValue(message, HassioCallService.class);
-               // System.out.println(hassioCallService.toString());
+                // System.out.println(hassioCallService.toString());
+            } else if(message.contains("\"event_type\": \"smartthings.button\"")) {
+                // Ignore service calls
+                // System.out.println(message);
+
+                HassioCallService hassioCallService = mapper.readValue(message, HassioCallService.class);
+                // System.out.println(hassioCallService.toString());
             } else if(message.contains("\"event_type\": \"state_changed\"")){
                 HassioChangeRaw hassioChangeRaw = mapper.readValue(message, HassioChangeRaw.class);
                 String entityID = hassioChangeRaw.hassioChangeData.entityId;

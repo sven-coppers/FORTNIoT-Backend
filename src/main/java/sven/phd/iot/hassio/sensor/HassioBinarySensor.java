@@ -25,11 +25,11 @@ public class HassioBinarySensor extends HassioDevice {
 
     @Override
     public List<HassioState> predictFutureStates() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public List<HassioEvent> predictFutureEvents() {
-        return null;
+        return new ArrayList<>();
     }
 }

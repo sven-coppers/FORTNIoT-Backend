@@ -26,13 +26,7 @@ public class HassioOutlet extends HassioDevice {
 
     @Override
     public List<HassioState> predictFutureStates() {
-        List<HassioState> result = new ArrayList<>();
-
-        // TODO
-
-        Collections.sort(result);
-
-        return result;
+        return new ArrayList<>();
     }
 
     @Override

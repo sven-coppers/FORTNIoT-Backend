@@ -18,21 +18,21 @@ public class RulesManager {
         System.out.println("Initiating rules...");
         this.rules = new HashMap<>();
 
-        Trigger busyTrigger = new CalendarBusyTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be");
-        busyTrigger.addAction(new LightOnAction("light.hue_color_spot_1", Color.YELLOW, false));
+        Trigger busyTrigger = new StateTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be", "on", "WHEN Sven is busy");
+        busyTrigger.addAction(new LightOnAction("light.hue_color_spot_3", Color.YELLOW, false));
         this.rules.put("rule.busy", busyTrigger);
 
-        Trigger availableTrigger = new CalendarAvailableTrigger("rule.sven_available", "calendar.sven_coppers_uhasselt_be");
-        availableTrigger.addAction(new LightOffAction("light.hue_color_spot_1"));
+        Trigger availableTrigger = new StateTrigger("rule.sven_available", "calendar.sven_coppers_uhasselt_be", "off", "WHEN Sven is available");
+        availableTrigger.addAction(new LightOffAction("light.hue_color_spot_3"));
         this.rules.put("rule.available", availableTrigger);
 
-        Trigger sunSetTrigger = new SunSetTrigger("rule.sun_set");
+        Trigger sunSetTrigger = new StateTrigger("rule.sun_set", "sun.sun", "below_horizon", "IF sun set");
         sunSetTrigger.addAction(new LightOnAction("light.hue_color_lamp_1", Color.YELLOW, false));
         sunSetTrigger.addAction(new LightOnAction("light.hue_color_lamp_2", Color.YELLOW, false));
         sunSetTrigger.addAction(new LightOnAction("light.hue_color_lamp_3", Color.YELLOW, false));
         this.rules.put("rule.sun_set", sunSetTrigger);
 
-        Trigger sunRiseTrigger = new SunRiseTrigger("rule.sun_rise");
+        Trigger sunRiseTrigger = new StateTrigger("rule.sun_rise", "sun.sun", "above_horizon", "IF sun rise");
         sunRiseTrigger.addAction(new LightOffAction("light.hue_color_lamp_1"));
         sunRiseTrigger.addAction(new LightOffAction("light.hue_color_lamp_2"));
         sunRiseTrigger.addAction(new LightOffAction("light.hue_color_lamp_3"));
@@ -59,6 +59,14 @@ public class RulesManager {
         Trigger weatherChangeTrigger = new WeatherChangeTrigger("rule.weather_change");
         weatherChangeTrigger.addAction(new LightOnAction("light.hue_color_lamp_3", Color.GREEN, false));
         this.rules.put("rule.weather_change", weatherChangeTrigger);
+
+        Trigger motionTrigger = new StateTrigger("rule.motion_detected","binary_sensor.motion_sensor_motion", "on", "If motion detected");
+        motionTrigger.addAction(new LightOnAction("light.hue_color_spot_1", Color.RED, false));
+        this.rules.put("rule.motion_detected", motionTrigger);
+
+        Trigger noMotionTrigger = new StateTrigger("rule.motion_clear","binary_sensor.motion_sensor_motion", "off", "If no motion");
+        noMotionTrigger.addAction(new LightOffAction("light.hue_color_spot_1"));
+        this.rules.put("rule.motion_clear", noMotionTrigger);
     }
 
     /**

@@ -7,6 +7,7 @@ import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class HassioSensor extends HassioDevice {
@@ -25,11 +26,11 @@ public class HassioSensor extends HassioDevice {
 
     @Override
     public List<HassioState> predictFutureStates() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public List<HassioEvent> predictFutureEvents() {
-        return null;
+        return new ArrayList<>();
     }
 }

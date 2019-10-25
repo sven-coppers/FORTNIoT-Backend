@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.actions.LightOffAction;
 import sven.phd.iot.rules.actions.LightOnAction;
+import sven.phd.iot.rules.actions.OutletAction;
 import sven.phd.iot.rules.triggers.*;
 
 import java.awt.*;
@@ -62,10 +63,12 @@ public class RulesManager {
 
         Trigger motionTrigger = new StateTrigger("rule.motion_detected","binary_sensor.motion_sensor_motion", "on", "If motion detected");
         motionTrigger.addAction(new LightOnAction("light.hue_color_spot_1", Color.RED, false));
+        motionTrigger.addAction(new OutletAction("switch.outlet_3", "on"));
         this.rules.put("rule.motion_detected", motionTrigger);
 
         Trigger noMotionTrigger = new StateTrigger("rule.motion_clear","binary_sensor.motion_sensor_motion", "off", "If no motion");
         noMotionTrigger.addAction(new LightOffAction("light.hue_color_spot_1"));
+        noMotionTrigger.addAction(new OutletAction("switch.outlet_3", "off"));
         this.rules.put("rule.motion_clear", noMotionTrigger);
     }
 

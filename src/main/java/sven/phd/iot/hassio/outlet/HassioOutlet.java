@@ -1,6 +1,10 @@
 package sven.phd.iot.hassio.outlet;
 
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.light.HassioLightServiceOff;
+import sven.phd.iot.hassio.light.HassioLightServiceOn;
+import sven.phd.iot.hassio.light.HassioLightState;
+import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
@@ -21,7 +25,11 @@ public class HassioOutlet extends HassioDevice {
     }
 
     public List<HassioContext> setState(HassioState hassioState) {
-        return new ArrayList<HassioContext>();
+        if(hassioState.state.equals("on")) {
+            return this.callService("switch/turn_on", new HassioService(this.entityID));
+        } else {
+            return this.callService("switch/turn_off", new HassioService(this.entityID));
+        }
     }
 
     @Override

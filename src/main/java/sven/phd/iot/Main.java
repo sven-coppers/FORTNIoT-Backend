@@ -1,5 +1,6 @@
 package sven.phd.iot;
 
+import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 import org.glassfish.jersey.media.sse.EventSource;
 import org.glassfish.jersey.media.sse.SseFeature;
 import sven.phd.iot.hassio.HassioDeviceManager;
@@ -9,6 +10,8 @@ import javax.servlet.ServletContextListener;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.HttpHeaders;
 
 public class Main implements ServletContextListener {
     private Client client;
@@ -21,7 +24,15 @@ public class Main implements ServletContextListener {
         ContextManager contextManager = ContextManager.getInstance(); // Start the mainController
 
         client = ClientBuilder.newBuilder().register(SseFeature.class).build();
-        target = client.target("http://hassio.local:8123/api/stream?api_password=test1234");
+        if(BearerToken.useBearer()) {
+            Feature feature = OAuth2ClientSupport.feature(BearerToken.getBearer());
+            client.register(feature);
+            target = client.target("http://hassio.local:8123/api/stream");
+
+        } else {
+            target = client.target("http://hassio.local:8123/api/stream?api_password=test1234");
+        }
+
         eventSource = EventSource.target(target).build();
         eventSource.register(contextManager.getHassioDeviceManager()); // Everything needs to go to a single listener, since Hassio does not support event types
         eventSource.open();

@@ -1,0 +1,7 @@
+{
+    "use_token": true,
+    "token_id": "token_home",
+    "token_edm": "BEARER-TOKEN",
+    "token_home": "BEARER-TOKEN"
+}
+

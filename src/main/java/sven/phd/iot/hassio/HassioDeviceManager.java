@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.glassfish.jersey.media.sse.EventListener;
 import org.glassfish.jersey.media.sse.InboundEvent;
+import sven.phd.iot.BearerToken;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.bus.HassioBus;
 import sven.phd.iot.hassio.calendar.HassioCalendar;
@@ -27,6 +28,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -110,11 +112,19 @@ public class HassioDeviceManager implements EventListener {
      */
     private List<HassioStateRaw> queryHassioStatesRaw() {
         Client client = ClientBuilder.newClient();
+
         WebTarget webTarget = client.target(HASSIO_URL);
         WebTarget employeeWebTarget = webTarget.path("states");
         Invocation.Builder invocationBuilder = employeeWebTarget.request(MediaType.APPLICATION_JSON);
 
-        invocationBuilder.header("x-ha-access", "test1234");
+        //Add authentication
+        if(BearerToken.useBearer()) {
+            String bearer = BearerToken.getBearer();
+            invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + bearer);
+        } else {
+            invocationBuilder.header("x-ha-access", "test1234");
+        }
+
         Response response = invocationBuilder.get();
 
         List<HassioStateRaw> hassioStates = response.readEntity(new GenericType<List<HassioStateRaw>>() {});

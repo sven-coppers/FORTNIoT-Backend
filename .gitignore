@@ -16,3 +16,6 @@
 log/
 target/
 out/
+
+# Bearer token json
+token.json

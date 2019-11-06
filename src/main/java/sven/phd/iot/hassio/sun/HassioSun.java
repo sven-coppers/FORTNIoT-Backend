@@ -4,6 +4,7 @@ import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
+import sven.phd.iot.hassio.tracker.HassioDeviceTrackerState;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
 import java.util.ArrayList;
@@ -22,6 +23,12 @@ public class HassioSun extends HassioDevice {
     public List<HassioContext> setState(HassioState hassioState) {
         // We cannot change the state off the sun
         return new ArrayList<HassioContext>();
+    }
+
+    @Override
+    public String getFriendlyName() {
+        HassioSunState state = (HassioSunState) this.getLastState();
+        return state.attributes.friendly_name;
     }
 
     @Override

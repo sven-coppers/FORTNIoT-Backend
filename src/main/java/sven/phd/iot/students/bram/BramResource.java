@@ -26,35 +26,4 @@ public class BramResource {
         return "<h1>Hello, Bram!</h1>";
     }
 
-
-    @Path("devices")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getDeviceByName() {
-        Map<String, HassioDevice> devices = ContextManager.getInstance().getHassioDeviceManager().getDevices();
-
-        JSONArray arr = new JSONArray();
-
-        try {
-
-            devices.forEach((id, device) -> {
-                JSONObject item = new JSONObject();
-                item.put("id", id);
-                JSONObject obj = new JSONObject(device);
-                Class c = device.getClass();
-                if(c == HassioLight.class) {
-                    ((HassioLight)device).getLastState()
-                }
-                HassioState state = device.getLastState();
-
-                item.put("device", obj);
-
-                arr.put(item);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return arr.toString();
-    }
-
 }

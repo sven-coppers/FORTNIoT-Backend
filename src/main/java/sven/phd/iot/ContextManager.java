@@ -1,5 +1,7 @@
 package sven.phd.iot;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
@@ -10,6 +12,11 @@ import sven.phd.iot.hassio.updates.HassioUpdate;
 import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.rules.RulesManager;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -200,4 +207,6 @@ public class ContextManager {
     public String getRules() {
         return this.rulesManager.printRulesToString();
     }
+
+
 }

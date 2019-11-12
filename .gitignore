@@ -1,3 +1,21 @@
-target/
+# Eclipse
+.classpath
+.project
+.settings/
+ 
+# Intellij
 .idea/
+*.iml
+*.iws
+*.class
+ 
+# Mac
+.DS_Store
+ 
+# Maven
+log/
+target/
 out/
+
+# Bearer token json
+token.json

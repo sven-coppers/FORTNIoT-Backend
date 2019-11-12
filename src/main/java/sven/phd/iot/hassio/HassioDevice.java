@@ -1,6 +1,7 @@
 package sven.phd.iot.hassio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.api.resources.UpdateResource;
 import sven.phd.iot.hassio.change.HassioChange;
@@ -12,6 +13,7 @@ import sven.phd.iot.hassio.updates.HassioEvent;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -31,6 +33,13 @@ abstract public class HassioDevice {
         this.hassioEventFuture = new ArrayList<>();
         this.entityID = entityID;
     }
+
+    /**
+     * Get the friendly name of the device
+     * @return the friendly name
+     */
+    abstract public String getFriendlyName();
+
 
     /**
      * Commit the state to the physical device
@@ -138,7 +147,14 @@ abstract public class HassioDevice {
         WebTarget webTarget = client.target("http://hassio.local:8123/api/services/");
         WebTarget employeeWebTarget = webTarget.path(uri);
         Invocation.Builder invocationBuilder = employeeWebTarget.request(MediaType.APPLICATION_JSON);
-        invocationBuilder.header("x-ha-access", "test1234");
+        //Add authentication
+        if(BearerToken.useBearer()) {
+            String bearer = BearerToken.getBearer();
+            System.out.println("Bearer: " + bearer);
+            invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + bearer);
+        } else {
+            invocationBuilder.header("x-ha-access", "test1234");
+        }
         invocationBuilder.header("Content-Type", "application/json");
 
         try {

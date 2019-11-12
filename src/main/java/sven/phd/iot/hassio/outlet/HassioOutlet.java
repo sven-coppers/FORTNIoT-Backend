@@ -33,6 +33,12 @@ public class HassioOutlet extends HassioDevice {
     }
 
     @Override
+    public String getFriendlyName() {
+        HassioOutletState state = (HassioOutletState) this.getLastState();
+        return state.attributes.friendly_name;
+    }
+
+    @Override
     public List<HassioState> predictFutureStates() {
         return new ArrayList<>();
     }

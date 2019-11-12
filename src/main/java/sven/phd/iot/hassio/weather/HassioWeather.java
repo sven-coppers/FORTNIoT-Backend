@@ -33,6 +33,12 @@ public class HassioWeather extends HassioDevice {
     }
 
     @Override
+    public String getFriendlyName() {
+        HassioWeatherState state = (HassioWeatherState) this.getLastState();
+        return state.attributes.friendly_name;
+    }
+
+    @Override
     public List<HassioState> predictFutureStates() {
         List<HassioState> result = new ArrayList<>();
         HassioWeatherState hassioWeatherState = (HassioWeatherState) this.getLastState();

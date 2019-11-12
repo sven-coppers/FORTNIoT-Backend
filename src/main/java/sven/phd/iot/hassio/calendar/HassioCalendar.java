@@ -22,6 +22,12 @@ public class HassioCalendar extends HassioDevice {
     }
 
     @Override
+    public String getFriendlyName() {
+        HassioCalendarState state = (HassioCalendarState) this.getLastState();
+        return state.attributes.friendly_name;
+    }
+
+    @Override
     public HassioState processRawState(HassioStateRaw hassioStateRaw) {
         return new HassioCalendarState(hassioStateRaw);
     }

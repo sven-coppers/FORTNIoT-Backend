@@ -25,6 +25,12 @@ public class HassioSensor extends HassioDevice {
     }
 
     @Override
+    public String getFriendlyName() {
+        HassioSensorState state = (HassioSensorState) this.getLastState();
+        return state.attributes.friendly_name;
+    }
+
+    @Override
     public List<HassioState> predictFutureStates() {
         return new ArrayList<>();
     }

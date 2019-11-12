@@ -20,8 +20,17 @@ public class HassioDeviceTracker extends HassioDevice {
         return new HassioDeviceTrackerState(hassioStateRaw);
     }
 
+
+
     public List<HassioContext> setState(HassioState hassioState) {
         return new ArrayList<HassioContext>();
+    }
+
+
+    @Override
+    public String getFriendlyName() {
+        HassioDeviceTrackerState state = (HassioDeviceTrackerState) this.getLastState();
+        return state.attributes.friendly_name;
     }
 
     @Override

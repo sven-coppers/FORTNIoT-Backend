@@ -27,6 +27,12 @@ public class HassioLight extends HassioDevice {
     }
 
     @Override
+    public String getFriendlyName() {
+        HassioLightState state = (HassioLightState) this.getLastState();
+        return state.attributes.friendly_name;
+    }
+
+    @Override
     public List<HassioState> predictFutureStates() {
         // A lamp cannot know its future state
         return new ArrayList<HassioState>();

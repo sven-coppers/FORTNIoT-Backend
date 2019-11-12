@@ -61,6 +61,13 @@ public class HassioBus extends HassioDevice {
     }
 
     @Override
+    public String getFriendlyName() {
+        HassioBusState state = (HassioBusState) this.getLastState();
+        return "Bus";
+        //return state.attributes.friendly_name;
+    }
+
+    @Override
     public List<HassioState> predictFutureStates() {
         List<HassioState> result = new ArrayList<>();
 

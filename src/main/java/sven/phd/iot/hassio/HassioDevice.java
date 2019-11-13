@@ -3,7 +3,6 @@ package sven.phd.iot.hassio;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
-import sven.phd.iot.api.resources.UpdateResource;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.HassioContext;
@@ -148,8 +147,8 @@ abstract public class HassioDevice {
         WebTarget employeeWebTarget = webTarget.path(uri);
         Invocation.Builder invocationBuilder = employeeWebTarget.request(MediaType.APPLICATION_JSON);
         //Add authentication
-        if(BearerToken.useBearer()) {
-            String bearer = BearerToken.getBearer();
+        if(BearerToken.getInstance().isUsingBearer()) {
+            String bearer = BearerToken.getInstance().getBearerToken();
             System.out.println("Bearer: " + bearer);
             invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + bearer);
         } else {

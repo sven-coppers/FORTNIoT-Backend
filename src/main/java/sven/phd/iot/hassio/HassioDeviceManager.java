@@ -1,8 +1,6 @@
 package sven.phd.iot.hassio;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.glassfish.jersey.media.sse.EventListener;
 import org.glassfish.jersey.media.sse.InboundEvent;
 import sven.phd.iot.BearerToken;
@@ -129,8 +127,8 @@ public class HassioDeviceManager implements EventListener {
         Invocation.Builder invocationBuilder = employeeWebTarget.request(MediaType.APPLICATION_JSON);
 
         //Add authentication
-        if(BearerToken.useBearer()) {
-            String bearer = BearerToken.getBearer();
+        if(BearerToken.getInstance().isUsingBearer()) {
+            String bearer = BearerToken.getInstance().getBearerToken();
             invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + bearer);
         } else {
             invocationBuilder.header("x-ha-access", "test1234");

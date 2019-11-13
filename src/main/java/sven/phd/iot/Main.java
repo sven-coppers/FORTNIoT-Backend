@@ -3,7 +3,6 @@ package sven.phd.iot;
 import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 import org.glassfish.jersey.media.sse.EventSource;
 import org.glassfish.jersey.media.sse.SseFeature;
-import sven.phd.iot.hassio.HassioDeviceManager;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -11,7 +10,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.HttpHeaders;
 
 public class Main implements ServletContextListener {
     private Client client;
@@ -22,10 +20,11 @@ public class Main implements ServletContextListener {
         System.out.println("Joepie: de server werd gestart");
 
         ContextManager contextManager = ContextManager.getInstance(); // Start the mainController
+        BearerToken bearerToken = BearerToken.getInstance();
 
         client = ClientBuilder.newBuilder().register(SseFeature.class).build();
-        if(BearerToken.useBearer()) {
-            Feature feature = OAuth2ClientSupport.feature(BearerToken.getBearer());
+        if(bearerToken.isUsingBearer()) {
+            Feature feature = OAuth2ClientSupport.feature(bearerToken.getBearerToken());
             client.register(feature);
             target = client.target("http://hassio.local:8123/api/stream");
 

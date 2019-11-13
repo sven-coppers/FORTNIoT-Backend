@@ -149,7 +149,6 @@ abstract public class HassioDevice {
         //Add authentication
         if(BearerToken.getInstance().isUsingBearer()) {
             String bearer = BearerToken.getInstance().getBearerToken();
-            System.out.println("Bearer: " + bearer);
             invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + bearer);
         } else {
             invocationBuilder.header("x-ha-access", "test1234");

@@ -17,11 +17,11 @@ public class BusTrigger extends Trigger {
     }
 
     @Override
-    public boolean isInterested(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HassioChange hassioChange) {
         return hassioChange.entity_id.equals("sensor.agoralaan_diepenbeek");
     }
 
-    public List<HassioContext> verify(HashMap<String, HassioState> hassioStateHashMap) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStateHashMap) {
         HassioState busState = hassioStateHashMap.get("sensor.agoralaan_diepenbeek");
 
         if(busState == null) return null;

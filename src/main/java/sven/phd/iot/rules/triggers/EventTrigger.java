@@ -41,17 +41,17 @@ public class EventTrigger extends Trigger {
         System.err.println("TODO: Implement ValueChanged() in EventTrigger");
     }
 
-    public boolean verify(HassioChange hassioChange) {
+    public boolean verifyCondition(HassioChange hassioChange) {
         return false;
     }
 
     @Override
-    protected boolean isInterested(HassioChange hassioChange) {
+    protected boolean isTriggeredBy(HassioChange hassioChange) {
         return true;
     }
 
     @Override
-    protected List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
+    protected List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         return null;
     }
 }

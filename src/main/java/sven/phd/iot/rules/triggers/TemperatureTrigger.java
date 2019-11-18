@@ -25,7 +25,7 @@ public class TemperatureTrigger extends Trigger {
     }
 
     @Override
-    public boolean isInterested(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HassioChange hassioChange) {
         if(hassioChange.entity_id.equals("weather.dark_sky")) {
             float oldTemp = ((HassioWeatherState) hassioChange.hassioChangeData.oldState).attributes.temperature;
             float newTemp = ((HassioWeatherState) hassioChange.hassioChangeData.newState).attributes.temperature;
@@ -42,7 +42,7 @@ public class TemperatureTrigger extends Trigger {
     }
 
     @Override
-    protected List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
+    protected List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         HassioWeatherState hassioWeatherState = (HassioWeatherState) hassioStates.get("weather.dark_sky");
         float temperature = hassioWeatherState.attributes.temperature;
 

@@ -27,12 +27,12 @@ public class TimeTrigger extends Trigger {
     }
 
     @Override
-    protected boolean isInterested(HassioChange hassioChange) {
+    protected boolean isTriggeredBy(HassioChange hassioChange) {
         return true;
     }
 
     @Override
-    protected List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
+    protected List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         List<HassioContext> triggerDates = new ArrayList<>();
 
         return triggerDates;

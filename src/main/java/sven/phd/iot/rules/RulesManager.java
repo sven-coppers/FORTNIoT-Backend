@@ -62,7 +62,7 @@ public class RulesManager {
         this.rules.put("rule.weather_change", weatherChangeTrigger);
 
         Trigger motionTrigger = new StateTrigger("rule.motion_detected","binary_sensor.motion_sensor_motion", "on", "If motion detected");
-        motionTrigger.addAction(new LightOnAction("light.hue_color_spot_1", Color.RED, false));
+        motionTrigger.addAction(new LightOnAction("light.hue_color_spot_1", Color.magenta, false));
         motionTrigger.addAction(new OutletAction("switch.outlet_3", "on"));
         this.rules.put("rule.motion_detected", motionTrigger);
 

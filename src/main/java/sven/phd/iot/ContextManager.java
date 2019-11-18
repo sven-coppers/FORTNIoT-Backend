@@ -11,6 +11,7 @@ import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.HassioUpdate;
 import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.rules.RulesManager;
+import sven.phd.iot.rules.Trigger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -208,5 +209,7 @@ public class ContextManager {
         return this.rulesManager.printRulesToString();
     }
 
-
+    public Trigger getRule(String id) {
+        return this.rulesManager.getRule(id);
+    }
 }

@@ -148,6 +148,10 @@ public class RulesManager {
         return executions;
     }
 
+    public Trigger getRule(String id) {
+        return this.rules.get(id);
+    }
+
     public String printRulesToString() {
         String result = "";
 

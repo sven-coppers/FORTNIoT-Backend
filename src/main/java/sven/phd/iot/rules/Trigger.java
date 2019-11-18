@@ -54,7 +54,7 @@ abstract public class Trigger {
      * @return
      */
     public HassioRuleExecutionEvent verify(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
-        if(this.isTriggeredBy(hassioChange)) {
+        if(this.enabled && this.isTriggeredBy(hassioChange)) {
             // Check if the rule would be triggered by this change (AND WHY)
             List<HassioContext> triggerContexts = this.verifyCondition(hassioStates);
 
@@ -120,9 +120,19 @@ abstract public class Trigger {
         this.executionFuture.add(triggerEvent);
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     @Override
     public String toString() {
-        String result = this.id + "\n";
+        String result = "";
+
+        if(this.enabled) {
+            result += "[ENABLED] " + this.id + "\n";
+        } else {
+            result += "[DISABLED] " + this.id + "\n";
+        }
 
         result += "\t" + this.title + "\n";
 

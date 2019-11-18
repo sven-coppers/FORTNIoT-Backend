@@ -1,12 +1,10 @@
 package sven.phd.iot.api.resources;
 
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.api.request.RuleEnabledRequest;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -73,5 +71,12 @@ public class RuleResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<HassioRuleExecutionEvent> getRuleFuture(@PathParam("id") String id) {
         return ContextManager.getInstance().getFutureRuleExecutions(id);
+    }
+
+    @Path("{id}")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void setRuleEnabled(@PathParam("id") String id, RuleEnabledRequest ruleEnabledRequest)  {
+        ContextManager.getInstance().getRule(id).setEnabled(ruleEnabledRequest.enabled);
     }
 }

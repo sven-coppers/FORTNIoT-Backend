@@ -161,7 +161,7 @@ public class ContextManager {
         this.executeRules(hassioChange);
 
         // Update all predictions
-        this.predictionEngine.predictFuture();
+        this.predictionEngine.updateFuturePredictions();
     }
 
     /**

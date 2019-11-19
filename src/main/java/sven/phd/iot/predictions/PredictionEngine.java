@@ -27,13 +27,17 @@ public class PredictionEngine {
         return future;
     }
 
+    public void updateFuturePredictions() {
+        this.future = predictFuture();
+    }
+
     /**
      * Predict the future states and event of each HassioDevice and each rule
      * @post: Each HassioDevice and Each Rule will have a cached version of the outcome
      * TODO: This engine is still sensitive to loops and race conditions
      */
-    public void predictFuture() {
-        this.future.clearPredictions();
+    private Future predictFuture() {
+        Future future = new Future();
 
         // Initialise the queue with changes we already know
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
@@ -65,11 +69,13 @@ public class PredictionEngine {
                 triggerEvent.addActionContexts(resultingContexts);
 
                 // Add predicted rules to the rule's prediction list
-                this.future.addHassioRuleExecutionEventPrediction(triggerEvent);
+                future.addHassioRuleExecutionEventPrediction(triggerEvent);
 
                 // Add the actions to the prediction QUEUEs
                 queue.addAll(resultingActions);
             }
         }
+
+        return future;
     }
 }

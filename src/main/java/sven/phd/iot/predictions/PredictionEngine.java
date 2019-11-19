@@ -15,10 +15,16 @@ import java.util.PriorityQueue;
 public class PredictionEngine {
     private RulesManager rulesManager;
     private HassioDeviceManager hassioDeviceManager;
+    private Future future;
 
     public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager) {
         this.rulesManager = rulesManager;
         this.hassioDeviceManager = hassioDeviceManager;
+        this.future = new Future();
+    }
+
+    public Future getFuture() {
+        return future;
     }
 
     /**
@@ -27,7 +33,7 @@ public class PredictionEngine {
      * TODO: This engine is still sensitive to loops and race conditions
      */
     public void predictFuture() {
-        this.clearPredictions();
+        this.future.clearPredictions();
 
         // Initialise the queue with changes we already know
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
@@ -38,7 +44,7 @@ public class PredictionEngine {
             HassioState newState = queue.poll();
 
             // Log the predicted state in the device
-            hassioDeviceManager.getDevice(newState.entity_id).addFutureState(newState);
+            future.addFutureState(newState);
 
             HassioState lastState = lastStates.get(newState.entity_id);
             HassioChange newChange = new HassioChange(newState.entity_id, lastState, newState, newState.last_changed);
@@ -59,19 +65,11 @@ public class PredictionEngine {
                 triggerEvent.addActionContexts(resultingContexts);
 
                 // Add predicted rules to the rule's prediction list
-                triggerEvent.getTrigger().addHassioRuleExecutionEventPrediction(triggerEvent);
+                this.future.addHassioRuleExecutionEventPrediction(triggerEvent);
 
                 // Add the actions to the prediction QUEUEs
                 queue.addAll(resultingActions);
             }
         }
-    }
-
-    private void clearPredictions() {
-        // Clear the future of each device
-        this.hassioDeviceManager.clearPredictions();
-
-        // Clear the future of each rule
-        this.rulesManager.clearPredictions();
     }
 }

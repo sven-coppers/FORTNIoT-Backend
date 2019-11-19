@@ -104,34 +104,6 @@ public class RulesManager {
         return executions;
     }
 
-    public List<HassioRuleExecutionEvent> getFutureRuleExecutions() {
-        List<HassioRuleExecutionEvent> executions = new ArrayList<>();
-
-        for(String triggerName : this.rules.keySet()) {
-            executions.addAll(this.rules.get(triggerName).getExecutionFuture());
-        }
-
-        Collections.sort(executions);
-
-        return executions;
-    }
-
-    /**
-     * Get the future states of each device
-     * @return
-     */
-    public List<HassioRuleExecutionEvent> getFutureRuleExecutions(String id) {
-        List<HassioRuleExecutionEvent> executions = new ArrayList<>();
-
-        if(this.rules.containsKey(id)) {
-            executions.addAll(this.rules.get(id).getExecutionFuture());
-        }
-
-        Collections.sort(executions);
-
-        return executions;
-    }
-
     /**
      * Get the history states of each device
      * @return
@@ -160,11 +132,5 @@ public class RulesManager {
         }
 
         return result;
-    }
-
-    public void clearPredictions() {
-        for(String triggerName : this.rules.keySet()) {
-            this.rules.get(triggerName).clearPredictions();
-        }
     }
 }

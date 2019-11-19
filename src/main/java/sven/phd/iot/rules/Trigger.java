@@ -10,7 +10,6 @@ import java.util.*;
 
 abstract public class Trigger {
     private List<HassioRuleExecutionEvent> executionHistory;
-    private List<HassioRuleExecutionEvent> executionFuture;
     private List<Action> actions;
     protected String title;
     public String id;
@@ -19,7 +18,6 @@ abstract public class Trigger {
 
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
-        this.executionFuture = new ArrayList<>();
         this.actions = new ArrayList<>();
         this.title = title;
         this.id = id;
@@ -33,11 +31,6 @@ abstract public class Trigger {
     public List<HassioRuleExecutionEvent> getExecutionHistory() {
         return this.executionHistory;
     }
-
-    /**
-     * Get the execution history of this rule
-     */
-    public List<HassioRuleExecutionEvent> getExecutionFuture() { return this.executionFuture; }
 
     /**
      * Add an action that needs to be executed when the trigger is satisfied
@@ -103,21 +96,6 @@ abstract public class Trigger {
         }
 
         return results;
-    }
-
-    /**
-     * Clear the cache of predictions
-     */
-    public void clearPredictions() {
-        this.executionFuture.clear();
-    }
-
-    /**
-     * Allow the prediction engine to add a predicted triggerEvent of this rule
-     * @param triggerEvent
-     */
-    public void addHassioRuleExecutionEventPrediction(HassioRuleExecutionEvent triggerEvent) {
-        this.executionFuture.add(triggerEvent);
     }
 
     public void setEnabled(boolean enabled) {

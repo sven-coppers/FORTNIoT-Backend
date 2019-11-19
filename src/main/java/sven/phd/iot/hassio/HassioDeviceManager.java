@@ -174,6 +174,7 @@ public class HassioDeviceManager implements EventListener {
 
                 HassioCallService hassioCallService = mapper.readValue(message, HassioCallService.class);
                 // System.out.println(hassioCallService.toString());
+            } else if(message.contains("\"event_type\": \"persistent_notifications_updated\"")) {
             } else if(message.contains("\"event_type\": \"smartthings.button\"")) {
                 // Ignore service calls
                 // System.out.println(message);
@@ -211,6 +212,18 @@ public class HassioDeviceManager implements EventListener {
         return hassioDeviceMap.get(id).getLastState();
     }
 
+    public List<HassioState> castRawStates(List<HassioStateRaw> hassioStateRawList) {
+        List<HassioState> result = new ArrayList<>();
+
+        for(HassioStateRaw hassioStateRaw : hassioStateRawList) {
+            String entityID = hassioStateRaw.entity_id;
+
+            result.add(this.hassioDeviceMap.get(entityID).processRawState(hassioStateRaw));
+        }
+
+        return result;
+    }
+
     public HashMap<String, HassioState> getCurrentStates() {
         HashMap<String, HassioState> result = new HashMap<>();
 
@@ -230,38 +243,6 @@ public class HassioDeviceManager implements EventListener {
 
         for(String entityID : hassioDeviceMap.keySet()) {
             hassioStates.addAll(hassioDeviceMap.get(entityID).getPastStates());
-        }
-
-        Collections.sort(hassioStates);
-
-        return hassioStates;
-    }
-
-    /**
-     * Get the cached version of the future states of each device
-     * @return
-     */
-    public List<HassioState> getStateFuture() {
-        List<HassioState> hassioStates = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getFutureStates());
-        }
-
-        Collections.sort(hassioStates);
-
-        return hassioStates;
-    }
-
-    /**
-     * Get the cached version of the future states of a single device
-     * @return
-     */
-    public List<HassioState> getStateFuture(String id) {
-        List<HassioState> hassioStates = new ArrayList<>();
-
-        if(hassioDeviceMap.containsKey(id)) {
-            hassioStates.addAll(hassioDeviceMap.get(id).getFutureStates());
         }
 
         Collections.sort(hassioStates);
@@ -305,7 +286,7 @@ public class HassioDeviceManager implements EventListener {
      * Get the cached version of all future events of each device
      * @return
      */
-    public List<HassioEvent> getEventFuture() {
+   /* public List<HassioEvent> getEventFuture() {
         List<HassioEvent> hassioStates = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
@@ -315,7 +296,7 @@ public class HassioDeviceManager implements EventListener {
         Collections.sort(hassioStates);
 
         return hassioStates;
-    }
+    } */
 
     /**
      * Predict future states, based on the devices internal knowledge
@@ -331,15 +312,6 @@ public class HassioDeviceManager implements EventListener {
         Collections.sort(hassioStates);
 
         return hassioStates;
-    }
-
-    /**
-     * Clear the cache of predicted changes
-     */
-    public void clearPredictions() {
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioDeviceMap.get(entityID).clearPredictions();
-        }
     }
 
     /**

@@ -20,16 +20,14 @@ import java.util.List;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
-    protected List<HassioState> hassioStateFuture;
     protected List<HassioEvent> hassioEventHistory;
-    protected List<HassioEvent> hassioEventFuture;
+  //  protected List<HassioEvent> hassioEventFuture;
     protected String entityID;
 
     public HassioDevice(String entityID) {
         this.hassioStateHistory = new ArrayList<>();
-        this.hassioStateFuture = new ArrayList<>();
         this.hassioEventHistory = new ArrayList<>();
-        this.hassioEventFuture = new ArrayList<>();
+    //    this.hassioEventFuture = new ArrayList<>();
         this.entityID = entityID;
     }
 
@@ -173,35 +171,5 @@ abstract public class HassioDevice {
         }
 
         return contexts;
-    }
-
-    /**
-     * Clear the cache of predictions
-     */
-    public void clearPredictions() {
-        this.hassioEventFuture.clear();
-        this.hassioStateFuture.clear();
-    }
-
-    /**
-     * Get a cached version of the prediction of the future states
-     */
-    public List<HassioState> getFutureStates() {
-        return this.hassioStateFuture;
-    }
-
-    /**
-     * Get a cached version of the prediction of the future events
-     */
-    public List<HassioEvent> getFutureEvents() {
-        return this.hassioEventFuture;
-    }
-
-    /**
-     * Add a future state to the list of predictions
-     * @param newState
-     */
-    public void addFutureState(HassioState newState) {
-        this.hassioStateFuture.add(newState);
     }
 }

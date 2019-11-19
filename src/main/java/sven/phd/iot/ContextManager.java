@@ -6,6 +6,7 @@ import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.HassioUpdate;
@@ -74,7 +75,7 @@ public class ContextManager {
      * @return
      */
     public List<HassioRuleExecutionEvent> getFutureRuleExecutions() {
-        return this.rulesManager.getFutureRuleExecutions();
+        return this.predictionEngine.getFuture().getExecutionFuture();
     }
 
     /**
@@ -82,7 +83,7 @@ public class ContextManager {
      * @return
      */
     public List<HassioRuleExecutionEvent> getFutureRuleExecutions(String id) {
-        return this.rulesManager.getFutureRuleExecutions(id);
+        return this.predictionEngine.getFuture().getExecutionFuture(id);
     }
 
     /**
@@ -123,7 +124,7 @@ public class ContextManager {
      * @return
      */
     public List<HassioState> getStateFuture() {
-        return this.hassioDeviceManager.getStateFuture();
+        return this.predictionEngine.getFuture().getFutureStates();
     }
 
     /**
@@ -131,24 +132,24 @@ public class ContextManager {
      * @return
      */
     public List<HassioState> getStateFuture(String id) {
-        return this.hassioDeviceManager.getStateFuture(id);
+        return this.predictionEngine.getFuture().getFutureStates(id);
     }
 
     /**
      * Get the history of all device events
      * @return
      */
-    public List<HassioEvent> getEventHistory() {
+   /* public List<HassioEvent> getEventHistory() {
         return this.hassioDeviceManager.getEventHistory();
-    }
+    } */
 
     /**
      * Get the cached version of the future events of each device
      * @return
      */
-    public List<HassioEvent> getEventFuture() {
+ /*   public List<HassioEvent> getEventFuture() {
         return this.hassioDeviceManager.getEventFuture();
-    }
+    } */
 
     /**
      * Check what needs to happen when the state of a device has changed
@@ -193,8 +194,8 @@ public class ContextManager {
         hassioUpdates.addAll(this.hassioDeviceManager.getEventHistory());
 
         // Add predictions (from devices and additional simulations)
-        hassioUpdates.addAll(this.hassioDeviceManager.getStateFuture());
-        hassioUpdates.addAll(this.hassioDeviceManager.getEventFuture());
+        hassioUpdates.addAll(this.getStateFuture());
+        hassioUpdates.addAll(this.getFutureRuleExecutions());
 
         Collections.sort(hassioUpdates);
 
@@ -211,5 +212,15 @@ public class ContextManager {
 
     public Trigger getRule(String id) {
         return this.rulesManager.getRule(id);
+    }
+
+    public List<HassioState> simulateAlternativeFuture(List<HassioState> hassioStates) {
+        return new ArrayList<>();
+    }
+
+    public List<HassioState> simulateAlternativeFutureDiff(List<HassioState> hassioStates) {
+        List<HassioState> alternativeFuture = this.simulateAlternativeFuture(hassioStates);
+
+        return alternativeFuture;
     }
 }

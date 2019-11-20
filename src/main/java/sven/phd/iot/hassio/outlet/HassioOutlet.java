@@ -1,6 +1,10 @@
 package sven.phd.iot.hassio.outlet;
 
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.light.HassioLightServiceOff;
+import sven.phd.iot.hassio.light.HassioLightServiceOn;
+import sven.phd.iot.hassio.light.HassioLightState;
+import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
@@ -20,9 +24,9 @@ public class HassioOutlet extends HassioDevice {
         return new HassioOutletState(hassioStateRaw);
     }
 
-    public List<HassioContext> setState(HassioState hassioState) {
+    /*public List<HassioContext> setState(HassioState hassioState) {
         return new ArrayList<HassioContext>();
-    }
+    }*/
 
     @Override
     public String getFriendlyName() {
@@ -46,5 +50,16 @@ public class HassioOutlet extends HassioDevice {
         List<HassioEvent> result = new ArrayList<>();
 
         return result;
+    }
+
+    @Override
+    public  List<HassioContext> setState(HassioState hassioState) {
+        HassioService service = new HassioService();
+        service.entity_id = this.entityID;
+        if(hassioState.state.equals("on")) {
+            return this.callService("homeassistant/turn_on",service);
+        } else {
+            return this.callService("homeassistant/turn_off", service);
+        }
     }
 }

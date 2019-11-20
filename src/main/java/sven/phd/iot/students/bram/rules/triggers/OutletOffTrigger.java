@@ -12,11 +12,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class OutletTrigger extends Trigger {
+public class OutletOffTrigger extends Trigger {
     private String outletId;
 
-    public OutletTrigger(String ruleIdentifier, String outletId) {
-        super(ruleIdentifier, "When " + outletId + " toggles state");
+    public OutletOffTrigger(String ruleIdentifier, String outletId) {
+        super(ruleIdentifier, "When " + outletId + " toggles off");
 
         this.outletId = outletId;
     }
@@ -35,12 +35,15 @@ public class OutletTrigger extends Trigger {
     }
 
     @Override
-    protected List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
         HassioState hassioState = hassioStates.get(this.outletId);
 
+        if (hassioState.state.equals("off")) {
             List<HassioContext> triggerContexts = new ArrayList<>();
             triggerContexts.add(hassioState.context);
             return triggerContexts;
+        }
 
+        return null;
     }
 }

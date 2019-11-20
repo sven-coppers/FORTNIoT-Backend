@@ -1,22 +1,23 @@
-package sven.phd.iot.students.bram.user;
+package sven.phd.iot.students.bram.questions.why.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserService {
-    private Map<String, User> users;
+    private Map<String, HassioUser> users;
     private static UserService instance;
 
     public static UserService getInstance() {
         if(instance == null) {
             instance = new UserService();
+        }
+        if(instance.users.size() ==  0) {
+            instance.fetchUsers();
         }
         return instance;
     }
@@ -25,7 +26,9 @@ public class UserService {
         this.fetchUsers();
     }
 
+
     private void fetchUsers() {
+
         try {
             String url = "ws://hassio.local:8123/api/websocket";
             WebsocketClientEndpoint clientEndpoint = new WebsocketClientEndpoint(new URI(url));
@@ -35,6 +38,7 @@ public class UserService {
             // add listener
             clientEndpoint.addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
                 public void handleMessage(String message) {
+                    //System.out.println(message);
 
                     JSONObject obj = new JSONObject(message);
                     if(obj.has("result")) {
@@ -44,13 +48,14 @@ public class UserService {
                         for (int i = 0; i < arr.length(); i++) {
 
                             JSONObject userJson = (JSONObject) arr.get(i);
-                            User user = new User();
+                            HassioUser user = new HassioUser();
                             user.id = userJson.get("id").toString();
                             user.name = userJson.get("name").toString();
                             user.is_active = (boolean) userJson.get("is_active");
                             user.is_owner = (boolean) userJson.get("is_owner");
                             user.system_generated = (boolean) userJson.get("system_generated");
 
+                            System.out.println("New user found: " + user.name + "(" + user.id + ")");
                             that.addUser(user.id, user);
                         }
 
@@ -66,7 +71,7 @@ public class UserService {
         }
 
     }
-    private void addUser(String id, User user) {
+    private void addUser(String id, HassioUser user) {
         this.users.put(id, user);
     }
     public String getUsername(String userId) {
@@ -74,7 +79,7 @@ public class UserService {
         System.out.println(users);
         return this.users.get(userId).name;
     }
-    public User getUser(String userId) {
+    public HassioUser getUser(String userId) {
         return this.users.get(userId);
     }
 }

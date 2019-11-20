@@ -1,8 +1,8 @@
-package sven.phd.iot.students.bram.user;
+package sven.phd.iot.students.bram.questions.why.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class User {
+public class HassioUser {
     @JsonProperty("id")
     public String id;
     @JsonProperty("name")

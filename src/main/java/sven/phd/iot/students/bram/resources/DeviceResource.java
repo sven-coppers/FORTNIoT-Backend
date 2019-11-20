@@ -1,10 +1,11 @@
-package sven.phd.iot.students.bram;
+package sven.phd.iot.students.bram.resources;
 
 import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.students.bram.HelperFunctions;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +34,7 @@ public class DeviceResource {
      * @return json array with found devices
      */
     private static String getDeviceByName(String search) {
+        search = search.replace("__", " ");
         Map<String, HassioDevice> devices = ContextManager.getInstance().getHassioDeviceManager().getDevices();
 
         JSONArray arr = new JSONArray();
@@ -47,7 +49,7 @@ public class DeviceResource {
                 double similarity = 0;
                 //If the device has a friendly name compare it
                 if(name != null) {
-                    similarity = HelperFunctions.similarity(name, search);
+                    similarity = HelperFunctions.similarity(name, finalSearch);
                 }
                 //If the similarity is more than 50%
                 if(similarity > 0.2) {

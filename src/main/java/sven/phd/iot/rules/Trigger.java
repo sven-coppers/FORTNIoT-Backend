@@ -82,14 +82,14 @@ abstract public class Trigger {
      * @return true if the rule is interested, false otherwise
      * SHOULD ONLY BE CALLED BY THE RULE ITSELF
      */
-    protected abstract boolean isInterested(HassioChange hassioChange);
+    public abstract boolean isInterested(HassioChange hassioChange);
 
     /**
      * Check if the hassioChange causes this trigger to be triggered
      * @param hassioStates a map with states for each device
      * @return a list of HassioContexts that trigger the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is triggered by itself
      */
-    protected abstract List<HassioContext> verify(HashMap<String, HassioState> hassioStates);
+    public abstract List<HassioContext> verify(HashMap<String, HassioState> hassioStates);
 
     /**
      * Run all actions and collect all states that would result from it
@@ -131,5 +131,18 @@ abstract public class Trigger {
         }
 
         return result;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public Action getActionOnDevice(String deviceId) {
+        for(Action action: actions) {
+            if(action.toString().contains(deviceId)) {
+                return action;
+            }
+        }
+        return null;
     }
 }

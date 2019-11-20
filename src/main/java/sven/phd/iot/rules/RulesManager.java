@@ -6,6 +6,7 @@ import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.actions.LightOffAction;
 import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.rules.triggers.*;
+import sven.phd.iot.students.bram.rules.BramRulesManager;
 
 import java.awt.*;
 import java.util.*;
@@ -59,6 +60,9 @@ public class RulesManager {
         Trigger weatherChangeTrigger = new WeatherChangeTrigger("rule.weather_change");
         weatherChangeTrigger.addAction(new LightOnAction("light.hue_color_lamp_3", Color.GREEN, false));
         this.rules.put("rule.weather_change", weatherChangeTrigger);
+
+        //Load Bram's rules
+        this.rules.putAll(BramRulesManager.getRules());
     }
 
     /**
@@ -151,5 +155,9 @@ public class RulesManager {
         for(String triggerName : this.rules.keySet()) {
             this.rules.get(triggerName).clearPredictions();
         }
+    }
+
+    public Trigger getRuleById(String id) {
+        return rules.get(id);
     }
 }

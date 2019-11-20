@@ -3,7 +3,7 @@ package sven.phd.iot;
 import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 import org.glassfish.jersey.media.sse.EventSource;
 import org.glassfish.jersey.media.sse.SseFeature;
-import sven.phd.iot.hassio.HassioDeviceManager;
+import sven.phd.iot.students.bram.questions.why.user.UserService;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -11,7 +11,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.HttpHeaders;
 
 public class Main implements ServletContextListener {
     private Client client;
@@ -22,6 +21,9 @@ public class Main implements ServletContextListener {
         System.out.println("Joepie: de server werd gestart");
 
         ContextManager contextManager = ContextManager.getInstance(); // Start the mainController
+
+        //Fetch users from the server
+        UserService.getInstance();
 
         client = ClientBuilder.newBuilder().register(SseFeature.class).build();
         if(BearerToken.useBearer()) {
@@ -35,6 +37,7 @@ public class Main implements ServletContextListener {
 
         eventSource = EventSource.target(target).build();
         eventSource.register(contextManager.getHassioDeviceManager()); // Everything needs to go to a single listener, since Hassio does not support event types
+
         eventSource.open();
     }
 

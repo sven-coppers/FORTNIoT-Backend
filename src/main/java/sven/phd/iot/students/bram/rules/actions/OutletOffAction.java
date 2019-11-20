@@ -20,7 +20,7 @@ public class OutletOffAction extends Action {
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
         List<HassioState> newStates = new ArrayList<>();
 
-        HassioOutletState hassioOutletState = new HassioOutletState();
+        HassioOutletState hassioOutletState = new HassioOutletState(deviceIdentifier, "off", hassioRuleExecutionEvent.datetime);
 
         newStates.add(hassioOutletState);
 

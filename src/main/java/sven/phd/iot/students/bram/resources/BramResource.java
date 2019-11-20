@@ -1,4 +1,4 @@
-package sven.phd.iot.students.bram;
+package sven.phd.iot.students.bram.resources;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -27,19 +27,6 @@ public class BramResource {
     }
 
 
-    @GET
-    @Path("/why/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public WhyResult why(@PathParam("id") String id) {
-        boolean becauseOfRule = WhyQuestion.stateBecauseOfRule(id);
-        WhyResult result = new WhyResult();
-        if(becauseOfRule) {
-            result.actor = "rule";
-        } else {
-            result.actor = "user";
-        }
 
-        return result;
-    }
 
 }

@@ -21,7 +21,7 @@ public class AlwaysTrigger extends Trigger {
     }
 
     @Override
-    protected List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
 
         return new ArrayList<>();
     }

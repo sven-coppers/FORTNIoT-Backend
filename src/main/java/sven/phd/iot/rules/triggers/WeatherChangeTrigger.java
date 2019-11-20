@@ -30,7 +30,7 @@ public class WeatherChangeTrigger extends Trigger {
     }
 
     @Override
-    protected List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
         HassioWeatherState hassioWeatherState = (HassioWeatherState) hassioStates.get("weather.dark_sky");
         List<HassioContext> triggerContexts = new ArrayList<>();
         triggerContexts.add(hassioWeatherState.context);

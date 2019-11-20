@@ -1,6 +1,7 @@
 package sven.phd.iot.hassio;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.api.resources.UpdateResource;
@@ -161,8 +162,8 @@ abstract public class HassioDevice {
             String hassioString = new ObjectMapper().writeValueAsString(hassioService);
             Response response = invocationBuilder.post(Entity.entity(hassioString, MediaType.APPLICATION_JSON));
 
-       //     System.out.println(hassioString);
-       //     System.out.println(response.getStatus());
+            System.out.println(hassioString);
+            System.out.println(response.getStatus());
        //     System.out.println("SET STATE RESPONSE: " + response.readEntity(String.class)); // Werkt niet tegelijk met de volgende regel
 
             List<HassioStateRaw> hassioStates = response.readEntity(new GenericType<List<HassioStateRaw>>() {});
@@ -206,4 +207,52 @@ abstract public class HassioDevice {
     public void addFutureState(HassioState newState) {
         this.hassioStateFuture.add(newState);
     }
+
+    /*public List<HassioContext> setRawState(HassioState state, String friendlyName) {
+        String url = "http://hassio.local:8123/api/states/" + entityID;
+        List<HassioContext> contexts = new ArrayList<>();
+        Client client = ClientBuilder.newClient();
+
+        WebTarget webTarget = client.target(url);
+        Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+        //Add authentication
+        if(BearerToken.useBearer()) {
+            String bearer = BearerToken.getBearer();
+            System.out.println("Bearer: " + bearer);
+            invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + bearer);
+        } else {
+            invocationBuilder.header("x-ha-access", "test1234");
+        }
+        invocationBuilder.header("Content-Type", "application/json");
+
+        try {
+            String hassioString = new ObjectMapper().writeValueAsString(state);
+            //Add entity id to json
+            JSONObject state_json = new JSONObject(hassioString);
+            JSONObject attr_json = new JSONObject();
+            attr_json.put("friendly_name", friendlyName);
+            state_json.remove("attributes");
+            state_json.put("attributes", attr_json);
+            hassioString = state_json.toString();
+
+            Response response = invocationBuilder.post(Entity.entity(hassioString, MediaType.APPLICATION_JSON));
+            System.out.println(hassioString);
+
+            //     System.out.println(hassioString);
+            //     System.out.println(response.getStatus());
+            //     System.out.println("SET STATE RESPONSE: " + response.readEntity(String.class)); // Werkt niet tegelijk met de volgende regel
+
+            HassioStateRaw rawState = response.readEntity(new GenericType<HassioStateRaw>() {});
+            List<HassioStateRaw> hassioStates = new ArrayList<>();
+            hassioStates.add(rawState);
+
+            for(HassioState hassioState : hassioStates) {
+                contexts.add(hassioState.context);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return contexts;
+    }*/
 }

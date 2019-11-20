@@ -62,8 +62,6 @@ public class BearerToken {
                 //Iterate over employee array
                 String tokenId = (String) json.get("token_id");
 
-                System.out.println("Used bearer: " + json.get(tokenId));
-
                 return (String) json.get(tokenId);
 
             } catch (FileNotFoundException e) {

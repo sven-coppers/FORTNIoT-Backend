@@ -28,6 +28,7 @@
     </ul>
     <ul>
       <li><span class="method">GET</span> <a href="api/rules">rules/</a> Get an overview of all rules registered in the system</li>
+      <li><span class="method">GET</span> <a href="api/rules/text">rules/text/</a> Get an overview of all rules registered in the system in plain text</li>
       <li><span class="method">GET</span> <a href="api/rules/history">rules/history</a> Get the historical executions of all rules</li>
       <li><span class="method">GET</span> <a href="api/rules/history/'rule.sun_rise">rules/history/{id}</a> Get the historical executions of the rule with {id}, e.g. 'rule.sun_rise'</li>
       <li><span class="method">GET</span> <a href="api/rules/future">rules/future</a> Get the future executions of a rule</li>

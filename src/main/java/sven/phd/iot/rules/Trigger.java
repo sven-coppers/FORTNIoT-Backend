@@ -1,6 +1,8 @@
 package sven.phd.iot.rules;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
@@ -9,12 +11,12 @@ import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import java.util.*;
 
 abstract public class Trigger {
-    private List<HassioRuleExecutionEvent> executionHistory;
-    private List<Action> actions;
-    protected String title;
-    public String id;
+    @JsonIgnore private List<HassioRuleExecutionEvent> executionHistory;
+    @JsonProperty("actions") public List<Action> actions;
+    @JsonProperty("description") public String title;
+    @JsonProperty("id") public String id;
     private long offset;
-    protected boolean enabled; // Is the rule enabled. When the rule is disabled, it cannot be triggered
+    @JsonProperty("enabled") public boolean enabled; // Is the rule enabled. When the rule is disabled, it cannot be triggered
 
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();

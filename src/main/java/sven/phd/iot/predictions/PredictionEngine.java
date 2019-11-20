@@ -90,7 +90,7 @@ public class PredictionEngine {
 
                 triggerEvent.addActionContexts(resultingContexts);
 
-                // Add predicted rules to the rule's prediction list
+                // Add predicted executions to the rule's prediction list
                 future.addHassioRuleExecutionEventPrediction(triggerEvent);
 
                 // Add the actions to the prediction QUEUEs

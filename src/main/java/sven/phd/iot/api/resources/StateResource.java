@@ -164,6 +164,18 @@ public class StateResource {
     }
 
     /**
+     * Broadcast a message to this channel
+     */
+    public void broadcastRefresh() {
+        final OutboundEvent event = new OutboundEvent.Builder()
+                .mediaType(MediaType.APPLICATION_JSON_TYPE)
+                .data(String.class, "refresh needed")
+                .build();
+
+        stateBroadcaster.broadcast(event);
+    }
+
+    /**
      * FOR DEBUG PURPOSES
      * Put a new message to be broadcast to all registered SSE clients
      * @param state message to be broadcast.

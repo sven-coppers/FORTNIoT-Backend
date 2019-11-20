@@ -3,10 +3,13 @@ package sven.phd.iot.api.resources;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.api.request.RuleEnabledRequest;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.rules.Trigger;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Path("rules/")
 public class RuleResource {
@@ -28,11 +31,19 @@ public class RuleResource {
         return ruleResource;
     }
 
+    @Path("text/")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String getRules() {
+    public String printRules() {
+        return ContextManager.getInstance().printRules();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Trigger> getRuleStates() {
         return ContextManager.getInstance().getRules();
     }
+
 
     @Path("history/")
     @GET
@@ -77,6 +88,6 @@ public class RuleResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public void setRuleEnabled(@PathParam("id") String id, RuleEnabledRequest ruleEnabledRequest)  {
-        ContextManager.getInstance().getRule(id).setEnabled(ruleEnabledRequest.enabled);
+        ContextManager.getInstance().updateRule(id, ruleEnabledRequest.enabled);
     }
 }

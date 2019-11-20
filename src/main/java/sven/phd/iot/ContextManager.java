@@ -2,6 +2,7 @@ package sven.phd.iot;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
@@ -20,10 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class ContextManager {
     private static ContextManager contextManager;
@@ -162,7 +160,12 @@ public class ContextManager {
         this.executeRules(hassioChange);
 
         // Update all predictions
+        this.updateFuturePredictions();
+    }
+
+    public void updateFuturePredictions() {
         this.predictionEngine.updateFuturePredictions();
+        StateResource.getInstance().broadcastRefresh();
     }
 
     /**
@@ -207,12 +210,22 @@ public class ContextManager {
      * Print the behavior of the system (set of rules) to a string
      * @return
      */
-    public String getRules() {
+    public String printRules() {
         return this.rulesManager.printRulesToString();
+    }
+
+    public Map<String, Trigger> getRules() {
+        return this.rulesManager.getRules();
     }
 
     public Trigger getRule(String id) {
         return this.rulesManager.getRule(id);
+    }
+
+    public void updateRule(String id, boolean enabled) {
+        this.getRule(id).setEnabled(enabled);
+        ContextManager.getInstance().updateFuturePredictions();
+
     }
 
     public Future simulateAlternativeFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {

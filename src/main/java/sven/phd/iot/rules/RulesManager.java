@@ -21,11 +21,11 @@ public class RulesManager {
 
         Trigger busyTrigger = new StateTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be", "on", "WHEN Sven is busy");
         busyTrigger.addAction(new LightOnAction("light.hue_color_spot_3", Color.YELLOW, false));
-        this.rules.put("rule.busy", busyTrigger);
+        this.rules.put("rule.sven_busy", busyTrigger);
 
         Trigger availableTrigger = new StateTrigger("rule.sven_available", "calendar.sven_coppers_uhasselt_be", "off", "WHEN Sven is available");
         availableTrigger.addAction(new LightOffAction("light.hue_color_spot_3"));
-        this.rules.put("rule.available", availableTrigger);
+        this.rules.put("rule.sven_available", availableTrigger);
 
         Trigger sunSetTrigger = new StateTrigger("rule.sun_set", "sun.sun", "below_horizon", "IF sun set");
         sunSetTrigger.addAction(new LightOnAction("light.hue_color_lamp_1", Color.YELLOW, false));
@@ -132,5 +132,9 @@ public class RulesManager {
         }
 
         return result;
+    }
+
+    public Map<String, Trigger> getRules() {
+        return this.rules;
     }
 }

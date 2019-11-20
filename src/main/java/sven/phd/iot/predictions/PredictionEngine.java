@@ -1,5 +1,6 @@
 package sven.phd.iot.predictions;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
@@ -27,8 +28,20 @@ public class PredictionEngine {
         return future;
     }
 
+    /**
+     * Predict the future with the latest information we have
+     */
     public void updateFuturePredictions() {
-        this.future = predictFuture();
+        this.future = predictFuture(new HashMap<>(), new ArrayList<>());
+    }
+
+    /**
+     * Predict an alternative future with simulated input
+     * @param simulatedRulesEnabled a hashmap that holds a boolean (enabled) for every rule
+     * @param simulatedStates a list of additional states
+     */
+    public Future whatIf(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
+        return predictFuture(simulatedRulesEnabled, simulatedStates);
     }
 
     /**
@@ -36,13 +49,15 @@ public class PredictionEngine {
      * @post: Each HassioDevice and Each Rule will have a cached version of the outcome
      * TODO: This engine is still sensitive to loops and race conditions
      */
-    private Future predictFuture() {
+    private Future predictFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
         Future future = new Future();
 
         // Initialise the queue with changes we already know
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
+
         HashMap<String, HassioState> lastStates = hassioDeviceManager.getCurrentStates();
         queue.addAll(hassioDeviceManager.predictFutureStates());
+        queue.addAll(simulatedStates);
 
         while(!queue.isEmpty()) {
             HassioState newState = queue.poll();
@@ -58,6 +73,13 @@ public class PredictionEngine {
             List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(lastStates, newChange);
 
             for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
+                // DISCARD TRIGGER EVENTS FOR RULES THAT ARE DISABLED FOR THE SIMULATION
+                String ruleID = triggerEvent.getTrigger().id;
+
+                if(simulatedRulesEnabled.containsKey(ruleID) && simulatedRulesEnabled.get(ruleID) == false) {
+                    continue; // DISCARD THE EVENT
+                }
+
                 List<HassioState> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent);
                 List<HassioContext> resultingContexts = new ArrayList<>();
 

@@ -10,6 +10,7 @@ import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.HassioUpdate;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
@@ -75,7 +76,7 @@ public class ContextManager {
      * @return
      */
     public List<HassioRuleExecutionEvent> getFutureRuleExecutions() {
-        return this.predictionEngine.getFuture().getExecutionFuture();
+        return this.predictionEngine.getFuture().futureExecutions;
     }
 
     /**
@@ -214,13 +215,7 @@ public class ContextManager {
         return this.rulesManager.getRule(id);
     }
 
-    public List<HassioState> simulateAlternativeFuture(List<HassioState> hassioStates) {
-        return new ArrayList<>();
-    }
-
-    public List<HassioState> simulateAlternativeFutureDiff(List<HassioState> hassioStates) {
-        List<HassioState> alternativeFuture = this.simulateAlternativeFuture(hassioStates);
-
-        return alternativeFuture;
+    public Future simulateAlternativeFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
+        return this.predictionEngine.whatIf(simulatedRulesEnabled, simulatedStates);
     }
 }

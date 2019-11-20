@@ -1,5 +1,6 @@
 package sven.phd.iot.predictions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 
@@ -8,21 +9,14 @@ import java.util.Date;
 import java.util.List;
 
 public class Future {
-    private List<HassioState> futureStates;
-    private List<HassioRuleExecutionEvent> futureExecutions;
-    private Date lastGenerated;
+    @JsonProperty("states") public List<HassioState> futureStates;
+    @JsonProperty("executions") public List<HassioRuleExecutionEvent> futureExecutions;
+    @JsonProperty("last_generated") public Date lastGenerated;
 
     public Future() {
         this.futureStates = new ArrayList<>();
         this.futureExecutions = new ArrayList<>();
         this.lastGenerated = new Date();
-    }
-
-    /**
-     * Get the execution history of this rule
-     */
-    public List<HassioRuleExecutionEvent> getExecutionFuture() {
-        return this.futureExecutions;
     }
 
     /**
@@ -76,14 +70,5 @@ public class Future {
      */
     public void addFutureState(HassioState newState) {
         this.futureStates.add(newState);
-    }
-
-    /**
-     * Clear the cache of predictions
-     */
-    public void clearPredictions() {
-        this.futureExecutions.clear();
-        this.futureStates.clear();
-        this.lastGenerated = new Date();
     }
 }

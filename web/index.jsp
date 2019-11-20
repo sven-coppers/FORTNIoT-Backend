@@ -25,7 +25,6 @@
       <li><span class="method">GET</span> <a href="api/states/future">states/future</a> Get the future state of all devices</li>
       <li><span class="method">GET</span> <a href="api/states/future/sun.sun">states/future/{id}</a> Get the future states of the device with {id}, e.g. 'sun.sun'</li>
       <li><span class="method">POST</span> <a href="api/states/future/simulate">states/future/simulate</a> Simulate an alternative future based on the input, returns only the alternative future</li>
-      <li><span class="method">POST</span> <a href="api/states/future/diff/">states/future/diff</a> Simulate an alternative future based on the input, returns a diff between the current future and the alternative future</li>
     </ul>
     <ul>
       <li><span class="method">GET</span> <a href="api/rules">rules/</a> Get an overview of all rules registered in the system</li>

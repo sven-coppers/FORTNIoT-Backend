@@ -7,8 +7,10 @@ import org.glassfish.jersey.media.sse.SseFeature;
 import org.glassfish.jersey.server.ChunkedOutput;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.api.request.RuleEnabledRequest;
+import sven.phd.iot.api.request.SimulationRequest;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
+import sven.phd.iot.predictions.Future;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -108,19 +110,10 @@ public class StateResource {
     @Path("future/simulate/")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public List<HassioState> getAlternativeFuture(List<HassioStateRaw> hassioStateRawList)  {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Future getAlternativeFuture(SimulationRequest simulationRequest)  {
         ContextManager contextManager = ContextManager.getInstance();
-        List<HassioState> input = new ArrayList<>();
-
-
-        return contextManager.simulateAlternativeFuture(input);
-    }
-
-    @Path("future/diff/")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public List<HassioState> getAlternativeFutureDiff(List<HassioStateRaw> hassioStateRawList)  {
-        return null; // TODO: Return the future events queue
+        return contextManager.simulateAlternativeFuture(simulationRequest.enabledRules, simulationRequest.hassioStates);
     }
 
     /**

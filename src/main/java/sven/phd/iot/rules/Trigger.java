@@ -48,8 +48,8 @@ abstract public class Trigger {
      * @param hassioChange the change that caused this rule to be validated
      * @return
      */
-    public HassioRuleExecutionEvent verify(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
-        if(this.enabled && this.isTriggeredBy(hassioChange)) { // TODO: Allow enabled to be simulated
+    public HassioRuleExecutionEvent verify(HashMap<String, HassioState> hassioStates, HassioChange hassioChange, boolean enabled) {
+        if(enabled && this.isTriggeredBy(hassioChange)) {
             // Check if the rule would be triggered by this change (AND WHY)
             List<HassioContext> triggerContexts = this.verifyCondition(hassioStates);
 

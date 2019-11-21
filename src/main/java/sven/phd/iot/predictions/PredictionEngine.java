@@ -70,16 +70,9 @@ public class PredictionEngine {
             lastStates.put(newState.entity_id, newState);
 
             // Pass the stateChange to the set of rules
-            List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(lastStates, newChange);
+            List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(lastStates, newChange, simulatedRulesEnabled);
 
             for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
-                // DISCARD TRIGGER EVENTS FOR RULES THAT ARE DISABLED FOR THE SIMULATION
-                String ruleID = triggerEvent.getTrigger().id;
-
-                if(simulatedRulesEnabled.containsKey(ruleID) && simulatedRulesEnabled.get(ruleID) == false) {
-                    continue; // DISCARD THE EVENT
-                }
-
                 List<HassioState> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent);
                 List<HassioContext> resultingContexts = new ArrayList<>();
 

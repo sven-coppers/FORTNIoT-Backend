@@ -79,10 +79,27 @@ public class RulesManager {
      * @return
      */
     public List<HassioRuleExecutionEvent> verifyTriggers(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
+        return this.verifyTriggers(hassioStates, hassioChange, new HashMap<>());
+    }
+
+    /**
+     * Check when the rules will trigger
+     * @param hassioStates the expected states at that time
+     * @param hassioChange the change that caused the rules to be validated
+     * @param simulatedRulesEnabled simulate whether some rules are enbaled/disabled
+     * @return
+     */
+    public List<HassioRuleExecutionEvent> verifyTriggers(HashMap<String, HassioState> hassioStates, HassioChange hassioChange, HashMap<String, Boolean> simulatedRulesEnabled) {
         List<HassioRuleExecutionEvent> triggerEvents = new ArrayList<>();
 
         for(String triggerName : this.rules.keySet()) {
-            HassioRuleExecutionEvent newEvent = this.rules.get(triggerName).verify(hassioStates, hassioChange);
+            boolean enabled = this.rules.get(triggerName).enabled;
+
+            if(simulatedRulesEnabled.containsKey(triggerName)) {
+                enabled = simulatedRulesEnabled.get(triggerName);
+            }
+
+            HassioRuleExecutionEvent newEvent = this.rules.get(triggerName).verify(hassioStates, hassioChange, enabled);
 
             if(newEvent != null) {
                 triggerEvents.add(newEvent);

@@ -5,6 +5,7 @@
  
 # Intellij
 .idea/
+classes/
 *.iml
 *.iws
 *.class

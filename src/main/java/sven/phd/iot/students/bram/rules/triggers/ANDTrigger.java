@@ -40,10 +40,10 @@ public class ANDTrigger extends Trigger {
     }
 
     @Override
-    public boolean isInterested(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HassioChange hassioChange) {
         for(Trigger trigger: this.triggers) {
             System.out.println("Check if trigger is interested: " + trigger.getTitle());
-            if(trigger.isInterested(hassioChange)) {
+            if(trigger.isTriggeredBy(hassioChange)) {
                 System.out.println("And rule is interested:" + trigger.toString());
                 return true;
             }
@@ -52,11 +52,11 @@ public class ANDTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         // Verify all individual rules
         List<HassioContext> contexts = new ArrayList<>();
         for(Trigger trigger: this.triggers) {
-            List<HassioContext> context = trigger.verify(hassioStates);
+            List<HassioContext> context = trigger.verifyCondition(hassioStates);
             if(context == null) {
                 return null;
             }

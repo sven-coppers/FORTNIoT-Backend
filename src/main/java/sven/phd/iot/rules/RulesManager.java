@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.actions.LightOffAction;
 import sven.phd.iot.rules.actions.LightOnAction;
+import sven.phd.iot.rules.actions.OutletAction;
 import sven.phd.iot.rules.triggers.*;
 import sven.phd.iot.students.bram.rules.BramRulesManager;
 
@@ -19,21 +20,21 @@ public class RulesManager {
         System.out.println("Initiating rules...");
         this.rules = new HashMap<>();
 
-        Trigger busyTrigger = new CalendarBusyTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be");
-        busyTrigger.addAction(new LightOnAction("light.hue_color_spot_1", Color.YELLOW, false));
-        this.rules.put("rule.busy", busyTrigger);
+        Trigger busyTrigger = new StateTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be", "on", "WHEN Sven is busy");
+        busyTrigger.addAction(new LightOnAction("light.hue_color_spot_3", Color.YELLOW, false));
+        this.rules.put("rule.sven_busy", busyTrigger);
 
-        Trigger availableTrigger = new CalendarAvailableTrigger("rule.sven_available", "calendar.sven_coppers_uhasselt_be");
-        availableTrigger.addAction(new LightOffAction("light.hue_color_spot_1"));
-        this.rules.put("rule.available", availableTrigger);
+        Trigger availableTrigger = new StateTrigger("rule.sven_available", "calendar.sven_coppers_uhasselt_be", "off", "WHEN Sven is available");
+        availableTrigger.addAction(new LightOffAction("light.hue_color_spot_3"));
+        this.rules.put("rule.sven_available", availableTrigger);
 
-        Trigger sunSetTrigger = new SunSetTrigger("rule.sun_set");
+        Trigger sunSetTrigger = new StateTrigger("rule.sun_set", "sun.sun", "below_horizon", "IF sun set");
         sunSetTrigger.addAction(new LightOnAction("light.hue_color_lamp_1", Color.YELLOW, false));
         sunSetTrigger.addAction(new LightOnAction("light.hue_color_lamp_2", Color.YELLOW, false));
         sunSetTrigger.addAction(new LightOnAction("light.hue_color_lamp_3", Color.YELLOW, false));
         this.rules.put("rule.sun_set", sunSetTrigger);
 
-        Trigger sunRiseTrigger = new SunRiseTrigger("rule.sun_rise");
+        Trigger sunRiseTrigger = new StateTrigger("rule.sun_rise", "sun.sun", "above_horizon", "IF sun rise");
         sunRiseTrigger.addAction(new LightOffAction("light.hue_color_lamp_1"));
         sunRiseTrigger.addAction(new LightOffAction("light.hue_color_lamp_2"));
         sunRiseTrigger.addAction(new LightOffAction("light.hue_color_lamp_3"));
@@ -61,6 +62,17 @@ public class RulesManager {
         weatherChangeTrigger.addAction(new LightOnAction("light.hue_color_lamp_3", Color.GREEN, false));
         this.rules.put("rule.weather_change", weatherChangeTrigger);
 
+        Trigger motionTrigger = new StateTrigger("rule.motion_detected","binary_sensor.motion_sensor_motion", "on", "If motion detected");
+        motionTrigger.addAction(new LightOnAction("light.hue_color_spot_1", Color.magenta, false));
+        motionTrigger.addAction(new OutletAction("switch.outlet_3", "on"));
+        this.rules.put("rule.motion_detected", motionTrigger);
+
+        Trigger noMotionTrigger = new StateTrigger("rule.motion_clear","binary_sensor.motion_sensor_motion", "off", "If no motion");
+        noMotionTrigger.addAction(new LightOffAction("light.hue_color_spot_1"));
+        noMotionTrigger.addAction(new OutletAction("switch.outlet_3", "off"));
+        this.rules.put("rule.motion_clear", noMotionTrigger);
+
+
         //Load Bram's rules
         this.rules.putAll(BramRulesManager.getRules());
     }
@@ -72,10 +84,27 @@ public class RulesManager {
      * @return
      */
     public List<HassioRuleExecutionEvent> verifyTriggers(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
+        return this.verifyTriggers(hassioStates, hassioChange, new HashMap<>());
+    }
+
+    /**
+     * Check when the rules will trigger
+     * @param hassioStates the expected states at that time
+     * @param hassioChange the change that caused the rules to be validated
+     * @param simulatedRulesEnabled simulate whether some rules are enbaled/disabled
+     * @return
+     */
+    public List<HassioRuleExecutionEvent> verifyTriggers(HashMap<String, HassioState> hassioStates, HassioChange hassioChange, HashMap<String, Boolean> simulatedRulesEnabled) {
         List<HassioRuleExecutionEvent> triggerEvents = new ArrayList<>();
 
         for(String triggerName : this.rules.keySet()) {
-            HassioRuleExecutionEvent newEvent = this.rules.get(triggerName).verify(hassioStates, hassioChange);
+            boolean enabled = this.rules.get(triggerName).enabled;
+
+            if(simulatedRulesEnabled.containsKey(triggerName)) {
+                enabled = simulatedRulesEnabled.get(triggerName);
+            }
+
+            HassioRuleExecutionEvent newEvent = this.rules.get(triggerName).verify(hassioStates, hassioChange, enabled);
 
             if(newEvent != null) {
                 triggerEvents.add(newEvent);
@@ -90,34 +119,6 @@ public class RulesManager {
 
         for(String triggerName : this.rules.keySet()) {
             executions.addAll(this.rules.get(triggerName).getExecutionHistory());
-        }
-
-        Collections.sort(executions);
-
-        return executions;
-    }
-
-    public List<HassioRuleExecutionEvent> getFutureRuleExecutions() {
-        List<HassioRuleExecutionEvent> executions = new ArrayList<>();
-
-        for(String triggerName : this.rules.keySet()) {
-            executions.addAll(this.rules.get(triggerName).getExecutionFuture());
-        }
-
-        Collections.sort(executions);
-
-        return executions;
-    }
-
-    /**
-     * Get the future states of each device
-     * @return
-     */
-    public List<HassioRuleExecutionEvent> getFutureRuleExecutions(String id) {
-        List<HassioRuleExecutionEvent> executions = new ArrayList<>();
-
-        if(this.rules.containsKey(id)) {
-            executions.addAll(this.rules.get(id).getExecutionFuture());
         }
 
         Collections.sort(executions);
@@ -141,6 +142,10 @@ public class RulesManager {
         return executions;
     }
 
+    public Trigger getRule(String id) {
+        return this.rules.get(id);
+    }
+
     public String printRulesToString() {
         String result = "";
 
@@ -151,10 +156,8 @@ public class RulesManager {
         return result;
     }
 
-    public void clearPredictions() {
-        for(String triggerName : this.rules.keySet()) {
-            this.rules.get(triggerName).clearPredictions();
-        }
+    public Map<String, Trigger> getRules() {
+        return this.rules;
     }
 
     public Trigger getRuleById(String id) {

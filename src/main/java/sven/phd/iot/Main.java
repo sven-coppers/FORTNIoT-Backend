@@ -21,13 +21,14 @@ public class Main implements ServletContextListener {
         System.out.println("Joepie: de server werd gestart");
 
         ContextManager contextManager = ContextManager.getInstance(); // Start the mainController
+        BearerToken bearerToken = BearerToken.getInstance();
 
         //Fetch users from the server
         UserService.getInstance();
 
         client = ClientBuilder.newBuilder().register(SseFeature.class).build();
-        if(BearerToken.useBearer()) {
-            Feature feature = OAuth2ClientSupport.feature(BearerToken.getBearer());
+        if(bearerToken.isUsingBearer()) {
+            Feature feature = OAuth2ClientSupport.feature(bearerToken.getBearerToken());
             client.register(feature);
             target = client.target("http://hassio.local:8123/api/stream");
 

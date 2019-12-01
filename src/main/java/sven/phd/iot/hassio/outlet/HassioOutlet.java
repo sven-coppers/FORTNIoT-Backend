@@ -24,9 +24,13 @@ public class HassioOutlet extends HassioDevice {
         return new HassioOutletState(hassioStateRaw);
     }
 
-    /*public List<HassioContext> setState(HassioState hassioState) {
-        return new ArrayList<HassioContext>();
-    }*/
+    public List<HassioContext> setState(HassioState hassioState) {
+        if(hassioState.state.equals("on")) {
+            return this.callService("switch/turn_on", new HassioService(this.entityID));
+        } else {
+            return this.callService("switch/turn_off", new HassioService(this.entityID));
+        }
+    }
 
     @Override
     public String getFriendlyName() {
@@ -36,13 +40,7 @@ public class HassioOutlet extends HassioDevice {
 
     @Override
     public List<HassioState> predictFutureStates() {
-        List<HassioState> result = new ArrayList<>();
-
-        // TODO
-
-        Collections.sort(result);
-
-        return result;
+        return new ArrayList<>();
     }
 
     @Override
@@ -50,16 +48,5 @@ public class HassioOutlet extends HassioDevice {
         List<HassioEvent> result = new ArrayList<>();
 
         return result;
-    }
-
-    @Override
-    public  List<HassioContext> setState(HassioState hassioState) {
-        HassioService service = new HassioService();
-        service.entity_id = this.entityID;
-        if(hassioState.state.equals("on")) {
-            return this.callService("homeassistant/turn_on",service);
-        } else {
-            return this.callService("homeassistant/turn_off", service);
-        }
     }
 }

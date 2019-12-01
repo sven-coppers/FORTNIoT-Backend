@@ -6,8 +6,11 @@ import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
 import org.glassfish.jersey.server.ChunkedOutput;
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.api.request.RuleEnabledRequest;
+import sven.phd.iot.api.request.SimulationRequest;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
+import sven.phd.iot.predictions.Future;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -104,15 +107,13 @@ public class StateResource {
         return ContextManager.getInstance().getStateFuture(id);
     }
 
-    /**
-     * Get the predicted changes.
-     * @return Get the predicted changes.
-     */
-    @Path("future/")
+    @Path("future/simulate/")
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioState> previewChanges() {
-        return null; // TODO: Return the future events queue
+    public Future getAlternativeFuture(SimulationRequest simulationRequest)  {
+        ContextManager contextManager = ContextManager.getInstance();
+        return contextManager.simulateAlternativeFuture(simulationRequest.enabledRules, simulationRequest.hassioStates);
     }
 
     /**
@@ -157,6 +158,18 @@ public class StateResource {
         final OutboundEvent event = new OutboundEvent.Builder()
                 .mediaType(MediaType.APPLICATION_JSON_TYPE)
                 .data(HassioState.class, hassioState)
+                .build();
+
+        stateBroadcaster.broadcast(event);
+    }
+
+    /**
+     * Broadcast a message to this channel
+     */
+    public void broadcastRefresh() {
+        final OutboundEvent event = new OutboundEvent.Builder()
+                .mediaType(MediaType.APPLICATION_JSON_TYPE)
+                .data(String.class, "refresh needed")
                 .build();
 
         stateBroadcaster.broadcast(event);

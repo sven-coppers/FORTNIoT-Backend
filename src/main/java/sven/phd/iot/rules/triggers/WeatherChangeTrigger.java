@@ -16,7 +16,7 @@ public class WeatherChangeTrigger extends Trigger {
 }
 
     @Override
-    public boolean isInterested(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HassioChange hassioChange) {
         if(hassioChange.entity_id.equals("weather.dark_sky")) {
             String oldState = hassioChange.hassioChangeData.oldState.state;
             String newState = hassioChange.hassioChangeData.newState.state;
@@ -30,7 +30,8 @@ public class WeatherChangeTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+
         HassioWeatherState hassioWeatherState = (HassioWeatherState) hassioStates.get("weather.dark_sky");
         List<HassioContext> triggerContexts = new ArrayList<>();
         triggerContexts.add(hassioWeatherState.context);

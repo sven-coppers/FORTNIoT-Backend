@@ -41,8 +41,8 @@ public class WebsocketClientEndpoint {
     public void onOpen(Session userSession) {
         this.userSession = userSession;
 
-        if(BearerToken.useBearer()) {
-            this.sendMessage("{\"type\":\"auth\",\"access_token\":\"" + BearerToken.getBearer() + "\"}");
+        if(BearerToken.getInstance().isUsingBearer()) {
+            this.sendMessage("{\"type\":\"auth\",\"access_token\":\"" + BearerToken.getInstance().getBearerToken() + "\"}");
         }
     }
 

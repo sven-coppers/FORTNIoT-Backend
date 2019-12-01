@@ -1,6 +1,8 @@
 package sven.phd.iot.rules;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
@@ -9,22 +11,20 @@ import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import java.util.*;
 
 abstract public class Trigger {
-    private List<HassioRuleExecutionEvent> executionHistory;
-    private List<HassioRuleExecutionEvent> executionFuture;
-    private List<Action> actions;
-    protected String title;
-    public String id;
-    protected boolean continuous;
+    @JsonIgnore private List<HassioRuleExecutionEvent> executionHistory;
+    @JsonProperty("actions") public List<Action> actions;
+    @JsonProperty("description") public String title;
+    @JsonProperty("id") public String id;
     private long offset;
+    @JsonProperty("enabled") public boolean enabled; // Is the rule enabled. When the rule is disabled, it cannot be triggered
 
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
-        this.executionFuture = new ArrayList<>();
         this.actions = new ArrayList<>();
-        this.continuous = false;
         this.title = title;
         this.id = id;
         this.offset = 0;
+        this.enabled = true;
     }
 
     /**
@@ -33,11 +33,6 @@ abstract public class Trigger {
     public List<HassioRuleExecutionEvent> getExecutionHistory() {
         return this.executionHistory;
     }
-
-    /**
-     * Get the execution history of this rule
-     */
-    public List<HassioRuleExecutionEvent> getExecutionFuture() { return this.executionFuture; }
 
     /**
      * Add an action that needs to be executed when the trigger is satisfied
@@ -53,10 +48,10 @@ abstract public class Trigger {
      * @param hassioChange the change that caused this rule to be validated
      * @return
      */
-    public HassioRuleExecutionEvent verify(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
-        if(this.isInterested(hassioChange)) {
+    public HassioRuleExecutionEvent verify(HashMap<String, HassioState> hassioStates, HassioChange hassioChange, boolean enabled) {
+        if(enabled && this.isTriggeredBy(hassioChange)) {
             // Check if the rule would be triggered by this change (AND WHY)
-            List<HassioContext> triggerContexts = this.verify(hassioStates);
+            List<HassioContext> triggerContexts = this.verifyCondition(hassioStates);
 
             if(triggerContexts != null) {
                 // The rule is triggered
@@ -82,14 +77,17 @@ abstract public class Trigger {
      * @return true if the rule is interested, false otherwise
      * SHOULD ONLY BE CALLED BY THE RULE ITSELF
      */
-    public abstract boolean isInterested(HassioChange hassioChange);
+
+    public abstract boolean isTriggeredBy(HassioChange hassioChange);
+
 
     /**
      * Check if the hassioChange causes this trigger to be triggered
      * @param hassioStates a map with states for each device
      * @return a list of HassioContexts that trigger the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is triggered by itself
      */
-    public abstract List<HassioContext> verify(HashMap<String, HassioState> hassioStates);
+    public abstract List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates);
+
 
     /**
      * Run all actions and collect all states that would result from it
@@ -105,24 +103,19 @@ abstract public class Trigger {
         return results;
     }
 
-    /**
-     * Clear the cache of predictions
-     */
-    public void clearPredictions() {
-        this.executionFuture.clear();
-    }
-
-    /**
-     * Allow the prediction engine to add a predicted triggerEvent of this rule
-     * @param triggerEvent
-     */
-    public void addHassioRuleExecutionEventPrediction(HassioRuleExecutionEvent triggerEvent) {
-        this.executionFuture.add(triggerEvent);
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override
     public String toString() {
-        String result = this.id + "\n";
+        String result = "";
+
+        if(this.enabled) {
+            result += "[ENABLED] " + this.id + "\n";
+        } else {
+            result += "[DISABLED] " + this.id + "\n";
+        }
 
         result += "\t" + this.title + "\n";
 

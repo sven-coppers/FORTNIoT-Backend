@@ -9,71 +9,67 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class BearerToken {
-        /**
-         * Checks whether to use bearer or legacy api
-         * @return
-         */
-        public static Boolean useBearer() {
-            //JSON parser object to parse read file
-            JSONParser jsonParser = new JSONParser();
+    private String bearerToken;
+    private boolean isUsingBearer;
+    private static BearerToken bearerTokenInstance;
 
-            File file = new File(
-                    ContextManager.class.getClassLoader().getResource("token.json").getFile()
-            );
-            String path = file.getPath().replace("%20", " ");
-            try (FileReader reader = new FileReader(path))
-            {
-                //Read JSON file
-                Object obj = jsonParser.parse(reader);
-
-                JSONObject json = (JSONObject) obj;
-
-                //Iterate over employee array
-                return (Boolean) json.get("use_token");
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (org.json.simple.parser.ParseException e) {
-                e.printStackTrace();
-            }
-
-            return false;
-        }
-        /**
-         * Get the bearer token from the json file
-         */
-        public static String getBearer() {
-            //JSON parser object to parse read file
-            JSONParser jsonParser = new JSONParser();
-
-            File file = new File(
-                    ContextManager.class.getClassLoader().getResource("token.json").getFile()
-            );
-            String path = file.getPath().replace("%20", " ");
-            try (FileReader reader = new FileReader(path))
-            {
-                //Read JSON file
-                Object obj = jsonParser.parse(reader);
-
-                JSONObject json = (JSONObject) obj;
-
-                //Iterate over employee array
-                String tokenId = (String) json.get("token_id");
-
-                return (String) json.get(tokenId);
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (org.json.simple.parser.ParseException e) {
-                e.printStackTrace();
-            }
-
-            return "";
-        }
-
+    private BearerToken() {
+        this.loadBearer();
     }
 
+    /**
+     * Singleton
+     * @return
+     */
+    public static BearerToken getInstance() {
+        if(bearerTokenInstance == null) {
+            bearerTokenInstance = new BearerToken();
+        }
+
+        return bearerTokenInstance;
+    }
+
+    /**
+     * Get the bearer token from the json file
+     */
+    private void loadBearer() {
+        //JSON parser object to parse read file
+        JSONParser jsonParser = new JSONParser();
+
+        File file = new File(
+                ContextManager.class.getClassLoader().getResource("token.json").getFile()
+        );
+        String path = file.getPath().replace("%20", " ");
+        try (FileReader reader = new FileReader(path)) {
+            //Read JSON file
+            Object obj = jsonParser.parse(reader);
+
+            JSONObject json = (JSONObject) obj;
+
+            String tokenId = (String) json.get("token_id");
+            this.isUsingBearer = (Boolean) json.get("use_token");
+            this.bearerToken = (String) json.get(tokenId);
+            System.out.println("Used bearer: " + this.bearerToken);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (org.json.simple.parser.ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Checks whether to use bearer or legacy api
+     *
+     * @return
+     */
+    public Boolean isUsingBearer() {
+        return this.isUsingBearer;
+    }
+
+    public String getBearerToken() {
+        return this.bearerToken;
+    }
+}

@@ -16,13 +16,12 @@ public class AlwaysTrigger extends Trigger {
     }
 
     @Override
-    public boolean isInterested(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HassioChange hassioChange) {
         return false;
     }
 
     @Override
-    public List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
-
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         return new ArrayList<>();
     }
 }

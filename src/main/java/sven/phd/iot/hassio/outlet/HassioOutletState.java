@@ -1,6 +1,7 @@
 package sven.phd.iot.hassio.outlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import sven.phd.iot.hassio.light.HassioLightAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;

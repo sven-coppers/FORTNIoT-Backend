@@ -1,28 +1,28 @@
 package sven.phd.iot.rules.triggers;
 
-import sven.phd.iot.hassio.calendar.HassioCalendarState;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Trigger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CalendarBusyTrigger extends Trigger {
-    private String calendarIdentifier;
+public class StateTrigger extends Trigger {
+    private String entityID;
+    private String triggerState;
 
-    public CalendarBusyTrigger(String ruleIdentifier, String calendarIdentifier) {
-        super(ruleIdentifier, "When " + calendarIdentifier + " becomes busy");
+    public StateTrigger(String ruleIdentifier, String entityID, String triggerState, String triggerDescription) {
+        super(ruleIdentifier, triggerDescription);
 
-        this.calendarIdentifier = calendarIdentifier;
+        this.entityID = entityID;
+        this.triggerState = triggerState;
     }
 
     @Override
-    public boolean isInterested(HassioChange hassioChange) {
-        if(hassioChange.entity_id.equals(this.calendarIdentifier)) {
+    public boolean isTriggeredBy(HassioChange hassioChange) {
+        if(hassioChange.entity_id.equals(entityID)) {
             String oldState = hassioChange.hassioChangeData.oldState.state;
             String newState = hassioChange.hassioChangeData.newState.state;
 
@@ -34,10 +34,12 @@ public class CalendarBusyTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verify(HashMap<String, HassioState> hassioStates) {
-        HassioState hassioState = hassioStates.get(this.calendarIdentifier);
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStateHashMap) {
+        HassioState hassioState = hassioStateHashMap.get(entityID);
 
-        if(hassioState.state.equals("on")) {
+        if(hassioState == null) return null;
+
+        if(hassioState.state.equals(triggerState)) {
             List<HassioContext> triggerContexts = new ArrayList<>();
             triggerContexts.add(hassioState.context);
             return triggerContexts;

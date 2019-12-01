@@ -35,6 +35,7 @@ public class ANDTrigger extends Trigger {
             if(index < count - 1) {
                 this.title += " and ";
             }
+            index++;
         }
     }
 

@@ -5,6 +5,7 @@ import org.json.simple.parser.JSONParser;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
+import sven.phd.iot.hassio.states.HassioConflictState;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
@@ -230,5 +231,22 @@ public class ContextManager {
 
     public Future simulateAlternativeFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
         return this.predictionEngine.whatIf(simulatedRulesEnabled, simulatedStates);
+    }
+
+    /**
+     * Get the cached version of the future conflicts
+     * @return
+     */
+    public List<HassioConflictState> getFutureConflicts() {
+        return this.predictionEngine.getFuture().getFutureConflicts();
+    }
+
+    /**
+     * Get the cached version of the future conflicts of a single device
+     * @param id
+     * @return
+     */
+    public List<HassioConflictState> getFutureConflicts(String id) {
+        return this.predictionEngine.getFuture().getFutureConflicts(id);
     }
 }

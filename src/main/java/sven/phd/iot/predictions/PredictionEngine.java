@@ -2,10 +2,12 @@ package sven.phd.iot.predictions;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
+import sven.phd.iot.hassio.states.HassioConflictState;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.RulesManager;
+import sven.phd.iot.students.mathias.FutureConflictDetector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,6 +91,10 @@ public class PredictionEngine {
                 queue.addAll(resultingActions);
             }
         }
+
+        // MATHIAS TESTING
+        FutureConflictDetector detector = new FutureConflictDetector();
+        future.addFutureConflict(detector.getFutureConflicts());
 
         return future;
     }

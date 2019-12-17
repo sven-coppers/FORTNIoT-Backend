@@ -66,4 +66,15 @@ abstract public class HassioState extends HassioUpdate {
     public HassioState() {
         this.context = new HassioContext();
     }
+
+    public HassioConflictState compareAttributes(HassioState state) {
+        if(this.state != state.state) {
+            HassioConflictState conflict = new HassioConflictState(this.entity_id, this.type, this.datetime);
+            HassioConflictingAttribute attr = new HassioConflictingAttribute("state", this.state, state.state);
+            conflict.conflicts.add(attr);
+            return conflict;
+        }
+
+        return null;
+    }
 }

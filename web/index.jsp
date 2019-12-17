@@ -44,6 +44,8 @@
     <h1>Endpoints Mathias</h1>
     <ul>
       <li><span class="method">GET</span> <a href="api/mathias/">mathias/</a> Hello, world</li>
+      <li><span class="method">GET</span> <a href="api/mathias/future">mathias/future</a> Get the future conflicts</li>
+      <li><span class="method">GET</span> <a href="api/mathias/future/light.hue_color_spot_2">mathias/future/{id}</a> Get the future conflicts of the device with {id}, e.g. 'light.hue_color_spot_2'</li>
     </ul>
   </body>
 </html>

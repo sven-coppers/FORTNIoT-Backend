@@ -1,6 +1,7 @@
 package sven.phd.iot.predictions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sven.phd.iot.hassio.states.HassioConflictState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 
@@ -11,11 +12,13 @@ import java.util.List;
 public class Future {
     @JsonProperty("states") public List<HassioState> futureStates;
     @JsonProperty("executions") public List<HassioRuleExecutionEvent> futureExecutions;
+    @JsonProperty("conflicts") public List<HassioConflictState> futureConflicts;
     @JsonProperty("last_generated") public Date lastGenerated;
 
     public Future() {
         this.futureStates = new ArrayList<>();
         this.futureExecutions = new ArrayList<>();
+        this.futureConflicts = new ArrayList<>();
         this.lastGenerated = new Date();
     }
 
@@ -71,4 +74,42 @@ public class Future {
     public void addFutureState(HassioState newState) {
         this.futureStates.add(newState);
     }
+
+
+
+    /**
+     * Get a cached version of the prediction of the future conflicts
+     */
+    public List<HassioConflictState> getFutureConflicts() {
+        return this.futureConflicts;
+    }
+
+    /**
+     * Get a cached version of the prediction of the future conflicts for a single device
+     */
+    public List<HassioConflictState> getFutureConflicts(String deviceID) {
+        List<HassioConflictState> result = new ArrayList<>();
+
+        for(HassioConflictState hassioConflict : this.futureConflicts) {
+            if(hassioConflict.entity_id.equals(deviceID)) {
+                result.add(hassioConflict);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Add a future conflict to the list of predictions
+     * @param newConflict
+     */
+    public void addFutureConflict(HassioConflictState newConflict) {
+        this.futureConflicts.add(newConflict);
+    }
+
+    /**
+     * Add future conflicts to the list of predictions
+     * @param newConflicts
+     */
+    public void addFutureConflict(List<HassioConflictState> newConflicts) {this.futureConflicts = newConflicts; }
 }

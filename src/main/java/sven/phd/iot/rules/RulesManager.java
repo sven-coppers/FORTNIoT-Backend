@@ -70,6 +70,17 @@ public class RulesManager {
         noMotionTrigger.addAction(new LightOffAction("light.hue_color_spot_1"));
         noMotionTrigger.addAction(new OutletAction("switch.outlet_3", "off"));
         this.rules.put("rule.motion_clear", noMotionTrigger);
+
+        // MATHIAS TESTING
+        Trigger allTimeTrigger = new TemperatureTrigger("rule.temp_notimportent", -50, 50);
+        Trigger partlyTrigger = new TemperatureTrigger("rule.temp_partlyimportent", -50, 20);
+        Trigger offTrigger = new TemperatureTrigger("rule.temp_offtriggerd", -50, 20);
+        allTimeTrigger.addAction(new LightOnAction("light.hue_color_spot_2", Color.MAGENTA, false));
+        partlyTrigger.addAction(new LightOnAction("light.hue_color_spot_2", Color.ORANGE, false));
+        offTrigger.addAction(new LightOffAction("light.hue_color_spot_2"));
+        this.rules.put("rule.temp_notimportent", allTimeTrigger);
+        this.rules.put("rule.temp_partlyimportent",partlyTrigger);
+        this.rules.put("rule.temp_offtriggerd",offTrigger);
     }
 
     /**

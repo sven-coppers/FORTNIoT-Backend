@@ -42,9 +42,7 @@ public class ANDTrigger extends Trigger {
     @Override
     public boolean isTriggeredBy(HassioChange hassioChange) {
         for(Trigger trigger: this.triggers) {
-            System.out.println("Check if trigger is interested: " + trigger.getTitle());
             if(trigger.isTriggeredBy(hassioChange)) {
-                System.out.println("And rule is interested:" + trigger.toString());
                 return true;
             }
         }

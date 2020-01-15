@@ -26,4 +26,9 @@ public class HassioLightState extends HassioState {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public HassioState processRawState(HassioStateRaw raw) {
+        return new HassioLightState(raw);
+    }
 }

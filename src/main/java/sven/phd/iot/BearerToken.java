@@ -12,6 +12,7 @@ public class BearerToken {
     private String bearerToken;
     private boolean isUsingBearer;
     private static BearerToken bearerTokenInstance;
+    private String url;
 
     private BearerToken() {
         this.loadBearer();
@@ -49,6 +50,12 @@ public class BearerToken {
             String tokenId = (String) json.get("token_id");
             this.isUsingBearer = (Boolean) json.get("use_token");
             this.bearerToken = (String) json.get(tokenId);
+            this.url = (String) json.get("url");
+            if(this.url == null) {
+                this.url = "http://hassio.local:8123";
+            }
+            System.out.println("Used URL: " + this.url);
+
             System.out.println("Used bearer: " + this.bearerToken);
 
         } catch (FileNotFoundException e) {
@@ -71,5 +78,9 @@ public class BearerToken {
 
     public String getBearerToken() {
         return this.bearerToken;
+    }
+
+    public String getUrl() {
+        return this.url;
     }
 }

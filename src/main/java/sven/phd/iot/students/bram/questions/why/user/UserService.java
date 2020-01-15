@@ -2,6 +2,7 @@ package sven.phd.iot.students.bram.questions.why.user;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import sven.phd.iot.BearerToken;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,7 +31,7 @@ public class UserService {
     private void fetchUsers() {
 
         try {
-            String url = "ws://hassio.local:8123/api/websocket";
+            String url = BearerToken.getInstance().getUrl().replace("http", "ws") + "/api/websocket";
             WebsocketClientEndpoint clientEndpoint = new WebsocketClientEndpoint(new URI(url));
 
             UserService that = this;

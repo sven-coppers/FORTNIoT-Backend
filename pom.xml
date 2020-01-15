@@ -180,6 +180,8 @@
             <artifactId>javax.json</artifactId>
             <version>1.0.1</version>
         </dependency>
+
+        <dependency> <groupId>org.reflections</groupId> <artifactId>reflections</artifactId> <version>0.9.9-RC1</version> </dependency>
     </dependencies>
     <properties>
         <jersey.version>2.25.1</jersey.version> <!-- Last working version -->

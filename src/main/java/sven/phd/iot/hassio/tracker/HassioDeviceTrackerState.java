@@ -19,4 +19,9 @@ public class HassioDeviceTrackerState extends HassioState {
             System.out.println(hassioState.attributes.toString());
         }
     }
+
+    @Override
+    public HassioState processRawState(HassioStateRaw raw) {
+        return new HassioDeviceTrackerState(raw);
+    }
 }

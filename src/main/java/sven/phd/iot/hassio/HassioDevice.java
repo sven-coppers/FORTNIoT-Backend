@@ -131,6 +131,7 @@ abstract public class HassioDevice {
      */
     abstract public HassioState processRawState(HassioStateRaw hassioStateRaw);
 
+
     /**
      * Call a service to set the state of this device
      * @param uri
@@ -141,7 +142,8 @@ abstract public class HassioDevice {
         List<HassioContext> contexts = new ArrayList<>();
         Client client = ClientBuilder.newClient();
 
-        WebTarget webTarget = client.target("http://hassio.local:8123/api/services/");
+        String servicesUrl = BearerToken.getInstance().getUrl() + "/api/services";
+        WebTarget webTarget = client.target(servicesUrl);
         WebTarget employeeWebTarget = webTarget.path(uri);
         Invocation.Builder invocationBuilder = employeeWebTarget.request(MediaType.APPLICATION_JSON);
         //Add authentication
@@ -172,4 +174,6 @@ abstract public class HassioDevice {
 
         return contexts;
     }
+
+
 }

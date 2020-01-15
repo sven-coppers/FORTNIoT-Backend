@@ -6,4 +6,9 @@ import sven.phd.iot.hassio.states.HassioState;
 
 public class HassioStateRaw extends HassioState {
     @JsonProperty("attributes") public JsonNode attributes;
+
+    @Override
+    public HassioState processRawState(HassioStateRaw raw) {
+        return null;
+    }
 }

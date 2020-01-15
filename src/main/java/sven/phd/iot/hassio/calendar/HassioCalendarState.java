@@ -28,4 +28,9 @@ public class HassioCalendarState extends HassioState {
 
         this.attributes = new HassioCalendarAttributes(message, location);
     }
+
+    @Override
+    public HassioState processRawState(HassioStateRaw raw) {
+        return new HassioCalendarState(raw);
+    }
 }

@@ -34,12 +34,13 @@ import java.io.IOException;
 import java.util.*;
 
 public class HassioDeviceManager implements EventListener {
-    private static String HASSIO_URL = "http://hassio.local:8123/api/";
+    private static String HASSIO_URL = BearerToken.getInstance().getUrl() + "/api/";
     private static Map<String, HassioDevice> hassioDeviceMap;
     private ContextManager contextManager;
 
     public HassioDeviceManager(ContextManager contextManager) {
         System.out.println("Initiating HassioDeviceManager ...");
+
         this.contextManager = contextManager;
         this.initialiseDevices();
     }

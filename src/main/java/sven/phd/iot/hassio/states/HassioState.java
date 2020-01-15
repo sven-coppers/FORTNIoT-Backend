@@ -66,4 +66,6 @@ abstract public class HassioState extends HassioUpdate {
     public HassioState() {
         this.context = new HassioContext();
     }
+
+    public abstract HassioState processRawState(HassioStateRaw raw);
 }

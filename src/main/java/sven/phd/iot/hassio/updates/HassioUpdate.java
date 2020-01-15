@@ -28,6 +28,9 @@ public class HassioUpdate implements Comparable<HassioUpdate> {
     }
 
     public int compareTo(HassioUpdate hassioUpdate) {
+        if(hassioUpdate.datetime == null || this.datetime == null) {
+            System.out.println();
+        }
         return this.datetime.compareTo(hassioUpdate.datetime);
     }
 }

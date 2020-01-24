@@ -70,6 +70,10 @@ public class RulesManager {
         noMotionTrigger.addAction(new LightOffAction("light.hue_color_spot_1"));
         noMotionTrigger.addAction(new OutletAction("switch.outlet_3", "off"));
         this.rules.put("rule.motion_clear", noMotionTrigger);
+
+        Trigger minimumTempTrigger = new TemperatureTrigger("rule.mininum_temperature", -50, 15);
+
+        this.rules.put("rule.mininum_temperature", minimumTempTrigger);
     }
 
     /**

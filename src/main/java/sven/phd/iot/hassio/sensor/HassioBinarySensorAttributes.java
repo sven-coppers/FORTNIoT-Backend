@@ -5,4 +5,6 @@ import sven.phd.iot.hassio.states.HassioAttributes;
 
 public class HassioBinarySensorAttributes extends HassioAttributes {
     @JsonProperty("device_class") public String deviceClass;
+    @JsonProperty("restored") public boolean restored;
+    @JsonProperty("supported_features") public int supported_features;
 }

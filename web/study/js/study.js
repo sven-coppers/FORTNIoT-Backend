@@ -3,17 +3,42 @@ $(document).ready(function() {
 });
 
 $(document).on('submit','form',function(){
-    applyRuleProperties();
+    //applyRuleProperties();
+    applyUseCase();
     return false;
 });
 
+
+$("#apply").click(function() {
+    applyUseCase();
+});
+
 function refresh() {
+    this.refreshDevices();
     this.refreshRules();
+    this.refreshConfig();
+}
 
-    const urlParams = new URLSearchParams(window.location.search);
+$("#start_listening").click(function() { applyConfig(true); });
+$("#stop_listening").click(function() { applyConfig(false); });
 
-    $("input[name=scenario][value=" + urlParams.get('scenario') + "]").attr('checked', 'checked');
-    $("input[name=predictions][value=" + urlParams.get('predictions') + "]").attr('checked', 'checked');
+
+function applyUseCase() {
+    let useCase = {
+        rule_set: $( "#rule_set option:selected" ).text(),
+        device_set: $( "#device_set option:selected" ).text(),
+        state_set: $( "#state_set option:selected" ).text(),
+    };
+
+    $.ajax({
+        url:            "http://localhost:8080/intelligibleIoT/api/study/case/",
+        type:           "PUT",
+        data: JSON.stringify(useCase),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+    }).done(function (data) {
+        refresh();
+    });
 }
 
 function refreshRules() {
@@ -31,11 +56,11 @@ function refreshRules() {
             let HTMLID = ruleIDToHTML(ruleID);
 
             $("#table_body_rules").append('<tr>\n' +
+                '    <td class="checkbox_cell"><input type="checkbox" name="rules_enabled" id="' + HTMLID + '_enabled" value="' + HTMLID + '_enabled"></td>\n' +
+                '    <td class="checkbox_cell"><input type="checkbox" name="rules_available" id="' + HTMLID + '_available" value="' + HTMLID + '_available"></td>\n' +
                 '    <td>' + HTMLID + '</td>\n' +
                 '    <td>' + rule["description"] + '</td>\n' +
                 '    <td id="' + HTMLID + '_actions"></td>\n' +
-                '    <td class="checkbox_cell"><input type="checkbox" name="rules_enabled" id="' + HTMLID + '_enabled" value="' + HTMLID + '_enabled"></td>\n' +
-                '    <td class="checkbox_cell"><input type="checkbox" name="rules_available" id="' + HTMLID + '_available" value="' + HTMLID + '_available"></td>\n' +
                 '</tr>');
 
             setRuleProperties(HTMLID, rule["enabled"], rule["available"]);
@@ -44,6 +69,49 @@ function refreshRules() {
                 $("#" + HTMLID + "_actions").append(action["description"] + "<br />");
             }
         }
+    });
+}
+
+function refreshDevices() {
+    $.ajax({
+        url:            "http://localhost:8080/intelligibleIoT/api/states/",
+        type:           "GET",
+        headers: {
+            Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
+        }
+    }).done(function (data) {
+        $("#table_body_devices").empty();
+
+        for (let deviceID in data) {
+            let deviceState = data[deviceID];
+
+            if(deviceState == null) continue;
+
+            $("#table_body_devices").append('<tr>\n' +
+                '    <td class="checkbox_cell"><input type="checkbox" name="device_enabled" id="' + deviceID + '_enabled" value="' + deviceID + '_enabled"></td>\n' +
+                '    <td class="checkbox_cell"><input type="checkbox" name="device_available" id="' + deviceID + '_available" value="' + deviceID + '_available"></td>\n' +
+                '    <td>' + deviceID + '</td>\n' +
+                '    <td>' + deviceState["state"] + '</td>\n' +
+                '    <td>' + dateToString(new Date(deviceState["last_changed"])) + '</td>\n' +
+                '    <td>' + dateToString(new Date(deviceState["last_updated"]))+ '</td>\n' +
+           //     '    <td>' + JSON.stringify(device["attributes"]).substring(0, 100) + '...</td>\n' +
+                '</tr>');
+
+          //  setRuleProperties(HTMLID, rule["enabled"], rule["available"]);
+        }
+    });
+}
+
+function refreshConfig() {
+    $.ajax({
+        url:            "http://localhost:8080/intelligibleIoT/api/config/",
+        type:           "GET",
+        headers: {
+            Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
+        }
+    }).done(function (data) {
+        $("#start_listening").attr('disabled', data["listing_to_hassio"]);
+        $("#stop_listening").attr('disabled', !data["listing_to_hassio"]);
     });
 }
 
@@ -78,10 +146,35 @@ function applyRuleProperties() {
     });
 }
 
+function applyConfig(listeningToConfig) {
+    let config = {listing_to_hassio : listeningToConfig};
+
+    $.ajax({
+        url:            "http://localhost:8080/intelligibleIoT/api/config/",
+        type:           "PUT",
+        data: JSON.stringify(config),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+    }).done(function (data) {
+        refresh();
+    });
+}
+
 function forceClientRefresh() {
 
 }
 
 function loadSimple() {
     setRuleProperties();
+}
+
+function dateToString(date) {
+    return date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + " " + timeToString(date);
+}
+
+function timeToString(date) {
+    let hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+    let minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+
+    return hours + ":" + minutes;
 }

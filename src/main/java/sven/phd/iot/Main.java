@@ -12,32 +12,13 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Feature;
 
 public class Main implements ServletContextListener {
-    private Client client;
-    private WebTarget target;
-    private EventSource eventSource;
-
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         System.out.println("Joepie: de server werd gestart");
 
-        ContextManager contextManager = ContextManager.getInstance(); // Start the mainController
-        BearerToken bearerToken = BearerToken.getInstance();
-
-        client = ClientBuilder.newBuilder().register(SseFeature.class).build();
-        if(bearerToken.isUsingBearer()) {
-            Feature feature = OAuth2ClientSupport.feature(bearerToken.getBearerToken());
-            client.register(feature);
-            target = client.target("http://hassio.local:8123/api/stream");
-        } else {
-            target = client.target("http://hassio.local:8123/api/stream?api_password=test1234");
-        }
-
-        eventSource = EventSource.target(target).build();
-        eventSource.register(contextManager.getHassioDeviceManager()); // Everything needs to go to a single listener, since Hassio does not support event types
-        eventSource.open();
+        ContextManager contextManager = ContextManager.getInstance(); // Start the ContextManager
     }
 
     public void contextDestroyed(ServletContextEvent arg0) {
-        eventSource.close();
         System.out.println("Vaarwel: Server stopped");
     }
 }

@@ -19,7 +19,7 @@ abstract public class HassioState extends HassioUpdate {
 
     @JsonDeserialize(using = HassioDateDeserializer.class)
     @JsonSerialize(using = HassioDateSerializer.class)
-    private Date last_updated;
+    protected Date last_updated;
 
     @JsonSetter("last_updated")
     public void setLast_updated(Date last_updated) {

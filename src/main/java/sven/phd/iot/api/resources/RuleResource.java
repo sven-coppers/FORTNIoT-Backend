@@ -1,7 +1,7 @@
 package sven.phd.iot.api.resources;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.api.request.RuleEnabledRequest;
+import sven.phd.iot.api.request.RuleUpdateRequest;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Trigger;
 
@@ -29,6 +29,18 @@ public class RuleResource {
         }
 
         return ruleResource;
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void setRulesProperties(HashMap<String, RuleUpdateRequest> ruleUpdateRequests)  {
+        ContextManager contextManager = ContextManager.getInstance();
+
+        for(String ruleID : ruleUpdateRequests.keySet()) {
+            RuleUpdateRequest ruleUpdateRequest = ruleUpdateRequests.get(ruleID);
+
+            contextManager.updateRule(ruleID, ruleUpdateRequest.enabled, ruleUpdateRequest.available);
+        }
     }
 
     @Path("text/")
@@ -84,10 +96,10 @@ public class RuleResource {
         return ContextManager.getInstance().getFutureRuleExecutions(id);
     }
 
-    @Path("{id}")
     @PUT
+    @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void setRuleEnabled(@PathParam("id") String id, RuleEnabledRequest ruleEnabledRequest)  {
-        ContextManager.getInstance().updateRule(id, ruleEnabledRequest.enabled);
+    public void setRuleProperties(@PathParam("id") String id, RuleUpdateRequest ruleUpdateRequest)  {
+        ContextManager.getInstance().updateRule(id, ruleUpdateRequest.enabled, ruleUpdateRequest.available);
     }
 }

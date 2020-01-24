@@ -4,6 +4,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import sven.phd.iot.api.resources.EventResource;
 import sven.phd.iot.api.resources.RuleResource;
 import sven.phd.iot.api.resources.StateResource;
+import sven.phd.iot.api.resources.ConfigResource;
 import sven.phd.iot.students.bram.BramResource;
 import sven.phd.iot.students.bram.DeviceResource;
 import sven.phd.iot.students.mathias.MathiasResource;
@@ -29,6 +30,9 @@ public class RestController extends ResourceConfig {
         resources.add(EventResource.class);
         resources.add(StateResource.class);
         resources.add(RuleResource.class);
+        resources.add(ConfigResource.class);
+
+        // Resources Mathias
         resources.add(MathiasResource.class);
 
         //Resources Bram

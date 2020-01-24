@@ -27,7 +27,6 @@ public class Main implements ServletContextListener {
             Feature feature = OAuth2ClientSupport.feature(bearerToken.getBearerToken());
             client.register(feature);
             target = client.target("http://hassio.local:8123/api/stream");
-
         } else {
             target = client.target("http://hassio.local:8123/api/stream?api_password=test1234");
         }

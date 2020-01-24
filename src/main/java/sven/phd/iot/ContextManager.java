@@ -222,10 +222,10 @@ public class ContextManager {
         return this.rulesManager.getRule(id);
     }
 
-    public void updateRule(String id, boolean enabled) {
+    public void updateRule(String id, boolean enabled, boolean available) {
         this.getRule(id).setEnabled(enabled);
+        this.getRule(id).setAvailable(available);
         ContextManager.getInstance().updateFuturePredictions();
-
     }
 
     public Future simulateAlternativeFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {

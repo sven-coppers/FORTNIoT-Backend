@@ -17,6 +17,7 @@ abstract public class Trigger {
     @JsonProperty("id") public String id;
     private long offset;
     @JsonProperty("enabled") public boolean enabled; // Is the rule enabled. When the rule is disabled, it cannot be triggered
+    @JsonProperty("available") public boolean available; // True if the rule should be accessible through the UI
 
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
@@ -25,6 +26,7 @@ abstract public class Trigger {
         this.id = id;
         this.offset = 0;
         this.enabled = true;
+        this.available = true;
     }
 
     /**
@@ -121,5 +123,9 @@ abstract public class Trigger {
         }
 
         return result;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

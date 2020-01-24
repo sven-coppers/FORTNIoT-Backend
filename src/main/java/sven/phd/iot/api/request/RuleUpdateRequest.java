@@ -1,5 +1,6 @@
 package sven.phd.iot.api.request;
 
-public class RuleEnabledRequest {
+public class RuleUpdateRequest {
     public boolean enabled;
+    public boolean available;
 }

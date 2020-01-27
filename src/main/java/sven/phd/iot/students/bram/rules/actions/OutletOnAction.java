@@ -21,7 +21,7 @@ public class OutletOnAction extends Action {
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
         List<HassioState> newStates = new ArrayList<>();
 
-        System.out.println("Simulating turn on of " + this.deviceIdentifier);
+        //System.out.println("Simulating turn on of " + this.deviceIdentifier);
         HassioOutletState hassioOutletState = new HassioOutletState(deviceIdentifier, "on", hassioRuleExecutionEvent.datetime);
         hassioOutletState.context = new HassioContext();
 

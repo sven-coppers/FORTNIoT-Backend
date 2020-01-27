@@ -1,5 +1,6 @@
 package sven.phd.iot.hassio;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 import org.glassfish.jersey.media.sse.EventListener;
@@ -137,6 +138,10 @@ public class HassioDeviceManager implements EventListener {
                     device = new HassioBinarySensor(entity_id, friendlyName);
                 } else if(entity_id.contains("remote_ui")) {
                     device = new HassioBinarySensor(entity_id, friendlyName);
+                } else if(entity_id.contains("_contact")) {
+                    device = new HassioBinarySensor(entity_id, friendlyName);
+                } else if(entity_id.contains("_acceleration")) {
+                    device = new HassioBinarySensor(entity_id, friendlyName);
                 }
             } else if(entity_id.contains("sensor.")) {
                 if(entity_id.contains("sensor.yr_symbol")) continue; // Ignore
@@ -146,6 +151,8 @@ public class HassioDeviceManager implements EventListener {
                 } else if(entity_id.contains("temperature_measurement")) {
                     device = new HassioSensor(entity_id, friendlyName);
                 } else if(entity_id.contains("battery")) {
+                    device = new HassioSensor(entity_id, friendlyName);
+                } else if(entity_id.contains("_coordinate")) {
                     device = new HassioSensor(entity_id, friendlyName);
                 }
             } else if(entity_id.contains("light.")) {
@@ -166,6 +173,8 @@ public class HassioDeviceManager implements EventListener {
             } else if(entity_id.contains("zone.")) {
                 // TODO
                 continue;
+            } else if(entity_id.contains("persistent_notification.")) {
+                continue; // Ignore
             }
 
             if(device != null) {
@@ -174,13 +183,15 @@ public class HassioDeviceManager implements EventListener {
             } else {
                 System.err.println("HassioDeviceManager - Device detected that Sven does not support yet: " + entity_id);
 
-                /*try {
+                try {
                     System.err.println(new ObjectMapper().writeValueAsString(hassioStateRaw));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
-                } */
+                }
             }
         }
+
+        System.out.println("HassioDeviceManager - " + this.hassioDeviceMap.keySet().size() + " devices found");
     }
 
     /**

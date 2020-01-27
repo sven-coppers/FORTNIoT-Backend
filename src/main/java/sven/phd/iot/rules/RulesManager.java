@@ -17,7 +17,7 @@ public class RulesManager {
     private Map<String, Trigger> rules;
 
     public RulesManager() {
-        System.out.println("Initiating rules...");
+        System.out.println("RulesManager - Initiating...");
         this.rules = new HashMap<>();
 
         Trigger busyTrigger = new StateTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be", "on", "WHEN Sven is busy");

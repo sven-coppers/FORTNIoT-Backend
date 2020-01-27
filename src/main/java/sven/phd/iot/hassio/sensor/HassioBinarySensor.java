@@ -11,14 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HassioBinarySensor extends HassioDevice {
-    public HassioBinarySensor(String entityID) {
-        super(entityID);
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioBinarySensorState state = (HassioBinarySensorState) this.getLastState();
-        return state.attributes.friendly_name;
+    public HassioBinarySensor(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public List<HassioContext> setState(HassioState hassioState) {

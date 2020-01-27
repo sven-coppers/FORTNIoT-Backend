@@ -12,19 +12,13 @@ import java.util.Date;
 import java.util.List;
 
 public class HassioCalendar extends HassioDevice {
-    public HassioCalendar(String entityID) {
-        super(entityID);
+    public HassioCalendar(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public List<HassioContext> setState(HassioState hassioState) {
         // TODO
         return new ArrayList<HassioContext>();
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioCalendarState state = (HassioCalendarState) this.getLastState();
-        return state.attributes.friendly_name;
     }
 
     @Override

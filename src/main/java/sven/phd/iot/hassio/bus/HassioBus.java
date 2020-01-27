@@ -12,8 +12,8 @@ import java.util.*;
 public class HassioBus extends HassioDevice {
     private HashMap<String, HassioBusPassage> uniqueBusses;
 
-    public HassioBus(String entityID) {
-        super(entityID);
+    public HassioBus(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
 
         this.uniqueBusses = new HashMap<>();
     }
@@ -58,13 +58,6 @@ public class HassioBus extends HassioDevice {
         Collections.sort(this.hassioStateHistory);
 
         return hassioBusState;
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioBusState state = (HassioBusState) this.getLastState();
-        return "Bus";
-        //return state.attributes.friendly_name;
     }
 
     @Override

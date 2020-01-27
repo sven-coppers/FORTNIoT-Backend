@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class HassioSensor extends HassioDevice {
-    public HassioSensor(String entityID) {
-        super(entityID);
+    public HassioSensor(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public List<HassioContext> setState(HassioState hassioState) {
@@ -22,12 +22,6 @@ public class HassioSensor extends HassioDevice {
 
     public HassioState processRawState(HassioStateRaw hassioStateRaw) {
         return new HassioSensorState(hassioStateRaw);
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioSensorState state = (HassioSensorState) this.getLastState();
-        return state.attributes.friendly_name;
     }
 
     @Override

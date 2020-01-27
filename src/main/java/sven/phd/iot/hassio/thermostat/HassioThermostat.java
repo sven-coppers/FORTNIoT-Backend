@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HassioThermostat extends HassioDevice {
-    public HassioThermostat(String entityID) {
-        super(entityID);
+    public HassioThermostat(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public HassioState processRawState(HassioStateRaw hassioStateRaw) {
@@ -24,12 +24,6 @@ public class HassioThermostat extends HassioDevice {
     public List<HassioContext> setState(HassioState hassioState) {
         // For now only a virtual device
         return new ArrayList<>();
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioThermostatState state = (HassioThermostatState) this.getLastState();
-        return state.attributes.friendly_name;
     }
 
     @Override

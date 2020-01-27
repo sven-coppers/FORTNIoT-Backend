@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HassioLight extends HassioDevice {
-    public HassioLight(String entityID) {
-        super(entityID);
+    public HassioLight(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public HassioState processRawState(HassioStateRaw hassioStateRaw) {
@@ -24,12 +24,6 @@ public class HassioLight extends HassioDevice {
         } else {
             return this.callService("light/turn_off", new HassioLightServiceOff((HassioLightState) hassioState));
         }
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioLightState state = (HassioLightState) this.getLastState();
-        return state.attributes.friendly_name;
     }
 
     @Override

@@ -111,18 +111,18 @@ function refreshDevices() {
     }).done(function (data) {
         $("#table_body_devices").empty();
 
-        for (let device in data) {
+        for (let device of data) {
             if(device == null) continue;
+            let HTMLID = deviceIDtoHTMLID(device["id"]);
 
             $("#table_body_devices").append('<tr>\n' +
-                '    <td class="checkbox_cell"><input type="checkbox" name="device_enabled" id="' + device["id"] + '_enabled" value="' + device["id"] + '_enabled"></td>\n' +
-                '    <td class="checkbox_cell"><input type="checkbox" name="device_available" id="' + device["id"] + '_available" value="' + device["id"] + '_available"></td>\n' +
+                '    <td class="checkbox_cell"><input type="checkbox" name="device_enabled" id="' + HTMLID + '_enabled" value="' + HTMLID + '_enabled"></td>\n' +
+                '    <td class="checkbox_cell"><input type="checkbox" name="device_available" id="' + HTMLID + '_available" value="' + HTMLID + '_available"></td>\n' +
                 '    <td>' + device["id"] + '</td>\n' +
                 '    <td>' + device["friendly_name"] + '</td>\n' +
-           //     '    <td>' + JSON.stringify(device["attributes"]).substring(0, 100) + '...</td>\n' +
-                '</tr>');
+            '</tr>');
 
-          //  setRuleProperties(HTMLID, rule["enabled"], rule["available"]);
+            setDeviceProperties(HTMLID, device["enabled"], device["available"]);
         }
     });
 }
@@ -135,8 +135,8 @@ function refreshConfig() {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
         }
     }).done(function (data) {
-        $("#start_listening").attr('disabled', data["listing_to_hassio"]);
-        $("#stop_listening").attr('disabled', !data["listing_to_hassio"]);
+        $("#start_listening").attr('disabled', data["connected_to_hassio"]);
+        $("#stop_listening").attr('disabled', !data["connected_to_hassio"]);
     });
 }
 
@@ -145,8 +145,21 @@ function setRuleProperties(HTMLID, enabled, available) {
     $("#" + HTMLID + "_available").prop('checked', available);
 }
 
+function setDeviceProperties(HTMLID, enabled, available) {
+    $("#" + HTMLID + "_enabled").prop('checked', enabled);
+    $("#" + HTMLID + "_available").prop('checked', available);
+}
+
 function ruleIDToHTML(ruleName) {
     return ruleName.replace("rule.", "");
+}
+
+function deviceIDtoHTMLID(deviceID) {
+    return deviceID.replace(".", "_"); // Only the first occurrence
+}
+
+function HTMLIDtoDeviveID(HTMLID) {
+    return deviceID.replace("_", "."); // Only the first occurrence
 }
 
 function applyRuleProperties() {
@@ -172,7 +185,7 @@ function applyRuleProperties() {
 }
 
 function applyConfig(listeningToConfig) {
-    let config = {listing_to_hassio : listeningToConfig};
+    let config = {connected_to_hassio : listeningToConfig};
 
     $.ajax({
         url:            "http://localhost:8080/intelligibleIoT/api/config/",
@@ -183,14 +196,6 @@ function applyConfig(listeningToConfig) {
     }).done(function (data) {
         refresh();
     });
-}
-
-function forceClientRefresh() {
-
-}
-
-function loadSimple() {
-    setRuleProperties();
 }
 
 function dateToString(date) {

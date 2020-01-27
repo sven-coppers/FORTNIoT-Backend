@@ -8,7 +8,7 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class CORSFilter implements ContainerResponseFilter {
     public CORSFilter() {
-        System.out.println("CORSFilter initialization");
+        System.out.println("CORSFilter - Initiating...");
     }
 
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {

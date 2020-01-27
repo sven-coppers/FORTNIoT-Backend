@@ -23,14 +23,16 @@ abstract public class HassioDevice {
     protected List<HassioEvent> hassioEventHistory;
     //  protected List<HassioEvent> hassioEventFuture;
     protected String entityID;
+    protected String friendlyName;
     private boolean enabled;
     private boolean available;
 
-    public HassioDevice(String entityID) {
+    public HassioDevice(String entityID, String friendlyName) {
         this.hassioStateHistory = new ArrayList<>();
         this.hassioEventHistory = new ArrayList<>();
         //    this.hassioEventFuture = new ArrayList<>();
         this.entityID = entityID;
+        this.friendlyName = friendlyName;
         this.setEnabled(true);
         this.setAvailable(true);
     }
@@ -39,8 +41,9 @@ abstract public class HassioDevice {
      * Get the friendly name of the device
      * @return the friendly name
      */
-    abstract public String getFriendlyName();
-
+    public String getFriendlyName() {
+        return this.friendlyName;
+    }
 
     /**
      * Commit the state to the physical device
@@ -165,7 +168,7 @@ abstract public class HassioDevice {
 
             //     System.out.println(hassioString);
             //     System.out.println(response.getStatus());
-            //     System.out.println("SET STATE RESPONSE: " + response.readEntity(String.class)); // Werkt niet tegelijk met de volgende regel
+            //     System.out.println("SET STATE RESPONSE: " + response.readEntity(String.class)); // Werkt niet tegelijk met de volgende regel - Je kan maar 1 keer readen
 
             List<HassioStateRaw> hassioStates = response.readEntity(new GenericType<List<HassioStateRaw>>() {});
 

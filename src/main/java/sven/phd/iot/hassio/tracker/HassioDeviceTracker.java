@@ -12,28 +12,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class HassioDeviceTracker extends HassioDevice {
-    public HassioDeviceTracker(String entityID) {
-        super(entityID);
+    public HassioDeviceTracker(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public HassioState processRawState(HassioStateRaw hassioStateRaw) {
         return new HassioDeviceTrackerState(hassioStateRaw);
     }
 
-
-
     public List<HassioContext> setState(HassioState hassioState) {
         return new ArrayList<HassioContext>();
-    }
-
-
-    @Override
-    public String getFriendlyName() {
-        HassioDeviceTrackerState state = (HassioDeviceTrackerState) this.getLastState();
-        if(state.attributes == null) {
-            return "device_tracker";
-        }
-        return state.attributes.friendly_name;
     }
 
     @Override

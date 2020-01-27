@@ -13,7 +13,7 @@ import java.util.List;
 
 public class HassioSun extends HassioDevice {
     public HassioSun() {
-        super("sun.sun");
+        super("sun.sun", "Sun");
     }
 
     public HassioState processRawState(HassioStateRaw hassioStateRaw) {
@@ -23,12 +23,6 @@ public class HassioSun extends HassioDevice {
     public List<HassioContext> setState(HassioState hassioState) {
         // We cannot change the state off the sun
         return new ArrayList<HassioContext>();
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioSunState state = (HassioSunState) this.getLastState();
-        return state.attributes.friendly_name;
     }
 
     @Override

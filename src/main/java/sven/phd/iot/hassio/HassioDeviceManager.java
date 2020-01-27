@@ -26,6 +26,7 @@ import sven.phd.iot.hassio.thermostat.HassioThermostatState;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
+import sven.phd.iot.students.bram.questions.why.user.UserService;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -36,26 +37,30 @@ import java.io.IOException;
 import java.util.*;
 
 public class HassioDeviceManager implements EventListener {
-    private static String HASSIO_URL = BearerToken.getInstance().getUrl() + "/api/";
-    private static Map<String, HassioDevice> hassioDeviceMap;
+    private String HASSIO_URL;
+    private Map<String, HassioDevice> hassioDeviceMap;
     private ContextManager contextManager;
     private Client client;
     private WebTarget target;
     private EventSource eventSource;
-    private boolean isListeningToHassioInstance;
+    private boolean connectedToHassioInstance;
 
     public HassioDeviceManager(ContextManager contextManager) {
-        System.out.println("Initiating HassioDeviceManager ...");
+        System.out.println("HassioDeviceManager - Initiating...");
 
         this.hassioDeviceMap = new HashMap<String, HassioDevice>();
+        this.HASSIO_URL = null;
 
         this.contextManager = contextManager;
-        this.isListeningToHassioInstance = false;
+        this.connectedToHassioInstance = false;
         this.initialiseVirtualDevices();
     }
 
     public void startListening() {
-        if(isListeningToHassioInstance()) return;
+        if(isConnectedToHassioInstance()) return;
+        System.out.println("HassioDeviceManager - Connecting to Hassio Instance...");
+
+        this.HASSIO_URL = BearerToken.getInstance().getUrl() + "/api/";
 
         this.initialiseHassioDevices();
 
@@ -74,24 +79,29 @@ public class HassioDeviceManager implements EventListener {
             eventSource = EventSource.target(target).build();
             eventSource.register(contextManager.getHassioDeviceManager()); // Everything needs to go to a single listener, since Hassio does not support event types
             eventSource.open();
-            this.isListeningToHassioInstance = true;
+
+            //Fetch users from the server
+            UserService.getInstance();
+
+            this.connectedToHassioInstance = true;
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            this.isListeningToHassioInstance = false;
+            this.connectedToHassioInstance = false;
         }
     }
 
     public void stopListening() {
         eventSource.close();
-        this.isListeningToHassioInstance = false;
+        this.connectedToHassioInstance = false;
+        System.out.println("HassioDeviceManager - Disconnected from Hassio Instance");
     }
 
     public void initialiseVirtualDevices() {
-        HassioThermostat heater = new HassioThermostat("thermostat.heating");
+        HassioThermostat heater = new HassioThermostat("thermostat.heating", "Heater");
         heater.logState(new HassioThermostatState("heating", 21));
         this.hassioDeviceMap.put("thermostat.heating", heater);
 
-        HassioThermostat airco = new HassioThermostat("thermostat.airco");
+        HassioThermostat airco = new HassioThermostat("thermostat.airco", "Air Conditioning");
         airco.logState(new HassioThermostatState("cooling", 20));
         this.hassioDeviceMap.put("thermostat.airco", airco);
     }
@@ -100,50 +110,53 @@ public class HassioDeviceManager implements EventListener {
      * Choose which devices we will keep track of
      */
     public void initialiseHassioDevices() {
-        System.out.println("Initialising Hassio Devices...");
+        System.out.println("HassioDeviceManager - Initialising Hassio Devices...");
         List<HassioStateRaw> hassioStateRawList = this.queryHassioStatesRaw();
 
         for(HassioStateRaw hassioStateRaw : hassioStateRawList) {
             String entity_id = hassioStateRaw.entity_id;
-            String friendlyName = hassioStateRaw.attributes.get("friendly_name").asText();
+            String friendlyName = "UNKNOWN";
 
-            System.out.println(friendlyName);
+            if(hassioStateRaw.attributes != null && hassioStateRaw.attributes.get("friendly_name") != null) {
+                friendlyName = hassioStateRaw.attributes.get("friendly_name").asText();
+            }
+
             HassioDevice device = null;
 
             if(entity_id.contains("sun.")) {
                 device = new HassioSun();
             } else if(entity_id.contains("device_tracker.")) {
-                device = new HassioDeviceTracker(entity_id);
+                device = new HassioDeviceTracker(entity_id, friendlyName);
             } else if(entity_id.contains("switch.")) {
-                device = new HassioOutlet(entity_id);
+                device = new HassioOutlet(entity_id, friendlyName);
             } else if(entity_id.contains(".updater")) {
                 // Ignore
                 continue;
             } else if(entity_id.contains("binary_sensor")) {
                 if(entity_id.contains("motion_sensor_motion")) {
-                    device = new HassioBinarySensor(entity_id);
+                    device = new HassioBinarySensor(entity_id, friendlyName);
                 } else if(entity_id.contains("remote_ui")) {
-                    device = new HassioBinarySensor(entity_id);
+                    device = new HassioBinarySensor(entity_id, friendlyName);
                 }
             } else if(entity_id.contains("sensor.")) {
                 if(entity_id.contains("sensor.yr_symbol")) continue; // Ignore
 
                 if(entity_id.contains("sensor.agoralaan_diepenbeek")) {
-                    device = new HassioBus(entity_id);
+                    device = new HassioBus(entity_id, "Bus Stop - Agoralaan");
                 } else if(entity_id.contains("temperature_measurement")) {
-                    device = new HassioSensor(entity_id);
+                    device = new HassioSensor(entity_id, friendlyName);
                 } else if(entity_id.contains("battery")) {
-                    device = new HassioSensor(entity_id);
+                    device = new HassioSensor(entity_id, friendlyName);
                 }
             } else if(entity_id.contains("light.")) {
-                device = new HassioLight(entity_id);
+                device = new HassioLight(entity_id, friendlyName);
             } else if (entity_id.contains("weather.dark_sky")) {
-                device = new HassioWeather(entity_id);
+                device = new HassioWeather(entity_id, friendlyName);
             } else if(entity_id.contains("automation.")) {
                 continue; // Ignore
             }  else if(entity_id.contains("calendar.")) {
                  if(entity_id.contains("calendar.sven_coppers_uhasselt_be")) {
-                     device = new HassioCalendar(entity_id);
+                     device = new HassioCalendar(entity_id, friendlyName);
                 } else {
                      continue; // Ignore
                 }
@@ -159,7 +172,7 @@ public class HassioDeviceManager implements EventListener {
                 device.logState(hassioStateRaw);
                 this.hassioDeviceMap.put(entity_id, device);
             } else {
-                System.err.println("Device detected that Sven does not support yet: " + entity_id);
+                System.err.println("HassioDeviceManager - Device detected that Sven does not support yet: " + entity_id);
 
                 /*try {
                     System.err.println(new ObjectMapper().writeValueAsString(hassioStateRaw));
@@ -386,7 +399,7 @@ public class HassioDeviceManager implements EventListener {
         return this.hassioDeviceMap;
     }
 
-    public boolean isListeningToHassioInstance() {
-        return isListeningToHassioInstance;
+    public boolean isConnectedToHassioInstance() {
+        return connectedToHassioInstance;
     }
 }

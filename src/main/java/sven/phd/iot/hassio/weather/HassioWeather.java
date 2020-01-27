@@ -12,8 +12,8 @@ import java.util.Date;
 import java.util.List;
 
 public class HassioWeather extends HassioDevice {
-    public HassioWeather(String entityID) {
-        super(entityID);
+    public HassioWeather(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public List<HassioContext> setState(HassioState hassioState) {
@@ -30,12 +30,6 @@ public class HassioWeather extends HassioDevice {
       //  hassioWeatherState.last_updated = calendar.getTime();
 
         return hassioWeatherState;
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioWeatherState state = (HassioWeatherState) this.getLastState();
-        return state.attributes.friendly_name;
     }
 
     @Override

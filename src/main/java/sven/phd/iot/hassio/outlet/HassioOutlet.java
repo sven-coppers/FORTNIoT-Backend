@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class HassioOutlet extends HassioDevice {
-    public HassioOutlet(String entityID) {
-        super(entityID);
+    public HassioOutlet(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public HassioState processRawState(HassioStateRaw hassioStateRaw) {
@@ -30,12 +30,6 @@ public class HassioOutlet extends HassioDevice {
         } else {
             return this.callService("switch/turn_off", new HassioService(this.entityID));
         }
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioOutletState state = (HassioOutletState) this.getLastState();
-        return state.attributes.friendly_name;
     }
 
     @Override

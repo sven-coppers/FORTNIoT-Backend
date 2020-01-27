@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class BearerToken {
     private String bearerToken;
@@ -54,9 +55,9 @@ public class BearerToken {
             if(this.url == null) {
                 this.url = "http://hassio.local:8123";
             }
-            System.out.println("Used URL: " + this.url);
+            System.out.println("BearerToken - Used URL: " + this.url);
 
-            System.out.println("Used bearer: " + this.bearerToken);
+            System.out.println("BearerToken - Used bearer: " + this.bearerToken);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

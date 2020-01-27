@@ -89,40 +89,22 @@
             </thead>
             <tbody id="table_body_rules"></tbody>
         </table>
+    </div>
 
-        <div class="block">
-            <h2>States</h2>
-            <table>
-                <thead>
-                <tr>
-                    <td>Device</td>
-                    <td>State</td>
-                    <td>Last CHANGED</td>
-                    <td>Last UPDATED</td>
-                    <!--<td>Atrributes</td> -->
-                </tr>
-                </thead>
-                <tbody id="table_body_states"></tbody>
-            </table>
-        </div>
-
-  <!--      <h2>Device sets</h2>
-        <p>
-            <input type="radio" name="scenario" id="devices_simple" value="simple"><label for="scenario_simple">Simple</label>
-            <input type="radio" name="scenario" id="scenario_full" value="full"><label for="scenario_full">Full Blown</label>
-        </p>
-
-        <h2>Scenario</h2>
-        <p>
-            <input type="radio" name="scenario" id="scenario_simple" value="simple"><label for="scenario_simple">Simple</label>
-            <input type="radio" name="scenario" id="scenario_full" value="full"><label for="scenario_full">Full Blown</label>
-        </p>
-        <h2>Predictions</h2>
-        <p>
-            <input type="radio" name="predictions" id="predictions_off" value="off"><label for="predictions_off">Off</label>
-            <input type="radio" name="predictions" id="predictions_on" value="on"><label for="predictions_on">On</label>
-        </p>
-        <button type="submit">Apply</button> -->
+    <div class="block">
+        <h2>States</h2>
+        <table>
+            <thead>
+            <tr>
+                <td>Device</td>
+                <td>State</td>
+                <td>Last CHANGED</td>
+                <td>Last UPDATED</td>
+                <!--<td>Atrributes</td> -->
+            </tr>
+            </thead>
+            <tbody id="table_body_states"></tbody>
+        </table>
     </div>
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

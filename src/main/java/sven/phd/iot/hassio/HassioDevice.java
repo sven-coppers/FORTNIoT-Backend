@@ -21,14 +21,18 @@ import java.util.List;
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
     protected List<HassioEvent> hassioEventHistory;
-  //  protected List<HassioEvent> hassioEventFuture;
+    //  protected List<HassioEvent> hassioEventFuture;
     protected String entityID;
+    private boolean enabled;
+    private boolean available;
 
     public HassioDevice(String entityID) {
         this.hassioStateHistory = new ArrayList<>();
         this.hassioEventHistory = new ArrayList<>();
-    //    this.hassioEventFuture = new ArrayList<>();
+        //    this.hassioEventFuture = new ArrayList<>();
         this.entityID = entityID;
+        this.setEnabled(true);
+        this.setAvailable(true);
     }
 
     /**
@@ -131,6 +135,7 @@ abstract public class HassioDevice {
      */
     abstract public HassioState processRawState(HassioStateRaw hassioStateRaw);
 
+
     /**
      * Call a service to set the state of this device
      * @param uri
@@ -141,7 +146,8 @@ abstract public class HassioDevice {
         List<HassioContext> contexts = new ArrayList<>();
         Client client = ClientBuilder.newClient();
 
-        WebTarget webTarget = client.target("http://hassio.local:8123/api/services/");
+        String servicesUrl = BearerToken.getInstance().getUrl() + "/api/services";
+        WebTarget webTarget = client.target(servicesUrl);
         WebTarget employeeWebTarget = webTarget.path(uri);
         Invocation.Builder invocationBuilder = employeeWebTarget.request(MediaType.APPLICATION_JSON);
         //Add authentication
@@ -157,9 +163,9 @@ abstract public class HassioDevice {
             String hassioString = new ObjectMapper().writeValueAsString(hassioService);
             Response response = invocationBuilder.post(Entity.entity(hassioString, MediaType.APPLICATION_JSON));
 
-       //     System.out.println(hassioString);
-       //     System.out.println(response.getStatus());
-       //     System.out.println("SET STATE RESPONSE: " + response.readEntity(String.class)); // Werkt niet tegelijk met de volgende regel
+            //     System.out.println(hassioString);
+            //     System.out.println(response.getStatus());
+            //     System.out.println("SET STATE RESPONSE: " + response.readEntity(String.class)); // Werkt niet tegelijk met de volgende regel
 
             List<HassioStateRaw> hassioStates = response.readEntity(new GenericType<List<HassioStateRaw>>() {});
 
@@ -171,5 +177,22 @@ abstract public class HassioDevice {
         }
 
         return contexts;
+    }
+
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

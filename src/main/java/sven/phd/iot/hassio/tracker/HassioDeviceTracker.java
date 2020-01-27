@@ -30,6 +30,9 @@ public class HassioDeviceTracker extends HassioDevice {
     @Override
     public String getFriendlyName() {
         HassioDeviceTrackerState state = (HassioDeviceTrackerState) this.getLastState();
+        if(state.attributes == null) {
+            return "device_tracker";
+        }
         return state.attributes.friendly_name;
     }
 

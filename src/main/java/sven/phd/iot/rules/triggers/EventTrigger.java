@@ -46,12 +46,12 @@ public class EventTrigger extends Trigger {
     }
 
     @Override
-    protected boolean isTriggeredBy(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HassioChange hassioChange) {
         return true;
     }
 
     @Override
-    protected List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         return null;
     }
 }

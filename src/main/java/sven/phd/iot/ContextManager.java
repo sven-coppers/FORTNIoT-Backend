@@ -214,6 +214,10 @@ public class ContextManager {
         return this.rulesManager.printRulesToString();
     }
 
+    public Trigger getRuleById(String ruleId) {
+        return this.rulesManager.getRuleById(ruleId);
+    }
+
     public Map<String, Trigger> getRules() {
         return this.rulesManager.getRules();
     }

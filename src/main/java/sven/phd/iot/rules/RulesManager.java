@@ -7,6 +7,7 @@ import sven.phd.iot.rules.actions.LightOffAction;
 import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.rules.actions.OutletAction;
 import sven.phd.iot.rules.triggers.*;
+import sven.phd.iot.students.bram.rules.BramRulesManager;
 
 import java.awt.*;
 import java.util.*;
@@ -72,8 +73,12 @@ public class RulesManager {
         this.rules.put("rule.motion_clear", noMotionTrigger);
 
         Trigger minimumTempTrigger = new TemperatureTrigger("rule.mininum_temperature", -50, 15);
-
         this.rules.put("rule.mininum_temperature", minimumTempTrigger);
+
+
+        //Load Bram's rules
+        this.rules.putAll(BramRulesManager.getRules());
+
     }
 
     /**
@@ -157,5 +162,9 @@ public class RulesManager {
 
     public Map<String, Trigger> getRules() {
         return this.rules;
+    }
+
+    public Trigger getRuleById(String id) {
+        return rules.get(id);
     }
 }

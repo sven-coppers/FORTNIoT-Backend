@@ -15,8 +15,13 @@ public class HassioDeviceTrackerState extends HassioState {
         try {
             this.attributes = new ObjectMapper().readValue(hassioState.attributes.toString(), HassioDeviceTrackerAttributes.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println(hassioState.attributes.toString());
         }
+    }
+
+    @Override
+    public HassioState processRawState(HassioStateRaw raw) {
+        return new HassioDeviceTrackerState(raw);
     }
 }

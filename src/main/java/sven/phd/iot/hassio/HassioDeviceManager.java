@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class HassioDeviceManager implements EventListener {
-    private static String HASSIO_URL = "http://hassio.local:8123/api/";
+    private static String HASSIO_URL = BearerToken.getInstance().getUrl() + "/api/";
     private static Map<String, HassioDevice> hassioDeviceMap;
     private ContextManager contextManager;
     private Client client;
@@ -46,7 +46,9 @@ public class HassioDeviceManager implements EventListener {
 
     public HassioDeviceManager(ContextManager contextManager) {
         System.out.println("Initiating HassioDeviceManager ...");
+
         this.hassioDeviceMap = new HashMap<String, HassioDevice>();
+
         this.contextManager = contextManager;
         this.isListeningToHassioInstance = false;
         this.initialiseVirtualDevices();
@@ -103,6 +105,9 @@ public class HassioDeviceManager implements EventListener {
 
         for(HassioStateRaw hassioStateRaw : hassioStateRawList) {
             String entity_id = hassioStateRaw.entity_id;
+            String friendlyName = hassioStateRaw.attributes.get("friendly_name").asText();
+
+            System.out.println(friendlyName);
             HassioDevice device = null;
 
             if(entity_id.contains("sun.")) {

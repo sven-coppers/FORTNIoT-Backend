@@ -29,4 +29,9 @@ public class HassioSunState extends HassioState {
 
         this.attributes = new HassioSunAttributes(elevation, rising);
     }
+
+    @Override
+    public HassioState processRawState(HassioStateRaw raw) {
+        return new HassioSunState(raw);
+    }
 }

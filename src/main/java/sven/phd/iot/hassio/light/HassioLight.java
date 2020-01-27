@@ -43,4 +43,5 @@ public class HassioLight extends HassioDevice {
         // A lamp cannot know its future events
         return new ArrayList<HassioEvent>();
     }
+
 }

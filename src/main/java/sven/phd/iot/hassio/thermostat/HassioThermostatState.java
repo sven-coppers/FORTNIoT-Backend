@@ -30,4 +30,10 @@ public class HassioThermostatState extends HassioState {
         this.last_updated = last_changed;
         this.datetime = last_changed;
     }
+
+    @Override
+    public HassioState processRawState(HassioStateRaw raw) {
+        System.err.println("processRawState not supported HassioThermostat");
+        return null;
+    }
 }

@@ -16,6 +16,7 @@ $("#apply").click(function() {
 function refresh() {
     this.refreshDevices();
     this.refreshRules();
+    this.refreshStates();
     this.refreshConfig();
 }
 
@@ -72,7 +73,7 @@ function refreshRules() {
     });
 }
 
-function refreshDevices() {
+function refreshStates() {
     $.ajax({
         url:            "http://localhost:8080/intelligibleIoT/api/states/",
         type:           "GET",
@@ -80,20 +81,44 @@ function refreshDevices() {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
         }
     }).done(function (data) {
-        $("#table_body_devices").empty();
+        $("#table_body_states").empty();
 
         for (let deviceID in data) {
             let deviceState = data[deviceID];
 
             if(deviceState == null) continue;
 
-            $("#table_body_devices").append('<tr>\n' +
-                '    <td class="checkbox_cell"><input type="checkbox" name="device_enabled" id="' + deviceID + '_enabled" value="' + deviceID + '_enabled"></td>\n' +
-                '    <td class="checkbox_cell"><input type="checkbox" name="device_available" id="' + deviceID + '_available" value="' + deviceID + '_available"></td>\n' +
+            $("#table_body_states").append('<tr>\n' +
                 '    <td>' + deviceID + '</td>\n' +
                 '    <td>' + deviceState["state"] + '</td>\n' +
                 '    <td>' + dateToString(new Date(deviceState["last_changed"])) + '</td>\n' +
                 '    <td>' + dateToString(new Date(deviceState["last_updated"]))+ '</td>\n' +
+                //     '    <td>' + JSON.stringify(device["attributes"]).substring(0, 100) + '...</td>\n' +
+                '</tr>');
+
+            //  setRuleProperties(HTMLID, rule["enabled"], rule["available"]);
+        }
+    });
+}
+
+function refreshDevices() {
+    $.ajax({
+        url:            "http://localhost:8080/intelligibleIoT/api/bram/devices/",
+        type:           "GET",
+        headers: {
+            Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
+        }
+    }).done(function (data) {
+        $("#table_body_devices").empty();
+
+        for (let device in data) {
+            if(device == null) continue;
+
+            $("#table_body_devices").append('<tr>\n' +
+                '    <td class="checkbox_cell"><input type="checkbox" name="device_enabled" id="' + device["id"] + '_enabled" value="' + device["id"] + '_enabled"></td>\n' +
+                '    <td class="checkbox_cell"><input type="checkbox" name="device_available" id="' + device["id"] + '_available" value="' + device["id"] + '_available"></td>\n' +
+                '    <td>' + device["id"] + '</td>\n' +
+                '    <td>' + device["friendly_name"] + '</td>\n' +
            //     '    <td>' + JSON.stringify(device["attributes"]).substring(0, 100) + '...</td>\n' +
                 '</tr>');
 

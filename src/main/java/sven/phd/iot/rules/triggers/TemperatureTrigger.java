@@ -42,7 +42,7 @@ public class TemperatureTrigger extends Trigger {
     }
 
     @Override
-    protected List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         HassioWeatherState hassioWeatherState = (HassioWeatherState) hassioStates.get("weather.dark_sky");
         float temperature = hassioWeatherState.attributes.temperature;
 

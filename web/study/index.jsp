@@ -68,18 +68,15 @@
                 <td class="checkbox_cell">Enabled</td>
                 <td class="checkbox_cell">Available to user</td>
                 <td>Identifier</td>
-                <td>State</td>
-                <td>Last CHANGED</td>
-                <td>Last UPDATED</td>
-                <!--<td>Atrributes</td> -->
+                <td>Friendly Name</td>
             </tr>
             </thead>
             <tbody id="table_body_devices"></tbody>
         </table>
     </div>
+
     <div class="block">
         <h2>Rules</h2>
-
         <table>
             <thead>
                 <tr>
@@ -92,6 +89,22 @@
             </thead>
             <tbody id="table_body_rules"></tbody>
         </table>
+
+        <div class="block">
+            <h2>States</h2>
+            <table>
+                <thead>
+                <tr>
+                    <td>Device</td>
+                    <td>State</td>
+                    <td>Last CHANGED</td>
+                    <td>Last UPDATED</td>
+                    <!--<td>Atrributes</td> -->
+                </tr>
+                </thead>
+                <tbody id="table_body_states"></tbody>
+            </table>
+        </div>
 
   <!--      <h2>Device sets</h2>
         <p>

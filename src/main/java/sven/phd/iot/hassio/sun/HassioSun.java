@@ -61,4 +61,5 @@ public class HassioSun extends HassioDevice {
 
         return result;
     }
+
 }

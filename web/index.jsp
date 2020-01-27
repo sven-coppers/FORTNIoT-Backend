@@ -36,6 +36,9 @@
     <h1>Endpoints Bram</h1>
     <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/bram/">bram/</a> Hello, world</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/bram/devices">bram/devices</a> Get the id and friendly name of all the devices</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/bram/devices/sun.sun">bram/devices/{id}</a> Get the id and friendly name of a particular device</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/bram/why/light.hue_color_lamp_2">bram/why/{id}</a> Get the reason of the state of a entity</li>
     </ul>
   </div>
 

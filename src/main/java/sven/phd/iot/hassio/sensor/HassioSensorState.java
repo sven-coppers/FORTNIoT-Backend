@@ -18,4 +18,10 @@ public class HassioSensorState extends HassioState {
             e.printStackTrace();
         }
     }
+
+
+    @Override
+    public HassioState processRawState(HassioStateRaw raw) {
+        return new HassioSensorState(raw);
+    }
 }

@@ -36,4 +36,9 @@ public class HassioBusState extends HassioState {
 
         this.attributes = new HassioBusAttributes(hassioBusPassage);
     }
+
+    @Override
+    public  HassioState processRawState(HassioStateRaw raw) {
+        return new HassioBusState(raw);
+    }
 }

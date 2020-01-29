@@ -44,16 +44,15 @@ public class HassioDeviceManager implements EventListener {
     private Client client;
     private WebTarget target;
     private EventSource eventSource;
-    private boolean connectedToHassioInstance;
 
     public HassioDeviceManager(ContextManager contextManager) {
         System.out.println("HassioDeviceManager - Initiating...");
 
         this.hassioDeviceMap = new HashMap<String, HassioDevice>();
+        this.eventSource = null;
         this.HASSIO_URL = null;
 
         this.contextManager = contextManager;
-        this.connectedToHassioInstance = false;
         this.initialiseVirtualDevices();
     }
 
@@ -83,28 +82,19 @@ public class HassioDeviceManager implements EventListener {
 
             //Fetch users from the server
             UserService.getInstance();
-
-            this.connectedToHassioInstance = true;
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            this.connectedToHassioInstance = false;
         }
     }
 
     public void stopListening() {
         eventSource.close();
-        this.connectedToHassioInstance = false;
         System.out.println("HassioDeviceManager - Disconnected from Hassio Instance");
     }
 
     public void initialiseVirtualDevices() {
-        HassioThermostat heater = new HassioThermostat("thermostat.heating", "Heater");
-        heater.logState(new HassioThermostatState("heating", 21));
-        this.hassioDeviceMap.put("thermostat.heating", heater);
-
-        HassioThermostat airco = new HassioThermostat("thermostat.airco", "Air Conditioning");
-        airco.logState(new HassioThermostatState("cooling", 20));
-        this.hassioDeviceMap.put("thermostat.airco", airco);
+        this.hassioDeviceMap.put("thermostat.heating", new HassioThermostat("thermostat.heating", "Heater"));
+        this.hassioDeviceMap.put("thermostat.airco", new HassioThermostat("thermostat.airco", "Air Conditioning"));
     }
 
     /**
@@ -162,11 +152,7 @@ public class HassioDeviceManager implements EventListener {
             } else if(entity_id.contains("automation.")) {
                 continue; // Ignore
             }  else if(entity_id.contains("calendar.")) {
-                 if(entity_id.contains("calendar.sven_coppers_uhasselt_be")) {
-                     device = new HassioCalendar(entity_id, friendlyName);
-                } else {
-                     continue; // Ignore
-                }
+                device = new HassioCalendar(entity_id, friendlyName);
             } else if(entity_id.contains("group.")) {
                 // TODO
                 continue;
@@ -411,6 +397,26 @@ public class HassioDeviceManager implements EventListener {
     }
 
     public boolean isConnectedToHassioInstance() {
-        return connectedToHassioInstance;
+        if(eventSource == null) return false;
+
+        return eventSource.isOpen();
+    }
+
+    public void setAllDevicesAvailable(boolean available) {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).setAvailable(available);
+        }
+    }
+
+    public void setDeviceEnabled(String deviceID, boolean enabled) {
+        if(hassioDeviceMap.containsKey(deviceID)) {
+            hassioDeviceMap.get(deviceID).setEnabled(enabled);
+        }
+    }
+
+    public void setDeviceAvailable(String deviceID, boolean available) {
+        if(hassioDeviceMap.containsKey(deviceID)) {
+            hassioDeviceMap.get(deviceID).setAvailable(available);
+        }
     }
 }

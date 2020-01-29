@@ -11,8 +11,8 @@ import java.util.List;
 public class LightOffAction extends Action {
     private final String deviceIdentifier;
 
-    public LightOffAction(String deviceIdentifier) {
-        super("Turn off " + deviceIdentifier);
+    public LightOffAction(String description, String deviceIdentifier) {
+        super(description);
         this.deviceIdentifier = deviceIdentifier;
     }
 

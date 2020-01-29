@@ -28,6 +28,8 @@
     <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/config">config/</a> Get the system configuration</li>
       <li><span class="method">PUT</span> <a class="uri" href="api/config">config/</a> Set the system configuration {enabled: true, available: true}</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/study/case">study/case/</a> Get the current use case of the study</li>
+      <li><span class="method">PUT</span> <a class="uri" href="api/study/case/">study/case/</a> Set the current use case of the study</li>
     </ul>
     <p>Do you want to perform the <a class="button" href="study/">study</a>?</p>
   </div>

@@ -7,10 +7,10 @@ import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import java.util.List;
 
 abstract public class Action {
-    @JsonProperty("description") public String title;
+    @JsonProperty("description") public String description;
 
-    public Action(String title) {
-        this.title = title;
+    public Action(String description) {
+        this.description = description;
     }
 
   //  abstract public void previewHandler(Map<String, HassioState> newState);
@@ -20,6 +20,6 @@ abstract public class Action {
 
     @Override
     public String toString() {
-        return this.title;
+        return this.description;
     }
 }

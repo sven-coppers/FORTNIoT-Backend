@@ -11,6 +11,7 @@ import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.HassioUpdate;
+import sven.phd.iot.models.StudyManager;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.rules.RulesManager;
@@ -28,11 +29,13 @@ public class ContextManager {
     private HassioDeviceManager hassioDeviceManager;
     private RulesManager rulesManager;
     private PredictionEngine predictionEngine;
+    private StudyManager studyManager;
 
     private ContextManager() {
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager);
+        this.studyManager = new StudyManager(this);
 
         // NEVER EVER START PREDICTING WHEN LAUNCHING THIS SHIT
     }
@@ -234,5 +237,9 @@ public class ContextManager {
 
     public Future simulateAlternativeFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
         return this.predictionEngine.whatIf(simulatedRulesEnabled, simulatedStates);
+    }
+
+    public StudyManager getStudyManager() {
+        return studyManager;
     }
 }

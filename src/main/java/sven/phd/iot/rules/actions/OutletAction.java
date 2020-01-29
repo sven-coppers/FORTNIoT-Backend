@@ -13,8 +13,8 @@ public class OutletAction extends Action {
     private final String deviceIdentifier;
     private final String newState;
 
-    public OutletAction(String deviceIdentifier, String newState) {
-        super("Set " + deviceIdentifier + " to " + newState);
+    public OutletAction(String description, String deviceIdentifier, String newState) {
+        super(description);
         this.deviceIdentifier = deviceIdentifier;
         this.newState = newState;
     }

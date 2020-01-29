@@ -2,30 +2,40 @@ package sven.phd.iot.api.resources;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.api.request.UseCaseRequest;
-import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.models.Configuration;
+import sven.phd.iot.models.StudyManager;
 
 import javax.inject.Singleton;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Singleton
 @Path("study/")
 public class StudyResource {
+    @GET
+    @Path("case/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public UseCaseRequest getConfig() {
+        StudyManager studyManager = ContextManager.getInstance().getStudyManager();
+
+        UseCaseRequest useCaseRequest = new UseCaseRequest();
+
+        useCaseRequest.deviceSet = studyManager.getDeviceSet();
+        useCaseRequest.ruleSet = studyManager.getRuleSet();
+        useCaseRequest.stateSet = studyManager.getStateSet();
+
+        return useCaseRequest;
+    }
+
     @PUT
     @Path("case/")
     @Consumes(MediaType.APPLICATION_JSON)
     public void setConfig(UseCaseRequest useCaseRequest) {
-        System.out.println("Rule set: " + useCaseRequest.ruleSet);
-        System.out.println("Device set: " + useCaseRequest.deviceSet);
-        System.out.println("State set: " + useCaseRequest.stateSet);
+        StudyManager studyManager = ContextManager.getInstance().getStudyManager();
 
-        HassioDeviceManager hassioDeviceManager = ContextManager.getInstance().getHassioDeviceManager();
+        studyManager.setRuleSet(useCaseRequest.ruleSet);
+        studyManager.setDeviceSet(useCaseRequest.deviceSet);
+        studyManager.setStateSet(useCaseRequest.stateSet);
 
-        if(useCaseRequest.ruleSet.equals("simple")) {
-
-        }
+        StateResource.getInstance().broadcastRefresh();
     }
 }

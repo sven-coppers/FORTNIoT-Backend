@@ -13,17 +13,31 @@ $("#apply").click(function() {
     applyUseCase();
 });
 
+$("#update_predictions").click(function() {
+    $.ajax({
+        url:            "http://localhost:8080/intelligibleIoT/api/config/predictions/update/",
+        type:           "GET",
+        headers: {
+            Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
+        }
+    }).done(function (data) {
+        refresh();
+    });
+});
+
 function refresh() {
     this.refreshDevices();
     this.refreshRules();
     this.refreshStates();
     this.refreshConfig();
     this.refreshStudy();
+    this.refreshPredictions();
 }
 
 $("#start_listening").click(function() { applyConfig(true); });
 $("#stop_listening").click(function() { applyConfig(false); });
-
+$("#start_predicting").click(function() { applyPredictions(true); });
+$("#stop_predicting").click(function() { applyPredictions(false); });
 
 function applyUseCase() {
     let useCase = {
@@ -141,6 +155,19 @@ function refreshConfig() {
     });
 }
 
+function refreshPredictions() {
+    $.ajax({
+        url:            "http://localhost:8080/intelligibleIoT/api/config/predictions",
+        type:           "GET",
+        headers: {
+            Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
+        }
+    }).done(function (data) {
+        $("#start_predicting").attr('disabled', data["predictions"]);
+        $("#stop_predicting").attr('disabled', !data["predictions"]);
+    });
+}
+
 function refreshStudy() {
     $.ajax({
         url:            "http://localhost:8080/intelligibleIoT/api/study/case/",
@@ -204,6 +231,20 @@ function applyConfig(listeningToConfig) {
 
     $.ajax({
         url:            "http://localhost:8080/intelligibleIoT/api/config/",
+        type:           "PUT",
+        data: JSON.stringify(config),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+    }).done(function (data) {
+        refresh();
+    });
+}
+
+function applyPredictions(predictions) {
+    let config = {predictions : predictions};
+
+    $.ajax({
+        url:            "http://localhost:8080/intelligibleIoT/api/config/predictions/",
         type:           "PUT",
         data: JSON.stringify(config),
         contentType: "application/json; charset=utf-8",

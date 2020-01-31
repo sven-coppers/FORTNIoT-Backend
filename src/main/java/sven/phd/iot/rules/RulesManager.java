@@ -75,6 +75,10 @@ public class RulesManager {
         Trigger minimumTempTrigger = new TemperatureTrigger("rule.mininum_temperature", -50, 15);
         this.rules.put("rule.mininum_temperature", minimumTempTrigger);
 
+        Trigger heaterTrigger = new StateTrigger("rule.heater_on_trigger", "heater.heater", "heating", "If the heater is on");
+        heaterTrigger.addAction(new LightOffAction("turn off standing lamp", "light.standing_lamp"));
+        this.rules.put("rule.heater_on_trigger", heaterTrigger);
+
 
         //Load Bram's rules
         //this.rules.putAll(BramRulesManager.getRules());

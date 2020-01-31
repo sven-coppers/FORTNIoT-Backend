@@ -28,6 +28,7 @@ import sven.phd.iot.hassio.thermostat.HassioThermostatState;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
+import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.students.bram.questions.why.user.UserService;
 
 import javax.ws.rs.client.Client;
@@ -45,6 +46,7 @@ public class HassioDeviceManager implements EventListener {
     private Client client;
     private WebTarget target;
     private EventSource eventSource;
+    private HassioStateScheduler stateScheduler;
 
     public HassioDeviceManager(ContextManager contextManager) {
         System.out.println("HassioDeviceManager - Initiating...");
@@ -54,6 +56,7 @@ public class HassioDeviceManager implements EventListener {
         this.HASSIO_URL = null;
 
         this.contextManager = contextManager;
+        this.stateScheduler = new HassioStateScheduler(this);
         this.initialiseVirtualDevices();
     }
 
@@ -108,33 +111,44 @@ public class HassioDeviceManager implements EventListener {
 
         relativeTime.setTime(new Date());
         relativeTime.add(Calendar.MINUTE, -39); // Begin 30 minuten in het verleden
-        this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
-        relativeTime.add(Calendar.MINUTE, 5);
+
+        // Always log the first state of every device
+        this.hassioDeviceMap.get("heater.heater").logState(new HassioThermostatState("heater.heater", "eco", 21, relativeTime.getTime()));
+        this.hassioDeviceMap.get("airco.airco").logState(new HassioThermostatState("airco.airco", "eco", 21, relativeTime.getTime()));
         this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioLightState("light.standing_lamp", "off", relativeTime.getTime()));
+        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioLightState("light.kitchen_spots", "off", relativeTime.getTime()));
+        this.hassioDeviceMap.get("light.living_spots").logState(new HassioLightState("light.living_spots", "off", relativeTime.getTime()));
+
+
+        // Other states can be used to predict
+        this.stateScheduler.scheduleState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 5);
+        this.stateScheduler.scheduleState(new HassioLightState("light.standing_lamp", "off", relativeTime.getTime()));
         relativeTime.add(Calendar.MINUTE, 35);
-        this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 60);
+        this.stateScheduler.scheduleState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
 
         relativeTime.setTime(new Date());
         relativeTime.add(Calendar.MINUTE, -20); // Begin 30 minuten in het verleden
-        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioLightState("light.kitchen_spots", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioLightState("light.kitchen_spots", "on", relativeTime.getTime()));
         relativeTime.add(Calendar.MINUTE, 5);
-        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioLightState("light.kitchen_spots", "off", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioLightState("light.kitchen_spots", "off", relativeTime.getTime()));
         relativeTime.add(Calendar.MINUTE, 35);
-        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioLightState("light.kitchen_spots", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioLightState("light.kitchen_spots", "on", relativeTime.getTime()));
 
         relativeTime.setTime(new Date());
-        this.hassioDeviceMap.get("light.living_spots").logState(new HassioLightState("light.living_spots", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioLightState("light.living_spots", "on", relativeTime.getTime()));
         relativeTime.add(Calendar.MINUTE, 5);
-        this.hassioDeviceMap.get("light.living_spots").logState(new HassioLightState("light.living_spots", "off", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioLightState("light.living_spots", "off", relativeTime.getTime()));
         relativeTime.add(Calendar.MINUTE, 35);
-        this.hassioDeviceMap.get("light.living_spots").logState(new HassioLightState("light.living_spots", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioLightState("light.living_spots", "on", relativeTime.getTime()));
 
-        this.hassioDeviceMap.get("heater.heater").logState(new HassioThermostatState("heater.heater", "heating", 21, relativeTime.getTime()));
-        this.hassioDeviceMap.get("airco.airco").logState(new HassioThermostatState("airco.airco", "eco", 21, relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioThermostatState("heater.heater", "heating", 21, relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioThermostatState("airco.airco", "cooling", 21, relativeTime.getTime()));
         relativeTime.add(Calendar.MINUTE, 35);
-        this.hassioDeviceMap.get("heater.heater").logState(new HassioThermostatState("heater.heater", "eco", 21, relativeTime.getTime()));
-        this.hassioDeviceMap.get("airco.airco").logState(new HassioThermostatState("airco.airco", "cooling", 21, relativeTime.getTime()));
-
+        this.stateScheduler.scheduleState(new HassioThermostatState("heater.heater", "eco", 21, relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioThermostatState("airco.airco", "cooling", 21, relativeTime.getTime()));
     }
 
     /**
@@ -298,20 +312,39 @@ public class HassioDeviceManager implements EventListener {
 
                 HassioChange hassioChange = new HassioChange(entityID, oldState, newState, hassioChangeRaw.timeFired);
 
-                if(this.hassioDeviceMap.containsKey(entityID)) {
-                    this.hassioDeviceMap.get(entityID).logState(newState);
-
-                    // Check if something needs to happen
-                    this.contextManager.deviceChanged(hassioChange);
-                } else {
-                    System.out.println("Ignored change: " + message);
-                }
+                this.stateChanged(hassioChange);
             } else {
                 System.err.println(message);
             }
         } catch (IOException e) {
             System.err.println(message);
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * To be called by Home assistant, or by stateScheduler
+     */
+    private void stateChanged(HassioChange hassioChange) {
+        if(this.hassioDeviceMap.containsKey(hassioChange.entity_id)) {
+            this.hassioDeviceMap.get(hassioChange.entity_id).logState(hassioChange.hassioChangeData.newState);
+
+            // Check if something needs to happen
+            this.contextManager.deviceChanged(hassioChange);
+        } else {
+            System.out.println("Ignored incoming change");
+        }
+    }
+
+    /**
+     * To be called by stateScheduler
+     */
+    public void stateChanged(HassioState newState) {
+        if(this.hassioDeviceMap.containsKey(newState.entity_id)) {
+            HassioState oldState = this.hassioDeviceMap.get(newState.entity_id).getLastState();
+            HassioChange hassioChange = new HassioChange(newState.entity_id, oldState, newState, newState.last_changed);
+
+            this.stateChanged(hassioChange);
         }
     }
 
@@ -460,5 +493,9 @@ public class HassioDeviceManager implements EventListener {
         if(hassioDeviceMap.containsKey(deviceID)) {
             hassioDeviceMap.get(deviceID).setAvailable(available);
         }
+    }
+
+    public HassioStateScheduler getStateScheduler() {
+        return this.stateScheduler;
     }
 }

@@ -246,4 +246,8 @@ public class ContextManager {
     public RulesManager getRulesManager() {
         return rulesManager;
     }
+
+    public PredictionEngine getPredictionEngine() {
+        return this.predictionEngine;
+    }
 }

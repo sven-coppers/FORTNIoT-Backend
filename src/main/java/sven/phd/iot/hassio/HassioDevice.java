@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
@@ -181,7 +182,6 @@ abstract public class HassioDevice {
 
         return contexts;
     }
-
 
     public boolean isEnabled() {
         return enabled;

@@ -1,7 +1,7 @@
-package sven.phd.iot.models;
+package sven.phd.iot.api.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Configuration {
+public class ConnectionRequest {
     @JsonProperty("connected_to_hassio") public boolean connectedToHassio;
 }

@@ -36,6 +36,8 @@ public class StudyResource {
         studyManager.setDeviceSet(useCaseRequest.deviceSet);
         studyManager.setStateSet(useCaseRequest.stateSet);
 
+        ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();
+
         StateResource.getInstance().broadcastRefresh();
     }
 }

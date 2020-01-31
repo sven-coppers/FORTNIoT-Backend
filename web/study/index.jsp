@@ -54,7 +54,12 @@
         </table>
         <button id="apply">Apply</button>
     </div>
-
+    <div class="block">
+        <h2>Predictions</h2>
+        <button id="start_predicting">Start Predicting</button>
+        <button id="stop_predicting">Stop Predicting</button>
+        <button id="update_predictions">Update Predictions</button>
+    </div>
     <div class="block">
         <h2>Hassio Instance</h2>
         <p>Connect to an existing Hassio Instance to start listening to actual IoT environment</p>

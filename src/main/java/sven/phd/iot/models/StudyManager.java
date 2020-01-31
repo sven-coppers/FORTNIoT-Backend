@@ -29,7 +29,7 @@ public class StudyManager {
         if(ruleSet.equals("all")) {
             rulesManager.setAllRulesAvailable(true);
         } else if(ruleSet.equals("1")) {
-            rulesManager.setRuleAvailable("rule.temp_average", true);
+            rulesManager.setRuleAvailable("rule.heater_on_trigger", true);
         }
     }
 

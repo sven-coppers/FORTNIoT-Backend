@@ -149,21 +149,9 @@ function refreshStudy() {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
         }
     }).done(function (data) {
-        /* rule_set: $( "#rule_set option:selected" ).val().replace("rule_set_", ""),
-             device_set: $( "#device_set option:selected" ).val().replace("device_set_", ""),
-             state_set: $( "#state_set option:selected" ).val().replace("state_set_", ""),
-
-             option[value="SEL1"]
-
-         rule_set_ +*/
-
         $('#rule_set option[value="rule_set_' + data["rule_set"] + '"]').prop('selected', 'selected');
         $('#state_set option[value="state_set_' + data["state_set"] + '"]').prop('selected', 'selected');
         $('#device_set option[value="device_set_' + data["device_set"] + '"]').prop('selected', 'selected');
-
-
-        $("#start_listening").attr('disabled', data["connected_to_hassio"]);
-        $("#stop_listening").attr('disabled', !data["connected_to_hassio"]);
     });
 }
 

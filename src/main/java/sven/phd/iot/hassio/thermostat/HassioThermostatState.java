@@ -21,14 +21,15 @@ public class HassioThermostatState extends HassioState {
         }
     }
 
-    public HassioThermostatState(String state, float targetTemp) {
+    public HassioThermostatState(String entityID, String state, float targetTemp, Date date) {
         this.attributes = new HassioThermostatAttributes();
+        this.entity_id =entityID;
 
         this.attributes.targetTemp = targetTemp;
         this.state = state;
-        this.last_changed = new Date();
-        this.last_updated = last_changed;
-        this.datetime = last_changed;
+        this.last_changed = date;
+        this.last_updated = date;
+        this.datetime = date;
     }
 
     @Override

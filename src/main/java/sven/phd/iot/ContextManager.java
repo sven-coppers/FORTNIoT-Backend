@@ -242,4 +242,8 @@ public class ContextManager {
     public StudyManager getStudyManager() {
         return studyManager;
     }
+
+    public RulesManager getRulesManager() {
+        return rulesManager;
+    }
 }

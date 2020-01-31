@@ -167,4 +167,27 @@ public class RulesManager {
     public Trigger getRuleById(String id) {
         return rules.get(id);
     }
+
+    public void setAllRulesAvailable(boolean available) {
+        for(String deviceID : this.rules.keySet()) {
+            rules.get(deviceID).setAvailable(available);
+        }
+    }
+
+    public void setRuleEnabled(String ruleID, boolean enabled) {
+        if(rules.containsKey(ruleID)) {
+            rules.get(ruleID).setEnabled(enabled);
+        }
+    }
+
+    public void setRuleAvailable(String ruleID, boolean available) {
+        if(rules.containsKey(ruleID)) {
+            rules.get(ruleID).setAvailable(available);
+
+            // It would be confusing if a rule is unavailable to the user, but still active
+            if(available == false) {
+                this.setRuleEnabled(ruleID, false);
+            }
+        }
+    }
 }

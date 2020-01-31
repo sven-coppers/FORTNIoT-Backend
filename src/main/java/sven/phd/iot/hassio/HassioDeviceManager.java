@@ -14,6 +14,7 @@ import sven.phd.iot.hassio.calendar.HassioCalendar;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.change.HassioChangeRaw;
 import sven.phd.iot.hassio.light.HassioLight;
+import sven.phd.iot.hassio.light.HassioLightState;
 import sven.phd.iot.hassio.outlet.HassioOutlet;
 import sven.phd.iot.hassio.sensor.HassioBinarySensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
@@ -93,8 +94,47 @@ public class HassioDeviceManager implements EventListener {
     }
 
     public void initialiseVirtualDevices() {
-        this.hassioDeviceMap.put("thermostat.heating", new HassioThermostat("thermostat.heating", "Heater"));
-        this.hassioDeviceMap.put("thermostat.airco", new HassioThermostat("thermostat.airco", "Air Conditioning"));
+        Calendar relativeTime = Calendar.getInstance();
+
+        this.hassioDeviceMap.put("heater.heater", new HassioThermostat("heating.heating", "Heater"));
+        this.hassioDeviceMap.put("airco.airco", new HassioThermostat("airco.airco", "Air Conditioning"));
+        this.hassioDeviceMap.put("light.standing_lamp", new HassioLight("light.standing_lamp", "Standing Lamp"));
+        this.hassioDeviceMap.put("light.kitchen_spots", new HassioLight("light.kitchen_spots", "Kitchen Spots"));
+        this.hassioDeviceMap.put("light.living_spots", new HassioLight("light.living_spots", "Living Spots"));
+
+        // T+0:00:00: licht was aan (onzichtbaar)
+        // T+0:05:00: licht ging uit
+        // T+0:40:00: licht gaat aan
+
+        relativeTime.setTime(new Date());
+        relativeTime.add(Calendar.MINUTE, -39); // Begin 30 minuten in het verleden
+        this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 5);
+        this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioLightState("light.standing_lamp", "off", relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 35);
+        this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
+
+        relativeTime.setTime(new Date());
+        relativeTime.add(Calendar.MINUTE, -20); // Begin 30 minuten in het verleden
+        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioLightState("light.kitchen_spots", "on", relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 5);
+        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioLightState("light.kitchen_spots", "off", relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 35);
+        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioLightState("light.kitchen_spots", "on", relativeTime.getTime()));
+
+        relativeTime.setTime(new Date());
+        this.hassioDeviceMap.get("light.living_spots").logState(new HassioLightState("light.living_spots", "on", relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 5);
+        this.hassioDeviceMap.get("light.living_spots").logState(new HassioLightState("light.living_spots", "off", relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 35);
+        this.hassioDeviceMap.get("light.living_spots").logState(new HassioLightState("light.living_spots", "on", relativeTime.getTime()));
+
+        this.hassioDeviceMap.get("heater.heater").logState(new HassioThermostatState("heater.heater", "heating", 21, relativeTime.getTime()));
+        this.hassioDeviceMap.get("airco.airco").logState(new HassioThermostatState("airco.airco", "eco", 21, relativeTime.getTime()));
+        relativeTime.add(Calendar.MINUTE, 35);
+        this.hassioDeviceMap.get("heater.heater").logState(new HassioThermostatState("heater.heater", "eco", 21, relativeTime.getTime()));
+        this.hassioDeviceMap.get("airco.airco").logState(new HassioThermostatState("airco.airco", "cooling", 21, relativeTime.getTime()));
+
     }
 
     /**
@@ -159,6 +199,8 @@ public class HassioDeviceManager implements EventListener {
             } else if(entity_id.contains("zone.")) {
                 // TODO
                 continue;
+            } else if(entity_id.contains("scene.")) {
+                continue; // Ignore
             } else if(entity_id.contains("persistent_notification.")) {
                 continue; // Ignore
             }

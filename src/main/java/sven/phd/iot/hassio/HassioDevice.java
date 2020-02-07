@@ -1,13 +1,11 @@
 package sven.phd.iot.hassio;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
-import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.services.HassioService;
-import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
+import sven.phd.iot.hassio.states.*;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
 import javax.ws.rs.client.*;
@@ -15,9 +13,9 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
@@ -52,6 +50,8 @@ abstract public class HassioDevice {
      * @return
      */
     abstract public List<HassioContext> setState(HassioState hassioState);
+
+   // abstract public HassioGenericState simulateState(String state, Date date);
 
     /**
      * Get the last known state of this device
@@ -104,7 +104,7 @@ abstract public class HassioDevice {
      * Let the deivce predict its own future state changes (without external influences)
      * @return
      */
-    public List<HassioChange> predictFutureChanges() {
+  /*  public List<HassioChange> predictFutureChanges() {
         List<HassioChange> result = new ArrayList<>();
         List<HassioState> states = new ArrayList<>();
 
@@ -116,7 +116,7 @@ abstract public class HassioDevice {
         }
 
         return result;
-    }
+    } */
 
     /**
      * Get the whole event history of this device
@@ -137,8 +137,24 @@ abstract public class HassioDevice {
      * @param hassioStateRaw
      * @return
      */
-    abstract public HassioState processRawState(HassioStateRaw hassioStateRaw);
+    public HassioState processRawState(HassioStateRaw hassioStateRaw) {
+        try {
+            HassioAttributes hassioAttributes = processRawAttributes(hassioStateRaw.attributes);
+            return new HassioState(hassioStateRaw, hassioAttributes);
+        } catch (IOException e) {
+            System.err.println("Could not process the attributes in " + hassioStateRaw.attributes.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
 
+    /**
+     * Process the raw json for attributes of a state
+     * @param rawAttributes
+     * @return
+     * @throws IOException
+     */
+    abstract public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException;
 
     /**
      * Call a service to set the state of this device
@@ -173,7 +189,7 @@ abstract public class HassioDevice {
 
             List<HassioStateRaw> hassioStates = response.readEntity(new GenericType<List<HassioStateRaw>>() {});
 
-            for(HassioState hassioState : hassioStates) {
+            for(HassioStateRaw hassioState : hassioStates) {
                 contexts.add(hassioState.context);
             }
         } catch (Exception e) {
@@ -181,6 +197,11 @@ abstract public class HassioDevice {
         }
 
         return contexts;
+    }
+
+    public void clearHistory() {
+        this.hassioStateHistory.clear();
+        this.hassioEventHistory.clear();
     }
 
     public boolean isEnabled() {

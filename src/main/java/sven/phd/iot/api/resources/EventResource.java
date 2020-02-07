@@ -6,7 +6,7 @@ import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
 import org.glassfish.jersey.server.ChunkedOutput;
 import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.models.*;
 
 import javax.inject.Singleton;
@@ -143,7 +143,7 @@ public final class EventResource {
      **/
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Map<String, HassioState> confirmEvent(Event event) {
+    public Map<String, HassioAbstractState> confirmEvent(Event event) {
        /* Snapshot snapshot = HassioClient.getSnapshot(); // --> Devices getStates
         RulesManager rulesManager = RulesManager.getInstance();
         rulesManager.consumeEvent(event, snapshot, RulesManager.EFFECT.CONFIRM);
@@ -163,7 +163,7 @@ public final class EventResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Map<String, HassioState> previewEvent(Event event) {
+    public Map<String, HassioAbstractState> previewEvent(Event event) {
        /* Snapshot snapshot = HassioClient.getSnapshot();
         RulesManager rulesManager = RulesManager.getInstance();
         rulesManager.consumeEvent(event, snapshot, RulesManager.EFFECT.PREVIEW);

@@ -2,6 +2,7 @@ package sven.phd.iot.rules.triggers;
 
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.weather.HassioWeatherState;
 import sven.phd.iot.rules.Trigger;
@@ -31,8 +32,7 @@ public class WeatherChangeTrigger extends Trigger {
 
     @Override
     public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
-
-        HassioWeatherState hassioWeatherState = (HassioWeatherState) hassioStates.get("weather.dark_sky");
+        HassioState hassioWeatherState = hassioStates.get("weather.dark_sky");
         List<HassioContext> triggerContexts = new ArrayList<>();
         triggerContexts.add(hassioWeatherState.context);
         return triggerContexts;

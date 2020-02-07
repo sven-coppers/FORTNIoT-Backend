@@ -1,13 +1,13 @@
 package sven.phd.iot.hassio.thermostat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 
 import java.io.IOException;
 import java.util.Date;
 
-public class HassioThermostatState extends HassioState {
+public class HassioThermostatState extends HassioAbstractState {
     public HassioThermostatAttributes attributes;
 
     public HassioThermostatState(HassioStateRaw hassioState) {
@@ -29,12 +29,5 @@ public class HassioThermostatState extends HassioState {
         this.state = state;
         this.last_changed = date;
         this.last_updated = date;
-        this.datetime = date;
-    }
-
-    @Override
-    public HassioState processRawState(HassioStateRaw raw) {
-        System.err.println("processRawState not supported HassioThermostat");
-        return null;
     }
 }

@@ -2,6 +2,7 @@ package sven.phd.iot.rules.triggers;
 
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Trigger;
 
@@ -35,13 +36,13 @@ public class StateTrigger extends Trigger {
 
     @Override
     public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStateHashMap) {
-        HassioState hassioState = hassioStateHashMap.get(entityID);
+        HassioState hassioAbstractState = hassioStateHashMap.get(entityID);
 
-        if(hassioState == null) return null;
+        if(hassioAbstractState == null) return null;
 
-        if(hassioState.state.equals(triggerState)) {
+        if(hassioAbstractState.state.equals(triggerState)) {
             List<HassioContext> triggerContexts = new ArrayList<>();
-            triggerContexts.add(hassioState.context);
+            triggerContexts.add(hassioAbstractState.context);
             return triggerContexts;
         }
 

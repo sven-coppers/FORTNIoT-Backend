@@ -2,6 +2,7 @@ package sven.phd.iot.predictions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 
 import java.util.ArrayList;

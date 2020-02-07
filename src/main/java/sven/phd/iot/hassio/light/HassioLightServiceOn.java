@@ -2,6 +2,7 @@ package sven.phd.iot.hassio.light;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sven.phd.iot.hassio.states.HassioState;
 
 import java.util.List;
 
@@ -19,15 +20,17 @@ public class HassioLightServiceOn extends HassioLightService {
     @JsonProperty("flash") public String flash;
     @JsonProperty("effect") public String effect;
 
-    public HassioLightServiceOn(HassioLightState hassioLightState) {
-        this.entity_id = hassioLightState.entity_id;
+    public HassioLightServiceOn(HassioState lightState) {
+        HassioLightAttributes attributes = (HassioLightAttributes) lightState.attributes;
+
+        this.entity_id = lightState.entity_id;
         this.transition = true;
-        this.hs_color = hassioLightState.attributes.hs_color;
-        this.rgb_color = hassioLightState.attributes.rgb_color;
-        this.xy_color = hassioLightState.attributes.xy_color;
+        this.hs_color = attributes.hs_color;
+        this.rgb_color = attributes.rgb_color;
+        this.xy_color = attributes.xy_color;
         //this.white_value = 0;
-        this.brightness = hassioLightState.attributes.brightness;
-        this.effect = hassioLightState.attributes.effect;
-        this.flash = hassioLightState.attributes.flash;
+        this.brightness = attributes.brightness;
+        this.effect = attributes.effect;
+        this.flash = attributes.flash;
     }
 }

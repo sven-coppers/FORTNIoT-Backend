@@ -1,6 +1,7 @@
-package sven.phd.iot.students.bram.rules.actions;
+package sven.phd.iot.rules.actions;
 
 import sven.phd.iot.hassio.outlet.HassioOutletAttributes;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
@@ -8,19 +9,20 @@ import sven.phd.iot.rules.Action;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OutletOnAction extends Action {
+public class StateAction extends Action {
     private final String deviceIdentifier;
+    private final String newState;
 
-    public OutletOnAction(String deviceIdentifier) {
-        super("Turn on " + deviceIdentifier);
+    public StateAction(String description, String deviceIdentifier, String newState) {
+        super(description);
         this.deviceIdentifier = deviceIdentifier;
+        this.newState = newState;
     }
 
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
         List<HassioState> newStates = new ArrayList<>();
 
-        //System.out.println("Simulating turn on of " + this.deviceIdentifier);
-        newStates.add(new HassioState(deviceIdentifier, "on", hassioRuleExecutionEvent.datetime, new HassioOutletAttributes()));
+        newStates.add(new HassioState(this.deviceIdentifier, newState, hassioRuleExecutionEvent.datetime, new HassioOutletAttributes()));
 
         return newStates;
     }

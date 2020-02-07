@@ -1,13 +1,14 @@
 package sven.phd.iot.rules;
 
 import sven.phd.iot.hassio.change.HassioChange;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.actions.LightOffAction;
 import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.rules.actions.OutletAction;
+import sven.phd.iot.rules.actions.StateAction;
 import sven.phd.iot.rules.triggers.*;
-import sven.phd.iot.students.bram.rules.BramRulesManager;
 
 import java.awt.*;
 import java.util.*;
@@ -73,6 +74,7 @@ public class RulesManager {
         this.rules.put("rule.motion_clear", noMotionTrigger);
 
         Trigger minimumTempTrigger = new TemperatureTrigger("rule.mininum_temperature", -50, 15);
+        minimumTempTrigger.addAction(new StateAction("turn on the heating", "heater.heater", "heating"));
         this.rules.put("rule.mininum_temperature", minimumTempTrigger);
 
         Trigger heaterTrigger = new StateTrigger("rule.heater_on_trigger", "heater.heater", "heating", "If the heater is on");

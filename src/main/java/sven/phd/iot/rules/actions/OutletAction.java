@@ -1,7 +1,7 @@
 package sven.phd.iot.rules.actions;
 
-import sven.phd.iot.hassio.light.HassioLightState;
-import sven.phd.iot.hassio.outlet.HassioOutletState;
+import sven.phd.iot.hassio.outlet.HassioOutletAttributes;
+import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
@@ -22,9 +22,7 @@ public class OutletAction extends Action {
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
         List<HassioState> newStates = new ArrayList<>();
 
-        HassioOutletState hassioOutletState = new HassioOutletState(this.deviceIdentifier, newState, hassioRuleExecutionEvent.datetime);
-
-        newStates.add(hassioOutletState);
+        newStates.add(new HassioState(this.deviceIdentifier, newState, hassioRuleExecutionEvent.datetime, new HassioOutletAttributes()));
 
         return newStates;
     }

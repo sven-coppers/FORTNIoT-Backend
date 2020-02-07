@@ -14,21 +14,25 @@ import sven.phd.iot.hassio.calendar.HassioCalendar;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.change.HassioChangeRaw;
 import sven.phd.iot.hassio.light.HassioLight;
-import sven.phd.iot.hassio.light.HassioLightState;
+import sven.phd.iot.hassio.light.HassioLightAttributes;
+import sven.phd.iot.hassio.moon.HassioMoon;
 import sven.phd.iot.hassio.outlet.HassioOutlet;
+import sven.phd.iot.hassio.person.HassioPerson;
 import sven.phd.iot.hassio.sensor.HassioBinarySensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
+import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.services.HassioCallService;
 import sven.phd.iot.hassio.states.HassioContext;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
 import sven.phd.iot.hassio.thermostat.HassioThermostat;
+import sven.phd.iot.hassio.thermostat.HassioThermostatAttributes;
 import sven.phd.iot.hassio.thermostat.HassioThermostatState;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
-import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.students.bram.questions.why.user.UserService;
 
 import javax.ws.rs.client.Client;
@@ -104,6 +108,8 @@ public class HassioDeviceManager implements EventListener {
         this.hassioDeviceMap.put("light.standing_lamp", new HassioLight("light.standing_lamp", "Standing Lamp"));
         this.hassioDeviceMap.put("light.kitchen_spots", new HassioLight("light.kitchen_spots", "Kitchen Spots"));
         this.hassioDeviceMap.put("light.living_spots", new HassioLight("light.living_spots", "Living Spots"));
+        this.hassioDeviceMap.put("sensor.indoor_temperature_measurement", new HassioSensor("sensor.indoor_temperature_measurement", "Indoor temperature"));
+        this.hassioDeviceMap.put("sensor.outdoor_temperature_measurement", new HassioSensor("sensor.outdoor_temperature_measurement", "Outdoor temperature"));
 
         // T+0:00:00: licht was aan (onzichtbaar)
         // T+0:05:00: licht ging uit
@@ -113,42 +119,40 @@ public class HassioDeviceManager implements EventListener {
         relativeTime.add(Calendar.MINUTE, -39); // Begin 30 minuten in het verleden
 
         // Always log the first state of every device
-        this.hassioDeviceMap.get("heater.heater").logState(new HassioThermostatState("heater.heater", "eco", 21, relativeTime.getTime()));
-        this.hassioDeviceMap.get("airco.airco").logState(new HassioThermostatState("airco.airco", "eco", 21, relativeTime.getTime()));
-        this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioLightState("light.standing_lamp", "off", relativeTime.getTime()));
-        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioLightState("light.kitchen_spots", "off", relativeTime.getTime()));
-        this.hassioDeviceMap.get("light.living_spots").logState(new HassioLightState("light.living_spots", "off", relativeTime.getTime()));
-
+        this.hassioDeviceMap.get("heater.heater").logState(new HassioState("heater.heater", "eco", relativeTime.getTime(), new HassioThermostatAttributes(21)));
+        this.hassioDeviceMap.get("airco.airco").logState(new HassioState("airco.airco", "eco", relativeTime.getTime(), new HassioThermostatAttributes(21)));
+        this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioState("light.standing_lamp", "off", relativeTime.getTime(), new HassioLightAttributes()));
+        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioState("light.kitchen_spots", "off", relativeTime.getTime(), new HassioLightAttributes()));
+        this.hassioDeviceMap.get("light.living_spots").logState(new HassioState("light.living_spots", "off", relativeTime.getTime(), new HassioLightAttributes()));
+        this.hassioDeviceMap.get("sensor.indoor_temperature_measurement").logState(new HassioState("sensor.indoor_temperature_measurement", "21", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
+        this.hassioDeviceMap.get("sensor.outdoor_temperature_measurement").logState(new HassioState("sensor.outdoor_temperature_measurement", "5", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
 
         // Other states can be used to predict
-        this.stateScheduler.scheduleState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioState("light.standing_lamp", "on", relativeTime.getTime(), new HassioLightAttributes()));
         relativeTime.add(Calendar.MINUTE, 5);
-        this.stateScheduler.scheduleState(new HassioLightState("light.standing_lamp", "off", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioState("light.standing_lamp", "off", relativeTime.getTime(), new HassioLightAttributes()));
         relativeTime.add(Calendar.MINUTE, 35);
-        this.stateScheduler.scheduleState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioState("light.standing_lamp", "on", relativeTime.getTime(), new HassioLightAttributes()));
         relativeTime.add(Calendar.MINUTE, 60);
-        this.stateScheduler.scheduleState(new HassioLightState("light.standing_lamp", "on", relativeTime.getTime()));
 
         relativeTime.setTime(new Date());
         relativeTime.add(Calendar.MINUTE, -20); // Begin 30 minuten in het verleden
-        this.stateScheduler.scheduleState(new HassioLightState("light.kitchen_spots", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioState("light.kitchen_spots", "on", relativeTime.getTime(), new HassioLightAttributes()));
+        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "18", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
         relativeTime.add(Calendar.MINUTE, 5);
-        this.stateScheduler.scheduleState(new HassioLightState("light.kitchen_spots", "off", relativeTime.getTime()));
-        relativeTime.add(Calendar.MINUTE, 35);
-        this.stateScheduler.scheduleState(new HassioLightState("light.kitchen_spots", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioState("light.kitchen_spots", "off", relativeTime.getTime(), new HassioLightAttributes()));
+        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
 
         relativeTime.setTime(new Date());
-        this.stateScheduler.scheduleState(new HassioLightState("light.living_spots", "on", relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioState("light.living_spots", "on", relativeTime.getTime(), new HassioLightAttributes()));
         relativeTime.add(Calendar.MINUTE, 5);
-        this.stateScheduler.scheduleState(new HassioLightState("light.living_spots", "off", relativeTime.getTime()));
         relativeTime.add(Calendar.MINUTE, 35);
-        this.stateScheduler.scheduleState(new HassioLightState("light.living_spots", "on", relativeTime.getTime()));
 
-        this.stateScheduler.scheduleState(new HassioThermostatState("heater.heater", "heating", 21, relativeTime.getTime()));
-        this.stateScheduler.scheduleState(new HassioThermostatState("airco.airco", "cooling", 21, relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioState("heater.heater", "heating", relativeTime.getTime(), new HassioThermostatAttributes(21)));
+        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "22", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
         relativeTime.add(Calendar.MINUTE, 35);
-        this.stateScheduler.scheduleState(new HassioThermostatState("heater.heater", "eco", 21, relativeTime.getTime()));
-        this.stateScheduler.scheduleState(new HassioThermostatState("airco.airco", "cooling", 21, relativeTime.getTime()));
+        this.stateScheduler.scheduleState(new HassioState("heater.heater", "eco", relativeTime.getTime(), new HassioThermostatAttributes(21)));
+        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "20", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
     }
 
     /**
@@ -174,6 +178,8 @@ public class HassioDeviceManager implements EventListener {
                 device = new HassioDeviceTracker(entity_id, friendlyName);
             } else if(entity_id.contains("switch.")) {
                 device = new HassioOutlet(entity_id, friendlyName);
+            } else if(entity_id.contains("person.")) {
+                device = new HassioPerson(entity_id, friendlyName);
             } else if(entity_id.contains(".updater")) {
                 // Ignore
                 continue;
@@ -189,8 +195,9 @@ public class HassioDeviceManager implements EventListener {
                 }
             } else if(entity_id.contains("sensor.")) {
                 if(entity_id.contains("sensor.yr_symbol")) continue; // Ignore
-
-                if(entity_id.contains("sensor.agoralaan_diepenbeek")) {
+                if(entity_id.contains("sensor.moon")) {
+                    device = new HassioMoon();
+                } else if(entity_id.contains("sensor.agoralaan_diepenbeek")) {
                     device = new HassioBus(entity_id, "Bus Stop - Agoralaan");
                 } else if(entity_id.contains("temperature_measurement")) {
                     device = new HassioSensor(entity_id, friendlyName);
@@ -264,14 +271,14 @@ public class HassioDeviceManager implements EventListener {
 
     /**
      * Ask Home Assistant to perform some state changes
-     * @param hassioStates
+     * @param states
      * @return
      */
-    public List<HassioContext> setHassioDeviceStates(List<HassioState> hassioStates) {
+    public List<HassioContext> setHassioDeviceStates(List<HassioState> states) {
         List<HassioContext> contexts = new ArrayList<>();
 
-        for(HassioState hassioState : hassioStates) {
-            contexts.addAll(this.hassioDeviceMap.get(hassioState.entity_id).setState(hassioState));
+        for(HassioState state : states) {
+            contexts.addAll(this.hassioDeviceMap.get(state.entity_id).setState(state));
         }
 
         return contexts;

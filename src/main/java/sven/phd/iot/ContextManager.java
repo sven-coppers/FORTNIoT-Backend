@@ -1,14 +1,10 @@
 package sven.phd.iot;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
-import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.HassioUpdate;
 import sven.phd.iot.models.StudyManager;
@@ -17,11 +13,6 @@ import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
 
 public class ContextManager {
@@ -197,14 +188,14 @@ public class ContextManager {
         List<HassioUpdate> hassioUpdates = new ArrayList<HassioUpdate>();
 
         // Add the history as the last part
-        hassioUpdates.addAll(this.hassioDeviceManager.getStateHistory());
+    /*    hassioUpdates.addAll(this.hassioDeviceManager.getStateHistory());
         hassioUpdates.addAll(this.hassioDeviceManager.getEventHistory());
 
         // Add predictions (from devices and additional simulations)
         hassioUpdates.addAll(this.getStateFuture());
         hassioUpdates.addAll(this.getFutureRuleExecutions());
 
-        Collections.sort(hassioUpdates);
+        Collections.sort(hassioUpdates); */
 
         return hassioUpdates;
     }

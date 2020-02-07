@@ -3,11 +3,9 @@ package sven.phd.iot.rules.triggers;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.weather.HassioWeatherState;
 import sven.phd.iot.rules.Trigger;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 

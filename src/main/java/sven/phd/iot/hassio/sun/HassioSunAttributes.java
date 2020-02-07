@@ -2,6 +2,7 @@ package sven.phd.iot.hassio.sun;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.weather.HassioWeatherForecast;
 
@@ -51,5 +52,8 @@ public class HassioSunAttributes extends HassioAttributes {
         this.nextNoon = null;
         this.nextRising = null;
         this.nextSetting = null;
+    }
+
+    public HassioSunAttributes(JsonNode rawAttributes) {
     }
 }

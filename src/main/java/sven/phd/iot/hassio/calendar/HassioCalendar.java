@@ -1,11 +1,12 @@
 package sven.phd.iot.hassio.calendar;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
-import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
+import sven.phd.iot.hassio.states.*;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,8 +23,8 @@ public class HassioCalendar extends HassioDevice {
     }
 
     @Override
-    public HassioState processRawState(HassioStateRaw hassioStateRaw) {
-        return new HassioCalendarState(hassioStateRaw);
+    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioCalendarAttributes.class);
     }
 
     @Override
@@ -36,24 +37,25 @@ public class HassioCalendar extends HassioDevice {
     @Override
     public List<HassioState> predictFutureStates() {
         List<HassioState> result = new ArrayList<>();
-        HassioCalendarState hassioCalendarState = (HassioCalendarState) this.getLastState();
+        HassioState hassioCalendarState = this.getLastState();
+        HassioCalendarAttributes attributes = (HassioCalendarAttributes) hassioCalendarState.attributes;
 
         if(hassioCalendarState != null) {
             // TODO
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(hassioCalendarState.attributes.startTime);
+            calendar.setTime(attributes.startTime);
             calendar.add(Calendar.HOUR_OF_DAY, -2);
             Date startTime = calendar.getTime();
-            calendar.setTime(hassioCalendarState.attributes.endTime);
+            calendar.setTime(attributes.endTime);
             calendar.add(Calendar.HOUR_OF_DAY, -2);
             Date endTime = calendar.getTime();
 
             // If event still needs to start
             if(startTime.compareTo(new Date()) > 0) {
-                result.add(new HassioCalendarState("on", this.entityID, startTime, hassioCalendarState.attributes.message, hassioCalendarState.attributes.location));
+                result.add(new HassioState( this.entityID, "on", startTime, new HassioCalendarAttributes(attributes.message, attributes.location)));
             }
 
-            result.add(new HassioCalendarState("off", this.entityID, endTime, hassioCalendarState.attributes.message, hassioCalendarState.attributes.location));
+            result.add(new HassioState(this.entityID, "off", endTime, new HassioCalendarAttributes(attributes.message, attributes.location)));
         }
 
         return result;

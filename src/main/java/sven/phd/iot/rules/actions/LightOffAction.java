@@ -1,6 +1,7 @@
 package sven.phd.iot.rules.actions;
 
-import sven.phd.iot.hassio.light.HassioLightState;
+import sven.phd.iot.hassio.light.HassioLightAttributes;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
@@ -19,10 +20,7 @@ public class LightOffAction extends Action {
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
         List<HassioState> newStates = new ArrayList<>();
 
-        HassioLightState hassioLightState = new HassioLightState(this.deviceIdentifier, "off", hassioRuleExecutionEvent.datetime);
-        hassioLightState.attributes.brightness = 0;
-
-        newStates.add(hassioLightState);
+        newStates.add(new HassioState(this.deviceIdentifier, "off", hassioRuleExecutionEvent.datetime, new HassioLightAttributes()));
 
         return newStates;
     }

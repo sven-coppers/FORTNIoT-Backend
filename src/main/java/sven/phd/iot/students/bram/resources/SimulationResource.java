@@ -1,17 +1,15 @@
 package sven.phd.iot.students.bram.resources;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 //import org.reflections.Reflections;
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Trigger;
 
-import javax.swing.text.DateFormatter;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
@@ -22,9 +20,10 @@ public class SimulationResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Future simulateState(String str) {
+    public Future simulateState(HassioStateRaw stateRaw) {
+    //public Future simulateState(String str) {
 
-            JSONParser parser = new JSONParser();
+           /* JSONParser parser = new JSONParser();
             JSONObject obj;
             try {
                 obj = (JSONObject) parser.parse(str);
@@ -33,7 +32,10 @@ public class SimulationResource {
                 return null;
             }
 
-            HassioState state =  jsonToState(obj);
+            HassioState state =  jsonToState(obj); */
+            HassioDeviceManager hassioDeviceManager = ContextManager.getInstance().getHassioDeviceManager();
+            HassioState state = hassioDeviceManager.getDevice(stateRaw.entity_id).processRawState(stateRaw);
+
             List<HassioState> stateList = new ArrayList<>();
             stateList.add(state);
             HashMap<String, Boolean> rules = makeEnabledRulesList();
@@ -64,8 +66,9 @@ public class SimulationResource {
         }
         return states;
     }
+
     private HassioState jsonToState(JSONObject obj) {
-        String lastChanged = obj.get("last_updated").toString();
+       /* String lastChanged = obj.get("last_updated").toString();
 
         obj.remove("last_changed");
         obj.remove("datetime");
@@ -75,6 +78,7 @@ public class SimulationResource {
 
         try {
             HassioStateRaw stateRaw = new ObjectMapper().readValue(obj.toString(), HassioStateRaw.class);
+
             Date time  = parse(lastChanged);
             stateRaw.setLast_updated(time);
             ContextManager c = ContextManager.getInstance();
@@ -90,9 +94,10 @@ public class SimulationResource {
             }
         } catch (Exception e) {
             System.err.println(e);
-        }
+        } */
         return null;
     }
+
     public static Date parse( String input ) throws java.text.ParseException {
 
         //NOTE: SimpleDateFormat uses GMT[-+]hh:mm for the TZ which breaks

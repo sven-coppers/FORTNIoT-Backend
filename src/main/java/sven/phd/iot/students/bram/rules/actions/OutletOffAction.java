@@ -1,7 +1,7 @@
 package sven.phd.iot.students.bram.rules.actions;
 
-import sven.phd.iot.hassio.light.HassioLightState;
-import sven.phd.iot.hassio.outlet.HassioOutletState;
+import sven.phd.iot.hassio.outlet.HassioOutletAttributes;
+import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
@@ -19,10 +19,8 @@ public class OutletOffAction extends Action {
 
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
         List<HassioState> newStates = new ArrayList<>();
-
-        HassioOutletState hassioOutletState = new HassioOutletState(deviceIdentifier, "off", hassioRuleExecutionEvent.datetime);
-
-        newStates.add(hassioOutletState);
+        
+        newStates.add(new HassioState(deviceIdentifier, "off", hassioRuleExecutionEvent.datetime, new HassioOutletAttributes()));
 
         return newStates;
     }

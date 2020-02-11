@@ -2,12 +2,13 @@ package sven.phd.iot;
 
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDeviceManager;
+import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.HassioUpdate;
-import sven.phd.iot.models.StudyManager;
+import sven.phd.iot.study.StudyManager;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.rules.RulesManager;

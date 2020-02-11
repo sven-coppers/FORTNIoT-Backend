@@ -2,7 +2,7 @@ package sven.phd.iot.api.resources;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.api.request.UseCaseRequest;
-import sven.phd.iot.models.StudyManager;
+import sven.phd.iot.study.StudyManager;
 
 import javax.inject.Singleton;
 import javax.ws.rs.*;

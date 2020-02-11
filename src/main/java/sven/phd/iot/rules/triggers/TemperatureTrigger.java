@@ -14,19 +14,23 @@ import java.util.List;
 public class TemperatureTrigger extends Trigger {
     private int min;
     private int max;
+    private String sensorIdentifier;
 
-    public TemperatureTrigger(String ruleIdentifier, int min, int max) {
+    public TemperatureTrigger(String ruleIdentifier, String sensorIdentifier, int min, int max) {
         super(ruleIdentifier, "IF temperature between [" + min + ", " + max + "]");
 
         this.min = min;
         this.max = max;
+        this.sensorIdentifier = sensorIdentifier;
     }
 
     @Override
     public boolean isTriggeredBy(HassioChange hassioChange) {
-        if(hassioChange.entity_id.equals("weather.dark_sky")) {
-            float oldTemp = ((HassioWeatherAttributes) hassioChange.hassioChangeData.oldState.attributes).temperature;
-            float newTemp = ((HassioWeatherAttributes) hassioChange.hassioChangeData.newState.attributes).temperature;
+        if(hassioChange.entity_id.equals(this.sensorIdentifier)) {
+            float oldTemp = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
+            float newTemp = Float.parseFloat(hassioChange.hassioChangeData.newState.state);
+
+           // float newTemp = ((HassioWeatherAttributes) hassioChange.hassioChangeData.newState.attributes).temperature;
 
             if(newTemp <= min || newTemp >= max) {
                 return true;
@@ -41,10 +45,10 @@ public class TemperatureTrigger extends Trigger {
 
     @Override
     public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
-        HassioState hassioWeatherState = hassioStates.get("weather.dark_sky");
-        float temperature = ((HassioWeatherAttributes) hassioWeatherState.attributes).temperature;
+        HassioState hassioWeatherState = hassioStates.get(this.sensorIdentifier);
+        float temperature = Float.parseFloat(hassioWeatherState.state);
 
-        if(temperature > min && temperature < max) {
+        if(temperature >= min && temperature <= max) {
             List<HassioContext> triggerContexts = new ArrayList<>();
             triggerContexts.add(hassioWeatherState.context);
             return triggerContexts;

@@ -3,7 +3,11 @@ package sven.phd.iot.study;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.rules.actions.StateAction;
+import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
+import sven.phd.iot.rules.triggers.StateTrigger;
+import sven.phd.iot.rules.triggers.TemperatureReachesTrigger;
 import sven.phd.iot.rules.triggers.TemperatureTrigger;
+import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
 
 public class StudyRules {
     private RulesManager rulesManager;
@@ -38,13 +42,24 @@ public class StudyRules {
 
 
     private void initTempRules() {
-        Trigger minimumTempTrigger = new TemperatureTrigger("rule.mininum_temperature", "sensor.indoor_temperature_measurement", -50, 15);
+        // Met of zonder conflicten? Davy?? --> Zonder
+
+        ANDTrigger minimumTempTrigger = new ANDTrigger("rule.mininum_temperature");
+        minimumTempTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 15, true));
+        minimumTempTrigger.addTrigger(new PeopleHomeTrigger("", true));
         minimumTempTrigger.addAction(new StateAction("set the heating to ECO", "heater.heater", "eco"));
         this.rulesManager.addRule(minimumTempTrigger);
 
-        Trigger minimumTempEndTrigger = new TemperatureTrigger("rule.mininum_temperature_end", "sensor.indoor_temperature_measurement",16, 16);
+        Trigger minimumTempEndTrigger = new TemperatureReachesTrigger("rule.mininum_temperature_end", "sensor.indoor_temperature_measurement",16, false);
         minimumTempEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "off"));
         this.rulesManager.addRule(minimumTempEndTrigger);
+
+        Trigger daddyHomeTrigger = new StateTrigger("rule.dad_home", "person.dad", "home", "IF daddy comes home");
+        daddyHomeTrigger.addAction(new StateAction("set the heating to ECO", "heater.heater", "heating"));
+        this.rulesManager.addRule(daddyHomeTrigger);
+
+
+
     }
 
     /*         Trigger busyTrigger = new StateTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be", "on", "WHEN Sven is busy");

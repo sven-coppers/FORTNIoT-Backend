@@ -13,7 +13,7 @@ import java.util.List;
 
 public class WeatherChangeTrigger extends Trigger {
     public WeatherChangeTrigger(String ruleIdentifier) {
-        super(ruleIdentifier, "IF weather changes");
+        super(ruleIdentifier, "weather changes");
 }
 
     @Override

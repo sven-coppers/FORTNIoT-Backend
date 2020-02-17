@@ -17,7 +17,7 @@ public class TemperatureTrigger extends Trigger {
     private String sensorIdentifier;
 
     public TemperatureTrigger(String ruleIdentifier, String sensorIdentifier, int min, int max) {
-        super(ruleIdentifier, "IF temperature between [" + min + ", " + max + "]");
+        super(ruleIdentifier, "temperature between [" + min + ", " + max + "]");
 
         this.min = min;
         this.max = max;

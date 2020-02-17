@@ -2,6 +2,7 @@ package sven.phd.iot.study;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
+import sven.phd.iot.hassio.person.HassioPersonAttributes;
 import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 
@@ -26,14 +27,18 @@ public class StudyStates {
         System.out.println("State set: " + stateSet);
         this.stateSet = stateSet;
 
+        this.stateScheduler.clearScheduledStates();
+        Date startDate = new Date();
+
         if(stateSet.equals("1")) {
-            this.setIndoorTempStates();
+            this.setIndoorTempStates(startDate);
+            this.setDaddyStates(startDate);
         }
     }
 
-    private void setIndoorTempStates() {
-        relativeTime.setTime(new Date());
-        relativeTime.add(Calendar.MINUTE, -15); // Begin 30 minuten in het verleden
+    private void setIndoorTempStates(Date startDate) {
+        relativeTime.setTime(startDate);
+        relativeTime.add(Calendar.MINUTE, -15);
 
         this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "20", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
         this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "19", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
@@ -43,6 +48,13 @@ public class StudyStates {
         this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 10);
         this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "16", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
         this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
+    }
+
+    private void setDaddyStates(Date startDate) {
+        relativeTime.setTime(startDate);
+        relativeTime.add(Calendar.MINUTE, 105);
+
+        this.stateScheduler.scheduleState(new HassioState("person.dad", "home", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 
 

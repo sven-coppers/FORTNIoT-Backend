@@ -23,6 +23,11 @@ public class HassioStateScheduler {
         return this.scheduledHassioStates;
     }
 
+    public void clearScheduledStates() {
+        this.scheduledHassioStates.clear();
+        this.reschedule();
+    }
+
     // TODO: when it is time, perform the next state
 
     public void performState() {

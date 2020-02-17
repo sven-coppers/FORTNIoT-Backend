@@ -31,7 +31,7 @@ public class BramRulesManager {
         andTriggers.add(lampOffTrigger);
         andTriggers.add(voetenZakOffTrigger);
 
-        Trigger andTest = new ANDTrigger("rule.and_test", andTriggers);
+        Trigger andTest = new ANDTrigger("rule.and_test", "ANDTRigger", andTriggers);
         andTest.addAction(lampOnAction);
 
         //rules.put("rule.and_test", andTest);

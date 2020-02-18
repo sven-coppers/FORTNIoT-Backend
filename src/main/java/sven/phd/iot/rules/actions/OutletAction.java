@@ -2,11 +2,11 @@ package sven.phd.iot.rules.actions;
 
 import sven.phd.iot.hassio.outlet.HassioOutletAttributes;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class OutletAction extends Action {
@@ -19,7 +19,7 @@ public class OutletAction extends Action {
         this.newState = newState;
     }
 
-    public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
+    public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
         newStates.add(new HassioState(this.deviceIdentifier, newState, hassioRuleExecutionEvent.datetime, new HassioOutletAttributes()));

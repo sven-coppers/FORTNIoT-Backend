@@ -20,17 +20,16 @@ import sven.phd.iot.hassio.outlet.HassioOutlet;
 import sven.phd.iot.hassio.person.HassioPerson;
 import sven.phd.iot.hassio.person.HassioPersonAttributes;
 import sven.phd.iot.hassio.sensor.HassioBinarySensor;
+import sven.phd.iot.hassio.sensor.HassioIndoorTempSensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
 import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.services.HassioCallService;
 import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
 import sven.phd.iot.hassio.thermostat.HassioThermostat;
 import sven.phd.iot.hassio.thermostat.HassioThermostatAttributes;
-import sven.phd.iot.hassio.thermostat.HassioThermostatState;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
@@ -109,7 +108,7 @@ public class HassioDeviceManager implements EventListener {
         this.hassioDeviceMap.put("light.standing_lamp", new HassioLight("light.standing_lamp", "Standing lamp"));
         this.hassioDeviceMap.put("light.kitchen_spots", new HassioLight("light.kitchen_spots", "Kitchen spots"));
         this.hassioDeviceMap.put("light.living_spots", new HassioLight("light.living_spots", "Living spots"));
-        this.hassioDeviceMap.put("sensor.indoor_temperature_measurement", new HassioSensor("sensor.indoor_temperature_measurement", "Indoor temperature"));
+        this.hassioDeviceMap.put("sensor.indoor_temperature_measurement", new HassioIndoorTempSensor("sensor.indoor_temperature_measurement", "Indoor temperature"));
         this.hassioDeviceMap.put("sensor.outdoor_temperature_measurement", new HassioSensor("sensor.outdoor_temperature_measurement", "Outdoor temperature"));
         this.hassioDeviceMap.put("person.dad", new HassioPerson("person.dad", "Daddy"));
         this.hassioDeviceMap.put("person.mom", new HassioPerson("person.mom", "Mommy"));
@@ -429,7 +428,7 @@ public class HassioDeviceManager implements EventListener {
         List<HassioState> hassioStates = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).predictFutureStates());
+            hassioStates.addAll(hassioDeviceMap.get(entityID).getFutureStates());
         }
 
         Collections.sort(hassioStates);

@@ -6,6 +6,7 @@ import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class OutletOnAction extends Action {
@@ -16,7 +17,7 @@ public class OutletOnAction extends Action {
         this.deviceIdentifier = deviceIdentifier;
     }
 
-    public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
+    public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
         //System.out.println("Simulating turn on of " + this.deviceIdentifier);

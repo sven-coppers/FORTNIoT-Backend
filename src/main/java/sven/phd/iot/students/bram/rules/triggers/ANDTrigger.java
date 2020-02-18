@@ -70,7 +70,7 @@ public class ANDTrigger extends Trigger {
             }
             contexts.addAll(context);
         }
-        System.out.println("And rule is triggered");
+        //System.out.println("And rule is triggered");
         return contexts;
     }
 

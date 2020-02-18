@@ -15,6 +15,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 abstract public class HassioDevice {
@@ -98,7 +100,15 @@ abstract public class HassioDevice {
      * Let the device predict its own future states (without external influences)
      * @return
      */
-    abstract protected List<HassioState> predictFutureStates();
+    abstract protected List<HassioState> getFutureStates();
+
+    /**
+     * Let the device adjust its state based on other devices (e.g. fake sensors)..
+     * @return
+     */
+    protected HassioState adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+        return new HassioState(hassioStates.get(this.entityID), newDate); // Most devices do not change on other devices
+    }
 
     /**
      * Let the deivce predict its own future state changes (without external influences)
@@ -127,7 +137,7 @@ abstract public class HassioDevice {
     }
 
     /**
-     * Let the device predict its own future state changes (without external influences)
+     * Let the device predict its own future events (without external influences)
      * @return
      */
     abstract public List<HassioEvent> predictFutureEvents();

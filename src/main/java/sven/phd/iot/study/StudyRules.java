@@ -6,7 +6,6 @@ import sven.phd.iot.rules.actions.StateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.rules.triggers.TemperatureReachesTrigger;
-import sven.phd.iot.rules.triggers.TemperatureTrigger;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
 
 public class StudyRules {
@@ -40,23 +39,43 @@ public class StudyRules {
         }
     }
 
-
     private void initTempRules() {
-        // Met of zonder conflicten? Davy?? --> Zonder
-
         ANDTrigger minimumTempTrigger = new ANDTrigger("rule.mininum_temperature");
         minimumTempTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 15, true));
-        minimumTempTrigger.addTrigger(new PeopleHomeTrigger("", true));
+        minimumTempTrigger.addTrigger(new PeopleHomeTrigger("", false));
         minimumTempTrigger.addAction(new StateAction("set the heating to ECO", "heater.heater", "eco"));
         this.rulesManager.addRule(minimumTempTrigger);
 
-        Trigger minimumTempEndTrigger = new TemperatureReachesTrigger("rule.mininum_temperature_end", "sensor.indoor_temperature_measurement",16, false);
+        ANDTrigger minimumTempEndTrigger = new ANDTrigger("rule.mininum_temperature_end");
+        minimumTempEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 16, false));
+        minimumTempEndTrigger.addTrigger(new PeopleHomeTrigger("", false));
+        minimumTempEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "eco"));
+        this.rulesManager.addRule(minimumTempEndTrigger);
+
+        ANDTrigger minimumTempOccupiedTrigger = new ANDTrigger("rule.mininum_temperature_occupied");
+        minimumTempOccupiedTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 20, true));
+        minimumTempOccupiedTrigger.addTrigger(new PeopleHomeTrigger("", true));
+        minimumTempOccupiedTrigger.addAction(new StateAction("start heating", "heater.heater", "heating"));
+        this.rulesManager.addRule(minimumTempOccupiedTrigger);
+
+        ANDTrigger minimumTempOccupiedEndTrigger = new ANDTrigger("rule.mininum_temperature_occupied_end");
+        minimumTempOccupiedEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 21, false));
+        minimumTempOccupiedEndTrigger.addTrigger(new PeopleHomeTrigger("", true));
+        minimumTempOccupiedEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "off"));
+        this.rulesManager.addRule(minimumTempOccupiedEndTrigger);
+
+
+
+
+
+
+       /* Trigger minimumTempEndTrigger = new TemperatureReachesTrigger("rule.mininum_temperature_end", "sensor.indoor_temperature_measurement",16, false);
         minimumTempEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "off"));
         this.rulesManager.addRule(minimumTempEndTrigger);
 
         Trigger daddyHomeTrigger = new StateTrigger("rule.dad_home", "person.dad", "home", "IF daddy comes home");
         daddyHomeTrigger.addAction(new StateAction("set the heating to ECO", "heater.heater", "heating"));
-        this.rulesManager.addRule(daddyHomeTrigger);
+        this.rulesManager.addRule(daddyHomeTrigger); */
 
 
 

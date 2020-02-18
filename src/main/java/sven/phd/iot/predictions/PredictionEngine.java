@@ -3,15 +3,11 @@ import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.RulesManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class PredictionEngine {
     private HassioStateScheduler stateScheduler;
@@ -19,6 +15,7 @@ public class PredictionEngine {
     private HassioDeviceManager hassioDeviceManager;
     private Future future;
     private Boolean predicting;
+    private final float tickRate = 5; // minutes
 
     public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager) {
         this.rulesManager = rulesManager;
@@ -63,9 +60,13 @@ public class PredictionEngine {
         queue.addAll(hassioDeviceManager.predictFutureStates());
         queue.addAll(simulatedStates);
         queue.addAll(stateScheduler.getScheduledStates());
+        Date lastFrameDate = null;
 
         while(!queue.isEmpty()) {
+
             HassioState newState = queue.poll();
+
+          //  queue.peek();
 
             // Log the predicted state in the device
             future.addFutureState(newState);
@@ -80,7 +81,7 @@ public class PredictionEngine {
                 List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(lastStates, newChange, simulatedRulesEnabled);
 
                 for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
-                    List<HassioState> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent);
+                    List<HassioState> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, lastStates);
                     List<HassioContext> resultingContexts = new ArrayList<>();
 
                     // Add the context of the simulated actions as a result in the triggerEvent
@@ -101,6 +102,14 @@ public class PredictionEngine {
 
         return future;
     }
+
+   /* private void removePredictionsFromQueue(PriorityQueue<HassioState> queue, String deviceID) {
+        for(HassioState state : queue) {
+            if(state.entity_id.equals(deviceID)) {
+                queue.remove(state);
+            }
+        }
+    } */
 
     public void stopFuturePredictions() {
         this.predicting = false;

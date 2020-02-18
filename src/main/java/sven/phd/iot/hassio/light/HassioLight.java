@@ -32,7 +32,7 @@ public class HassioLight extends HassioDevice {
     }
 
     @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> getFutureStates() {
         // A lamp cannot know its future state
         return new ArrayList<HassioState>();
     }

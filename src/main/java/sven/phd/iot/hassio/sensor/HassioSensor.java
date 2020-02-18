@@ -11,6 +11,7 @@ import sven.phd.iot.hassio.updates.HassioEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class HassioSensor extends HassioDevice {
@@ -29,7 +30,7 @@ public class HassioSensor extends HassioDevice {
     }
 
     @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> getFutureStates() {
         return new ArrayList<>();
     }
 

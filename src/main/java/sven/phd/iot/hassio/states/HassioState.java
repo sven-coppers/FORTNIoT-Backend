@@ -16,4 +16,10 @@ public class HassioState extends HassioAbstractState {
 
         this.attributes = attributes;
     }
+
+    // Copy Constructor with a new date
+    public HassioState(HassioState hassioState, Date date) {
+        super(new HassioContext(hassioState.entity_id, date), hassioState.entity_id, date, date, hassioState.state);
+        this.attributes = hassioState.attributes;
+    }
 }

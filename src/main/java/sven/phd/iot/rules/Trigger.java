@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 
@@ -75,7 +74,7 @@ abstract public class Trigger {
     }
 
     /**
-     * Check if the rule is interested in being verified after this change
+     * Check if the rule is interested in being verified after this change (e.g. temp update)
      * @param hassioChange the change that this rule might be interested in
      * @return true if the rule is interested, false otherwise
      * SHOULD ONLY BE CALLED BY THE RULE ITSELF
@@ -96,11 +95,11 @@ abstract public class Trigger {
      * Run all actions and collect all states that would result from it
      * @return
      */
-    public List<HassioState> simulate(HassioRuleExecutionEvent executionEvent) {
+    public List<HassioState> simulate(HassioRuleExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> results = new ArrayList<>();
 
         for(Action action : this.actions) {
-            results.addAll(action.simulate(executionEvent));
+            results.addAll(action.simulate(executionEvent, hassioStates));
         }
 
         return results;

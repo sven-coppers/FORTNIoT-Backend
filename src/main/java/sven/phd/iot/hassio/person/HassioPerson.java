@@ -29,7 +29,7 @@ public class HassioPerson  extends HassioDevice {
     }
 
     @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> getFutureStates() {
         List<HassioState> result = new ArrayList<>();
 
         return result;

@@ -42,19 +42,21 @@ public class StudyStates {
 
         this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "20", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
         this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "19", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
-        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "18", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
-        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "17", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
-        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "16", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
-        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 10);
-        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "16", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
-        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
+       // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "18", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
+       // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "17", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
+       // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "16", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
+       // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 10);
+       // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "16", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
+       // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
     }
 
     private void setDaddyStates(Date startDate) {
         relativeTime.setTime(startDate);
-        relativeTime.add(Calendar.MINUTE, 105);
+        relativeTime.add(Calendar.MINUTE, 85);
 
         this.stateScheduler.scheduleState(new HassioState("person.dad", "home", relativeTime.getTime(), new HassioPersonAttributes()));
+        relativeTime.add(Calendar.MINUTE, 20);
+        this.stateScheduler.scheduleState(new HassioState("person.mom", "home", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 
 

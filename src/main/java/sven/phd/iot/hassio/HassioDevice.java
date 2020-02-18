@@ -107,7 +107,7 @@ abstract public class HassioDevice {
      * @return
      */
     protected HassioState adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
-        return new HassioState(hassioStates.get(this.entityID), newDate); // Most devices do not change on other devices
+        return null; // Most devices do not change on other devices
     }
 
     /**

@@ -15,7 +15,7 @@ public class PredictionEngine {
     private HassioDeviceManager hassioDeviceManager;
     private Future future;
     private Boolean predicting;
-    private final float tickRate = 5; // minutes
+    private final long tickRate = 5; // minutes
 
     public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager) {
         this.rulesManager = rulesManager;
@@ -63,13 +63,25 @@ public class PredictionEngine {
         Date lastFrameDate = null;
 
         while(!queue.isEmpty()) {
+            // Add intermediate ticks if needed
+            if(this.isPredicting()) {
+                HassioState potentialNewState = queue.peek();
+
+                if(lastFrameDate != null) {
+                    Date nextFrameDate = new Date(lastFrameDate.getTime() + (tickRate * 60l * 1000l));
+
+                    if(nextFrameDate.getTime() < potentialNewState.last_changed.getTime()) {
+                        queue.addAll(hassioDeviceManager.adaptStateToContext(nextFrameDate, lastStates));
+                        continue; // Skip this frame
+                    }
+                }
+            }
 
             HassioState newState = queue.poll();
 
-          //  queue.peek();
-
             // Log the predicted state in the device
             future.addFutureState(newState);
+            lastFrameDate = newState.last_changed;
 
             // Only when additional predictions are enabled
             if(this.isPredicting()) {

@@ -49,7 +49,7 @@ public class StudyRules {
         ANDTrigger minimumTempEndTrigger = new ANDTrigger("rule.mininum_temperature_end");
         minimumTempEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 16, false));
         minimumTempEndTrigger.addTrigger(new PeopleHomeTrigger("", false));
-        minimumTempEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "eco"));
+        minimumTempEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "off"));
         this.rulesManager.addRule(minimumTempEndTrigger);
 
         ANDTrigger minimumTempOccupiedTrigger = new ANDTrigger("rule.mininum_temperature_occupied");

@@ -260,6 +260,24 @@ public class HassioDeviceManager implements EventListener {
     }
 
     /**
+     * Ask which states change based on the new context to the devices themselves
+     * @return
+     */
+    public List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+        List<HassioState> results = new ArrayList<>();
+
+        for(String entityID : hassioDeviceMap.keySet()) {
+            HassioState newState = hassioDeviceMap.get(entityID).adaptStateToContext(newDate, hassioStates);
+
+            if(newState != null) {
+                results.add(newState);
+            }
+        }
+
+        return results;
+    }
+
+    /**
      * Called everytime HASSIO sends an event
      * @param inboundEvent
      */

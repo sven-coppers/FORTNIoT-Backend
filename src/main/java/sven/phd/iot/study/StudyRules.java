@@ -30,11 +30,13 @@ public class StudyRules {
         if(ruleSet.equals("all")) {
             this.rulesManager.setAllRulesAvailable(true);
         } else {
-            this.rulesManager.clearRules();
+            this.rulesManager.setAllRulesAvailable(false);
 
             if(ruleSet.equals("1")) {
-                this.initTempRules();
-                //this.rulesManager.setRuleAvailable("rule.mininum_temperature", true);
+                this.rulesManager.setRuleAvailable("rule.mininum_temperature", true);
+                this.rulesManager.setRuleAvailable("rule.mininum_temperature_end", true);
+                this.rulesManager.setRuleAvailable("rule.mininum_temperature_occupied", true);
+                this.rulesManager.setRuleAvailable("rule.mininum_temperature_occupied_end", true);
             }
         }
     }
@@ -63,21 +65,6 @@ public class StudyRules {
         minimumTempOccupiedEndTrigger.addTrigger(new PeopleHomeTrigger("", true));
         minimumTempOccupiedEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "off"));
         this.rulesManager.addRule(minimumTempOccupiedEndTrigger);
-
-
-
-
-
-
-       /* Trigger minimumTempEndTrigger = new TemperatureReachesTrigger("rule.mininum_temperature_end", "sensor.indoor_temperature_measurement",16, false);
-        minimumTempEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "off"));
-        this.rulesManager.addRule(minimumTempEndTrigger);
-
-        Trigger daddyHomeTrigger = new StateTrigger("rule.dad_home", "person.dad", "home", "IF daddy comes home");
-        daddyHomeTrigger.addAction(new StateAction("set the heating to ECO", "heater.heater", "heating"));
-        this.rulesManager.addRule(daddyHomeTrigger); */
-
-
 
     }
 

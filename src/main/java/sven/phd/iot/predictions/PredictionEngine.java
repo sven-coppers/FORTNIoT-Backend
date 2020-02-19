@@ -16,7 +16,7 @@ public class PredictionEngine {
     private Future future;
     private Boolean predicting;
     private final long tickRate = 5; // minutes
-    private final long predictionWindow = 2 * 24 * 60; // in minutes
+    private final long predictionWindow = 1 * 24 * 60; // in minutes
 
     public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager) {
         this.rulesManager = rulesManager;

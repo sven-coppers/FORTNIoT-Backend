@@ -83,7 +83,7 @@ abstract public class HassioDevice {
      * Add the newHassioState to the state history
      * @param hassioState
      */
-    protected void logState(HassioState hassioState) {
+    public void logState(HassioState hassioState) {
         this.hassioStateHistory.add(hassioState);
         StateResource.getInstance().broadcastState(hassioState);
     }

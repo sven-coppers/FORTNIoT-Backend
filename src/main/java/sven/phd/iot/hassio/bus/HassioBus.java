@@ -24,7 +24,7 @@ public class HassioBus extends HassioDevice {
      * because bussed update their own history
      * @param hassioState
      */
-    protected void logState(HassioState hassioState) {
+    public void logState(HassioState hassioState) {
         // this.hassioStateHistory.add(hassioState);
         StateResource.getInstance().broadcastState(hassioState);
     }

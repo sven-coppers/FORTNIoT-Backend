@@ -35,8 +35,10 @@ public class PeopleHomeTrigger extends Trigger {
 
         for(String deviceID : hassioStates.keySet()) {
             if(deviceID.contains("person.")) {
-                if(hassioStates.get(deviceID).state.equals("home")) {
-                    triggerContexts.add(hassioStates.get(deviceID).context);
+                HassioState personState = hassioStates.get(deviceID);
+
+                if(personState != null && personState.state.equals("home")) {
+                    triggerContexts.add(personState.context);
                     numPeople++;
                 }
             }

@@ -101,8 +101,6 @@ public class HassioDeviceManager implements EventListener {
     }
 
     public void initialiseVirtualDevices() {
-        Calendar relativeTime = Calendar.getInstance();
-
         this.hassioDeviceMap.put("heater.heater", new HassioThermostat("heating.heater", "Heater"));
         this.hassioDeviceMap.put("airco.airco", new HassioThermostat("airco.airco", "Air conditioning"));
         this.hassioDeviceMap.put("light.standing_lamp", new HassioLight("light.standing_lamp", "Standing lamp"));
@@ -113,21 +111,6 @@ public class HassioDeviceManager implements EventListener {
         this.hassioDeviceMap.put("person.dad", new HassioPerson("person.dad", "Daddy"));
         this.hassioDeviceMap.put("person.mom", new HassioPerson("person.mom", "Mommy"));
         this.hassioDeviceMap.put("sensor.people_home_counter", new HassioSensor("sensor.people_home_counter", "Family members home"));
-
-        relativeTime.setTime(new Date());
-        relativeTime.add(Calendar.MINUTE, -90); // Begin 90 minuten in het verleden
-
-        // Always log the first state of every device
-        this.hassioDeviceMap.get("heater.heater").logState(new HassioState("heater.heater", "off", relativeTime.getTime(), new HassioThermostatAttributes(21)));
-        this.hassioDeviceMap.get("airco.airco").logState(new HassioState("airco.airco", "off", relativeTime.getTime(), new HassioThermostatAttributes(21)));
-        this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioState("light.standing_lamp", "off", relativeTime.getTime(), new HassioLightAttributes()));
-        this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioState("light.kitchen_spots", "off", relativeTime.getTime(), new HassioLightAttributes()));
-        this.hassioDeviceMap.get("light.living_spots").logState(new HassioState("light.living_spots", "off", relativeTime.getTime(), new HassioLightAttributes()));
-        this.hassioDeviceMap.get("sensor.indoor_temperature_measurement").logState(new HassioState("sensor.indoor_temperature_measurement", "21", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
-        this.hassioDeviceMap.get("sensor.outdoor_temperature_measurement").logState(new HassioState("sensor.outdoor_temperature_measurement", "5", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
-        this.hassioDeviceMap.get("person.dad").logState(new HassioState("person.dad", "Away", relativeTime.getTime(), new HassioPersonAttributes()));
-        this.hassioDeviceMap.get("person.mom").logState(new HassioState("person.mom", "Away", relativeTime.getTime(), new HassioPersonAttributes()));
-        this.hassioDeviceMap.get("sensor.people_home_counter").logState(new HassioState("sensor.people_home_counter", "0", relativeTime.getTime(), new HassioSensorAttributes("people", "people")));
     }
 
     /**

@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.person.HassioPersonAttributes;
 import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.thermostat.HassioThermostatAttributes;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -37,10 +38,30 @@ public class StudyStates {
     }
 
     private void setIndoorTempStates(Date startDate) {
-        relativeTime.setTime(startDate);
-        relativeTime.add(Calendar.MINUTE, -15);
+        Calendar relativeTime = Calendar.getInstance();
+        relativeTime.setTime(new Date());
+        relativeTime.add(Calendar.MINUTE, -90); // Begin 90 minuten in het verleden
 
-        this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15.3", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
+        // Past States
+        this.hassioDeviceManager.getDevice("person.dad").logState(new HassioState("person.dad", "Away", relativeTime.getTime(), new HassioPersonAttributes()));
+        this.hassioDeviceManager.getDevice("heater.heater").logState(new HassioState("heater.heater", "off", relativeTime.getTime(), new HassioThermostatAttributes(15)));
+        this.hassioDeviceManager.getDevice("sensor.indoor_temperature_measurement").logState(new HassioState("sensor.indoor_temperature_measurement", "15.5", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
+
+        relativeTime.add(Calendar.MINUTE, 120);
+
+        // Future State
+        // Always log the first state of every device
+        //
+        //    this.hassioDeviceMap.get("airco.airco").logState(new HassioState("airco.airco", "off", relativeTime.getTime(), new HassioThermostatAttributes(21)));
+        //    this.hassioDeviceMap.get("light.standing_lamp").logState(new HassioState("light.standing_lamp", "off", relativeTime.getTime(), new HassioLightAttributes()));
+        //    this.hassioDeviceMap.get("light.kitchen_spots").logState(new HassioState("light.kitchen_spots", "off", relativeTime.getTime(), new HassioLightAttributes()));
+        //    this.hassioDeviceMap.get("light.living_spots").logState(new HassioState("light.living_spots", "off", relativeTime.getTime(), new HassioLightAttributes()));
+        //    this.hassioDeviceMap.get("sensor.outdoor_temperature_measurement").logState(new HassioState("sensor.outdoor_temperature_measurement", "5", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
+        //    this.hassioDeviceMap.get("person.dad").logState(new HassioState("person.dad", "Away", relativeTime.getTime(), new HassioPersonAttributes()));
+        //    this.hassioDeviceMap.get("person.mom").logState(new HassioState("person.mom", "Away", relativeTime.getTime(), new HassioPersonAttributes()));
+        //   this.hassioDeviceMap.get("sensor.people_home_counter").logState(new HassioState("sensor.people_home_counter", "0", relativeTime.getTime(), new HassioSensorAttributes("people", "people")));
+
+       // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "15.3", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
        // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "19", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
        // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "18", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
        // this.stateScheduler.scheduleState(new HassioState("sensor.indoor_temperature_measurement", "17", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C"))); relativeTime.add(Calendar.MINUTE, 20);
@@ -51,6 +72,8 @@ public class StudyStates {
     }
 
     private void setDaddyStates(Date startDate) {
+
+
         relativeTime.setTime(startDate);
         relativeTime.add(Calendar.MINUTE, 85);
 

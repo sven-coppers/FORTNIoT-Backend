@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class HassioIndoorTempSensor extends HassioSensor {
-    private double offRate = -1.0; // Degrees per hour
+    private double offRate = -0.5; // Degrees per hour
     private double ecoRate = 0.0; // Degrees per hour
     private double heatingRate = 3.0; // Degrees per hour
     private double coolingRate = -3.0; // Degrees per hour

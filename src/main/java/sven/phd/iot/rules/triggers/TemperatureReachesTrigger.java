@@ -15,7 +15,7 @@ public class TemperatureReachesTrigger extends Trigger {
     private String sensorIdentifier;
 
     public TemperatureReachesTrigger(String ruleIdentifier, String sensorIdentifier, int targetTemp, boolean decreasing) {
-        super(ruleIdentifier, (decreasing? "temperature drops below " : "temperature reaches ")  + targetTemp + " °C");
+        super(ruleIdentifier, (decreasing? "temperature drops below " : "temperature reaches ")  + targetTemp + "°C");
 
         this.targetTemp = targetTemp;
         this.decreasing = decreasing;

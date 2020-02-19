@@ -6,10 +6,10 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class HassioIndoorTempSensor extends HassioSensor {
-    private int offRate = -1;
-    private int ecoRate = 1;
-    private int heatingRate = 3;
-    private int coolingRate = -3;
+    private double offRate = -1.0; // Degrees per hour
+    private double ecoRate = 0.0; // Degrees per hour
+    private double heatingRate = 3.0; // Degrees per hour
+    private double coolingRate = -3.0; // Degrees per hour
 
     public HassioIndoorTempSensor(String entityID, String friendlyName) {
         super(entityID, friendlyName);
@@ -17,18 +17,22 @@ public class HassioIndoorTempSensor extends HassioSensor {
 
     @Override
     protected HassioState adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+        Date oldDate = hassioStates.get(this.entityID).last_changed;
+        Long deltaTimeInMilliseconds = newDate.getTime() - oldDate.getTime();
+        double deltaTimeInHours = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0 * 60.0);
+
         HassioState heaterState = hassioStates.get("heater.heater");
         HassioState aircoState = hassioStates.get("airco.airco");
-        float currentTemp = Float.parseFloat(hassioStates.get(this.entityID).state);
+        double currentTemp = Double.parseDouble((hassioStates.get(this.entityID).state));
 
         if(heaterState != null && heaterState.state.equals("eco")) {
-            currentTemp += ecoRate;
+            currentTemp += ecoRate * deltaTimeInHours;
         } else if(heaterState != null && heaterState.state.equals("heating")) {
-            currentTemp += heatingRate;
+            currentTemp += heatingRate * deltaTimeInHours;
         } else if(aircoState != null && aircoState.state.equals("cooling")) {
-            currentTemp += coolingRate;
+            currentTemp += coolingRate * deltaTimeInHours;
         } else {
-            currentTemp += offRate;
+            currentTemp += offRate * deltaTimeInHours;
         }
 
         return new HassioState(this.entityID, "" + currentTemp, newDate, new HassioSensorAttributes("temperature", "°C"));

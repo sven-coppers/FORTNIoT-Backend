@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class StateAction extends Action {
-    private final String deviceIdentifier;
-    private final String newState;
+    protected final String deviceIdentifier;
+    protected final String newState;
 
     public StateAction(String description, String deviceIdentifier, String newState) {
         super(description);

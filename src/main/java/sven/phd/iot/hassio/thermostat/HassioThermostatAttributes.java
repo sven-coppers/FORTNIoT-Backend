@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.states.HassioAttributes;
 
 public class HassioThermostatAttributes extends HassioAttributes {
-    @JsonProperty("target_temp") public float targetTemp;
+    @JsonProperty("target_temp") public double targetTemp;
 
     /**
      * For deserialisation only
@@ -13,7 +13,7 @@ public class HassioThermostatAttributes extends HassioAttributes {
 
     }
 
-    public HassioThermostatAttributes(int targetTemp) {
+    public HassioThermostatAttributes(double targetTemp) {
         this.targetTemp = targetTemp;
     }
 }

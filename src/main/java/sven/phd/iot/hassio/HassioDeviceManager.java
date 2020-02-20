@@ -19,6 +19,7 @@ import sven.phd.iot.hassio.moon.HassioMoon;
 import sven.phd.iot.hassio.outlet.HassioOutlet;
 import sven.phd.iot.hassio.person.HassioPerson;
 import sven.phd.iot.hassio.person.HassioPersonAttributes;
+import sven.phd.iot.hassio.routine.HassioRoutine;
 import sven.phd.iot.hassio.sensor.HassioBinarySensor;
 import sven.phd.iot.hassio.sensor.HassioIndoorTempSensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
@@ -101,7 +102,7 @@ public class HassioDeviceManager implements EventListener {
     }
 
     public void initialiseVirtualDevices() {
-        this.hassioDeviceMap.put("heater.heater", new HassioThermostat("heating.heater", "Heater"));
+        this.hassioDeviceMap.put("heater.heater", new HassioThermostat("heater.heater", "Heater"));
         this.hassioDeviceMap.put("airco.airco", new HassioThermostat("airco.airco", "Air conditioning"));
         this.hassioDeviceMap.put("light.standing_lamp", new HassioLight("light.standing_lamp", "Standing lamp"));
         this.hassioDeviceMap.put("light.kitchen_spots", new HassioLight("light.kitchen_spots", "Kitchen spots"));
@@ -111,6 +112,7 @@ public class HassioDeviceManager implements EventListener {
         this.hassioDeviceMap.put("person.dad", new HassioPerson("person.dad", "Daddy"));
         this.hassioDeviceMap.put("person.mom", new HassioPerson("person.mom", "Mommy"));
         this.hassioDeviceMap.put("sensor.people_home_counter", new HassioSensor("sensor.people_home_counter", "Family members home"));
+        this.hassioDeviceMap.put("sensor.routine", new HassioRoutine("sensor.routine", "Routine"));
     }
 
     /**

@@ -3,6 +3,7 @@ package sven.phd.iot.study;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.rules.actions.StateAction;
+import sven.phd.iot.rules.actions.ThermoStateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.rules.triggers.TemperatureReachesTrigger;
@@ -42,30 +43,59 @@ public class StudyRules {
     }
 
     private void initTempRules() {
-        ANDTrigger minimumTempTrigger = new ANDTrigger("rule.mininum_temperature");
+        ANDTrigger tempMinTrigger = new ANDTrigger("rule.temperature_minimum");
+        tempMinTrigger.addTrigger(new PeopleHomeTrigger("", false));
+        tempMinTrigger.addAction(new ThermoStateAction("heater.heater", "off", 5.0));
+        this.rulesManager.addRule(tempMinTrigger);
+
+        ANDTrigger tempComfortTrigger = new ANDTrigger("rule.temperature_comfort");
+        tempComfortTrigger.addTrigger(new PeopleHomeTrigger("", true));
+        tempComfortTrigger.addAction(new ThermoStateAction("heater.heater", "heating", 21.0));
+        this.rulesManager.addRule(tempComfortTrigger);
+
+        ANDTrigger tempNightTrigger = new ANDTrigger("rule.temperature_night");
+        tempNightTrigger.addTrigger(new PeopleHomeTrigger("", true));
+        tempNightTrigger.addTrigger(new StateTrigger("", "sensor.routine", "sleeping", "everyone is sleeping"));
+        tempNightTrigger.addAction(new ThermoStateAction("heater.heater", "eco", 17.0));
+        this.rulesManager.addRule(tempNightTrigger);
+
+
+       /* ANDTrigger minimumTempTrigger = new ANDTrigger("rule.mininum_temperature");
         minimumTempTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 15, true));
         minimumTempTrigger.addTrigger(new PeopleHomeTrigger("", false));
-        minimumTempTrigger.addAction(new StateAction("set the heating to ECO", "heater.heater", "eco"));
+        minimumTempTrigger.addAction(new ThermoStateAction("set heater to ECO", "heater.heater", "eco", 15.0));
         this.rulesManager.addRule(minimumTempTrigger);
 
-        ANDTrigger minimumTempEndTrigger = new ANDTrigger("rule.mininum_temperature_end");
-        minimumTempEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 16, false));
-        minimumTempEndTrigger.addTrigger(new PeopleHomeTrigger("", false));
-        minimumTempEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "off"));
-        this.rulesManager.addRule(minimumTempEndTrigger);
+      //  ANDTrigger minimumTempEndTrigger = new ANDTrigger("rule.mininum_temperature_end");
+      //  minimumTempEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 16, false));
+     //   minimumTempEndTrigger.addTrigger(new PeopleHomeTrigger("", false));
+     //   minimumTempEndTrigger.addAction(new ThermoStateAction("turn off heater", "heater.heater", "off", ));
+     //   this.rulesManager.addRule(minimumTempEndTrigger);
 
         ANDTrigger minimumTempOccupiedTrigger = new ANDTrigger("rule.mininum_temperature_occupied");
         minimumTempOccupiedTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 20, true));
         minimumTempOccupiedTrigger.addTrigger(new PeopleHomeTrigger("", true));
-        minimumTempOccupiedTrigger.addAction(new StateAction("start heating", "heater.heater", "heating"));
+        minimumTempOccupiedTrigger.addAction(new ThermoStateAction("start heating", "heater.heater", "heating", 20.0));
         this.rulesManager.addRule(minimumTempOccupiedTrigger);
 
-        ANDTrigger minimumTempOccupiedEndTrigger = new ANDTrigger("rule.mininum_temperature_occupied_end");
-        minimumTempOccupiedEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 21, false));
-        minimumTempOccupiedEndTrigger.addTrigger(new PeopleHomeTrigger("", true));
-        minimumTempOccupiedEndTrigger.addAction(new StateAction("turn off the heating", "heater.heater", "off"));
-        this.rulesManager.addRule(minimumTempOccupiedEndTrigger);
+//        ANDTrigger minimumTempOccupiedEndTrigger = new ANDTrigger("rule.mininum_temperature_occupied_end");
+  //      minimumTempOccupiedEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 21, false));
+  //      minimumTempOccupiedEndTrigger.addTrigger(new PeopleHomeTrigger("", true));
+   //     minimumTempOccupiedEndTrigger.addAction(new ThermoStateAction("turn off heater", "heater.heater", "off"));
+   //     this.rulesManager.addRule(minimumTempOccupiedEndTrigger);
 
+        ANDTrigger minimumTempSleepingTrigger = new ANDTrigger("rule.mininum_temperature_sleeping");
+        minimumTempSleepingTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 18, true));
+        minimumTempSleepingTrigger.addTrigger(new PeopleHomeTrigger("", true));
+        minimumTempSleepingTrigger.addAction(new ThermoStateAction("set heater to ECO", "heater.heater", "eco", 18.0));
+        this.rulesManager.addRule(minimumTempSleepingTrigger);
+
+      //  ANDTrigger minimumTempSleepingEndTrigger = new ANDTrigger("rule.mininum_temperature_sleeping_end");
+      //  minimumTempSleepingEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 19, false));
+      //  minimumTempSleepingEndTrigger.addTrigger(new PeopleHomeTrigger("", true));
+      //  minimumTempSleepingEndTrigger.addAction(new ThermoStateAction("turn off heater", "heater.heater", "off"));
+       // this.rulesManager.addRule(minimumTempSleepingEndTrigger);
+ */
     }
 
     /*         Trigger busyTrigger = new StateTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be", "on", "WHEN Sven is busy");

@@ -24,6 +24,8 @@ public class StudyDevices {
             this.deviceManager.setDeviceAvailable("heater.heater", true);
             this.deviceManager.setDeviceAvailable("sensor.indoor_temperature_measurement", true);
             this.deviceManager.setDeviceAvailable("person.dad", true);
+            this.deviceManager.setDeviceAvailable("person.mom", true);
+            this.deviceManager.setDeviceAvailable("sensor.routine", true);
         } else if(deviceSet.equals("4")) {
             this.deviceManager.setDeviceAvailable("sensor.button_1_battery", true);
             this.deviceManager.setDeviceAvailable("sensor.button_2_battery", true);

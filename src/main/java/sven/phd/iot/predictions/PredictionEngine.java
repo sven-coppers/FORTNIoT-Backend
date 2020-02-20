@@ -77,11 +77,13 @@ public class PredictionEngine {
             lastFrameDate = nextTickDate;
         }
 
+        System.out.println("Predictions updated: " + future.futureStates.size());
+
         return future;
     }
 
     private void tick(Date newDate, HashMap<String, HassioState> lastStates, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
-        System.out.println(newDate);
+        //System.out.println(newDate);
 
         // Let the devices predict their state, based on the future context
         if(this.isPredicting()) {

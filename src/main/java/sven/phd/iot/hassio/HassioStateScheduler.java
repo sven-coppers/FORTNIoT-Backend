@@ -1,6 +1,5 @@
 package sven.phd.iot.hassio;
 
-import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 
 import java.util.PriorityQueue;

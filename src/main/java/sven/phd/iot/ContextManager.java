@@ -2,7 +2,6 @@ package sven.phd.iot;
 
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;

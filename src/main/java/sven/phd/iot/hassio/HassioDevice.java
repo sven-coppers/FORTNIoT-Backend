@@ -106,8 +106,8 @@ abstract public class HassioDevice {
      * Let the device adjust its state based on other devices (e.g. fake sensors)..
      * @return
      */
-    protected HassioState adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
-        return null; // Most devices do not change on other devices
+    protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+        return new ArrayList<>(); // Most devices do not change on other devices
     }
 
     /**

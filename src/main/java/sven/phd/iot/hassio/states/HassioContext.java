@@ -17,12 +17,6 @@ public class HassioContext {
         this.user_id = null;
     }
 
-    public HassioContext(String id) {
-        this.id = id;
-        this.parent_id = null;
-        this.user_id = null;
-    }
-
     public HassioContext(String entity_id, Date date) {
         this.id = "" + (entity_id + date.toString()).hashCode();
         this.parent_id = null;

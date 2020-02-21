@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioEvent;
 

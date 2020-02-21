@@ -87,7 +87,11 @@ public class PredictionEngine {
 
         // Let the devices predict their state, based on the future context
         if(this.isPredicting()) {
-            globalQueue.addAll(hassioDeviceManager.adaptStateToContext(newDate, lastStates));
+            List<String> changedDeviceIDs = hassioDeviceManager.adaptStateToContext(newDate, lastStates);
+
+            for(String changedDeviceID : changedDeviceIDs) {
+                globalQueue.add(lastStates.get(changedDeviceID));
+            }
         }
 
         // Remove every State from the global queue that has occurred before the new Date

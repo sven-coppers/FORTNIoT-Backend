@@ -2,11 +2,9 @@ package sven.phd.iot.study;
 
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.rules.actions.StateAction;
-import sven.phd.iot.rules.actions.ThermoStateAction;
+import sven.phd.iot.rules.actions.ThermostatStateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
-import sven.phd.iot.rules.triggers.TemperatureReachesTrigger;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
 
 public class StudyRules {
@@ -34,7 +32,7 @@ public class StudyRules {
             this.rulesManager.setAllRulesAvailable(false);
 
             if(ruleSet.equals("1")) {
-                this.rulesManager.setRuleAvailable("rule.mininum_temperature", true);
+                this.rulesManager.setRuleAvailable("rule.nobody_home", true);
                 this.rulesManager.setRuleAvailable("rule.mininum_temperature_end", true);
                 this.rulesManager.setRuleAvailable("rule.mininum_temperature_occupied", true);
                 this.rulesManager.setRuleAvailable("rule.mininum_temperature_occupied_end", true);
@@ -43,23 +41,29 @@ public class StudyRules {
     }
 
     private void initTempRules() {
-        ANDTrigger tempMinTrigger = new ANDTrigger("rule.temperature_minimum");
-        tempMinTrigger.addTrigger(new PeopleHomeTrigger("", false));
-        tempMinTrigger.addAction(new ThermoStateAction("heater.heater", "off", 5.0));
-        this.rulesManager.addRule(tempMinTrigger);
+        Trigger nobodyHomeTrigger = new PeopleHomeTrigger("rule.nobody_home", false);
+        nobodyHomeTrigger.addAction(new ThermostatStateAction("thermostat.living_thermostat", "living thermostat", 15.0));
+        nobodyHomeTrigger.addAction(new ThermostatStateAction("thermostat.bedroom_thermostat", "bedroom thermostat", 15.0));
+        this.rulesManager.addRule(nobodyHomeTrigger);
 
-        ANDTrigger tempComfortTrigger = new ANDTrigger("rule.temperature_comfort");
-        tempComfortTrigger.addTrigger(new PeopleHomeTrigger("", true));
-        tempComfortTrigger.addAction(new ThermoStateAction("heater.heater", "heating", 21.0));
-        this.rulesManager.addRule(tempComfortTrigger);
+        Trigger comesHomeTrigger = new PeopleHomeTrigger("rule.comes_home",true);
+        comesHomeTrigger.addAction(new ThermostatStateAction("thermostat.living_thermostat", "living thermostat", 21.0));
+        this.rulesManager.addRule(comesHomeTrigger);
 
-        ANDTrigger tempNightTrigger = new ANDTrigger("rule.temperature_night");
-        tempNightTrigger.addTrigger(new PeopleHomeTrigger("", true));
-        tempNightTrigger.addTrigger(new StateTrigger("", "sensor.routine", "sleeping", "everyone is sleeping"));
-        tempNightTrigger.addAction(new ThermoStateAction("heater.heater", "eco", 17.0));
-        this.rulesManager.addRule(tempNightTrigger);
+        Trigger eveningTrigger = new StateTrigger("rule.evening", "sensor.routine", "evening", "evening");
+        eveningTrigger.addAction(new ThermostatStateAction("thermostat.living_thermostat", "living thermostat", 21.0));
+        eveningTrigger.addAction(new ThermostatStateAction("thermostat.bedroom_thermostat", "bedroom thermostat", 20.0));
+        this.rulesManager.addRule(eveningTrigger);
 
+        Trigger sleepingTrigger = new StateTrigger("rule.sleeping", "sensor.routine", "sleeping", "everyone is sleeping");
+        sleepingTrigger.addAction(new ThermostatStateAction("thermostat.living_thermostat", "living thermostat", 15.0));
+        sleepingTrigger.addAction(new ThermostatStateAction("thermostat.bedroom_thermostat", "bedroom thermostat", 19.0));
+        this.rulesManager.addRule(sleepingTrigger);
 
+        //  ANDTrigger tempComfortTrigger = new ANDTrigger("rule.temperature_comfort");
+        //  tempComfortTrigger.addTrigger(new PeopleHomeTrigger("", true));
+        // tempComfortTrigger.addAction(new ThermostatStateAction("heater.heater", "heating", 21.0));
+        // this.rulesManager.addRule(tempComfortTrigger);
        /* ANDTrigger minimumTempTrigger = new ANDTrigger("rule.mininum_temperature");
         minimumTempTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 15, true));
         minimumTempTrigger.addTrigger(new PeopleHomeTrigger("", false));

@@ -2,7 +2,6 @@ package sven.phd.iot.rules.triggers;
 
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Trigger;
 

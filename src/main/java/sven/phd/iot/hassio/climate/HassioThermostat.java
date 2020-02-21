@@ -1,4 +1,4 @@
-package sven.phd.iot.hassio.sensor;
+package sven.phd.iot.hassio.climate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,28 +12,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HassioSensor extends HassioDevice {
-    public HassioSensor(String entityID, String friendlyName) {
+public class HassioThermostat extends HassioDevice {
+    public HassioThermostat(String entityID, String friendlyName) {
         super(entityID, friendlyName);
-    }
-
-    public List<HassioContext> setState(HassioState hassioState) {
-        // Not sure if we can set the state of a sensor
-        return new ArrayList<HassioContext>();
     }
 
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
-        return new ObjectMapper().readValue(rawAttributes.toString(), HassioSensorAttributes.class);
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioHeaterAttributes.class);
+    }
+
+    public List<HassioContext> setState(HassioState hassioState) {
+        // For now only a virtual device
+        return new ArrayList<>();
     }
 
     @Override
     public List<HassioState> getFutureStates() {
-        return new ArrayList<>();
+        // A thermostat cannot know its future state
+        return new ArrayList<HassioState>();
     }
 
     @Override
     public List<HassioEvent> predictFutureEvents() {
-        return new ArrayList<>();
+        // A thermostat cannot know its future events
+        return new ArrayList<HassioEvent>();
     }
 }

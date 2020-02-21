@@ -2,11 +2,12 @@ package sven.phd.iot.study;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
+import sven.phd.iot.hassio.climate.HassioThermostatAttributes;
 import sven.phd.iot.hassio.person.HassioPersonAttributes;
 import sven.phd.iot.hassio.routine.HassioRoutineAttributes;
 import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.thermostat.HassioThermostatAttributes;
+import sven.phd.iot.hassio.climate.HassioHeaterAttributes;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -40,23 +41,38 @@ public class StudyStates {
 
     private void setIndoorTempStates(Date startDate) {
         Calendar relativeTime = Calendar.getInstance();
-        relativeTime.setTime(new Date());
+        relativeTime.setTime(startDate);
         relativeTime.add(Calendar.MINUTE, -90); // Begin 90 minuten in het verleden
 
         // Past States
         this.hassioDeviceManager.getDevice("person.dad").logState(new HassioState("person.dad", "Away", relativeTime.getTime(), new HassioPersonAttributes()));
-        this.hassioDeviceManager.getDevice("heater.heater").logState(new HassioState("heater.heater", "off", relativeTime.getTime(), new HassioThermostatAttributes(15)));
-        this.hassioDeviceManager.getDevice("sensor.indoor_temperature_measurement").logState(new HassioState("sensor.indoor_temperature_measurement", "15.5", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
+        this.hassioDeviceManager.getDevice("heater.living_floor_heating").logState(new HassioState("heater.living_floor_heating", "eco", relativeTime.getTime(), new HassioHeaterAttributes()));
+        this.hassioDeviceManager.getDevice("heater.bedroom_radiator").logState(new HassioState("heater.bedroom_radiator", "eco", relativeTime.getTime(), new HassioHeaterAttributes()));
+        this.hassioDeviceManager.getDevice("sensor.living_temperature_measurement").logState(new HassioState("sensor.living_temperature_measurement", "17.0", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
+        this.hassioDeviceManager.getDevice("sensor.bedroom_temperature_measurement").logState(new HassioState("sensor.bedroom_temperature_measurement", "17.0", relativeTime.getTime(), new HassioSensorAttributes("temperature", "°C")));
+        this.hassioDeviceManager.getDevice("thermostat.living_thermostat").logState(new HassioState("thermostat.living_thermostat", "17.0", relativeTime.getTime(), new HassioThermostatAttributes()));
+        this.hassioDeviceManager.getDevice("thermostat.bedroom_thermostat").logState(new HassioState("thermostat.bedroom_thermostat", "17.0", relativeTime.getTime(), new HassioThermostatAttributes()));
         this.hassioDeviceManager.getDevice("sensor.routine").logState(new HassioState("sensor.routine", "working", relativeTime.getTime(), new HassioRoutineAttributes()));
 
+        relativeTime.setTime(startDate);
 
-        relativeTime.add(Calendar.MINUTE, 300);
-
-
+        // Future State
+        relativeTime.add(Calendar.MINUTE, 30);
+        this.stateScheduler.scheduleState(new HassioState("person.dad", "home", relativeTime.getTime(), new HassioPersonAttributes()));
+        relativeTime.add(Calendar.MINUTE, 20);
+        this.stateScheduler.scheduleState(new HassioState("person.mom", "home", relativeTime.getTime(), new HassioPersonAttributes()));
+        relativeTime.add(Calendar.MINUTE, 50);
+        this.stateScheduler.scheduleState(new HassioState("sensor.routine", "evening", relativeTime.getTime(), new HassioRoutineAttributes()));
+        relativeTime.add(Calendar.MINUTE, 120);
         this.stateScheduler.scheduleState(new HassioState("sensor.routine", "sleeping", relativeTime.getTime(), new HassioRoutineAttributes()));
         relativeTime.add(Calendar.MINUTE, 7 * 60);
         this.stateScheduler.scheduleState(new HassioState("sensor.routine", "morning", relativeTime.getTime(), new HassioRoutineAttributes()));
-        // Future State
+        relativeTime.add(Calendar.MINUTE, 45);
+        this.stateScheduler.scheduleState(new HassioState("person.dad", "away", relativeTime.getTime(), new HassioPersonAttributes()));
+        relativeTime.add(Calendar.MINUTE, 10);
+        this.stateScheduler.scheduleState(new HassioState("person.mom", "away", relativeTime.getTime(), new HassioPersonAttributes()));
+
+
         // Always log the first state of every device
         //
         //    this.hassioDeviceMap.get("airco.airco").logState(new HassioState("airco.airco", "off", relativeTime.getTime(), new HassioThermostatAttributes(21)));
@@ -81,13 +97,10 @@ public class StudyStates {
     private void setDaddyStates(Date startDate) {
 
 
-        relativeTime.setTime(startDate);
-        relativeTime.add(Calendar.MINUTE, 85);
+      //  relativeTime.setTime(startDate);
+    //    relativeTime.add(Calendar.MINUTE, 85);
 
-        this.stateScheduler.scheduleState(new HassioState("person.dad", "home", relativeTime.getTime(), new HassioPersonAttributes()));
-        this.stateScheduler.scheduleState(new HassioState("sensor.routine", "evening", relativeTime.getTime(), new HassioRoutineAttributes()));
-        relativeTime.add(Calendar.MINUTE, 20);
-        this.stateScheduler.scheduleState(new HassioState("person.mom", "home", relativeTime.getTime(), new HassioPersonAttributes()));
+
     }
 
 

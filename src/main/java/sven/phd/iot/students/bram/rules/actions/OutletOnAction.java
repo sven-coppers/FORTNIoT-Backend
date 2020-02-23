@@ -1,5 +1,6 @@
 package sven.phd.iot.students.bram.rules.actions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.light.HassioLightState;
 import sven.phd.iot.hassio.outlet.HassioOutletState;
 import sven.phd.iot.hassio.states.HassioContext;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OutletOnAction extends Action {
+    @JsonProperty("entity_id")
     private final String deviceIdentifier;
 
     public OutletOnAction(String deviceIdentifier) {

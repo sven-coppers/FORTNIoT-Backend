@@ -1,5 +1,6 @@
 package sven.phd.iot.rules.actions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.light.HassioLightState;
 import sven.phd.iot.hassio.outlet.HassioOutletState;
 import sven.phd.iot.hassio.states.HassioState;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OutletAction extends Action {
+    @JsonProperty("entity_id")
     private final String deviceIdentifier;
     private final String newState;
 

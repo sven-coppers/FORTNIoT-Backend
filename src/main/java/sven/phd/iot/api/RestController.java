@@ -36,6 +36,7 @@ public class RestController extends ResourceConfig {
         resources.add(DeviceResource.class);
         resources.add(WhyResource.class);
         resources.add(SimulationResource.class);
+        resources.add(RuleDescriptionResource.class);
         return resources;
     }
 }

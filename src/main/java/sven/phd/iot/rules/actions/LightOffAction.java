@@ -1,5 +1,6 @@
 package sven.phd.iot.rules.actions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.light.HassioLightState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LightOffAction extends Action {
+    @JsonProperty("entity_id")
     private final String deviceIdentifier;
 
     public LightOffAction(String deviceIdentifier) {

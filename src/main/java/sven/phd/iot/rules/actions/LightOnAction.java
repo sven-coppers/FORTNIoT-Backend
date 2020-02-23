@@ -1,5 +1,6 @@
 package sven.phd.iot.rules.actions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.light.HassioLightState;
 import sven.phd.iot.hassio.states.HassioContext;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 public class LightOnAction extends Action {
+    @JsonProperty("entity_id")
     private String deviceIdentifier;
     private Color color;
     private boolean flash;

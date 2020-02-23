@@ -1,26 +1,18 @@
 package sven.phd.iot;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
-import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.HassioUpdate;
+import sven.phd.iot.study.StudyManager;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
 
 public class ContextManager {
@@ -28,11 +20,13 @@ public class ContextManager {
     private HassioDeviceManager hassioDeviceManager;
     private RulesManager rulesManager;
     private PredictionEngine predictionEngine;
+    private StudyManager studyManager;
 
     private ContextManager() {
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager);
+        this.studyManager = new StudyManager(this);
 
         // NEVER EVER START PREDICTING WHEN LAUNCHING THIS SHIT
     }
@@ -177,7 +171,7 @@ public class ContextManager {
         List<HassioRuleExecutionEvent> triggerEvents = rulesManager.verifyTriggers(hassioStates, hassioChange);
 
         for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
-            List<HassioState> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent);
+            List<HassioState> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, hassioStates);
 
             // Apply additional changes as result of the rules as the new state
             List<HassioContext> contexts = this.hassioDeviceManager.setHassioDeviceStates(resultingActions);
@@ -194,14 +188,14 @@ public class ContextManager {
         List<HassioUpdate> hassioUpdates = new ArrayList<HassioUpdate>();
 
         // Add the history as the last part
-        hassioUpdates.addAll(this.hassioDeviceManager.getStateHistory());
+    /*    hassioUpdates.addAll(this.hassioDeviceManager.getStateHistory());
         hassioUpdates.addAll(this.hassioDeviceManager.getEventHistory());
 
         // Add predictions (from devices and additional simulations)
         hassioUpdates.addAll(this.getStateFuture());
         hassioUpdates.addAll(this.getFutureRuleExecutions());
 
-        Collections.sort(hassioUpdates);
+        Collections.sort(hassioUpdates); */
 
         return hassioUpdates;
     }
@@ -226,13 +220,25 @@ public class ContextManager {
         return this.rulesManager.getRule(id);
     }
 
-    public void updateRule(String id, boolean enabled) {
+    public void updateRule(String id, boolean enabled, boolean available) {
         this.getRule(id).setEnabled(enabled);
+        this.getRule(id).setAvailable(available);
         ContextManager.getInstance().updateFuturePredictions();
-
     }
 
     public Future simulateAlternativeFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
         return this.predictionEngine.whatIf(simulatedRulesEnabled, simulatedStates);
+    }
+
+    public StudyManager getStudyManager() {
+        return studyManager;
+    }
+
+    public RulesManager getRulesManager() {
+        return rulesManager;
+    }
+
+    public PredictionEngine getPredictionEngine() {
+        return this.predictionEngine;
     }
 }

@@ -4,8 +4,6 @@ package sven.phd.iot.students.bram.rules.triggers;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
-import sven.phd.iot.hassio.weather.HassioWeatherState;
 import sven.phd.iot.rules.Trigger;
 
 import java.util.*;
@@ -13,12 +11,21 @@ import java.util.*;
 public class ANDTrigger extends Trigger {
     private List<Trigger> triggers;
 
-    public ANDTrigger(String ruleIdentifier, List<Trigger> triggers) {
-        super(ruleIdentifier, "ANDTrigger");
+    public ANDTrigger(String ruleIdentifier, String title, List<Trigger> triggers) {
+        super(ruleIdentifier, title);
 
         this.triggers = triggers;
 
         makeTitle();
+    }
+
+    /**
+     * Written by Sven
+     * @param ruleIdentifier
+     */
+    public ANDTrigger(String ruleIdentifier) {
+        super(ruleIdentifier, "");
+        this.triggers = new ArrayList<>();
     }
 
 
@@ -33,7 +40,7 @@ public class ANDTrigger extends Trigger {
         for(Trigger trigger : this.triggers) {
             this.title += trigger.getTitle();
             if(index < count - 1) {
-                this.title += " and ";
+                this.title += " AND ";
             }
             index++;
         }
@@ -55,12 +62,20 @@ public class ANDTrigger extends Trigger {
         List<HassioContext> contexts = new ArrayList<>();
         for(Trigger trigger: this.triggers) {
             List<HassioContext> context = trigger.verifyCondition(hassioStates);
+
+            // IF child was not triggered
             if(context == null) {
                 return null;
             }
             contexts.addAll(context);
         }
-        System.out.println("And rule is triggered");
+        //System.out.println("And rule is triggered");
         return contexts;
+    }
+
+    /** Written by Sven */
+    public void addTrigger(Trigger trigger) {
+        this.triggers.add(trigger);
+        this.makeTitle();
     }
 }

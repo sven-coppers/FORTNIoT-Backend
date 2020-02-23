@@ -1,18 +1,20 @@
 package sven.phd.iot.hassio.sensor;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class HassioSensor extends HassioDevice {
-    public HassioSensor(String entityID) {
-        super(entityID);
+    public HassioSensor(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     public List<HassioContext> setState(HassioState hassioState) {
@@ -20,18 +22,13 @@ public class HassioSensor extends HassioDevice {
         return new ArrayList<HassioContext>();
     }
 
-    public HassioState processRawState(HassioStateRaw hassioStateRaw) {
-        return new HassioSensorState(hassioStateRaw);
+    @Override
+    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioSensorAttributes.class);
     }
 
     @Override
-    public String getFriendlyName() {
-        HassioSensorState state = (HassioSensorState) this.getLastState();
-        return state.attributes.friendly_name;
-    }
-
-    @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> getFutureStates() {
         return new ArrayList<>();
     }
 

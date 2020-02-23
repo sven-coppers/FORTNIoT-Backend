@@ -17,9 +17,7 @@ public class UserService {
         if(instance == null) {
             instance = new UserService();
         }
-        if(instance.users.size() ==  0) {
-            instance.fetchUsers();
-        }
+
         return instance;
     }
     public UserService() {
@@ -29,7 +27,6 @@ public class UserService {
 
 
     private void fetchUsers() {
-
         try {
             String url = BearerToken.getInstance().getUrl().replace("http", "ws") + "/api/websocket";
             WebsocketClientEndpoint clientEndpoint = new WebsocketClientEndpoint(new URI(url));
@@ -56,7 +53,7 @@ public class UserService {
                             user.is_owner = (boolean) userJson.get("is_owner");
                             user.system_generated = (boolean) userJson.get("system_generated");
 
-                            System.out.println("New user found: " + user.name + "(" + user.id + ")");
+//                            System.out.println("UserService - New user found: " + user.name + " (" + user.id + ")");
                             that.addUser(user.id, user);
                         }
 

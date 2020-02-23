@@ -17,6 +17,7 @@ abstract public class Trigger {
     @JsonProperty("id") public String id;
     private long offset;
     @JsonProperty("enabled") public boolean enabled; // Is the rule enabled. When the rule is disabled, it cannot be triggered
+    @JsonProperty("available") public boolean available; // True if the rule should be accessible through the UI
 
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
@@ -25,6 +26,7 @@ abstract public class Trigger {
         this.id = id;
         this.offset = 0;
         this.enabled = true;
+        this.available = true;
     }
 
     /**
@@ -72,7 +74,7 @@ abstract public class Trigger {
     }
 
     /**
-     * Check if the rule is interested in being verified after this change
+     * Check if the rule is interested in being verified after this change (e.g. temp update)
      * @param hassioChange the change that this rule might be interested in
      * @return true if the rule is interested, false otherwise
      * SHOULD ONLY BE CALLED BY THE RULE ITSELF
@@ -93,11 +95,11 @@ abstract public class Trigger {
      * Run all actions and collect all states that would result from it
      * @return
      */
-    public List<HassioState> simulate(HassioRuleExecutionEvent executionEvent) {
+    public List<HassioState> simulate(HassioRuleExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> results = new ArrayList<>();
 
         for(Action action : this.actions) {
-            results.addAll(action.simulate(executionEvent));
+            results.addAll(action.simulate(executionEvent, hassioStates));
         }
 
         return results;
@@ -124,6 +126,10 @@ abstract public class Trigger {
         }
 
         return result;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
     public String getTitle() {

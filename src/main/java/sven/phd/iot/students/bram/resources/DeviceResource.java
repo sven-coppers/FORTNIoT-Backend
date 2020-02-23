@@ -105,10 +105,11 @@ public class DeviceResource {
         JSONArray arr = new JSONArray();
 
         try {
-
             devices.forEach((id, device) -> {
                 JSONObject item = new JSONObject();
                 item.put("id", id);
+                item.put("available", device.isAvailable()); // Added by Sven
+                item.put("enabled", device.isEnabled()); // Added by Sven
                 item.put("friendly_name", device.getFriendlyName());
                 arr.put(item);
             });
@@ -117,7 +118,4 @@ public class DeviceResource {
         }
         return arr.toString();
     }
-
-
-
 }

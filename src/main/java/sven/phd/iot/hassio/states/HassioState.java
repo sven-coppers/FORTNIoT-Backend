@@ -1,71 +1,25 @@
 package sven.phd.iot.hassio.states;
 
-
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import sven.phd.iot.hassio.updates.HassioUpdate;
-
 import java.util.Date;
 
-abstract public class HassioState extends HassioUpdate {
-    @JsonProperty("context") public HassioContext context;
+public class HassioState extends HassioAbstractState {
+    public HassioAttributes attributes;
 
-    @JsonDeserialize(using = HassioDateDeserializer.class)
-    @JsonSerialize(using = HassioDateSerializer.class)
-    public Date last_changed;
+    public HassioState(String entityID, String state, Date date, HassioAttributes attributes) {
+        super(new HassioContext(entityID, date), entityID, date, date, state);
 
-    @JsonDeserialize(using = HassioDateDeserializer.class)
-    @JsonSerialize(using = HassioDateSerializer.class)
-    private Date last_updated;
-
-    @JsonSetter("last_updated")
-    public void setLast_updated(Date last_updated) {
-        this.last_updated = last_updated;
-        this.datetime = last_updated;
+        this.attributes = attributes;
     }
 
-    @JsonGetter("last_updated")
-    public Date getLast_updated() {
-        return this.last_updated;
+    public HassioState(HassioStateRaw hassioStateRaw, HassioAttributes attributes) {
+        super(hassioStateRaw);
+
+        this.attributes = attributes;
     }
 
-    @JsonProperty("state") public String state;
-
-    public HassioState(HassioState hassioState) {
-        super(hassioState.entity_id, "HassioState", hassioState.last_changed);
-
-        if(hassioState.context == null) {
-            throw new NullPointerException();
-        }
-
-        this.context = hassioState.context;
-        this.entity_id = hassioState.entity_id;
-        this.last_changed = hassioState.last_changed;
-        this.last_updated = hassioState.last_updated;
-        this.state = hassioState.state;
+    // Copy Constructor with a new date
+    public HassioState(HassioState hassioState, Date date) {
+        super(new HassioContext(hassioState.entity_id, date), hassioState.entity_id, date, date, hassioState.state);
+        this.attributes = hassioState.attributes;
     }
-
-    public HassioState(HassioContext context, String entity_id, Date last_changed, Date last_updated, String state) {
-        super(entity_id, "HassioState", last_updated);
-
-        if(context == null) {
-            throw new NullPointerException();
-        }
-
-        this.context = context;
-        this.entity_id = entity_id;
-        this.last_changed = last_changed;
-        this.last_updated = last_updated;
-        this.state = state;
-    }
-
-    // Default constructor for serialization purposes
-    public HassioState() {
-        this.context = new HassioContext();
-    }
-
-    public abstract HassioState processRawState(HassioStateRaw raw);
 }

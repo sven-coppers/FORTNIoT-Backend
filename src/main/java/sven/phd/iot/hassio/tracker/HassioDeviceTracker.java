@@ -1,43 +1,34 @@
 package sven.phd.iot.hassio.tracker;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
-import sven.phd.iot.hassio.sun.HassioSunState;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class HassioDeviceTracker extends HassioDevice {
-    public HassioDeviceTracker(String entityID) {
-        super(entityID);
+    public HassioDeviceTracker(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
-    public HassioState processRawState(HassioStateRaw hassioStateRaw) {
-        return new HassioDeviceTrackerState(hassioStateRaw);
+    @Override
+    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioDeviceTrackerAttributes.class);
     }
-
-
 
     public List<HassioContext> setState(HassioState hassioState) {
         return new ArrayList<HassioContext>();
     }
 
-
     @Override
-    public String getFriendlyName() {
-        HassioDeviceTrackerState state = (HassioDeviceTrackerState) this.getLastState();
-        if(state.attributes == null) {
-            return "device_tracker";
-        }
-        return state.attributes.friendly_name;
-    }
-
-    @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> getFutureStates() {
         List<HassioState> result = new ArrayList<>();
 
         // TODO

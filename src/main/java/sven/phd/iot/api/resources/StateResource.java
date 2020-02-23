@@ -6,7 +6,6 @@ import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
 import org.glassfish.jersey.server.ChunkedOutput;
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.api.request.RuleEnabledRequest;
 import sven.phd.iot.api.request.SimulationRequest;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;

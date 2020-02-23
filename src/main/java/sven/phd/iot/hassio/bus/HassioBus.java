@@ -1,19 +1,20 @@
 package sven.phd.iot.hassio.bus;
 
-import sven.phd.iot.api.resources.UpdateResource;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDevice;
-import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
+import sven.phd.iot.hassio.states.*;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
+import java.io.IOException;
 import java.util.*;
 
 public class HassioBus extends HassioDevice {
     private HashMap<String, HassioBusPassage> uniqueBusses;
 
-    public HassioBus(String entityID) {
-        super(entityID);
+    public HassioBus(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
 
         this.uniqueBusses = new HashMap<>();
     }
@@ -23,9 +24,9 @@ public class HassioBus extends HassioDevice {
      * because bussed update their own history
      * @param hassioState
      */
-    protected void logState(HassioState hassioState) {
+    public void logState(HassioState hassioState) {
         // this.hassioStateHistory.add(hassioState);
-        UpdateResource.getInstance().broadcastUpdate(hassioState);
+        StateResource.getInstance().broadcastState(hassioState);
     }
 
     public List<HassioContext> setState(HassioState hassioState) {
@@ -33,11 +34,15 @@ public class HassioBus extends HassioDevice {
         return new ArrayList<>();
     }
 
-    public HassioState processRawState(HassioStateRaw hassioStateRaw) {
-        HassioBusState hassioBusState = new HassioBusState(hassioStateRaw);
+    @Override
+    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
+        HassioBusAttributes attributes = new ObjectMapper().readValue(rawAttributes.toString(), HassioBusAttributes.class);
 
+        attributes.correctTime(); // De lijn does not set time zone
+
+        // Index the busses
         // Keep track of the lastest info for each bus
-        for(HassioBusPassage passage : hassioBusState.attributes.nextPassages) {
+        for(HassioBusPassage passage : attributes.nextPassages) {
             String identifier = passage.lineNumber + passage.finalDestination + passage.scheduled;
 
             uniqueBusses.put(identifier, passage);
@@ -48,7 +53,7 @@ public class HassioBus extends HassioDevice {
 
         for(String uniqueBus : this.uniqueBusses.keySet()) {
             HassioBusPassage passage = this.uniqueBusses.get(uniqueBus);
-            HassioBusState busState = new HassioBusState(this.entityID, uniqueBusses.get(uniqueBus));
+            HassioState busState = passageToState(passage);
 
             if(busState.last_changed.getTime() < new Date().getTime()) {
                 this.hassioStateHistory.add(busState);
@@ -57,23 +62,16 @@ public class HassioBus extends HassioDevice {
 
         Collections.sort(this.hassioStateHistory);
 
-        return hassioBusState;
+        return attributes;
     }
 
     @Override
-    public String getFriendlyName() {
-        HassioBusState state = (HassioBusState) this.getLastState();
-        return "Bus";
-        //return state.attributes.friendly_name;
-    }
-
-    @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> getFutureStates() {
         List<HassioState> result = new ArrayList<>();
 
         for(String uniqueBus : this.uniqueBusses.keySet()) {
             HassioBusPassage passage = this.uniqueBusses.get(uniqueBus);
-            HassioBusState busState = new HassioBusState(this.entityID, uniqueBusses.get(uniqueBus));
+            HassioState busState = this.passageToState(passage);
 
             if(busState.last_changed.getTime() > new Date().getTime()) {
                 result.add(busState);
@@ -90,5 +88,18 @@ public class HassioBus extends HassioDevice {
         List<HassioEvent> result = new ArrayList<>();
 
         return result;
+    }
+
+    /**
+     *
+     * @param passage
+     * @return
+     */
+    public HassioState passageToState(HassioBusPassage passage) {
+        HassioAttributes attributes = new HassioBusAttributes(passage);
+        Date date = passage.realtime != null ? passage.realtime : passage.scheduled;
+        String state = passage.lineNumberPublic + " " + passage.finalDestination;
+
+        return new HassioState(entityID, state, date, attributes);
     }
 }

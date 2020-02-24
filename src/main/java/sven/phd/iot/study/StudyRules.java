@@ -1,5 +1,6 @@
 package sven.phd.iot.study;
 
+import sven.phd.iot.hassio.Entity;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.rules.actions.ThermostatStateAction;
@@ -42,64 +43,44 @@ public class StudyRules {
 
     private void initTempRules() {
         Trigger nobodyHomeTrigger = new PeopleHomeTrigger("rule.nobody_home", false);
-        nobodyHomeTrigger.addAction(new ThermostatStateAction("thermostat.living_thermostat", "living thermostat", 15.0));
-        nobodyHomeTrigger.addAction(new ThermostatStateAction("thermostat.bedroom_thermostat", "bedroom thermostat", 15.0));
+        nobodyHomeTrigger.addAction(new ThermostatStateAction(Entity.LIVING_THERMOSTAT, "living thermostat", 15.0));
+        nobodyHomeTrigger.addAction(new ThermostatStateAction(Entity.BEDROOM_MASTER_THERMOSTAT, "master bedroom thermostat", 15.0));
+        nobodyHomeTrigger.addAction(new ThermostatStateAction(Entity.BEDROOM_CHILDREN_THERMOSTAT, "children's bedroom thermostat", 15.0));
+        nobodyHomeTrigger.addAction(new ThermostatStateAction(Entity.SHOWER_THERMOSTAT, "shower room thermostat", 10.0));
         this.rulesManager.addRule(nobodyHomeTrigger);
 
         Trigger comesHomeTrigger = new PeopleHomeTrigger("rule.comes_home",true);
-        comesHomeTrigger.addAction(new ThermostatStateAction("thermostat.living_thermostat", "living thermostat", 21.0));
+        comesHomeTrigger.addAction(new ThermostatStateAction(Entity.LIVING_THERMOSTAT, "living thermostat", 21.0));
         this.rulesManager.addRule(comesHomeTrigger);
 
         Trigger eveningTrigger = new StateTrigger("rule.evening", "sensor.routine", "evening", "evening");
-        eveningTrigger.addAction(new ThermostatStateAction("thermostat.living_thermostat", "living thermostat", 21.0));
-        eveningTrigger.addAction(new ThermostatStateAction("thermostat.bedroom_thermostat", "bedroom thermostat", 20.0));
+        eveningTrigger.addAction(new ThermostatStateAction(Entity.LIVING_THERMOSTAT, "living thermostat", 21.0));
+        eveningTrigger.addAction(new ThermostatStateAction(Entity.BEDROOM_MASTER_THERMOSTAT, "master bedroom thermostat", 20.0));
+        eveningTrigger.addAction(new ThermostatStateAction(Entity.BEDROOM_CHILDREN_THERMOSTAT, "children's bedroom thermostat", 20.0));
         this.rulesManager.addRule(eveningTrigger);
 
         Trigger sleepingTrigger = new StateTrigger("rule.sleeping", "sensor.routine", "sleeping", "everyone is sleeping");
-        sleepingTrigger.addAction(new ThermostatStateAction("thermostat.living_thermostat", "living thermostat", 15.0));
-        sleepingTrigger.addAction(new ThermostatStateAction("thermostat.bedroom_thermostat", "bedroom thermostat", 19.0));
+        sleepingTrigger.addAction(new ThermostatStateAction(Entity.LIVING_THERMOSTAT, "living thermostat", 15.0));
+        sleepingTrigger.addAction(new ThermostatStateAction(Entity.BEDROOM_MASTER_THERMOSTAT, "bedroom thermostat", 19.0));
+        sleepingTrigger.addAction(new ThermostatStateAction(Entity.BEDROOM_CHILDREN_THERMOSTAT, "children's bedroom thermostat", 19.0));
         this.rulesManager.addRule(sleepingTrigger);
+
+        Trigger childrenMovingTrigger = new StateTrigger("rule.children_moving", "binary_sensor.children_bedroom_motion_sensor_motion", "moving", "movement in children's room");
+        childrenMovingTrigger.addAction(new ThermostatStateAction(Entity.BEDROOM_CHILDREN_THERMOSTAT, "children's room thermostat", 21.0));
+        this.rulesManager.addRule(childrenMovingTrigger);
+
+        Trigger childrenStopMovingTrigger = new StateTrigger("rule.children_moving", "binary_sensor.children_bedroom_motion_sensor_motion", "clear", "no more movement in children's room");
+        childrenStopMovingTrigger.addAction(new ThermostatStateAction(Entity.BEDROOM_CHILDREN_THERMOSTAT, "children's room thermostat", 15.0));
+        this.rulesManager.addRule(childrenStopMovingTrigger);
+
+        Trigger morningTrigger = new StateTrigger("rule.sleeping", "sensor.routine", "sleeping", "everyone is sleeping");
+        morningTrigger.addAction(new ThermostatStateAction(Entity.SHOWER_THERMOSTAT, "shower thermostat", 23.0));
+        this.rulesManager.addRule(morningTrigger);
 
         //  ANDTrigger tempComfortTrigger = new ANDTrigger("rule.temperature_comfort");
         //  tempComfortTrigger.addTrigger(new PeopleHomeTrigger("", true));
         // tempComfortTrigger.addAction(new ThermostatStateAction("heater.heater", "heating", 21.0));
         // this.rulesManager.addRule(tempComfortTrigger);
-       /* ANDTrigger minimumTempTrigger = new ANDTrigger("rule.mininum_temperature");
-        minimumTempTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 15, true));
-        minimumTempTrigger.addTrigger(new PeopleHomeTrigger("", false));
-        minimumTempTrigger.addAction(new ThermoStateAction("set heater to ECO", "heater.heater", "eco", 15.0));
-        this.rulesManager.addRule(minimumTempTrigger);
-
-      //  ANDTrigger minimumTempEndTrigger = new ANDTrigger("rule.mininum_temperature_end");
-      //  minimumTempEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 16, false));
-     //   minimumTempEndTrigger.addTrigger(new PeopleHomeTrigger("", false));
-     //   minimumTempEndTrigger.addAction(new ThermoStateAction("turn off heater", "heater.heater", "off", ));
-     //   this.rulesManager.addRule(minimumTempEndTrigger);
-
-        ANDTrigger minimumTempOccupiedTrigger = new ANDTrigger("rule.mininum_temperature_occupied");
-        minimumTempOccupiedTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 20, true));
-        minimumTempOccupiedTrigger.addTrigger(new PeopleHomeTrigger("", true));
-        minimumTempOccupiedTrigger.addAction(new ThermoStateAction("start heating", "heater.heater", "heating", 20.0));
-        this.rulesManager.addRule(minimumTempOccupiedTrigger);
-
-//        ANDTrigger minimumTempOccupiedEndTrigger = new ANDTrigger("rule.mininum_temperature_occupied_end");
-  //      minimumTempOccupiedEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 21, false));
-  //      minimumTempOccupiedEndTrigger.addTrigger(new PeopleHomeTrigger("", true));
-   //     minimumTempOccupiedEndTrigger.addAction(new ThermoStateAction("turn off heater", "heater.heater", "off"));
-   //     this.rulesManager.addRule(minimumTempOccupiedEndTrigger);
-
-        ANDTrigger minimumTempSleepingTrigger = new ANDTrigger("rule.mininum_temperature_sleeping");
-        minimumTempSleepingTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 18, true));
-        minimumTempSleepingTrigger.addTrigger(new PeopleHomeTrigger("", true));
-        minimumTempSleepingTrigger.addAction(new ThermoStateAction("set heater to ECO", "heater.heater", "eco", 18.0));
-        this.rulesManager.addRule(minimumTempSleepingTrigger);
-
-      //  ANDTrigger minimumTempSleepingEndTrigger = new ANDTrigger("rule.mininum_temperature_sleeping_end");
-      //  minimumTempSleepingEndTrigger.addTrigger(new TemperatureReachesTrigger("", "sensor.indoor_temperature_measurement", 19, false));
-      //  minimumTempSleepingEndTrigger.addTrigger(new PeopleHomeTrigger("", true));
-      //  minimumTempSleepingEndTrigger.addAction(new ThermoStateAction("turn off heater", "heater.heater", "off"));
-       // this.rulesManager.addRule(minimumTempSleepingEndTrigger);
- */
     }
 
     /*         Trigger busyTrigger = new StateTrigger("rule.sven_busy", "calendar.sven_coppers_uhasselt_be", "on", "WHEN Sven is busy");
@@ -153,9 +134,6 @@ public class StudyRules {
         noMotionTrigger.addAction(new LightOffAction("turn off Spot 1", "light.hue_color_spot_1"));
         noMotionTrigger.addAction(new OutletAction("turn off Outlet 3", "switch.outlet_3", "off"));
         this.rules.put("rule.motion_clear", noMotionTrigger);
-
-
-
 
         //Trigger somebodyHomeTrigger = new Person
 

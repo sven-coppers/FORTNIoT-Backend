@@ -2,8 +2,6 @@ package sven.phd.iot.students.bram.rules.actions;
 
 import sven.phd.iot.hassio.outlet.HassioOutletAttributes;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sven.phd.iot.hassio.light.HassioLightState;
-import sven.phd.iot.hassio.outlet.HassioOutletState;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;

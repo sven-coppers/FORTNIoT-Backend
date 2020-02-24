@@ -23,7 +23,7 @@ public class RuleDescriptionResource {
         RuleJson result = new RuleJson();
         result.rule_id = ruleId;
         result.trigger = rule.getTitle();
-        result.action = rule.getActionOnDevice(deviceId).title;
+        result.action = rule.getActionOnDevice(deviceId).description;
 
         return result;
     }

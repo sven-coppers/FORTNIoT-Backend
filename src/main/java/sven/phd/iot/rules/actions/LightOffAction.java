@@ -2,7 +2,6 @@ package sven.phd.iot.rules.actions;
 
 import sven.phd.iot.hassio.light.HassioLightAttributes;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sven.phd.iot.hassio.light.HassioLightState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;

@@ -1,10 +1,14 @@
 package sven.phd.iot.study;
 
+import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
+import sven.phd.iot.rules.actions.OutletAction;
 import sven.phd.iot.rules.actions.ThermostatStateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
+import sven.phd.iot.students.bram.rules.actions.OutletOffAction;
+import sven.phd.iot.students.bram.rules.actions.OutletOnAction;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
 
 public class StudyRules {
@@ -14,6 +18,7 @@ public class StudyRules {
     public StudyRules(RulesManager rulesManager) {
         this.rulesManager = rulesManager;
         this.initTempRules();
+        this.initBramRules();
         this.setRuleSet("all");
     }
 
@@ -37,7 +42,25 @@ public class StudyRules {
                 this.rulesManager.setRuleAvailable("rule.mininum_temperature_occupied", true);
                 this.rulesManager.setRuleAvailable("rule.mininum_temperature_occupied_end", true);
             }
+            if(ruleSet.equals("2")) {
+                this.rulesManager.setRuleAvailable("rule.sun_set_bram", true);
+                this.rulesManager.setRuleAvailable("rule.sun_rise_bram", true);
+            }
         }
+    }
+
+    private void initBramRules() {
+        Action lampOnAction = new OutletAction("turn on the lamp", "switch.lamp", "on");
+        Action lampOffAction = new OutletAction("turn off the lamp", "switch.lamp", "off");
+
+        //Sync lamp with sun
+        Trigger sunSetTrigger = new StateTrigger("rule.sun_set_bram", "sun.sun", "below_horizon", "When the sun sets");
+        sunSetTrigger.addAction(lampOnAction);
+        this.rulesManager.addRule(sunSetTrigger);
+
+        Trigger sunRiseTrigger = new StateTrigger("rule.sun_rise_bram", "sun.sun", "above_horizon", "When the sun rises");
+        sunRiseTrigger.addAction(lampOffAction);
+        this.rulesManager.addRule(sunRiseTrigger);
     }
 
     private void initTempRules() {

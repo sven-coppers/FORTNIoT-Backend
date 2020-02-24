@@ -280,8 +280,11 @@ public class HassioDeviceManager implements EventListener {
     public List<String> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
         List<String> results = new ArrayList<>();
 
-        for(String entityID : hassioDeviceMap.keySet()) {
-            List<HassioState> newChanges = hassioDeviceMap.get(entityID).adaptStateToContext(newDate, hassioStates);
+        for(Map.Entry<String, HassioDevice> entry : hassioDeviceMap.entrySet()) {
+            if(! entry.getValue().isEnabled()) {
+                continue;
+            }
+            List<HassioState> newChanges = hassioDeviceMap.get(entry.getKey()).adaptStateToContext(newDate, hassioStates);
 
             for(HassioState newChange : newChanges) {
                 hassioStates.put(newChange.entity_id, newChange);
@@ -386,12 +389,26 @@ public class HassioDeviceManager implements EventListener {
 
         return result;
     }
+    public void disableVirtualDevices() {
+        this.setAllDevicesAvailable(false);
+        HashMap<String, HassioState> states = getCurrentStates();
+        for (Map.Entry<String, HassioState> entry: states.entrySet()) {
+            if(entry.getValue() != null) {
+                System.out.println("Enabling device: " + entry.getKey());
+                this.setDeviceAvailable(entry.getKey(), true);
+            } else {
+                this.setDeviceEnabled(entry.getKey(), false);
+            }
 
+        }
+    }
     public HashMap<String, HassioState> getCurrentStates() {
         HashMap<String, HassioState> result = new HashMap<>();
 
-        for(String entityID : hassioDeviceMap.keySet()) {
-            result.put(entityID, hassioDeviceMap.get(entityID).getLastState());
+        for(Map.Entry<String, HassioDevice> entry: hassioDeviceMap.entrySet()) {
+            if(entry.getValue().isEnabled()) {
+                result.put(entry.getKey(), hassioDeviceMap.get(entry.getKey()).getLastState());
+            }
         }
 
         return result;
@@ -468,8 +485,10 @@ public class HassioDeviceManager implements EventListener {
     public List<HassioState> predictFutureStates() {
         List<HassioState> hassioStates = new ArrayList<>();
 
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getFutureStates());
+        for(Map.Entry<String, HassioDevice> entry: hassioDeviceMap.entrySet()) {
+            if(entry.getValue().isEnabled()) {
+                hassioStates.addAll(hassioDeviceMap.get(entry.getKey()).getFutureStates());
+            }
         }
 
         Collections.sort(hassioStates);

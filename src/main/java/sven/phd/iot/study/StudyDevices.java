@@ -31,6 +31,9 @@ public class StudyDevices {
             this.deviceManager.setDeviceAvailable("sensor.button_2_battery", true);
             this.deviceManager.setDeviceAvailable("sensor.agoralaan_diepenbeek", true);
             this.deviceManager.setDeviceAvailable("sun.sun", true);
+        } else if(deviceSet.equals("reality")) {
+            System.out.println("Disabling virtual devices");
+            this.deviceManager.disableVirtualDevices();
         }
     }
 

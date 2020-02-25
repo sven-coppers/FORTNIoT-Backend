@@ -19,6 +19,7 @@ import sven.phd.iot.hassio.moon.HassioMoon;
 import sven.phd.iot.hassio.outlet.HassioOutlet;
 import sven.phd.iot.hassio.person.HassioPerson;
 import sven.phd.iot.hassio.routine.HassioRoutine;
+import sven.phd.iot.hassio.sensor.HassioBattery;
 import sven.phd.iot.hassio.sensor.HassioBinarySensor;
 import sven.phd.iot.hassio.sensor.HassioIndoorTempSensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
@@ -148,6 +149,8 @@ public class HassioDeviceManager implements EventListener {
                     device = new HassioBus(entity_id, "Bus Stop - Agoralaan");
                 } else if(entity_id.contains("temperature_measurement")) {
                     device = new HassioSensor(entity_id, friendlyName);
+                } else if(entity_id.contains("battery_level")) {
+                    device = new HassioBattery(entity_id, friendlyName);
                 } else if(entity_id.contains("battery")) {
                     device = new HassioSensor(entity_id, friendlyName);
                 } else if(entity_id.contains("_coordinate")) {

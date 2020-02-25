@@ -22,19 +22,4 @@ public class ParentTempDevices extends StudyDeviceSet {
         devices.add(new HassioHeater(BEDROOM_MASTER_RADIATOR, "Master bedroom radiator", 3.0, 1.0, BEDROOM_MASTER_THERMOSTAT, BEDROOM_MASTER_TEMPERATURE));
         devices.add(new HassioCooler(BEDROOM_MASTER_AIRCO, "Master Bedroom air conditioning", -3.0, 0.0, BEDROOM_MASTER_THERMOSTAT, BEDROOM_MASTER_TEMPERATURE));
     }
-
-        /*    DM.logState(new HassioState(Entity.BEDROOM_MASTER_RADIATOR, "eco",startDate, new HassioHeaterAttributes()));
-        DM.logState(new HassioState(Entity.BEDROOM_MASTER_TEMPERATURE, "17.0",startDate, new HassioSensorAttributes("temperature", "°C")));
-        DM.logState(new HassioState(Entity.BEDROOM_MASTER_THERMOSTAT, "17.0",startDate, new HassioThermostatAttributes()));
-        DM.logState(new HassioState(Entity.BEDROOM_MASTER_AIRCO, "off",startDate, new HassioCoolerAttributes()));
-
-        DM.logState(new HassioState(Entity.BEDROOM_CHILDREN_RADIATOR, "eco", startDate, new HassioHeaterAttributes()));
-        DM.logState(new HassioState(Entity.BEDROOM_CHILDREN_TEMPERATURE, "17.0", startDate, new HassioSensorAttributes("temperature", "°C")));
-        DM.logState(new HassioState(Entity.BEDROOM_CHILDREN_THERMOSTAT, "17.0", startDate, new HassioThermostatAttributes()));
-        DM.logState(new HassioState(Entity.BEDROOM_CHILDREN_AIRCO, "off", startDate, new HassioCoolerAttributes()));
-
-        DM.logState(new HassioState(Entity.SHOWER_HEATER, "eco", startDate, new HassioHeaterAttributes()));
-        DM.logState(new HassioState(Entity.SHOWER_TEMPERATURE, "17.0", startDate, new HassioSensorAttributes("temperature", "°C")));
-        DM.logState(new HassioState(Entity.SHOWER_THERMOSTAT, "17.0", startDate, new HassioThermostatAttributes()));
-        DM.logState(new HassioState(Entity.SHOWER_VENTILATION, "off", startDate, new HassioCoolerAttributes())); */
 }

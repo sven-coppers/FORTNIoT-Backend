@@ -60,6 +60,7 @@ public class StudyManager {
         this.deviceSets.put("parent_temperature", new ParentTempDevices());
         this.deviceSets.put("routine_devices", new WeekdayRoutineDevices());
         this.deviceSets.put("shower_temperature", new ShowerTempDevices());
+        this.deviceSets.put("virtual_sun", new VirtualSun());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -69,6 +70,7 @@ public class StudyManager {
         this.stateSets.put("parent_temperature", new ParentTempStates());
         this.stateSets.put("routine_devices", new WeekDayRoutineStates());
         this.stateSets.put("shower_temperature", new ShowerTempStates());
+        this.stateSets.put("virtual_sun_states", new VirtualSunStates());
     }
 
     public List<String> getRuleSet() {
@@ -117,6 +119,7 @@ public class StudyManager {
         this.activeRuleSets.clear();
 
         this.rulesManager.setAllRulesAvailable(false);
+        this.rulesManager.setAllRulesEnabled(false);
 
         for(String rulSet: ruleSets) {
             this.activeRuleSets.add(rulSet);

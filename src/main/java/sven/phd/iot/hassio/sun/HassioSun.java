@@ -38,13 +38,13 @@ public class HassioSun extends HassioDevice {
             result.add(new HassioState(this.entityID, "above_horizon", attributes.nextRising, new HassioSunAttributes(0.0f, true)));
 
             // Next sun set
-            result.add(new HassioState(this.entityID, "below_horizon", attributes.nextRising, new HassioSunAttributes(0.0f, true)));
+            result.add(new HassioState(this.entityID, "below_horizon", attributes.nextSetting, new HassioSunAttributes(0.0f, true)));
 
             // Next midnight
-            result.add(new HassioState(this.entityID, "below_horizon", attributes.nextRising, new HassioSunAttributes(-18.48f, true)));
+            //result.add(new HassioState(this.entityID, "below_horizon", attributes.nextMidnight, new HassioSunAttributes(-38.48f, true)));
 
             // Next noon
-            result.add(new HassioState(this.entityID, "above_horizon", attributes.nextRising, new HassioSunAttributes(48.39f, false)));
+           //result.add(new HassioState(this.entityID, "above_horizon", attributes.nextNoon, new HassioSunAttributes(48.39f, false)));
         }
 
         Collections.sort(result);

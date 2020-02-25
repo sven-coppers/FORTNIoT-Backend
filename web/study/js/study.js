@@ -193,15 +193,15 @@ function refreshStudy() {
         $("#state_set").empty();
 
         // Populate
-        for(let rulSetOption of data["rule_set_options"]) {
+        for(let rulSetOption of data["rule_set_options"].sort()) {
             $("#rule_set").append('<option value="' + rulSetOption + '">' + rulSetOption + '</option>');
         }
 
-        for(let deviceSetOption of data["device_set_options"]) {
+        for(let deviceSetOption of data["device_set_options"].sort()) {
             $("#device_set").append('<option value="' + deviceSetOption + '">' + deviceSetOption + '</option>');
         }
 
-        for(let stateSetOption of data["state_set_options"]) {
+        for(let stateSetOption of data["state_set_options"].sort()) {
             $("#state_set").append('<option value="' + stateSetOption + '">' + stateSetOption + '</option>');
         }
 

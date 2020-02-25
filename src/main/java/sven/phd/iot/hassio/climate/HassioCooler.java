@@ -30,7 +30,7 @@ public class HassioCooler extends HassioTemperatureModifier {
     @Override
     protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
         List<HassioState> result = new ArrayList<>();
-     /*   HassioState thermostatState = hassioStates.get(this.thermostatID);
+        HassioState thermostatState = hassioStates.get(this.thermostatID);
         HassioState temperatureState = hassioStates.get(this.tempSensorID);
         HassioState heaterState = hassioStates.get(this.entityID);
 
@@ -64,7 +64,7 @@ public class HassioCooler extends HassioTemperatureModifier {
                     result.add(new HassioState(this.entityID, "on", heaterState.last_changed, null));
                 }
             }
-        }*/
+        }
 
         return result;
     }

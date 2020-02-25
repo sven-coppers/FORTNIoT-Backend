@@ -20,33 +20,19 @@
             <tbody>
             <tr>
                 <td>
-                    <select id="rule_set" size="6">
+                    <select id="rule_set" size="6" multiple>
                         <option value="rule_set_all">All</option>
-                        <option value="rule_set_1">Set 1</option>
-                        <option value="rule_set_2">Set 2</option>
-                        <option value="rule_set_3">Set 3</option>
-                        <option value="rule_set_4">Set 4</option>
-                        <option value="rule_set_5">Set 5</option>
                     </select>
                 </td>
                 <td>
-                    <select id="device_set" size="6">
+                    <select id="device_set" size="6" multiple>
                         <option value="device_set_all">All</option>
-                        <option value="device_set_1">Set 1</option>
-                        <option value="device_set_2">Set 2</option>
-                        <option value="device_set_3">Set 3</option>
-                        <option value="device_set_4">Set 4</option>
-                        <option value="device_set_5">Set 5</option>
+
                     </select>
                 </td>
                 <td>
-                    <select id="state_set" size="6">
+                    <select id="state_set" size="6" multiple>
                         <option value="state_set_all">All</option>
-                        <option value="state_set_1">Set 1</option>
-                        <option value="state_set_2">Set 2</option>
-                        <option value="state_set_3">Set 3</option>
-                        <option value="state_set_4">Set 4</option>
-                        <option value="state_set_5">Set 5</option>
                     </select>
                 </td>
             </tr>

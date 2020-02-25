@@ -41,10 +41,22 @@ $("#stop_predicting").click(function() { applyPredictions(false); });
 
 function applyUseCase() {
     let useCase = {
-        rule_set: $( "#rule_set option:selected" ).val().replace("rule_set_", ""),
-        device_set: $( "#device_set option:selected" ).val().replace("device_set_", ""),
-        state_set: $( "#state_set option:selected" ).val().replace("state_set_", ""),
+        rule_set: [],
+        device_set: [],
+        state_set: []
     };
+
+    $( "#rule_set option:selected" ).each(function(){
+        useCase.rule_set.push($(this).val());
+    });
+
+    $( "#device_set option:selected" ).each(function(){
+        useCase.device_set.push($(this).val());
+    });
+
+    $( "#state_set option:selected" ).each(function(){
+        useCase.state_set.push($(this).val());
+    });
 
     $.ajax({
         url:            "http://localhost:8080/intelligibleIoT/api/study/case/",
@@ -176,9 +188,33 @@ function refreshStudy() {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
         }
     }).done(function (data) {
-        $('#rule_set option[value="rule_set_' + data["rule_set"] + '"]').prop('selected', 'selected');
-        $('#state_set option[value="state_set_' + data["state_set"] + '"]').prop('selected', 'selected');
-        $('#device_set option[value="device_set_' + data["device_set"] + '"]').prop('selected', 'selected');
+        $("#rule_set").empty();
+        $("#device_set").empty();
+        $("#state_set").empty();
+
+        // Populate
+        for(let rulSetOption of data["rule_set_options"]) {
+            $("#rule_set").append('<option value="' + rulSetOption + '">' + rulSetOption + '</option>');
+        }
+
+        for(let deviceSetOption of data["device_set_options"]) {
+            $("#device_set").append('<option value="' + deviceSetOption + '">' + deviceSetOption + '</option>');
+        }
+
+        for(let stateSetOption of data["state_set_options"]) {
+            $("#state_set").append('<option value="' + stateSetOption + '">' + stateSetOption + '</option>');
+        }
+
+        // Select
+        for(let rulSetSelection of data["rule_set"]) {
+            $('#rule_set option[value="' + rulSetSelection + '"]').prop('selected', 'selected');
+        }
+        for(let deviceSetSelection of data["device_set"]) {
+            $('#device_set option[value="' + deviceSetSelection + '"]').prop('selected', 'selected');
+        }
+        for(let stateSetSelection of data["state_set"]) {
+            $('#state_set option[value="' + stateSetSelection + '"]').prop('selected', 'selected');
+        }
     });
 }
 

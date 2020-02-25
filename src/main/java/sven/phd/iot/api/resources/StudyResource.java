@@ -23,6 +23,10 @@ public class StudyResource {
         useCaseRequest.ruleSet = studyManager.getRuleSet();
         useCaseRequest.stateSet = studyManager.getStateSet();
 
+        useCaseRequest.deviceSetOptions = studyManager.getDeviceSetOptions();
+        useCaseRequest.ruleSetOptions = studyManager.getRuleSetOptions();
+        useCaseRequest.stateSetOptions = studyManager.getStateSetOptions();
+
         return useCaseRequest;
     }
 
@@ -32,8 +36,8 @@ public class StudyResource {
     public void setConfig(UseCaseRequest useCaseRequest) {
         StudyManager studyManager = ContextManager.getInstance().getStudyManager();
 
-        studyManager.setRuleSet(useCaseRequest.ruleSet);
         studyManager.setDeviceSet(useCaseRequest.deviceSet);
+        studyManager.setRuleSet(useCaseRequest.ruleSet);
         studyManager.setStateSet(useCaseRequest.stateSet);
 
         ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();

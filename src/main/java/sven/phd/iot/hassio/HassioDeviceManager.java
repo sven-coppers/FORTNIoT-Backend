@@ -60,10 +60,9 @@ public class HassioDeviceManager implements EventListener {
 
         this.contextManager = contextManager;
         this.stateScheduler = new HassioStateScheduler(this);
-        this.initialiseVirtualDevices();
     }
 
-    private void addDevice(HassioDevice device) {
+    public void addDevice(HassioDevice device) {
         this.hassioDeviceMap.put(device.entityID, device);
     }
 
@@ -101,46 +100,6 @@ public class HassioDeviceManager implements EventListener {
     public void stopListening() {
         eventSource.close();
         System.out.println("HassioDeviceManager - Disconnected from Hassio Instance");
-    }
-
-    public void initialiseVirtualDevices() {
-        // Living - Lights
-        addDevice(new HassioLight(Entity.LIVING_STANDING_LAMP, "Living standing lamp"));
-        addDevice(new HassioLight(Entity.KITCHEN_SPOTS, "Kitchen spots"));
-        addDevice(new HassioLight(Entity.LIVING_SPOTS, "Living spots"));
-
-        // Living - Temperature
-        addDevice(new HassioIndoorTempSensor(Entity.LIVING_TEMPERATURE, "Living temperature", -0.5));
-        addDevice(new HassioThermostat(Entity.LIVING_THERMOSTAT, "Living target temperature"));
-        addDevice(new HassioHeater(Entity.LIVING_FLOOR_HEATING, "Living floor heating", 1.5, 0.5, Entity.LIVING_THERMOSTAT, Entity.LIVING_TEMPERATURE));
-        addDevice(new HassioCooler(Entity.LIVING_AIRCO, "Living air conditioning", -3.0, 0.0, Entity.LIVING_THERMOSTAT, Entity.LIVING_TEMPERATURE));
-
-        // Master Bedroom - Temperature
-        addDevice(new HassioIndoorTempSensor(Entity.BEDROOM_MASTER_TEMPERATURE, "Master bedroom temperature", -1.0));
-        addDevice(new HassioThermostat(Entity.BEDROOM_MASTER_THERMOSTAT, "Master bedroom target temperature"));
-        addDevice(new HassioHeater(Entity.BEDROOM_MASTER_RADIATOR, "Master bedroom radiator", 3.0, 1.0, Entity.BEDROOM_MASTER_THERMOSTAT, Entity.BEDROOM_MASTER_TEMPERATURE));
-        addDevice(new HassioCooler(Entity.BEDROOM_MASTER_AIRCO, "Master Bedroom air conditioning", -3.0, 0.0, Entity.BEDROOM_MASTER_THERMOSTAT, Entity.BEDROOM_MASTER_TEMPERATURE));
-
-        // Children bedroom - Temperature
-        addDevice(new HassioIndoorTempSensor(Entity.BEDROOM_CHILDREN_TEMPERATURE, "Children's bedroom temperature", -1.0));
-        addDevice(new HassioThermostat(Entity.BEDROOM_CHILDREN_THERMOSTAT, "Children's bedroom target temperature"));
-        addDevice(new HassioHeater(Entity.BEDROOM_CHILDREN_RADIATOR, "Children's bedroom radiator", 4.0, 1.0, Entity.BEDROOM_CHILDREN_THERMOSTAT, Entity.BEDROOM_CHILDREN_TEMPERATURE));
-        addDevice(new HassioCooler(Entity.BEDROOM_CHILDREN_AIRCO, "Children's bedroom air conditioning", -3.0, 0.0, Entity.BEDROOM_CHILDREN_THERMOSTAT, Entity.BEDROOM_CHILDREN_TEMPERATURE));
-
-        // Children bedroom - motion sensor
-        addDevice(new HassioBinarySensor(Entity.BEDROOM_CHILDREN_MOTION, "Children's bedroom motion sensor"));
-
-        // Shower room - Temperature
-        addDevice(new HassioIndoorTempSensor(Entity.SHOWER_TEMPERATURE, "Shower room temperature", -2.0));
-        addDevice(new HassioThermostat(Entity.SHOWER_THERMOSTAT, "Shower room target temperature"));
-        addDevice(new HassioHeater(Entity.SHOWER_HEATER, "Shower room heater fan", 8.0, 2.0, Entity.SHOWER_THERMOSTAT, Entity.SHOWER_TEMPERATURE));
-        addDevice(new HassioCooler(Entity.SHOWER_VENTILATION, "Shower room ventilation", -1.0, 0.0, Entity.SHOWER_THERMOSTAT, Entity.SHOWER_TEMPERATURE));
-
-        // People and Habits
-        addDevice(new HassioPerson(Entity.PEOPLE_DAD, "Daddy"));
-        addDevice(new HassioPerson(Entity.PEOPLE_MOM, "Mommy"));
-        addDevice(new HassioSensor(Entity.PEOPLE_HOME_COUNTER, "Family members home"));
-        addDevice(new HassioRoutine(Entity.ROUTINE, "Routine"));
     }
 
     /**
@@ -531,5 +490,11 @@ public class HassioDeviceManager implements EventListener {
 
     public HassioStateScheduler getStateScheduler() {
         return this.stateScheduler;
+    }
+
+    public void clearLogs() {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).clearHistory();
+        }
     }
 }

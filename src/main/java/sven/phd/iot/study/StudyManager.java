@@ -4,20 +4,7 @@ import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
-import sven.phd.iot.hassio.climate.HassioCoolerAttributes;
-import sven.phd.iot.hassio.climate.HassioHeaterAttributes;
-import sven.phd.iot.hassio.climate.HassioThermostatAttributes;
-import sven.phd.iot.hassio.light.HassioLightAttributes;
-import sven.phd.iot.hassio.person.HassioPersonAttributes;
-import sven.phd.iot.hassio.routine.HassioRoutineAttributes;
-import sven.phd.iot.hassio.sensor.HassioBinarySensorAttributes;
-import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
-import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.RulesManager;
-import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.rules.actions.ThermostatStateAction;
-import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
-import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.study.cases.*;
 
 import java.util.*;
@@ -51,6 +38,7 @@ public class StudyManager {
         this.ruleSets.put("parent_temperature", new ParentTempRules());
         this.ruleSets.put("routine_rules", new WeekdayRoutineRules());
         this.ruleSets.put("shower_temperature", new ShowerTempRules());
+        this.ruleSets.put("tv_rules", new TVRules());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -61,6 +49,7 @@ public class StudyManager {
         this.deviceSets.put("routine_devices", new WeekdayRoutineDevices());
         this.deviceSets.put("shower_temperature", new ShowerTempDevices());
         this.deviceSets.put("virtual_sun", new VirtualSun());
+        this.deviceSets.put("tv_devices", new TVDevices());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -71,6 +60,9 @@ public class StudyManager {
         this.stateSets.put("routine_devices", new WeekDayRoutineStates());
         this.stateSets.put("shower_temperature", new ShowerTempStates());
         this.stateSets.put("virtual_sun_states", new VirtualSunStates());
+        this.stateSets.put("tv_news", new TVNewsStates());
+        this.stateSets.put("tv_sports", new TVSportsStates());
+        this.stateSets.put("tv_movies", new TVMovieStates());
     }
 
     public List<String> getRuleSet() {

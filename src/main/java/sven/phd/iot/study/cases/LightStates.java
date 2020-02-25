@@ -15,6 +15,8 @@ public class LightStates extends StudyStateSet {
         DM.logState(new HassioState(LightDevices.LIVING_STANDING_LAMP, "off", startDate, new HassioLightAttributes()));
         DM.logState(new HassioState(LightDevices.LIVING_SPOTS, "off", startDate, new HassioLightAttributes()));
         DM.logState(new HassioState(LightDevices.KITCHEN_SPOTS, "off", startDate, new HassioLightAttributes()));
+        DM.logState(new HassioState(LightDevices.LIVING_LED_STRIPS, "off", startDate, new HassioLightAttributes()));
+        DM.logState(new HassioState(LightDevices.LIVING_CHANDELIER, "off", startDate, new HassioLightAttributes()));
     }
 
     @Override

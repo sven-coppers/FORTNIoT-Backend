@@ -37,10 +37,10 @@ public class TVGuideTrigger extends Trigger {
         String liveProgramType = ((HassioTVGuideAttributes) tvguideState.attributes).contentType;
         ArrayList<HassioContext> result = new ArrayList<>();
 
-        if(this.program != null) {
-            if(this.program.equals(tvguideState.state)) result.add(tvguideState.context);
-        } else if(this.programType != null) {
-            if(this.programType.equals(liveProgramType)) result.add(tvguideState.context);
+        if(this.program != null && this.program.equals(tvguideState.state)) {
+            result.add(tvguideState.context);
+        } else if(this.programType != null && this.programType.equals(liveProgramType)) {
+            result.add(tvguideState.context);
         } else {
             return null;
         }

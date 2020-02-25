@@ -37,12 +37,17 @@ public class TVRules extends StudyRuleSet {
 
         ANDTrigger serieTrigger = new ANDTrigger("rule.tv_serie_started");
         serieTrigger.addTrigger(new StateTrigger("", TVDevices.LIVING_TV, "on", "tv is on"));
-        serieTrigger.addTrigger(new TVGuideTrigger("", "playing sports", TVDevices.LIVING_TV_GUIDE, null, "serie"));
+        serieTrigger.addTrigger(new TVGuideTrigger("", "watching a series", TVDevices.LIVING_TV_GUIDE, null, "serie"));
         serieTrigger.addAction(new LightOffAction("turn off led strip", LightDevices.LIVING_LED_STRIPS));
         rulesManager.addRule(serieTrigger);
 
         Trigger newsTrigger = new TVGuideTrigger("rule.tv_news_started", "the news is on", TVDevices.LIVING_TV_GUIDE, null, "news");
         newsTrigger.addAction(new StateAction("turn on tv", TVDevices.LIVING_TV, "on"));
         rulesManager.addRule(newsTrigger);
+
+        Trigger sleepingTrigger = new StateTrigger("rule.sleeping_tv_off", WeekdayRoutineDevices.ROUTINE, "sleeping", "sleeping");
+        sleepingTrigger.addAction(new StateAction("turn off tv", TVDevices.LIVING_TV, "off"));
+        sleepingTrigger.addAction(new LightOffAction("turn off tv", LightDevices.LIVING_LED_STRIPS));
+        rulesManager.addRule(sleepingTrigger);
     }
 }

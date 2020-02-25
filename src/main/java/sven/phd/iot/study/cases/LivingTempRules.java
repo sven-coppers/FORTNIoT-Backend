@@ -18,11 +18,11 @@ public class LivingTempRules extends StudyRuleSet {
         comesHomeTrigger.addAction(new ThermostatStateAction(LivingTempDevices.LIVING_THERMOSTAT, "living thermostat", 21.0));
         rulesManager.addRule(comesHomeTrigger);
 
-        Trigger eveningTrigger = new StateTrigger("rule.evening_living", "sensor.routine", "evening", "evening");
+        Trigger eveningTrigger = new StateTrigger("rule.evening_living", WeekdayRoutineDevices.ROUTINE, "evening", "evening");
         eveningTrigger.addAction(new ThermostatStateAction(LivingTempDevices.LIVING_THERMOSTAT, "living thermostat", 21.0));
         rulesManager.addRule(eveningTrigger);
 
-        Trigger sleepingTrigger = new StateTrigger("rule.sleeping_living", "sensor.routine", "sleeping", "everyone is sleeping");
+        Trigger sleepingTrigger = new StateTrigger("rule.sleeping_living", WeekdayRoutineDevices.ROUTINE, "sleeping", "everyone is sleeping");
         sleepingTrigger.addAction(new ThermostatStateAction(LivingTempDevices.LIVING_THERMOSTAT, "living thermostat", 15.0));
         rulesManager.addRule(sleepingTrigger);
     }

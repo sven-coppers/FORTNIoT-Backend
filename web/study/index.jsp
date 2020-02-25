@@ -19,21 +19,11 @@
             </thead>
             <tbody>
             <tr>
-                <td>
-                    <select id="rule_set" size="15" multiple>
-                        <option value="rule_set_all">All</option>
-                    </select>
+                <td id="rule_sets">
                 </td>
-                <td>
-                    <select id="device_set" size="15" multiple>
-                        <option value="device_set_all">All</option>
-
-                    </select>
+                <td id="device_sets">
                 </td>
-                <td>
-                    <select id="state_set" size="15" multiple>
-                        <option value="state_set_all">All</option>
-                    </select>
+                <td id="state_sets">
                 </td>
             </tr>
             </tbody>

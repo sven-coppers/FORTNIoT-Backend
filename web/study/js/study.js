@@ -46,16 +46,22 @@ function applyUseCase() {
         state_set: []
     };
 
-    $( "#rule_set option:selected" ).each(function(){
-        useCase.rule_set.push($(this).val());
+    $.each($("#rule_sets input"), function () {
+        if($(this).prop('checked')) {
+            useCase.rule_set.push($(this).attr("id").replace("rule_set_", ""));
+        }
     });
 
-    $( "#device_set option:selected" ).each(function(){
-        useCase.device_set.push($(this).val());
+    $.each($("#device_sets input"), function () {
+        if($(this).prop('checked')) {
+            useCase.device_set.push($(this).attr("id").replace("device_set_", ""));
+        }
     });
 
-    $( "#state_set option:selected" ).each(function(){
-        useCase.state_set.push($(this).val());
+    $.each($("#state_sets input"), function () {
+        if($(this).prop('checked')) {
+            useCase.state_set.push($(this).attr("id").replace("state_set_", ""));
+        }
     });
 
     $.ajax({
@@ -188,32 +194,32 @@ function refreshStudy() {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
         }
     }).done(function (data) {
-        $("#rule_set").empty();
-        $("#device_set").empty();
-        $("#state_set").empty();
+        $("#rule_sets").empty();
+        $("#device_sets").empty();
+        $("#state_sets").empty();
 
         // Populate
         for(let rulSetOption of data["rule_set_options"].sort()) {
-            $("#rule_set").append('<option value="' + rulSetOption + '">' + rulSetOption + '</option>');
+            $("#rule_sets").append('<div class="checkbox_option"><input type="checkbox" id="rule_set_' + rulSetOption + '" value="rule_set_' + rulSetOption + '"><label for="rule_set_' + rulSetOption + '">' + rulSetOption + '</label></div>');
         }
 
         for(let deviceSetOption of data["device_set_options"].sort()) {
-            $("#device_set").append('<option value="' + deviceSetOption + '">' + deviceSetOption + '</option>');
+            $("#device_sets").append('<div class="checkbox_option"><input type="checkbox" id="device_set_' + deviceSetOption + '" value="device_set_' + deviceSetOption + '"><label for="device_set_' + deviceSetOption + '">' + deviceSetOption + '</label></div>');
         }
 
         for(let stateSetOption of data["state_set_options"].sort()) {
-            $("#state_set").append('<option value="' + stateSetOption + '">' + stateSetOption + '</option>');
+            $("#state_sets").append('<div class="checkbox_option"><input type="checkbox" id="state_set_' + stateSetOption + '" value="state_set_' + stateSetOption + '"><label for="state_set_' + stateSetOption + '">' + stateSetOption + '</label></div>');
         }
 
         // Select
         for(let rulSetSelection of data["rule_set"]) {
-            $('#rule_set option[value="' + rulSetSelection + '"]').prop('selected', 'selected');
+            $('#rule_set_' + rulSetSelection).prop('checked', true);
         }
         for(let deviceSetSelection of data["device_set"]) {
-            $('#device_set option[value="' + deviceSetSelection + '"]').prop('selected', 'selected');
+            $('#device_set_' + deviceSetSelection).prop('checked', true);
         }
         for(let stateSetSelection of data["state_set"]) {
-            $('#state_set option[value="' + stateSetSelection + '"]').prop('selected', 'selected');
+            $('#state_set_' + stateSetSelection).prop('checked', true);
         }
     });
 }

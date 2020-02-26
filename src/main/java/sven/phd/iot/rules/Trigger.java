@@ -138,7 +138,7 @@ abstract public class Trigger {
 
     public Action getActionOnDevice(String deviceId) {
         for(Action action: actions) {
-            if(action.toString().contains(deviceId)) {
+            if(action.getDeviceIdentifier().contains(deviceId)) {
                 return action;
             }
         }

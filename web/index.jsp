@@ -40,7 +40,7 @@
       <li><span class="method">GET</span> <a href="api/bram/devices">bram/devices</a> Get the id and friendly name of all the devices</li>
       <li><span class="method">GET</span> <a href="api/bram/devices/sun.sun">bram/devices/{id}</a> Get the id and friendly name of a particular device</li>
       <li><span class="method">GET</span> <a href="api/bram/why/light.hue_color_lamp_2">bram/why/{id}</a> Get the reason of the state of a entity</li>
-      <li><span class="method">GET</span> <a href="api/bram/ruledescription/rule.sun_set/switch.lamp">bram/ruledescription/{rule_id}/{device_id}</a> <p>Get the actions on a device of a given rule</p></li>
+      <li><span class="method">GET</span> <a href="api/bram/ruledescription/rule.sun_set_bram/switch.lamp">bram/ruledescription/{rule_id}/{device_id}</a> <p>Get the actions on a device of a given rule</p></li>
       <li><span class="method">POST</span> <a href="api/bram/simulation">bram/simulation</a> Simulate an alternative future based on an alternative state</li>
     </ul>
   </div>

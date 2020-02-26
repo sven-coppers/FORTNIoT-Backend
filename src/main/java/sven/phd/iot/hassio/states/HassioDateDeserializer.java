@@ -17,13 +17,13 @@ public class HassioDateDeserializer extends JsonDeserializer<Date> {
     @Override
     public Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        String timezone = jsonParser.getText().substring(26);
+        /*String timezone = jsonParser.getText().substring(26);
         String datetime = jsonParser.getText().substring(0, 23);
-        String merged = datetime + timezone;
+        String merged = datetime + timezone;*/
 
         try
         {
-            return df.parse(merged);
+            return df.parse(jsonParser.getText());
         }
         catch (ParseException e) {
             e.printStackTrace();

@@ -52,6 +52,7 @@ public class StudyRules {
     private void initBramRules() {
         Action lampOnAction = new OutletAction("turn on the lamp", "switch.lamp", "on");
         Action lampOffAction = new OutletAction("turn off the lamp", "switch.lamp", "off");
+        Action outletOn = new OutletOnAction("switch.lamp", "turn on the lamp");
 
         //Sync lamp with sun
         Trigger sunSetTrigger = new StateTrigger("rule.sun_set_bram", "sun.sun", "below_horizon", "When the sun sets");
@@ -61,6 +62,10 @@ public class StudyRules {
         Trigger sunRiseTrigger = new StateTrigger("rule.sun_rise_bram", "sun.sun", "above_horizon", "When the sun rises");
         sunRiseTrigger.addAction(lampOffAction);
         this.rulesManager.addRule(sunRiseTrigger);
+
+        Trigger dummyTrigger = new StateTrigger("rule.bram_dummy", "switch.voetenzak", "on", "When the wild pokemon appears");
+        dummyTrigger.addAction(outletOn);
+        this.rulesManager.addRule(dummyTrigger);
     }
 
     private void initTempRules() {

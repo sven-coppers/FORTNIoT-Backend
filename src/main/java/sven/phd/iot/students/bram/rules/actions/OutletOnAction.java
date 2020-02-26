@@ -15,16 +15,21 @@ public class OutletOnAction extends Action {
     @JsonProperty("entity_id")
     private final String deviceIdentifier;
 
-    public OutletOnAction(String deviceIdentifier) {
-        super("Turn on " + deviceIdentifier);
+    public OutletOnAction(String deviceIdentifier, String description) {
+        super(description);
         this.deviceIdentifier = deviceIdentifier;
+    }
+
+    public String getDeviceIdentifier() {
+        return this.deviceIdentifier;
     }
 
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
+        HassioState state = new HassioState(deviceIdentifier, "on", hassioRuleExecutionEvent.datetime, new HassioOutletAttributes());
         //System.out.println("Simulating turn on of " + this.deviceIdentifier);
-        newStates.add(new HassioState(deviceIdentifier, "on", hassioRuleExecutionEvent.datetime, new HassioOutletAttributes()));
+        newStates.add(state);
 
         return newStates;
     }

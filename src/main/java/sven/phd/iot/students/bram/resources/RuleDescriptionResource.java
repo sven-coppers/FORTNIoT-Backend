@@ -20,9 +20,14 @@ public class RuleDescriptionResource {
         ContextManager cm = ContextManager.getInstance();
         Trigger rule = cm.getRule(ruleId);
 
+        System.out.println(rule);
+
         RuleJson result = new RuleJson();
         result.rule_id = ruleId;
         result.trigger = rule.getTitle();
+
+        
+
         result.action = rule.getActionOnDevice(deviceId).description;
 
         return result;

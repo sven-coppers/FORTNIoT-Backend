@@ -19,35 +19,11 @@
             </thead>
             <tbody>
             <tr>
-                <td>
-                    <select id="rule_set" size="6">
-                        <option value="rule_set_all">All</option>
-                        <option value="rule_set_1">Set 1</option>
-                        <option value="rule_set_2">Set 2</option>
-                        <option value="rule_set_3">Set 3</option>
-                        <option value="rule_set_4">Set 4</option>
-                        <option value="rule_set_5">Set 5</option>
-                    </select>
+                <td id="rule_sets">
                 </td>
-                <td>
-                    <select id="device_set" size="6">
-                        <option value="device_set_all">All</option>
-                        <option value="device_set_1">Set 1</option>
-                        <option value="device_set_2">Set 2</option>
-                        <option value="device_set_3">Set 3</option>
-                        <option value="device_set_4">Set 4</option>
-                        <option value="device_set_5">Set 5</option>
-                    </select>
+                <td id="device_sets">
                 </td>
-                <td>
-                    <select id="state_set" size="6">
-                        <option value="state_set_all">All</option>
-                        <option value="state_set_1">Set 1</option>
-                        <option value="state_set_2">Set 2</option>
-                        <option value="state_set_3">Set 3</option>
-                        <option value="state_set_4">Set 4</option>
-                        <option value="state_set_5">Set 5</option>
-                    </select>
+                <td id="state_sets">
                 </td>
             </tr>
             </tbody>
@@ -66,6 +42,7 @@
         <input type="text" value="http://hassio.local:8123/api/" />
         <button id="start_listening">Start Listening</button>
         <button id="stop_listening">Stop Listening</button>
+       <!-- <button id="remove_devices">Remove All Devices</button> -->
     </div>
 
     <div class="block">

@@ -139,4 +139,10 @@ public class RulesManager {
             }
         }
     }
+
+    public void setAllRulesEnabled(boolean enabled) {
+        for(String deviceID : this.rules.keySet()) {
+            rules.get(deviceID).setEnabled(enabled);
+        }
+    }
 }

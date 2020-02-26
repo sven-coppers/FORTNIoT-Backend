@@ -65,6 +65,7 @@ public class PredictionEngine {
         Date lastFrameDate = new Date(); // Prediction start
         Date predictionEnd = new Date(new Date().getTime() + predictionWindow * 60l * 1000l); // Convert prediction window from minutes to milliseconds
 
+        // Predict the first day with high precision
         while(lastFrameDate.getTime() < predictionEnd.getTime()) {
             Date nextTickDate = new Date(lastFrameDate.getTime() + (tickRate * 60l * 1000l)); // Convert tickrate from minutes to milliseconds
 
@@ -75,6 +76,11 @@ public class PredictionEngine {
 
             this.tick(nextTickDate, lastStates, queue, future, simulatedRulesEnabled);
             lastFrameDate = nextTickDate;
+        }
+
+        // Finish predicting the rest of the queue
+        while(!queue.isEmpty()) {
+            this.tick(queue.peek().last_changed, lastStates, queue, future, simulatedRulesEnabled);
         }
 
         System.out.println("Predictions updated: " + future.futureStates.size());

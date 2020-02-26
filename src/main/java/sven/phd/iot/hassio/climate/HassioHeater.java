@@ -66,26 +66,6 @@ public class HassioHeater extends HassioTemperatureModifier {
             }
         }
 
-
-
-
-
-
- /*       if(thermostatState.state.equals("eco")) {
-            // Do nothing
-        } else if(thermostatState.state.equals("heating") && currentTemp > targetTemp) {
-            return new bool(thermostatState.entity_id, "eco", newDate, thermostatState.attributes);
-        } else if(thermostatState.state.equals("cooling") && currentTemp < targetTemp) {
-            return new bool(thermostatState.entity_id, "eco", newDate, thermostatState.attributes);
-
-            hassioStates.put();
-        } else if(thermostatState.state.equals("eco") && currentTemp < targetTemp) {
-            //return new bool(thermostatState.entity_id, "heating", newDate, thermostatState.attributes);
-            temperatureState.state = "heating";
-        } */
-
-      //  result.add(this.tempSensorID);
-      //  result.add(this.entityID);
         return result;
     }
 }

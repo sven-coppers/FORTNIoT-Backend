@@ -13,22 +13,18 @@ import sven.phd.iot.hassio.bus.HassioBus;
 import sven.phd.iot.hassio.calendar.HassioCalendar;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.change.HassioChangeRaw;
-import sven.phd.iot.hassio.climate.HassioCooler;
 import sven.phd.iot.hassio.light.HassioLight;
 import sven.phd.iot.hassio.moon.HassioMoon;
 import sven.phd.iot.hassio.outlet.HassioOutlet;
 import sven.phd.iot.hassio.person.HassioPerson;
-import sven.phd.iot.hassio.routine.HassioRoutine;
+import sven.phd.iot.hassio.sensor.HassioBattery;
 import sven.phd.iot.hassio.sensor.HassioBinarySensor;
-import sven.phd.iot.hassio.sensor.HassioIndoorTempSensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
 import sven.phd.iot.hassio.services.HassioCallService;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
-import sven.phd.iot.hassio.climate.HassioHeater;
-import sven.phd.iot.hassio.climate.HassioThermostat;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
@@ -60,10 +56,9 @@ public class HassioDeviceManager implements EventListener {
 
         this.contextManager = contextManager;
         this.stateScheduler = new HassioStateScheduler(this);
-        this.initialiseVirtualDevices();
     }
 
-    private void addDevice(HassioDevice device) {
+    public void addDevice(HassioDevice device) {
         this.hassioDeviceMap.put(device.entityID, device);
     }
 
@@ -101,47 +96,6 @@ public class HassioDeviceManager implements EventListener {
     public void stopListening() {
         eventSource.close();
         System.out.println("HassioDeviceManager - Disconnected from Hassio Instance");
-    }
-
-    public void initialiseVirtualDevices() {
-        // Living - Lights
-        addDevice(new HassioLight("light.standing_lamp", "Standing lamp"));
-        addDevice(new HassioLight("light.kitchen_spots", "Kitchen spots"));
-        addDevice(new HassioLight("light.living_spots", "Living spots"));
-
-        // Living - Temperature
-        addDevice(new HassioIndoorTempSensor("sensor.living_temperature_measurement", "Living temperature", 1.0));
-        addDevice(new HassioThermostat("thermostat.living_thermostat", "Living target temperature"));
-        addDevice(new HassioHeater("heater.living_floor_heating", "Living floor heating", 1.5, 0.5, "thermostat.living_thermostat", "sensor.living_temperature_measurement"));
-        addDevice(new HassioCooler("cooler.airco", "Living air conditioning", "thermostat.living_thermostat", "sensor.living_temperature_measurement"));
-        addDevice(new HassioCooler("cooler.ventilation", "Living ventilation", "thermostat.living_thermostat", "sensor.living_temperature_measurement"));
-
-        // Master Bedroom - Temperature
-        addDevice(new HassioIndoorTempSensor("sensor.master_bedroom_temperature_measurement", "Master bedroom temperature", 0.5));
-        addDevice(new HassioThermostat("thermostat.master_bedroom_thermostat", "Master bedroom target temperature"));
-        addDevice(new HassioHeater("heater.master_bedroom_radiator", "Master bedroom radiator", 3.0, 0.5, "thermostat.master_bedroom_thermostat", "sensor.master_bedroom_temperature_measurement"));
-        addDevice(new HassioCooler("cooler.master_bedroom_airco", "Master Bedroom air conditioning", "thermostat.master_bedroom_thermostat", "sensor.master_bedroom_temperature_measurement"));
-
-        // Children bedroom - Temperature
-        addDevice(new HassioIndoorTempSensor("sensor.children_bedroom_temperature_measurement", "Children's bedroom temperature", 0.5));
-        addDevice(new HassioThermostat("thermostat.children_bedroom_thermostat", "Children's bedroom target temperature"));
-        addDevice(new HassioHeater("heater.children_bedroom_radiator", "Children's bedroom radiator", 4.0, 0.5, "thermostat.children_bedroom_thermostat", "sensor.children_bedroom_temperature_measurement"));
-        addDevice(new HassioCooler("cooler.children_bedroom_airco", "Children's bedroom air conditioning", "thermostat.children_bedroom_thermostat", "sensor.children_bedroom_temperature_measurement"));
-
-        // Children bedroom - motion sensor
-        addDevice(new HassioBinarySensor("binary_sensor.children_beedroom_motion_sensor_motion", "Children's bedroom motion sensor"));
-
-        // Shower room - Temperature
-        addDevice(new HassioIndoorTempSensor("sensor.shower_temperature_measurement", "Shower room temperature", 0.5));
-        addDevice(new HassioThermostat("thermostat.shower_thermostat", "Shower room target temperature"));
-        addDevice(new HassioHeater("heater.shower_bedroom_heater", "Shower room heater fan", 8.0, 0.5, "thermostat.shower_thermostat", "sensor.shower_temperature_measurement"));
-        addDevice(new HassioCooler("cooler.shower_bedroom_ventilation", "Shower room ventilation", "thermostat.shower_thermostat", "sensor.shower_temperature_measurement"));
-
-        // People and Habits
-        addDevice(new HassioPerson("person.dad", "Daddy"));
-        addDevice(new HassioPerson("person.mom", "Mommy"));
-        addDevice(new HassioSensor("sensor.people_home_counter", "Family members home"));
-        addDevice(new HassioRoutine("sensor.routine", "Routine"));
     }
 
     /**
@@ -190,8 +144,10 @@ public class HassioDeviceManager implements EventListener {
                     device = new HassioBus(entity_id, "Bus Stop - Agoralaan");
                 } else if(entity_id.contains("temperature_measurement")) {
                     device = new HassioSensor(entity_id, friendlyName);
-                } else if(entity_id.contains("battery")) {
-                    device = new HassioSensor(entity_id, friendlyName);
+                } else if(entity_id.contains("battery")) { // battery_level
+                    device = new HassioBattery(entity_id, friendlyName, 2400.0);
+               // } else if(entity_id.contains("battery")) {
+              //      device = new HassioSensor(entity_id, friendlyName);
                 } else if(entity_id.contains("_coordinate")) {
                     device = new HassioSensor(entity_id, friendlyName);
                 }
@@ -358,7 +314,7 @@ public class HassioDeviceManager implements EventListener {
             // Check if something needs to happen
             this.contextManager.deviceChanged(hassioChange);
         } else {
-            System.out.println("Ignored incoming change");
+            System.err.println("Ignored incoming change");
         }
     }
 
@@ -371,6 +327,18 @@ public class HassioDeviceManager implements EventListener {
             HassioChange hassioChange = new HassioChange(newState.entity_id, oldState, newState, newState.last_changed);
 
             this.stateChanged(hassioChange);
+        }
+    }
+
+    /** Log a state without triggering rules
+     * To be called by StudyStates
+     * @param newState
+     */
+    public void logState(HassioState newState) {
+        if(this.hassioDeviceMap.containsKey(newState.entity_id)) {
+            this.hassioDeviceMap.get(newState.entity_id).logState(newState);
+        } else {
+            System.err.println("Could not log state for " + newState.entity_id);
         }
     }
 
@@ -539,5 +507,11 @@ public class HassioDeviceManager implements EventListener {
 
     public HassioStateScheduler getStateScheduler() {
         return this.stateScheduler;
+    }
+
+    public void clearLogs() {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).clearHistory();
+        }
     }
 }

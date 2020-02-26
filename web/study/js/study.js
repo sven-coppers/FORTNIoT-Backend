@@ -41,10 +41,28 @@ $("#stop_predicting").click(function() { applyPredictions(false); });
 
 function applyUseCase() {
     let useCase = {
-        rule_set: $( "#rule_set option:selected" ).val().replace("rule_set_", ""),
-        device_set: $( "#device_set option:selected" ).val().replace("device_set_", ""),
-        state_set: $( "#state_set option:selected" ).val().replace("state_set_", ""),
+        rule_set: [],
+        device_set: [],
+        state_set: []
     };
+
+    $.each($("#rule_sets input"), function () {
+        if($(this).prop('checked')) {
+            useCase.rule_set.push($(this).attr("id").replace("rule_set_", ""));
+        }
+    });
+
+    $.each($("#device_sets input"), function () {
+        if($(this).prop('checked')) {
+            useCase.device_set.push($(this).attr("id").replace("device_set_", ""));
+        }
+    });
+
+    $.each($("#state_sets input"), function () {
+        if($(this).prop('checked')) {
+            useCase.state_set.push($(this).attr("id").replace("state_set_", ""));
+        }
+    });
 
     $.ajax({
         url:            "http://localhost:8080/intelligibleIoT/api/study/case/",
@@ -176,9 +194,33 @@ function refreshStudy() {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
         }
     }).done(function (data) {
-        $('#rule_set option[value="rule_set_' + data["rule_set"] + '"]').prop('selected', 'selected');
-        $('#state_set option[value="state_set_' + data["state_set"] + '"]').prop('selected', 'selected');
-        $('#device_set option[value="device_set_' + data["device_set"] + '"]').prop('selected', 'selected');
+        $("#rule_sets").empty();
+        $("#device_sets").empty();
+        $("#state_sets").empty();
+
+        // Populate
+        for(let rulSetOption of data["rule_set_options"].sort()) {
+            $("#rule_sets").append('<div class="checkbox_option"><input type="checkbox" id="rule_set_' + rulSetOption + '" value="rule_set_' + rulSetOption + '"><label for="rule_set_' + rulSetOption + '">' + rulSetOption + '</label></div>');
+        }
+
+        for(let deviceSetOption of data["device_set_options"].sort()) {
+            $("#device_sets").append('<div class="checkbox_option"><input type="checkbox" id="device_set_' + deviceSetOption + '" value="device_set_' + deviceSetOption + '"><label for="device_set_' + deviceSetOption + '">' + deviceSetOption + '</label></div>');
+        }
+
+        for(let stateSetOption of data["state_set_options"].sort()) {
+            $("#state_sets").append('<div class="checkbox_option"><input type="checkbox" id="state_set_' + stateSetOption + '" value="state_set_' + stateSetOption + '"><label for="state_set_' + stateSetOption + '">' + stateSetOption + '</label></div>');
+        }
+
+        // Select
+        for(let rulSetSelection of data["rule_set"]) {
+            $('#rule_set_' + rulSetSelection).prop('checked', true);
+        }
+        for(let deviceSetSelection of data["device_set"]) {
+            $('#device_set_' + deviceSetSelection).prop('checked', true);
+        }
+        for(let stateSetSelection of data["state_set"]) {
+            $('#state_set_' + stateSetSelection).prop('checked', true);
+        }
     });
 }
 

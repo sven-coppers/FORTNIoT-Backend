@@ -13,23 +13,18 @@ import sven.phd.iot.hassio.bus.HassioBus;
 import sven.phd.iot.hassio.calendar.HassioCalendar;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.change.HassioChangeRaw;
-import sven.phd.iot.hassio.climate.HassioCooler;
 import sven.phd.iot.hassio.light.HassioLight;
 import sven.phd.iot.hassio.moon.HassioMoon;
 import sven.phd.iot.hassio.outlet.HassioOutlet;
 import sven.phd.iot.hassio.person.HassioPerson;
-import sven.phd.iot.hassio.routine.HassioRoutine;
 import sven.phd.iot.hassio.sensor.HassioBattery;
 import sven.phd.iot.hassio.sensor.HassioBinarySensor;
-import sven.phd.iot.hassio.sensor.HassioIndoorTempSensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
 import sven.phd.iot.hassio.services.HassioCallService;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
-import sven.phd.iot.hassio.climate.HassioHeater;
-import sven.phd.iot.hassio.climate.HassioThermostat;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
 import sven.phd.iot.hassio.updates.HassioEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
@@ -149,10 +144,10 @@ public class HassioDeviceManager implements EventListener {
                     device = new HassioBus(entity_id, "Bus Stop - Agoralaan");
                 } else if(entity_id.contains("temperature_measurement")) {
                     device = new HassioSensor(entity_id, friendlyName);
-                } else if(entity_id.contains("battery_level")) {
-                    device = new HassioBattery(entity_id, friendlyName);
-                } else if(entity_id.contains("battery")) {
-                    device = new HassioSensor(entity_id, friendlyName);
+                } else if(entity_id.contains("battery")) { // battery_level
+                    device = new HassioBattery(entity_id, friendlyName, 2400.0);
+               // } else if(entity_id.contains("battery")) {
+              //      device = new HassioSensor(entity_id, friendlyName);
                 } else if(entity_id.contains("_coordinate")) {
                     device = new HassioSensor(entity_id, friendlyName);
                 }

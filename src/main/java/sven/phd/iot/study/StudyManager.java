@@ -39,6 +39,7 @@ public class StudyManager {
         this.ruleSets.put("routine_rules", new WeekdayRoutineRules());
         this.ruleSets.put("shower_temperature", new ShowerTempRules());
         this.ruleSets.put("tv_rules", new TVRules());
+        this.ruleSets.put("security_rules", new SecurityRules());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -50,11 +51,12 @@ public class StudyManager {
         this.deviceSets.put("shower_temperature", new ShowerTempDevices());
         this.deviceSets.put("virtual_sun", new VirtualSun());
         this.deviceSets.put("tv_devices", new TVDevices());
+        this.deviceSets.put("security_devices", new SecurityDevices());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
         this.stateSets.put("children_temperature", new ChildrenTempStates());
-        this.stateSets.put("light_devices", new LightStates());
+        this.stateSets.put("light_states", new LightStates());
         this.stateSets.put("living_temperature", new LivingTempStates());
         this.stateSets.put("parent_temperature", new ParentTempStates());
         this.stateSets.put("routine_devices", new WeekDayRoutineStates());
@@ -63,6 +65,7 @@ public class StudyManager {
         this.stateSets.put("tv_news", new TVNewsStates());
         this.stateSets.put("tv_sports", new TVSportsStates());
         this.stateSets.put("tv_movies", new TVMovieStates());
+        this.stateSets.put("security_states", new SecurityStates());
     }
 
     public List<String> getRuleSet() {

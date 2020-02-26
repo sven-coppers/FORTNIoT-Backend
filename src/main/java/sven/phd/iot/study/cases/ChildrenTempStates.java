@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.climate.HassioCoolerAttributes;
 import sven.phd.iot.hassio.climate.HassioHeaterAttributes;
 import sven.phd.iot.hassio.climate.HassioThermostatAttributes;
+import sven.phd.iot.hassio.sensor.HassioBinarySensorAttributes;
 import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.study.StudyStateSet;
@@ -19,6 +20,7 @@ public class ChildrenTempStates extends StudyStateSet {
         DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_TEMPERATURE, "17.0", startDate, new HassioSensorAttributes("temperature", "°C")));
         DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_THERMOSTAT, "17.0", startDate, new HassioThermostatAttributes()));
         DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_AIRCO, "off", startDate, new HassioCoolerAttributes()));
+        DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_MOTION, "clear", startDate, new HassioBinarySensorAttributes()));
     }
 
     @Override

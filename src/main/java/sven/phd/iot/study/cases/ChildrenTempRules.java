@@ -14,7 +14,7 @@ public class ChildrenTempRules extends StudyRuleSet {
         childrenMovingTrigger.addAction(new ThermostatStateAction(ChildrenTempDevices.BEDROOM_CHILDREN_THERMOSTAT, "children's room thermostat", 21.0));
         rulesManager.addRule(childrenMovingTrigger);
 
-        Trigger childrenStopMovingTrigger = new StateTrigger("rule.children_moving", ChildrenTempDevices.BEDROOM_CHILDREN_MOTION, "clear", "no more movement in children's room");
+        Trigger childrenStopMovingTrigger = new StateTrigger("rule.children_stop_moving", ChildrenTempDevices.BEDROOM_CHILDREN_MOTION, "clear", "no more movement in children's room");
         childrenStopMovingTrigger.addAction(new ThermostatStateAction(ChildrenTempDevices.BEDROOM_CHILDREN_THERMOSTAT, "children's room thermostat", 15.0));
         rulesManager.addRule(childrenStopMovingTrigger);
 

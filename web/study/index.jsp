@@ -42,6 +42,7 @@
         <input type="text" value="http://hassio.local:8123/api/" />
         <button id="start_listening">Start Listening</button>
         <button id="stop_listening">Stop Listening</button>
+       <!-- <button id="remove_devices">Remove All Devices</button> -->
     </div>
 
     <div class="block">

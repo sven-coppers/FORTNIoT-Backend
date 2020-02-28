@@ -15,8 +15,8 @@ public class PredictionEngine {
     private HassioDeviceManager hassioDeviceManager;
     private Future future;
     private Boolean predicting;
-    private final long tickRate = 5; // minutes
-    private final long predictionWindow = 1 * 24 * 60; // in minutes
+    private long tickRate = 5; // minutes
+    private long predictionWindow = 1 * 24 * 60; // 1 day in minutes
 
     public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager) {
         this.rulesManager = rulesManager;
@@ -63,11 +63,11 @@ public class PredictionEngine {
         queue.addAll(stateScheduler.getScheduledStates());
 
         Date lastFrameDate = new Date(); // Prediction start
-        Date predictionEnd = new Date(new Date().getTime() + predictionWindow * 60l * 1000l); // Convert prediction window from minutes to milliseconds
+        Date predictionEnd = new Date(new Date().getTime() + getPredictionWindow() * 60l * 1000l); // Convert prediction window from minutes to milliseconds
 
         // Predict the first day with high precision
         while(lastFrameDate.getTime() < predictionEnd.getTime()) {
-            Date nextTickDate = new Date(lastFrameDate.getTime() + (tickRate * 60l * 1000l)); // Convert tickrate from minutes to milliseconds
+            Date nextTickDate = new Date(lastFrameDate.getTime() + (getTickRate() * 60l * 1000l)); // Convert tickrate from minutes to milliseconds
 
             // If there is an element in the queue that will happen before the tick
             if(!queue.isEmpty() && queue.peek().last_changed.getTime() < nextTickDate.getTime()) {
@@ -78,11 +78,15 @@ public class PredictionEngine {
             lastFrameDate = nextTickDate;
         }
 
-        // Finish predicting the rest of the queue
+        // Finish predicting the rest of the queue (within the prediction window)
         while(!queue.isEmpty()) {
-            this.tick(queue.peek().last_changed, lastStates, queue, future, simulatedRulesEnabled);
+            if(queue.peek().last_changed.getTime() < predictionEnd.getTime()) {
+                this.tick(queue.peek().last_changed, lastStates, queue, future, simulatedRulesEnabled);
+            } else {
+                queue.poll();
+            }
         }
-
+        
         System.out.println("Predictions updated: " + future.futureStates.size());
 
         return future;
@@ -157,5 +161,23 @@ public class PredictionEngine {
 
     public boolean isPredicting() {
         return this.predicting;
+    }
+
+    public long getTickRate() {
+        return tickRate;
+    }
+
+    public void setTickRate(long tickRate) {
+        this.tickRate = tickRate;
+        this.updateFuturePredictions();
+    }
+
+    public long getPredictionWindow() {
+        return predictionWindow;
+    }
+
+    public void setPredictionWindow(long predictionWindow) {
+        this.predictionWindow = predictionWindow;
+        this.updateFuturePredictions();
     }
 }

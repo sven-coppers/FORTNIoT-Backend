@@ -38,15 +38,12 @@ public class HassioWeather extends HassioDevice {
             HassioWeatherAttributes attributes = (HassioWeatherAttributes) state.attributes;
             List<HassioWeatherForecast> hassioWeatherForecastList = attributes.forecast;
 
-            for(int i = 2; i < hassioWeatherForecastList.size(); ++i) {
-                HassioWeatherForecast forecast = hassioWeatherForecastList.get(i - 1);
+            for(int i = 0; i < hassioWeatherForecastList.size(); ++i) {
+                HassioWeatherForecast forecast = hassioWeatherForecastList.get(i);
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(forecast.datetime);
-                calendar.add(Calendar.HOUR_OF_DAY, -3);
-                Date previousDate = calendar.getTime();
-
-                new HassioState(this.entityID, forecast.condition, previousDate, new HassioWeatherAttributes(forecast.temperature));
+                if(forecast.datetime.getTime() > new Date().getTime()) {
+                    result.add(new HassioState(this.entityID, forecast.condition, forecast.datetime, new HassioWeatherAttributes(forecast.temperature)));
+                }
             }
         }
 

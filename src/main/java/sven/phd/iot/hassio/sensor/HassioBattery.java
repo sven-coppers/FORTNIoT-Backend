@@ -61,9 +61,4 @@ public class HassioBattery extends HassioSensor {
 
         return result;
     }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        return new ArrayList<>();
-    }
 }

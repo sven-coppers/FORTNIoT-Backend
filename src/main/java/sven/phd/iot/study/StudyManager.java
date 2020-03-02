@@ -1,10 +1,13 @@
 package sven.phd.iot.study;
 
+import org.dom4j.rule.RuleManager;
+import org.junit.Rule;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.rules.RulesManager;
+import sven.phd.iot.rules.triggers.NeverTrigger;
 import sven.phd.iot.study.cases.*;
 
 import java.util.*;
@@ -104,6 +107,7 @@ public class StudyManager {
         this.activeDeviceSets.clear();
 
         this.deviceManager.setAllDevicesAvailable(false);
+        this.deviceManager.setAllDevicesEnabled(false);
         ArrayList<HassioDevice> devices = new ArrayList<>();
 
         for(String deviceSet: deviceSets) {

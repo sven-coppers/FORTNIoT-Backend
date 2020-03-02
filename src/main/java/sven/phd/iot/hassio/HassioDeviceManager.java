@@ -241,6 +241,7 @@ public class HassioDeviceManager implements EventListener {
 
             List<HassioState> newChanges = hassioDeviceMap.get(entityID).adaptStateToContext(newDate, hassioStates);
 
+            // Set the new states as the new context
             for(HassioState newChange : newChanges) {
                 hassioStates.put(newChange.entity_id, newChange);
 
@@ -401,38 +402,6 @@ public class HassioDeviceManager implements EventListener {
     }
 
     /**
-     * Get the history of all device events
-     * @return
-     */
-    public List<HassioEvent> getEventHistory() {
-        List<HassioEvent> hassioStates = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getPastEvents());
-        }
-
-        Collections.sort(hassioStates);
-
-        return hassioStates;
-    }
-
-    /**
-     * Get the cached version of all future events of each device
-     * @return
-     */
-   /* public List<HassioEvent> getEventFuture() {
-        List<HassioEvent> hassioStates = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getFutureEvents());
-        }
-
-        Collections.sort(hassioStates);
-
-        return hassioStates;
-    } */
-
-    /**
      * Predict future states, based on the devices internal knowledge
      * @return
      */
@@ -496,6 +465,12 @@ public class HassioDeviceManager implements EventListener {
     public void clearLogs() {
         for(String deviceID : this.hassioDeviceMap.keySet()) {
             hassioDeviceMap.get(deviceID).clearHistory();
+        }
+    }
+
+    public void setAllDevicesEnabled(boolean enabled) {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).setEnabled(enabled);
         }
     }
 }

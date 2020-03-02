@@ -3,16 +3,22 @@ package sven.phd.iot.rules;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.rules.triggers.NeverTrigger;
 
 import java.util.*;
 import java.util.List;
 
 public class RulesManager {
+    public final String RULE_IMPLICIT_BEHAVIOR = "rule.implicit_behavior";
+
     private Map<String, Trigger> rules;
 
     public RulesManager() {
         System.out.println("RulesManager - Initiating...");
         this.rules = new HashMap<>();
+
+        // Implicit behavior needs to be collected, but should remain hidden
+       addRule(new NeverTrigger(RULE_IMPLICIT_BEHAVIOR, "'Hacky' rule that represents implicit behavior from other devices"));
 
         //Load Bram's rules
         //this.rules.putAll(BramRulesManager.getRules());
@@ -144,5 +150,9 @@ public class RulesManager {
         for(String deviceID : this.rules.keySet()) {
             rules.get(deviceID).setEnabled(enabled);
         }
+    }
+
+    public void addImplicitPrediction(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
+       // rules.get(RULE_IMPLICIT_BEHAVIOR).
     }
 }

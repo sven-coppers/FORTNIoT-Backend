@@ -20,11 +20,6 @@ public class HassioSun extends HassioDevice {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioSunAttributes.class);
     }
 
-    public List<HassioContext> setState(HassioState hassioState) {
-        // We cannot change the state off the sun
-        return new ArrayList<HassioContext>();
-    }
-
     @Override
     public List<HassioState> getFutureStates() {
         List<HassioState> result = new ArrayList<>();
@@ -48,13 +43,6 @@ public class HassioSun extends HassioDevice {
         }
 
         Collections.sort(result);
-
-        return result;
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        List<HassioEvent> result = new ArrayList<>();
 
         return result;
     }

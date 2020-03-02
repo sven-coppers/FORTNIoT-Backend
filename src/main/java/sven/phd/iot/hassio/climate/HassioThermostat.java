@@ -21,21 +21,4 @@ public class HassioThermostat extends HassioDevice {
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioHeaterAttributes.class);
     }
-
-    public List<HassioContext> setState(HassioState hassioState) {
-        // For now only a virtual device
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<HassioState> getFutureStates() {
-        // A thermostat cannot know its future state
-        return new ArrayList<HassioState>();
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        // A thermostat cannot know its future events
-        return new ArrayList<HassioEvent>();
-    }
 }

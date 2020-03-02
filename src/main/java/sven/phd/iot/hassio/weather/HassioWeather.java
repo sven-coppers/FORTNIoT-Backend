@@ -19,11 +19,6 @@ public class HassioWeather extends HassioDevice {
         super(entityID, friendlyName);
     }
 
-    public List<HassioContext> setState(HassioState hassioState) {
-        // We cannot set the state of the weather
-        return new ArrayList<HassioContext>();
-    }
-
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioWeatherAttributes.class);
@@ -46,13 +41,6 @@ public class HassioWeather extends HassioDevice {
                 }
             }
         }
-
-        return result;
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        List<HassioEvent> result = new ArrayList<HassioEvent>();
 
         return result;
     }

@@ -21,18 +21,8 @@ public class HassioCleaner extends HassioDevice {
     }
 
     @Override
-    public List<HassioContext> setState(HassioState hassioState) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    protected List<HassioState> getFutureStates() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        return new ArrayList<>();
+    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioCleanerAttributes.class);
     }
 
     @Override
@@ -56,10 +46,5 @@ public class HassioCleaner extends HassioDevice {
         }
 
         return result;
-    }
-
-    @Override
-    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
-        return new ObjectMapper().readValue(rawAttributes.toString(), HassioCleanerAttributes.class);
     }
 }

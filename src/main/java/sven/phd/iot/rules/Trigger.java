@@ -90,7 +90,6 @@ abstract public class Trigger {
      */
     public abstract List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates);
 
-
     /**
      * Run all actions and collect all states that would result from it
      * @return

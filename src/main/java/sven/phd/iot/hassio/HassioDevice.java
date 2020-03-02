@@ -21,8 +21,6 @@ import java.util.List;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
-    protected List<HassioEvent> hassioEventHistory;
-    //  protected List<HassioEvent> hassioEventFuture;
     protected String entityID;
     protected String friendlyName;
     private boolean enabled;
@@ -30,8 +28,6 @@ abstract public class HassioDevice {
 
     public HassioDevice(String entityID, String friendlyName) {
         this.hassioStateHistory = new ArrayList<>();
-        this.hassioEventHistory = new ArrayList<>();
-        //    this.hassioEventFuture = new ArrayList<>();
         this.entityID = entityID;
         this.friendlyName = friendlyName;
         this.setEnabled(true);
@@ -51,7 +47,9 @@ abstract public class HassioDevice {
      * @param hassioState
      * @return
      */
-    abstract public List<HassioContext> setState(HassioState hassioState);
+    public List<HassioContext> setState(HassioState hassioState) {
+        return new ArrayList<>();
+    }
 
    // abstract public HassioGenericState simulateState(String state, Date date);
 
@@ -75,10 +73,6 @@ abstract public class HassioDevice {
         this.logState(this.processRawState(hassioStateRaw));
     }
 
-    public void logEvent(HassioEvent hassioEvent) {
-        this.hassioEventHistory.add(hassioEvent);
-    }
-
     /**
      * Add the newHassioState to the state history
      * @param hassioState
@@ -100,7 +94,9 @@ abstract public class HassioDevice {
      * Let the device predict its own future states (without external influences)
      * @return
      */
-    abstract protected List<HassioState> getFutureStates();
+    protected List<HassioState> getFutureStates() {
+        return new ArrayList<>();
+    }
 
     /**
      * Let the device adjust its state based on other devices (e.g. fake sensors)..
@@ -109,38 +105,6 @@ abstract public class HassioDevice {
     protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
         return new ArrayList<>(); // Most devices do not change on other devices
     }
-
-    /**
-     * Let the deivce predict its own future state changes (without external influences)
-     * @return
-     */
-  /*  public List<HassioChange> predictFutureChanges() {
-        List<HassioChange> result = new ArrayList<>();
-        List<HassioState> states = new ArrayList<>();
-
-        states.add(this.getLastState());
-        states.addAll(this.predictFutureStates());
-
-        for(int i = 1; i < states.size(); i++) {
-            result.add(new HassioChange(this.entityID, states.get(i - 1), states.get(i), states.get(i).last_changed));
-        }
-
-        return result;
-    } */
-
-    /**
-     * Get the whole event history of this device
-     * @return
-     */
-    public List<HassioEvent> getPastEvents() {
-        return this.hassioEventHistory;
-    }
-
-    /**
-     * Let the device predict its own future events (without external influences)
-     * @return
-     */
-    abstract public List<HassioEvent> predictFutureEvents();
 
     /**
      * Process the raw HassioState to full fledged Java objects (and apply some fixes if needed)
@@ -211,7 +175,6 @@ abstract public class HassioDevice {
 
     public void clearHistory() {
         this.hassioStateHistory.clear();
-        this.hassioEventHistory.clear();
     }
 
     public boolean isEnabled() {

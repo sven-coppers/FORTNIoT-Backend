@@ -17,23 +17,8 @@ public class HassioSensor extends HassioDevice {
         super(entityID, friendlyName);
     }
 
-    public List<HassioContext> setState(HassioState hassioState) {
-        // Not sure if we can set the state of a sensor
-        return new ArrayList<HassioContext>();
-    }
-
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioSensorAttributes.class);
-    }
-
-    @Override
-    public List<HassioState> getFutureStates() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        return new ArrayList<>();
     }
 }

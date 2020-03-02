@@ -29,11 +29,6 @@ public class HassioBus extends HassioDevice {
         StateResource.getInstance().broadcastState(hassioState);
     }
 
-    public List<HassioContext> setState(HassioState hassioState) {
-        // We cannot set the state of the weather
-        return new ArrayList<>();
-    }
-
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         HassioBusAttributes attributes = new ObjectMapper().readValue(rawAttributes.toString(), HassioBusAttributes.class);
@@ -79,13 +74,6 @@ public class HassioBus extends HassioDevice {
         }
 
         Collections.sort(result);
-
-        return result;
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        List<HassioEvent> result = new ArrayList<>();
 
         return result;
     }

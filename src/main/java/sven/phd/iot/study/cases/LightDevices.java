@@ -19,5 +19,6 @@ public class LightDevices extends StudyDeviceSet {
         devices.add(new HassioLight(KITCHEN_SPOTS, "Kitchen spots"));
         devices.add(new HassioLight(LIVING_CHANDELIER, "Living chandelier"));
         devices.add(new HassioLight(LIVING_LED_STRIPS, "Living led strips"));
+        devices.add(new HassioLight(LIVING_SPOTS, "Living spots strips"));
     }
 }

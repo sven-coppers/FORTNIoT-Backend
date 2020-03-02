@@ -44,15 +44,15 @@ public class HassioCleaner extends HassioDevice {
         if(state == null || state.state.equals("docked")) return result;
 
         double timeLeft = ((HassioCleanerAttributes) state.attributes).timeLeft;
-        Long deltaTimeInMilliseconds = newDate.getTime() - state.last_changed.getTime();
+        Long deltaTimeInMilliseconds = newDate.getTime() - state.getLastChanged().getTime();
         double deltaTimeInMinutes = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0);
 
         timeLeft -= deltaTimeInMinutes;
 
         if(timeLeft > 0.0) {
-            result.add(new HassioState(this.entityID, "cleaning", state.last_changed, new HassioCleanerAttributes(timeLeft)));
+            result.add(new HassioState(this.entityID, "cleaning", state.getLastChanged(), new HassioCleanerAttributes(timeLeft)));
         } else {
-            result.add(new HassioState(this.entityID, "docked", state.last_changed, new HassioCleanerAttributes(0)));
+            result.add(new HassioState(this.entityID, "docked", state.getLastChanged(), new HassioCleanerAttributes(0)));
         }
 
         return result;

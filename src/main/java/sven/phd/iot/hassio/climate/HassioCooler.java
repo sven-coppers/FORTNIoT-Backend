@@ -38,7 +38,7 @@ public class HassioCooler extends HassioTemperatureModifier {
 
         double targetTemp = Double.parseDouble(thermostatState.state);
         double currentTemp = Double.parseDouble(temperatureState.state);
-        Long deltaTimeInMilliseconds = newDate.getTime() - temperatureState.last_changed.getTime();
+        Long deltaTimeInMilliseconds = newDate.getTime() - temperatureState.getLastChanged().getTime();
         double deltaTimeInHours = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0 * 60.0);
 
         // Give the new state the old date, because it might be changed by another device as well
@@ -46,22 +46,22 @@ public class HassioCooler extends HassioTemperatureModifier {
         // Adjust Temp
         if(heaterState.state.equals("on")) {
             double newTemp = currentTemp + deltaTimeInHours * onRate;
-            result.add(new HassioState(this.tempSensorID, "" + newTemp, temperatureState.last_changed, new HassioSensorAttributes("temperature", "°C")));
+            result.add(new HassioState(this.tempSensorID, "" + newTemp, temperatureState.getLastChanged(), new HassioSensorAttributes("temperature", "°C")));
 
             // Stop heating?
             if(currentTemp < targetTemp) {
-                result.add(new HassioState(this.entityID, "eco", heaterState.last_changed, null));
+                result.add(new HassioState(this.entityID, "eco", heaterState.getLastChanged(), null));
             }
         } else if(heaterState.state.equals("eco")) {
             if(currentTemp > targetTemp) {
                 // Do nothing
             } else {
                 double newTemp = currentTemp + deltaTimeInHours * ecoRate;
-                result.add(new HassioState(this.tempSensorID, "" + newTemp, temperatureState.last_changed, new HassioSensorAttributes("temperature", "°C")));
+                result.add(new HassioState(this.tempSensorID, "" + newTemp, temperatureState.getLastChanged(), new HassioSensorAttributes("temperature", "°C")));
 
                 // Start heating again?
                 if(currentTemp > targetTemp + 1.0) {
-                    result.add(new HassioState(this.entityID, "on", heaterState.last_changed, null));
+                    result.add(new HassioState(this.entityID, "on", heaterState.getLastChanged(), null));
                 }
             }
         }

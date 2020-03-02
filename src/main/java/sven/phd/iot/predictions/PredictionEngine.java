@@ -70,8 +70,8 @@ public class PredictionEngine {
             Date nextTickDate = new Date(lastFrameDate.getTime() + (getTickRate() * 60l * 1000l)); // Convert tickrate from minutes to milliseconds
 
             // If there is an element in the queue that will happen before the tick
-            if(!queue.isEmpty() && queue.peek().last_changed.getTime() < nextTickDate.getTime()) {
-                nextTickDate = queue.peek().last_changed;
+            if(!queue.isEmpty() && queue.peek().getLastChanged().getTime() < nextTickDate.getTime()) {
+                nextTickDate = queue.peek().getLastChanged();
             }
 
             this.tick(nextTickDate, lastStates, queue, future, simulatedRulesEnabled);
@@ -80,13 +80,13 @@ public class PredictionEngine {
 
         // Finish predicting the rest of the queue (within the prediction window)
         while(!queue.isEmpty()) {
-            if(queue.peek().last_changed.getTime() < predictionEnd.getTime()) {
-                this.tick(queue.peek().last_changed, lastStates, queue, future, simulatedRulesEnabled);
+            if(queue.peek().getLastChanged().getTime() < predictionEnd.getTime()) {
+                this.tick(queue.peek().getLastChanged(), lastStates, queue, future, simulatedRulesEnabled);
             } else {
                 queue.poll();
             }
         }
-        
+
         System.out.println("Predictions updated: " + future.futureStates.size());
 
         return future;
@@ -105,7 +105,7 @@ public class PredictionEngine {
         }
 
         // Remove every State from the global queue that has occurred before the new Date
-        while(!globalQueue.isEmpty() && globalQueue.peek().last_changed.getTime() <= newDate.getTime()) {
+        while(!globalQueue.isEmpty() && globalQueue.peek().getLastChanged().getTime() <= newDate.getTime()) {
             HassioState newState = globalQueue.poll();
 
             // Log the predicted state in the device
@@ -114,7 +114,7 @@ public class PredictionEngine {
             // Only when additional predictions are enabled
             if(this.isPredicting()) {
                 HassioState lastState = lastStates.get(newState.entity_id);
-                HassioChange newChange = new HassioChange(newState.entity_id, lastState, newState, newState.last_changed);
+                HassioChange newChange = new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged());
                 lastStates.put(newState.entity_id, newState);
 
                 // Pass the stateChange to the set of rules

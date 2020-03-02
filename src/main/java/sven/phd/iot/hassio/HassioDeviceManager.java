@@ -237,6 +237,8 @@ public class HassioDeviceManager implements EventListener {
         List<String> results = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
             List<HassioState> newChanges = hassioDeviceMap.get(entityID).adaptStateToContext(newDate, hassioStates);
 
             for(HassioState newChange : newChanges) {
@@ -250,7 +252,8 @@ public class HassioDeviceManager implements EventListener {
 
         // Finally update the last_changed field
         for(String changedDevice : results) {
-            hassioStates.get(changedDevice).last_changed = newDate;
+            hassioStates.get(changedDevice).setLastChanged(newDate);
+            hassioStates.get(changedDevice).setLastUpdated(newDate);
         }
 
         return results;
@@ -321,7 +324,7 @@ public class HassioDeviceManager implements EventListener {
     public void stateChanged(HassioState newState) {
         if(this.hassioDeviceMap.containsKey(newState.entity_id)) {
             HassioState oldState = this.hassioDeviceMap.get(newState.entity_id).getLastState();
-            HassioChange hassioChange = new HassioChange(newState.entity_id, oldState, newState, newState.last_changed);
+            HassioChange hassioChange = new HassioChange(newState.entity_id, oldState, newState, newState.getLastChanged());
 
             this.stateChanged(hassioChange);
         }

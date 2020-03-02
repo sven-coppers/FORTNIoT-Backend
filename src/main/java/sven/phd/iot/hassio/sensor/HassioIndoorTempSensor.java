@@ -20,7 +20,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
     protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
         List<HassioState> result = new ArrayList<>();
 
-        Date oldDate = hassioStates.get(this.entityID).last_changed;
+        Date oldDate = hassioStates.get(this.entityID).getLastChanged();
         Long deltaTimeInMilliseconds = newDate.getTime() - oldDate.getTime();
         double deltaTimeInHours = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0 * 60.0);
         double currentTemp = Double.parseDouble((hassioStates.get(this.entityID).state));

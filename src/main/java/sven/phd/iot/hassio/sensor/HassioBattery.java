@@ -48,7 +48,7 @@ public class HassioBattery extends HassioSensor {
         if(lastState == null) return result;
 
         double lastLevel = Double.parseDouble(lastState.state);
-        Date lastDate = lastState.last_changed;
+        Date lastDate = lastState.getLastChanged();
         Calendar relativeTime = Calendar.getInstance();
         relativeTime.setTime(lastDate);
         double predictionRate = 2.5; // every 2.5%

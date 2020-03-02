@@ -20,7 +20,7 @@ public class ChildrenTempStates extends StudyStateSet {
         DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_TEMPERATURE, "17.0", startDate, new HassioSensorAttributes("temperature", "°C")));
         DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_THERMOSTAT, "17.0", startDate, new HassioThermostatAttributes()));
         DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_AIRCO, "off", startDate, new HassioCoolerAttributes()));
-        DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_MOTION, "clear", startDate, new HassioBinarySensorAttributes()));
+        DM.logState(new HassioState(ChildrenTempDevices.BEDROOM_CHILDREN_MOTION, "off", startDate, new HassioBinarySensorAttributes()));
     }
 
     @Override

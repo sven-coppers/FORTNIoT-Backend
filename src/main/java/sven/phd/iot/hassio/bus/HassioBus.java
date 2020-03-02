@@ -55,7 +55,7 @@ public class HassioBus extends HassioDevice {
             HassioBusPassage passage = this.uniqueBusses.get(uniqueBus);
             HassioState busState = passageToState(passage);
 
-            if(busState.last_changed.getTime() < new Date().getTime()) {
+            if(busState.getLastChanged().getTime() < new Date().getTime()) {
                 this.hassioStateHistory.add(busState);
             }
         }
@@ -73,7 +73,7 @@ public class HassioBus extends HassioDevice {
             HassioBusPassage passage = this.uniqueBusses.get(uniqueBus);
             HassioState busState = this.passageToState(passage);
 
-            if(busState.last_changed.getTime() > new Date().getTime()) {
+            if(busState.getLastChanged().getTime() > new Date().getTime()) {
                 result.add(busState);
             }
         }

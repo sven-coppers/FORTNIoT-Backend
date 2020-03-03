@@ -3,11 +3,9 @@ package sven.phd.iot.hassio.cleaning;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
-import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.states.HassioAttributes;
-import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioEvent;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +24,8 @@ public class HassioCleaner extends HassioDevice {
     }
 
     @Override
-    protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<HassioState> result = new ArrayList<>();
+    protected List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+        List<ImplicitBehaviorEvent> result = new ArrayList<>();
 
         HassioState state = hassioStates.get(this.entityID);
 
@@ -40,9 +38,11 @@ public class HassioCleaner extends HassioDevice {
         timeLeft -= deltaTimeInMinutes;
 
         if(timeLeft > 0.0) {
-            result.add(new HassioState(this.entityID, "cleaning", state.getLastChanged(), new HassioCleanerAttributes(timeLeft)));
+            hassioStates.put(this.entityID, new HassioState(this.entityID, "cleaning", state.getLastChanged(), new HassioCleanerAttributes(timeLeft)));
+            result.add(new ImplicitBehaviorEvent(newDate, this.entityID));
         } else {
-            result.add(new HassioState(this.entityID, "docked", state.getLastChanged(), new HassioCleanerAttributes(0)));
+            hassioStates.put(this.entityID, new HassioState(this.entityID, "docked", state.getLastChanged(), new HassioCleanerAttributes(0)));
+            result.add(new ImplicitBehaviorEvent(newDate, this.entityID));
         }
 
         return result;

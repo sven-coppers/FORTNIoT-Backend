@@ -41,7 +41,7 @@ public class HassioBattery extends HassioSensor {
     } */
 
     @Override
-    public List<HassioState> getFutureStates() {
+    public List<HassioState> predictFutureStates() {
         List<HassioState> result = new ArrayList<>();
         HassioState lastState = this.getLastState();
 

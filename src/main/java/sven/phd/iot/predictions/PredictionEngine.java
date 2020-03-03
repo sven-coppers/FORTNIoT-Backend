@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.rules.RulesManager;
 
 import java.util.*;
@@ -97,10 +98,17 @@ public class PredictionEngine {
 
         // Let the devices predict their state, based on the future context
         if(this.isPredicting()) {
-            List<String> changedDeviceIDs = hassioDeviceManager.adaptStateToContext(newDate, lastStates);
+            List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictFutureStatesUsingContext(newDate, lastStates);
 
-            for(String changedDeviceID : changedDeviceIDs) {
-                globalQueue.add(lastStates.get(changedDeviceID));
+            // Add changes to prediction queue
+            for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
+                for(String changedDeviceID : behaviorEvent.getActionDeviceIDs()) {
+                    globalQueue.add(lastStates.get(changedDeviceID));
+                }
+
+                // Add Implicit behavior to the future
+                behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
+                future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
             }
         }
 

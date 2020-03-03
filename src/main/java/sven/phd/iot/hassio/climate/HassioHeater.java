@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public class HassioHeater extends HassioTemperatureModifier {
     }
 
     @Override
-    protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<HassioState> result = new ArrayList<>();
+    protected List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+        List<ImplicitBehaviorEvent> result = new ArrayList<>();
         HassioState thermostatState = hassioStates.get(this.thermostatID);
         HassioState temperatureState = hassioStates.get(this.tempSensorID);
         HassioState heaterState = hassioStates.get(this.entityID);
@@ -41,27 +42,41 @@ public class HassioHeater extends HassioTemperatureModifier {
         Long deltaTimeInMilliseconds = newDate.getTime() - temperatureState.getLastChanged().getTime();
         double deltaTimeInHours = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0 * 60.0);
 
-        // Give the new state the old date, because it might be changed by another device as well
-
         // Adjust Temp
         if(heaterState.state.equals("heating")) {
             double newTemp = currentTemp + deltaTimeInHours * onRate;
-            result.add(new HassioState(this.tempSensorID, "" + newTemp, temperatureState.getLastChanged(), new HassioSensorAttributes("temperature", "°C")));
+            hassioStates.put(this.tempSensorID, new HassioState(this.tempSensorID, "" + newTemp, temperatureState.getLastChanged(), new HassioSensorAttributes("temperature", "°C")));
+            temperatureState.state = "" + newTemp;
 
             // Stop heating?
             if(currentTemp > targetTemp) {
-                result.add(new HassioState(this.entityID, "eco", heaterState.getLastChanged(), null));
+                hassioStates.put(this.entityID, new HassioState(this.entityID, "eco", heaterState.getLastChanged(), null));
+                heaterState.state = "eco";
+
+                ImplicitBehaviorEvent newState = new ImplicitBehaviorEvent(newDate);
+                newState.addActionDeviceID(this.entityID);
+                newState.addTriggerDeviceID(this.thermostatID);
+                newState.addTriggerDeviceID(this.tempSensorID);
+                result.add(newState);
             }
         } else if(heaterState.state.equals("eco")) {
             if(currentTemp > targetTemp) {
                 // Do nothing
             } else {
                 double newTemp = currentTemp + deltaTimeInHours * ecoRate;
-                result.add(new HassioState(this.tempSensorID, "" + newTemp, temperatureState.getLastChanged(), new HassioSensorAttributes("temperature", "°C")));
+                hassioStates.put(this.tempSensorID, new HassioState(this.tempSensorID, "" + newTemp, temperatureState.getLastChanged(), new HassioSensorAttributes("temperature", "°C")));
+                temperatureState.state = "" + newTemp;
 
                 // Start heating again?
                 if(currentTemp < targetTemp - 1.0) {
-                    result.add(new HassioState(this.entityID, "heating", heaterState.getLastChanged(), null));
+                    hassioStates.put(this.entityID, new HassioState(this.entityID, "heating", heaterState.getLastChanged(), null));
+                    heaterState.state = "heating";
+
+                    ImplicitBehaviorEvent newState = new ImplicitBehaviorEvent(newDate);
+                    newState.addActionDeviceID(this.entityID);
+                    newState.addTriggerDeviceID(this.thermostatID);
+                    newState.addTriggerDeviceID(this.tempSensorID);
+                    result.add(newState);
                 }
             }
         }

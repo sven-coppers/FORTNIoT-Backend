@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.List;
 
 public class RulesManager {
-    public final String RULE_IMPLICIT_BEHAVIOR = "rule.implicit_behavior";
+    public static final String RULE_IMPLICIT_BEHAVIOR = "rule.implicit_behavior";
 
     private Map<String, Trigger> rules;
 

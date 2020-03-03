@@ -26,7 +26,8 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
-import sven.phd.iot.hassio.updates.HassioEvent;
+import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
 import sven.phd.iot.students.bram.questions.why.user.UserService;
 
@@ -233,28 +234,24 @@ public class HassioDeviceManager implements EventListener {
      * Ask which states change based on the new context to the devices themselves
      * @return
      */
-    public List<String> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<String> results = new ArrayList<>();
-
+    public List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+        List<ImplicitBehaviorEvent> results = new ArrayList<>();
         for(String entityID : hassioDeviceMap.keySet()) {
             if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-            List<HassioState> newChanges = hassioDeviceMap.get(entityID).adaptStateToContext(newDate, hassioStates);
-
-            // Set the new states as the new context
-            for(HassioState newChange : newChanges) {
-                hassioStates.put(newChange.entity_id, newChange);
-
-                if(!results.contains(newChange.entity_id)) {
-                    results.add(newChange.entity_id);
-                }
-            }
+            results.addAll(hassioDeviceMap.get(entityID).predictFutureStatesUsingContext(newDate, hassioStates));
         }
 
-        // Finally update the last_changed field
-        for(String changedDevice : results) {
-            hassioStates.get(changedDevice).setLastChanged(newDate);
-            hassioStates.get(changedDevice).setLastUpdated(newDate);
+        // Process the change events
+        for(ImplicitBehaviorEvent changeEvent : results) {
+            // Finally update the last_changed field
+            for(String changedDevice : changeEvent.getActionDeviceIDs()) {
+                hassioStates.get(changedDevice).setLastChanged(newDate);
+                hassioStates.get(changedDevice).setLastUpdated(newDate);
+            }
+
+            // Resolve
+            changeEvent.resolveContextIDs(hassioStates);
         }
 
         return results;
@@ -409,7 +406,9 @@ public class HassioDeviceManager implements EventListener {
         List<HassioState> hassioStates = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getFutureStates());
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+            hassioStates.addAll(hassioDeviceMap.get(entityID).predictFutureStates());
         }
 
         Collections.sort(hassioStates);

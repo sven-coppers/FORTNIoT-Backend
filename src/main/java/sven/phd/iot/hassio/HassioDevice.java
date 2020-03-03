@@ -6,7 +6,7 @@ import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.*;
-import sven.phd.iot.hassio.updates.HassioEvent;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
@@ -51,8 +51,6 @@ abstract public class HassioDevice {
         return new ArrayList<>();
     }
 
-   // abstract public HassioGenericState simulateState(String state, Date date);
-
     /**
      * Get the last known state of this device
      * @return
@@ -92,17 +90,19 @@ abstract public class HassioDevice {
 
     /**
      * Let the device predict its own future states (without external influences)
+     * This function is called once for every simulation
      * @return
      */
-    protected List<HassioState> getFutureStates() {
+    protected List<HassioState> predictFutureStates() {
         return new ArrayList<>();
     }
 
     /**
-     * Let the device adjust its state based on other devices (e.g. fake sensors)..
+     * Let the device predict its own future state (or another device's state), based on other devices (e.g. fake sensors)...
+     * This function is called for every 'frame' in the simulation
      * @return
      */
-    protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> hassioStates) {
         return new ArrayList<>(); // Most devices do not change on other devices
     }
 

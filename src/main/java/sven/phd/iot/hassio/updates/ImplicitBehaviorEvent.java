@@ -19,12 +19,18 @@ public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
         actionDevicesIDs = new ArrayList<>();
     }
 
+    /**
+     * Constructor meant for devices that update themselves
+     * @param datetime
+     * @param actionDeviceID
+     */
     public ImplicitBehaviorEvent(Date datetime, String actionDeviceID) {
         super(RulesManager.RULE_IMPLICIT_BEHAVIOR, datetime);
         triggerDevicesIDs = new ArrayList<>();
         actionDevicesIDs = new ArrayList<>();
 
         this.addActionDeviceID(actionDeviceID);
+        this.addTriggerDeviceID(actionDeviceID);
     }
 
     public void addTriggerDeviceID(String triggerDevice) {

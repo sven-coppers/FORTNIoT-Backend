@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.UUID;
 
 public class HassioContext {
+    private static int random = 0;
+
     @JsonProperty("id") public String id;
     @JsonProperty("parent_id") public String parent_id;
     @JsonProperty("user_id") public String user_id;
@@ -18,8 +20,14 @@ public class HassioContext {
     }
 
     public HassioContext(String entity_id, Date date) {
-        this.id = "" + (entity_id + date.toString()).hashCode();
+        this.id = ("id" + random++);
+
+     //   this.id = "" + (entity_id + date.toString()).hashCode();
         this.parent_id = null;
         this.user_id = null;
+    }
+
+    public static void reset() {
+        random = 0;
     }
 }

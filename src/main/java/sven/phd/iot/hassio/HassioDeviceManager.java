@@ -26,7 +26,6 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
 import sven.phd.iot.students.bram.questions.why.user.UserService;
@@ -242,6 +241,8 @@ public class HassioDeviceManager implements EventListener {
             results.addAll(hassioDeviceMap.get(entityID).predictFutureStatesUsingContext(newDate, hassioStates));
         }
 
+        results = mergeDuplicates(results);
+
         // Process the change events
         for(ImplicitBehaviorEvent changeEvent : results) {
             // Finally update the last_changed field
@@ -255,6 +256,43 @@ public class HassioDeviceManager implements EventListener {
         }
 
         return results;
+    }
+
+    private List<ImplicitBehaviorEvent> mergeDuplicates(List<ImplicitBehaviorEvent> events) {
+        List<ImplicitBehaviorEvent> result = new ArrayList<>();
+
+        for(ImplicitBehaviorEvent consideringEvent : events) {
+            ImplicitBehaviorEvent foundUniqueEvent = null;
+
+            for(ImplicitBehaviorEvent uniqueEvent: result) {
+                for(String consideringEventAction : consideringEvent.getActionDeviceIDs()) {
+                    if(uniqueEvent.getActionDeviceIDs().contains(consideringEventAction)) {
+                        foundUniqueEvent = uniqueEvent;
+                        break;
+                    }
+                }
+            }
+
+            if(foundUniqueEvent != null) {
+                // Add all other triggers from the considering event to the unique event
+                for(String consideringEventAction : consideringEvent.getActionDeviceIDs()) {
+                    if(!foundUniqueEvent.getActionDeviceIDs().contains(consideringEventAction)) {
+                        foundUniqueEvent.addActionDeviceID(consideringEventAction);
+                    }
+                }
+
+                // Add all other actions from the considering event to the unique event
+                for(String consideringEventTrigger : consideringEvent.getTriggerDeviceIDs()) {
+                    if(!foundUniqueEvent.getTriggerDeviceIDs().contains(consideringEventTrigger)) {
+                        foundUniqueEvent.addTriggerDeviceID(consideringEventTrigger);
+                    }
+                }
+            } else {
+                result.add(consideringEvent);
+            }
+        }
+
+        return result;
     }
 
     /**

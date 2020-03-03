@@ -29,9 +29,12 @@ public class HassioIndoorTempSensor extends HassioSensor {
         double newTemp = currentTemp + coolingRate * deltaTimeInHours;
 
         // Give the new state the old date, because it might be changed by another device as well
-        hassioStates.get(this.entityID).state = "" + newTemp;
+        hassioStates.put(this.entityID, new HassioState(this.entityID, "" + newTemp, oldDate, new HassioSensorAttributes("temperature", "°C")));
 
-        result.add(new ImplicitBehaviorEvent(newDate, this.entityID));
+        ImplicitBehaviorEvent newStateEvent = new ImplicitBehaviorEvent(newDate);
+        newStateEvent.addActionDeviceID(this.entityID);
+        newStateEvent.addTriggerDeviceID(this.entityID);
+        result.add(newStateEvent);
 
         return result;
     }

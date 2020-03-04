@@ -22,19 +22,19 @@ public class WeekDayRoutineStates extends StudyStateSet {
 
     @Override
     public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
-        relativeTime.add(Calendar.MINUTE, 30);
+        relativeTime.add(Calendar.MINUTE, 50);
         SS.scheduleState(new HassioState(WeekdayRoutineDevices.PEOPLE_DAD, "home", relativeTime.getTime(), new HassioPersonAttributes()));
         relativeTime.add(Calendar.MINUTE, 20);
         SS.scheduleState(new HassioState(WeekdayRoutineDevices.PEOPLE_MOM, "home", relativeTime.getTime(), new HassioPersonAttributes()));
-        relativeTime.add(Calendar.MINUTE, 50);
+        relativeTime.add(Calendar.MINUTE, 40);
         SS.scheduleState(new HassioState(WeekdayRoutineDevices.ROUTINE, "evening", relativeTime.getTime(), new HassioRoutineAttributes()));
-        relativeTime.add(Calendar.MINUTE, 120);
+        relativeTime.add(Calendar.MINUTE, 240);
         SS.scheduleState(new HassioState(WeekdayRoutineDevices.ROUTINE, "sleeping", relativeTime.getTime(), new HassioRoutineAttributes()));
         relativeTime.add(Calendar.MINUTE, 7 * 60);
         SS.scheduleState(new HassioState(WeekdayRoutineDevices.ROUTINE, "morning", relativeTime.getTime(), new HassioRoutineAttributes()));
-        relativeTime.add(Calendar.MINUTE, 45);
+        relativeTime.add(Calendar.MINUTE, 90);
         SS.scheduleState(new HassioState(WeekdayRoutineDevices.PEOPLE_DAD, "away", relativeTime.getTime(), new HassioPersonAttributes()));
-        relativeTime.add(Calendar.MINUTE, 10);
+        relativeTime.add(Calendar.MINUTE, 20);
         SS.scheduleState(new HassioState(WeekdayRoutineDevices.PEOPLE_MOM, "away", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 }

@@ -25,6 +25,10 @@ public class WeatherClearStates extends StudyStateSet {
         attributes.forecast.add(new HassioWeatherForecast("clear-night", 0.0f, 13.3f, calendar.getTime()));
         calendar.add(Calendar.MINUTE, 180);
         attributes.forecast.add(new HassioWeatherForecast("cloudynight", 0.0f, 16.0f, calendar.getTime()));
+        calendar.add(Calendar.MINUTE, 120);
+        attributes.forecast.add(new HassioWeatherForecast("cloudynight", 0.0f, 16.0f, calendar.getTime()));
+        calendar.add(Calendar.MINUTE, 180);
+        attributes.forecast.add(new HassioWeatherForecast("sunny", 0.0f, 21.0f, calendar.getTime()));
 
         DM.logState(new HassioState(WeatherDevices.WEATHER_FORECAST, "sunny", startDate, attributes));
     }

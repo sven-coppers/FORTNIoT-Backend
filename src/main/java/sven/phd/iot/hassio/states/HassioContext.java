@@ -26,8 +26,4 @@ public class HassioContext {
         this.parent_id = null;
         this.user_id = null;
     }
-
-    public static void reset() {
-        random = 0;
-    }
 }

@@ -21,9 +21,9 @@ public class WeatherWindyStates extends StudyStateSet {
         attributes.forecast.add(new HassioWeatherForecast("windy", 0.0f, 22.3f, calendar.getTime()));
         calendar.add(Calendar.MINUTE, 200);
         attributes.forecast.add(new HassioWeatherForecast("storm", 0.0f, 23.0f, calendar.getTime()));
-        calendar.add(Calendar.MINUTE, 45);
-        attributes.forecast.add(new HassioWeatherForecast("windy", 0.0f, 13.3f, calendar.getTime()));
         calendar.add(Calendar.MINUTE, 120);
+        attributes.forecast.add(new HassioWeatherForecast("windy", 0.0f, 13.3f, calendar.getTime()));
+        calendar.add(Calendar.MINUTE, 80);
         attributes.forecast.add(new HassioWeatherForecast("partlycloudy", 0.0f, 16.0f, calendar.getTime()));
 
         DM.logState(new HassioState(WeatherDevices.WEATHER_FORECAST, "cloudy", startDate, attributes));

@@ -53,7 +53,6 @@ public class PredictionEngine {
      * TODO: This engine is still sensitive to loops and race conditions
      */
     private Future predictFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
-        HassioContext.reset();
         Future future = new Future();
 
         // Initialise the queue with changes we already know

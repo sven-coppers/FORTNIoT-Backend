@@ -26,7 +26,7 @@ public class HassioHeater extends HassioTemperatureModifier {
     }
 
     @Override
-    protected List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
         List<ImplicitBehaviorEvent> result = new ArrayList<>();
         HassioState thermostatState = hassioStates.get(this.thermostatID);
         HassioState temperatureState = hassioStates.get(this.tempSensorID);

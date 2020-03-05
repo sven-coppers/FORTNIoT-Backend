@@ -94,11 +94,9 @@ public class PredictionEngine {
     }
 
     private void tick(Date newDate, HashMap<String, HassioState> lastStates, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
-        //System.out.println(newDate);
-
-        // Let the devices predict their state, based on the future context
+        // Let the devices predict their state, based on the past states (e.g. temperature)
         if(this.isPredicting()) {
-            List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictFutureStatesUsingContext(newDate, lastStates);
+            List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplictStates(newDate, lastStates);
 
             // Add changes to prediction queue
             for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
@@ -145,17 +143,23 @@ public class PredictionEngine {
                     // Add the actions to the prediction QUEUEs
                     globalQueue.addAll(resultingActions);
                 }
+
+                // Pass the stateChange to the implicit rules (e.g. turn heater on/off)
+                List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, lastStates);
+
+                // Add changes to prediction queue
+                for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
+                    for(HassioState newActionState : behaviorEvent.getActionStates()) {
+                        globalQueue.add(newActionState);
+                    }
+
+                    // Add Implicit behavior to the future
+                    behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
+                    future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
+                }
             }
         }
     }
-
-   /* private void removePredictionsFromQueue(PriorityQueue<HassioState> queue, String deviceID) {
-        for(HassioState state : queue) {
-            if(state.entity_id.equals(deviceID)) {
-                queue.remove(state);
-            }
-        }
-    } */
 
     public void stopFuturePredictions() {
         this.predicting = false;

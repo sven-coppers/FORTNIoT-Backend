@@ -98,11 +98,20 @@ abstract public class HassioDevice {
     }
 
     /**
-     * Let the device predict its own future state (or another device's state), based on other devices (e.g. fake sensors)...
-     * This function is called for every 'frame' in the simulation
+     * Let the device predict its own future state, based on the last state of all devices in the previous frame (e.g. update temperature)...
+     * This function is called at the beginning of every 'frame' in the simulation
      * @return
      */
-    protected List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
+        return new ArrayList<>(); // Most devices do not change on other devices
+    }
+
+    /**
+     * Let the device predict its own future state, based on current the state of all devices in the current frame (e.g. turn heater on/off)...
+     * This function is called for every new state that is processed in a 'frame' in the simulation
+     * @return
+     */
+    protected List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
         return new ArrayList<>(); // Most devices do not change on other devices
     }
 

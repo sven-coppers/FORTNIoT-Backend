@@ -229,11 +229,7 @@ public class HassioDeviceManager implements EventListener {
         return contexts;
     }
 
-    /**
-     * Ask which states change based on the new context to the devices themselves
-     * @return
-     */
-    public List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+    public List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> lastHassioStates) {
         HashMap<String, HassioState> newHassioStates = new HashMap<>();
 
         // Make a copy
@@ -243,22 +239,47 @@ public class HassioDeviceManager implements EventListener {
 
         List<ImplicitBehaviorEvent> results = new ArrayList<>();
 
-        // First all devices, except heaters
         for(String entityID : hassioDeviceMap.keySet()) {
-            if(!entityID.contains("heater")) {
-                if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-                results.addAll(hassioDeviceMap.get(entityID).predictFutureStatesUsingContext(newDate, newHassioStates));
-            }
+            results.addAll(hassioDeviceMap.get(entityID).predictImplicitRules(newDate, newHassioStates));
         }
 
-        // Then the heaters
+        results = mergeDuplicates(results);
+
+        // Process the change events
+        for(ImplicitBehaviorEvent changeEvent : results) {
+            // Finally update the last_changed field
+            for(String changedDevice : changeEvent.getActionDeviceIDs()) {
+                newHassioStates.get(changedDevice).setLastChanged(newDate);
+                newHassioStates.get(changedDevice).setLastUpdated(newDate);
+            }
+
+            // Resolve
+            changeEvent.resolveContextIDs(newHassioStates);
+        }
+
+        return results;
+    }
+
+    /**
+     * Ask which states change based on the new context to the devices themselves
+     * @return
+     */
+    public List<ImplicitBehaviorEvent> predictImplictStates(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+        HashMap<String, HassioState> newHassioStates = new HashMap<>();
+
+        // Make a copy
+        for(String entityID : lastHassioStates.keySet()) {
+            newHassioStates.put(entityID, lastHassioStates.get(entityID));
+        }
+
+        List<ImplicitBehaviorEvent> results = new ArrayList<>();
+
         for(String entityID : hassioDeviceMap.keySet()) {
-            if(entityID.contains("heater") ) {
                 if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-                results.addAll(hassioDeviceMap.get(entityID).predictFutureStatesUsingContext(newDate, newHassioStates));
-            }
+                results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates));
         }
 
         results = mergeDuplicates(results);

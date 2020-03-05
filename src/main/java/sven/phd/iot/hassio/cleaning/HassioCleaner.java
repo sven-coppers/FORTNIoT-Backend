@@ -24,7 +24,7 @@ public class HassioCleaner extends HassioDevice {
     }
 
     @Override
-    protected List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
         List<ImplicitBehaviorEvent> result = new ArrayList<>();
 
         HassioState state = hassioStates.get(this.entityID);

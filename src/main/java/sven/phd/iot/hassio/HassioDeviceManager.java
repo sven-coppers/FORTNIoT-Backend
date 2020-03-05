@@ -233,12 +233,32 @@ public class HassioDeviceManager implements EventListener {
      * Ask which states change based on the new context to the devices themselves
      * @return
      */
-    public List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<ImplicitBehaviorEvent> results = new ArrayList<>();
-        for(String entityID : hassioDeviceMap.keySet()) {
-            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+    public List<ImplicitBehaviorEvent> predictFutureStatesUsingContext(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+        HashMap<String, HassioState> newHassioStates = new HashMap<>();
 
-            results.addAll(hassioDeviceMap.get(entityID).predictFutureStatesUsingContext(newDate, hassioStates));
+        // Make a copy
+        for(String entityID : lastHassioStates.keySet()) {
+            newHassioStates.put(entityID, lastHassioStates.get(entityID));
+        }
+
+        List<ImplicitBehaviorEvent> results = new ArrayList<>();
+
+        // First all devices, except heaters
+        for(String entityID : hassioDeviceMap.keySet()) {
+            if(!entityID.contains("heater")) {
+                if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+                results.addAll(hassioDeviceMap.get(entityID).predictFutureStatesUsingContext(newDate, newHassioStates));
+            }
+        }
+
+        // Then the heaters
+        for(String entityID : hassioDeviceMap.keySet()) {
+            if(entityID.contains("heater") ) {
+                if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+                results.addAll(hassioDeviceMap.get(entityID).predictFutureStatesUsingContext(newDate, newHassioStates));
+            }
         }
 
         results = mergeDuplicates(results);
@@ -247,12 +267,12 @@ public class HassioDeviceManager implements EventListener {
         for(ImplicitBehaviorEvent changeEvent : results) {
             // Finally update the last_changed field
             for(String changedDevice : changeEvent.getActionDeviceIDs()) {
-                hassioStates.get(changedDevice).setLastChanged(newDate);
-                hassioStates.get(changedDevice).setLastUpdated(newDate);
+                newHassioStates.get(changedDevice).setLastChanged(newDate);
+                newHassioStates.get(changedDevice).setLastUpdated(newDate);
             }
 
             // Resolve
-            changeEvent.resolveContextIDs(hassioStates);
+            changeEvent.resolveContextIDs(newHassioStates);
         }
 
         return results;

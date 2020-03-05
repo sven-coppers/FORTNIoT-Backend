@@ -1,5 +1,7 @@
 package sven.phd.iot.hassio.updates;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
@@ -10,13 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
-    private List<String> triggerDevicesIDs;
-    private List<String> actionDevicesIDs;
+    @JsonIgnore private List<String> triggerDevicesIDs;
+    @JsonIgnore private List<String> actionDevicesIDs;
+    @JsonIgnore private List<HassioState> actionStates;
 
     public ImplicitBehaviorEvent(Date datetime) {
         super(RulesManager.RULE_IMPLICIT_BEHAVIOR, datetime);
         triggerDevicesIDs = new ArrayList<>();
         actionDevicesIDs = new ArrayList<>();
+        actionStates = new ArrayList<>();
     }
 
     /**
@@ -28,6 +32,7 @@ public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
         super(RulesManager.RULE_IMPLICIT_BEHAVIOR, datetime);
         triggerDevicesIDs = new ArrayList<>();
         actionDevicesIDs = new ArrayList<>();
+        actionStates = new ArrayList<>();
 
         this.addActionDeviceID(actionDeviceID);
         this.addTriggerDeviceID(actionDeviceID);
@@ -56,10 +61,15 @@ public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
 
         for(String deviceID: this.actionDevicesIDs) {
             this.actionContexts.add(hassioStates.get(deviceID).context);
+            this.actionStates.add(hassioStates.get(deviceID));
         }
     }
 
     public void setTrigger(Trigger trigger) {
         this.trigger = trigger;
+    }
+
+    public List<HassioState> getActionStates() {
+        return this.actionStates;
     }
 }

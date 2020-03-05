@@ -102,8 +102,8 @@ public class PredictionEngine {
 
             // Add changes to prediction queue
             for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
-                for(String changedDeviceID : behaviorEvent.getActionDeviceIDs()) {
-                    globalQueue.add(lastStates.get(changedDeviceID));
+                for(HassioState newState : behaviorEvent.getActionStates()) {
+                    globalQueue.add(newState);
                 }
 
                 // Add Implicit behavior to the future

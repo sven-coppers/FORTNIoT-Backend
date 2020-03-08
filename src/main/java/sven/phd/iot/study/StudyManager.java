@@ -1,10 +1,13 @@
 package sven.phd.iot.study;
 
+import org.dom4j.rule.RuleManager;
+import org.junit.Rule;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.rules.RulesManager;
+import sven.phd.iot.rules.triggers.NeverTrigger;
 import sven.phd.iot.study.cases.*;
 
 import java.util.*;
@@ -42,6 +45,8 @@ public class StudyManager {
         this.ruleSets.put("security_rules", new SecurityRules());
         this.ruleSets.put("cleaning_rules", new CleaningRules());
         this.ruleSets.put("bram_rules_1", new BramRuleSet_1());
+        this.ruleSets.put("blind_rules", new BlindRules());
+        this.ruleSets.put("weather_rules", new WeatherRules());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -55,8 +60,9 @@ public class StudyManager {
         this.deviceSets.put("tv_devices", new TVDevices());
         this.deviceSets.put("security_devices", new SecurityDevices());
         this.deviceSets.put("cleaning_devices", new CleaningDevices());
+        this.deviceSets.put("blind_devices", new BlindDevices());
+        this.deviceSets.put("weather_devices", new WeatherDevices());
         this.deviceSets.put("bram_devices_1", new BramDeviceSet_1());
-
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -73,9 +79,10 @@ public class StudyManager {
         this.stateSets.put("security_states", new SecurityStates());
         this.stateSets.put("cleaning_states", new CleaningStates());
         this.stateSets.put("bram_states_1", new BramStateSet_1());
-
-
-
+        this.stateSets.put("blind_states", new BlindStates());
+        this.stateSets.put("weather_rain_states", new WeatherRainStates());
+        this.stateSets.put("weather_clear_states", new WeatherClearStates());
+        this.stateSets.put("weather_windy_states", new WeatherWindyStates());
     }
 
     public List<String> getRuleSet() {
@@ -103,6 +110,7 @@ public class StudyManager {
         this.activeDeviceSets.clear();
 
         this.deviceManager.setAllDevicesAvailable(false);
+        this.deviceManager.setAllDevicesEnabled(false);
         ArrayList<HassioDevice> devices = new ArrayList<>();
 
         for(String deviceSet: deviceSets) {
@@ -146,7 +154,7 @@ public class StudyManager {
             this.activeStateSets.add(stateSet);
 
             relativeTime.setTime(startDate);
-            relativeTime.add(Calendar.MINUTE, -90); // Begin 90 minuten in het verleden
+            relativeTime.add(Calendar.MINUTE, -240); // Begin 4 uur
 
             this.stateSets.get(stateSet).setInitialStates(this.deviceManager, relativeTime.getTime());
 

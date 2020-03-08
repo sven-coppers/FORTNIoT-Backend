@@ -39,7 +39,10 @@ public class ConfigResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PredictionsRequest getPredictionsConfig() {
         PredictionsRequest config = new PredictionsRequest();
-        config.predictions = ContextManager.getInstance().getPredictionEngine().isPredicting();
+        PredictionEngine engine = ContextManager.getInstance().getPredictionEngine();
+        config.predictions = engine.isPredicting();
+        config.tickRate = engine.getTickRate();
+        config.window = engine.getPredictionWindow();
 
         return config;
     }
@@ -56,6 +59,14 @@ public class ConfigResource {
         // If we should listen, but aren't
         if(!predictionEngine.isPredicting() && config.predictions) predictionEngine.startFuturePredictions();
         StateResource.getInstance().broadcastRefresh();
+
+        if(config.window != -1l) {
+            predictionEngine.setPredictionWindow(config.window);
+        }
+
+        if(config.tickRate != -1l) {
+            predictionEngine.setTickRate(config.tickRate);
+        }
     }
 
     @GET

@@ -17,25 +17,13 @@ public class HassioCalendar extends HassioDevice {
         super(entityID, friendlyName);
     }
 
-    public List<HassioContext> setState(HassioState hassioState) {
-        // TODO
-        return new ArrayList<HassioContext>();
-    }
-
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioCalendarAttributes.class);
     }
 
     @Override
-    public List<HassioEvent> predictFutureEvents() {
-        List<HassioEvent> result = new ArrayList<>();
-
-        return result;
-    }
-
-    @Override
-    public List<HassioState> getFutureStates() {
+    public List<HassioState> predictFutureStates() {
         List<HassioState> result = new ArrayList<>();
         HassioState hassioCalendarState = this.getLastState();
         HassioCalendarAttributes attributes = (HassioCalendarAttributes) hassioCalendarState.attributes;

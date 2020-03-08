@@ -29,17 +29,4 @@ public class HassioLight extends HassioDevice {
             return this.callService("light/turn_off", new HassioLightServiceOff(hassioState));
         }
     }
-
-    @Override
-    public List<HassioState> getFutureStates() {
-        // A lamp cannot know its future state
-        return new ArrayList<HassioState>();
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        // A lamp cannot know its future events
-        return new ArrayList<HassioEvent>();
-    }
-
 }

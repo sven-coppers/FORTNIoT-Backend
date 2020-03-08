@@ -15,10 +15,10 @@ import java.util.Date;
 public class ParentTempStates extends StudyStateSet {
     @Override
     public void setInitialStates(HassioDeviceManager DM, Date startDate) {
-        DM.logState(new HassioState(ParentTempDevices.BEDROOM_MASTER_RADIATOR, "eco", startDate, new HassioHeaterAttributes()));
+        DM.logState(new HassioState(ParentTempDevices.BEDROOM_MASTER_RADIATOR, "eco", startDate, null));
         DM.logState(new HassioState(ParentTempDevices.BEDROOM_MASTER_TEMPERATURE, "17.0", startDate, new HassioSensorAttributes("temperature", "°C")));
         DM.logState(new HassioState(ParentTempDevices.BEDROOM_MASTER_THERMOSTAT, "17.0", startDate, new HassioThermostatAttributes()));
-        DM.logState(new HassioState(ParentTempDevices.BEDROOM_MASTER_AIRCO, "off", startDate, new HassioCoolerAttributes()));
+        DM.logState(new HassioState(ParentTempDevices.BEDROOM_MASTER_AIRCO, "off", startDate, null));
     }
 
     @Override

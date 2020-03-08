@@ -129,22 +129,6 @@ public class ContextManager {
     }
 
     /**
-     * Get the history of all device events
-     * @return
-     */
-   /* public List<HassioEvent> getEventHistory() {
-        return this.hassioDeviceManager.getEventHistory();
-    } */
-
-    /**
-     * Get the cached version of the future events of each device
-     * @return
-     */
- /*   public List<HassioEvent> getEventFuture() {
-        return this.hassioDeviceManager.getEventFuture();
-    } */
-
-    /**
      * Check what needs to happen when the state of a device has changed
      * @param hassioChange
      * @pre hassioChange has already been logged to the corresponding device
@@ -179,25 +163,6 @@ public class ContextManager {
             triggerEvent.addActionContexts(contexts);
             triggerEvent.getTrigger().logHassioRuleExecutionEvent(triggerEvent);
         }
-    }
-
-    /** GET ALL STATE CHANGES AND EVENTS, FROM HISTORY, NOW, AND, THE FUTURE
-     * @return
-     */
-    public List<HassioUpdate> getAllUpdates() {
-        List<HassioUpdate> hassioUpdates = new ArrayList<HassioUpdate>();
-
-        // Add the history as the last part
-    /*    hassioUpdates.addAll(this.hassioDeviceManager.getStateHistory());
-        hassioUpdates.addAll(this.hassioDeviceManager.getEventHistory());
-
-        // Add predictions (from devices and additional simulations)
-        hassioUpdates.addAll(this.getStateFuture());
-        hassioUpdates.addAll(this.getFutureRuleExecutions());
-
-        Collections.sort(hassioUpdates); */
-
-        return hassioUpdates;
     }
 
     /**

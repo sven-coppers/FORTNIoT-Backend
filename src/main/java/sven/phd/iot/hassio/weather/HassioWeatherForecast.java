@@ -13,4 +13,15 @@ public class HassioWeatherForecast {
     @JsonProperty("datetime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     Date datetime;
+
+    public HassioWeatherForecast() {
+        // Empty constructor for deserialisation
+    }
+
+    public HassioWeatherForecast(String condition, float precipitation, float temperature, Date datetime) {
+        this.condition = condition;
+        this.precipitation = precipitation;
+        this.temperature = temperature;
+        this.datetime = datetime;
+    }
 }

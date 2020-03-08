@@ -43,4 +43,11 @@ public class CalendarAvailableTrigger extends Trigger {
 
         return null;
     }
+
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        result.add(calendarIdentifier);
+        return result;
+    }
 }

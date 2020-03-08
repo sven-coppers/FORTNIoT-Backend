@@ -1,6 +1,7 @@
 package sven.phd.iot.students.bram.resources;
 
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.students.bram.questions.why.rule.RuleJson;
 
@@ -10,6 +11,7 @@ import java.awt.*;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 @Path("/bram/ruledescription")
 public class RuleDescriptionResource {
@@ -28,7 +30,19 @@ public class RuleDescriptionResource {
 
         
 
-        result.action = rule.getActionOnDevice(deviceId).description;
+        List<Action> actions = rule.getActionOnDevice(deviceId);
+        result.action = "";
+
+        int actionAmount = actions.size();
+        for(int i = 0; i < actionAmount; i++) {
+            result.action += actions.get(i).description;
+            if(i < actionAmount - 2) {
+                result.action += ", ";
+            }
+            if(i < actionAmount - 1) {
+                result.action += " and ";
+            }
+        }
 
         return result;
     }

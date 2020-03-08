@@ -40,6 +40,7 @@ public class RestController extends ResourceConfig {
         resources.add(WhyResource.class);
         resources.add(SimulationResource.class);
         resources.add(RuleDescriptionResource.class);
+        resources.add(WhyNotResource.class);
         return resources;
     }
 }

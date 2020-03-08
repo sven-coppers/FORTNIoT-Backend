@@ -41,6 +41,7 @@ public class StudyManager {
         this.ruleSets.put("tv_rules", new TVRules());
         this.ruleSets.put("security_rules", new SecurityRules());
         this.ruleSets.put("cleaning_rules", new CleaningRules());
+        this.ruleSets.put("bram_rules_1", new BramRuleSet_1());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -54,6 +55,7 @@ public class StudyManager {
         this.deviceSets.put("tv_devices", new TVDevices());
         this.deviceSets.put("security_devices", new SecurityDevices());
         this.deviceSets.put("cleaning_devices", new CleaningDevices());
+        this.deviceSets.put("bram_devices_1", new BramDeviceSet_1());
 
 
         this.activeStateSets = new ArrayList<>();
@@ -70,6 +72,9 @@ public class StudyManager {
         this.stateSets.put("tv_movies", new TVMovieStates());
         this.stateSets.put("security_states", new SecurityStates());
         this.stateSets.put("cleaning_states", new CleaningStates());
+        this.stateSets.put("bram_states_1", new BramStateSet_1());
+
+
 
     }
 

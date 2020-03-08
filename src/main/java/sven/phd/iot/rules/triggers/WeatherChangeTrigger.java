@@ -14,6 +14,7 @@ public class WeatherChangeTrigger extends Trigger {
         super(ruleIdentifier, "weather changes");
 }
 
+
     @Override
     public boolean isTriggeredBy(HassioChange hassioChange) {
         if(hassioChange.entity_id.equals("weather.dark_sky")) {
@@ -34,5 +35,12 @@ public class WeatherChangeTrigger extends Trigger {
         List<HassioContext> triggerContexts = new ArrayList<>();
         triggerContexts.add(hassioWeatherState.context);
         return triggerContexts;
+    }
+
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        result.add("weather.dark_sky");
+        return result;
     }
 }

@@ -28,7 +28,9 @@ abstract public class Trigger {
         this.enabled = true;
         this.available = true;
     }
-
+    public void addExecution(HassioRuleExecutionEvent executionEvent) {
+        this.executionHistory.add(executionEvent);
+    }
     /**
      * Get the execution history of this rule
      */
@@ -135,13 +137,16 @@ abstract public class Trigger {
     public String getTitle() {
         return this.title;
     }
-
-    public Action getActionOnDevice(String deviceId) {
+    public abstract List<String> getTriggeringEntities();
+    public List<Action> getActionOnDevice(String deviceId) {
+        List<Action> result = new ArrayList<Action>();
         for(Action action: actions) {
             if(action.getDeviceIdentifier().contains(deviceId)) {
-                return action;
+                result.add(action);
             }
         }
-        return null;
+        return result ;
     }
+
+
 }

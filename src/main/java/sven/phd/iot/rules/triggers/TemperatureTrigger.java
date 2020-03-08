@@ -75,4 +75,10 @@ public class TemperatureTrigger extends Trigger {
 
      //   return LocalTime.now().isAfter( LocalTime.parse( "09:00" ) ) && oldState.attributes.temperature > min && oldState.attributes.temperature < max;
     }
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        result.add(sensorIdentifier);
+        return result;
+    }
 }

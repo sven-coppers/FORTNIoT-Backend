@@ -22,6 +22,6 @@ public class TVSportsStates extends StudyStateSet {
         relativeTime.add(Calendar.MINUTE, 20);
         SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Superbowl", relativeTime.getTime(), new HassioTVGuideAttributes("sports")));
         relativeTime.add(Calendar.MINUTE, 240);
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
+        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
     }
 }

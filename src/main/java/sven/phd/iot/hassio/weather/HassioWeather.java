@@ -19,13 +19,18 @@ public class HassioWeather extends HassioDevice {
         super(entityID, friendlyName);
     }
 
+    public List<HassioContext> setState(HassioState hassioState) {
+        // We cannot set the state of the weather
+        return new ArrayList<HassioContext>();
+    }
+
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioWeatherAttributes.class);
     }
 
     @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> getFutureStates() {
         List<HassioState> result = new ArrayList<>();
         HassioState state = this.getLastState();
 
@@ -33,14 +38,24 @@ public class HassioWeather extends HassioDevice {
             HassioWeatherAttributes attributes = (HassioWeatherAttributes) state.attributes;
             List<HassioWeatherForecast> hassioWeatherForecastList = attributes.forecast;
 
-            for(int i = 0; i < hassioWeatherForecastList.size(); ++i) {
-                HassioWeatherForecast forecast = hassioWeatherForecastList.get(i);
+            for(int i = 2; i < hassioWeatherForecastList.size(); ++i) {
+                HassioWeatherForecast forecast = hassioWeatherForecastList.get(i - 1);
 
-                if(forecast.datetime.getTime() > new Date().getTime()) {
-                    result.add(new HassioState(this.entityID, forecast.condition, forecast.datetime, new HassioWeatherAttributes(forecast.temperature)));
-                }
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(forecast.datetime);
+                calendar.add(Calendar.HOUR_OF_DAY, -3);
+                Date previousDate = calendar.getTime();
+
+                new HassioState(this.entityID, forecast.condition, previousDate, new HassioWeatherAttributes(forecast.temperature));
             }
         }
+
+        return result;
+    }
+
+    @Override
+    public List<HassioEvent> predictFutureEvents() {
+        List<HassioEvent> result = new ArrayList<HassioEvent>();
 
         return result;
     }

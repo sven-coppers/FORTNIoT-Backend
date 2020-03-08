@@ -29,6 +29,11 @@ public class HassioBus extends HassioDevice {
         StateResource.getInstance().broadcastState(hassioState);
     }
 
+    public List<HassioContext> setState(HassioState hassioState) {
+        // We cannot set the state of the weather
+        return new ArrayList<>();
+    }
+
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         HassioBusAttributes attributes = new ObjectMapper().readValue(rawAttributes.toString(), HassioBusAttributes.class);
@@ -50,7 +55,7 @@ public class HassioBus extends HassioDevice {
             HassioBusPassage passage = this.uniqueBusses.get(uniqueBus);
             HassioState busState = passageToState(passage);
 
-            if(busState.getLastChanged().getTime() < new Date().getTime()) {
+            if(busState.last_changed.getTime() < new Date().getTime()) {
                 this.hassioStateHistory.add(busState);
             }
         }
@@ -61,19 +66,26 @@ public class HassioBus extends HassioDevice {
     }
 
     @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> getFutureStates() {
         List<HassioState> result = new ArrayList<>();
 
         for(String uniqueBus : this.uniqueBusses.keySet()) {
             HassioBusPassage passage = this.uniqueBusses.get(uniqueBus);
             HassioState busState = this.passageToState(passage);
 
-            if(busState.getLastChanged().getTime() > new Date().getTime()) {
+            if(busState.last_changed.getTime() > new Date().getTime()) {
                 result.add(busState);
             }
         }
 
         Collections.sort(result);
+
+        return result;
+    }
+
+    @Override
+    public List<HassioEvent> predictFutureEvents() {
+        List<HassioEvent> result = new ArrayList<>();
 
         return result;
     }

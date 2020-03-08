@@ -1,5 +1,6 @@
 package sven.phd.iot.rules;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.change.HassioChange;
@@ -58,7 +59,7 @@ abstract public class Trigger {
 
             if(triggerContexts != null) {
                 // The rule is triggered
-                HassioRuleExecutionEvent newEvent = new HassioRuleExecutionEvent(this, hassioChange.datetime);
+                HassioRuleExecutionEvent newEvent = new HassioRuleExecutionEvent(this, hassioChange.datetime, this.offset);
                 newEvent.addTriggerContexts(triggerContexts);
 
                 return newEvent;
@@ -83,12 +84,14 @@ abstract public class Trigger {
 
     public abstract boolean isTriggeredBy(HassioChange hassioChange);
 
+
     /**
      * Check if the hassioChange causes this trigger to be triggered
      * @param hassioStates a map with states for each device
      * @return a list of HassioContexts that trigger the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is triggered by itself
      */
     public abstract List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates);
+
 
     /**
      * Run all actions and collect all states that would result from it

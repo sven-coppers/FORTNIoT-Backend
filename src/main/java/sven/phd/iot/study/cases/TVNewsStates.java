@@ -19,11 +19,10 @@ public class TVNewsStates extends StudyStateSet {
 
     @Override
     public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
-        relativeTime.add(Calendar.MINUTE, 150);
-
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "The News", relativeTime.getTime(), new HassioTVGuideAttributes("news")));
+        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
         relativeTime.add(Calendar.MINUTE, 45);
         SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
+        relativeTime.add(Calendar.MINUTE, 45);
+        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "The News", relativeTime.getTime(), new HassioTVGuideAttributes("news")));
     }
 }

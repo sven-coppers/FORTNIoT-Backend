@@ -15,7 +15,7 @@ $("#apply").click(function() {
 
 $("#update_predictions").click(function() {
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/config/predictions/update/",
+        url:            "/intelligibleIoT/api/config/predictions/update/",
         type:           "GET",
         headers: {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
@@ -65,7 +65,7 @@ function applyUseCase() {
     });
 
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/study/case/",
+        url:            "/intelligibleIoT/api/study/case/",
         type:           "PUT",
         data: JSON.stringify(useCase),
         contentType: "application/json; charset=utf-8",
@@ -77,7 +77,7 @@ function applyUseCase() {
 
 function refreshRules() {
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/rules/",
+        url:            "/intelligibleIoT/api/rules/",
         type:           "GET",
         headers: {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
@@ -108,7 +108,7 @@ function refreshRules() {
 
 function refreshStates() {
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/states/",
+        url:            "/intelligibleIoT/api/states/",
         type:           "GET",
         headers: {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
@@ -136,7 +136,7 @@ function refreshStates() {
 
 function refreshDevices() {
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/bram/devices/",
+        url:            "/intelligibleIoT/api/bram/devices/",
         type:           "GET",
         headers: {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
@@ -162,7 +162,7 @@ function refreshDevices() {
 
 function refreshConfig() {
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/config/",
+        url:            "/intelligibleIoT/api/config/",
         type:           "GET",
         headers: {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
@@ -175,7 +175,7 @@ function refreshConfig() {
 
 function refreshPredictions() {
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/config/predictions",
+        url:            "/intelligibleIoT/api/config/predictions",
         type:           "GET",
         headers: {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
@@ -189,7 +189,7 @@ function refreshPredictions() {
 
 function refreshStudy() {
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/study/case/",
+        url:            "/intelligibleIoT/api/study/case/",
         type:           "GET",
         headers: {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
@@ -213,9 +213,8 @@ function refreshStudy() {
         }
 
         // Select
-        for(let rulSetSelection of data["rule_set"]) {
-            $('#rule_set_' + rulSetSelection).prop('checked', true);
-        }
+        selectRules(data["rule_set"]);
+
         for(let deviceSetSelection of data["device_set"]) {
             $('#device_set_' + deviceSetSelection).prop('checked', true);
         }
@@ -224,6 +223,13 @@ function refreshStudy() {
         }
     });
 }
+
+function selectRules(rules) {
+    for(let rulSetSelection of rules) {
+        $('#rule_set_' + rulSetSelection).prop('checked', true);
+    }
+}
+
 
 function setRuleProperties(HTMLID, enabled, available) {
     $("#" + HTMLID + "_enabled").prop('checked', enabled);
@@ -259,7 +265,7 @@ function applyRuleProperties() {
     });
 
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/rules/",
+        url:            "/intelligibleIoT/api/rules/",
         type:           "PUT",
         data: JSON.stringify(ruleProperties),
         contentType: "application/json; charset=utf-8",
@@ -273,7 +279,7 @@ function applyConfig(listeningToConfig) {
     let config = {connected_to_hassio : listeningToConfig};
 
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/config/",
+        url:            "/intelligibleIoT/api/config/",
         type:           "PUT",
         data: JSON.stringify(config),
         contentType: "application/json; charset=utf-8",
@@ -287,7 +293,7 @@ function applyPredictions(predictions) {
     let config = {predictions : predictions};
 
     $.ajax({
-        url:            "http://localhost:8080/intelligibleIoT/api/config/predictions/",
+        url:            "/intelligibleIoT/api/config/predictions/",
         type:           "PUT",
         data: JSON.stringify(config),
         contentType: "application/json; charset=utf-8",

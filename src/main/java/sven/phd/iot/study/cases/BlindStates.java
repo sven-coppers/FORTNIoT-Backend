@@ -13,8 +13,8 @@ import java.util.Date;
 public class BlindStates extends StudyStateSet {
     @Override
     public void setInitialStates(HassioDeviceManager DM, Date startDate) {
-        DM.logState(new HassioState(BlindDevices.KITCHEN_BLINDS, "lowered", startDate, new HassioBlindAttributes()));
-        DM.logState(new HassioState(BlindDevices.LIVING_BLINDS, "lowered", startDate, new HassioBlindAttributes()));
+   //     DM.logState(new HassioState(BlindDevices.KITCHEN_BLINDS, "raised", startDate, new HassioBlindAttributes()));
+        DM.logState(new HassioState(BlindDevices.LIVING_BLINDS, "raised", startDate, new HassioBlindAttributes()));
     }
 
     @Override

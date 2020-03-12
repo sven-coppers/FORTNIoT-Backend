@@ -15,6 +15,7 @@
                 <td>Rules</td>
                 <td>Devices</td>
                 <td>States</td>
+                <td>Preset</td>
             </tr>
             </thead>
             <tbody>
@@ -24,6 +25,17 @@
                 <td id="device_sets">
                 </td>
                 <td id="state_sets">
+                </td>
+                <td>
+                    <select size="7">
+                        <option id="preset_training">Training</option>
+                        <option id="preset_uc1">Use Case 1</option>
+                        <option id="preset_uc2">Use Case 2</option>
+                        <option id="preset_uc3">Use Case 3</option>
+                        <option id="preset_uc4">Use Case 4</option>
+                        <option id="preset_uc5">Use Case 5</option>
+                        <option id="preset_uc6">Use Case 6</option>
+                    </select>
                 </td>
             </tr>
             </tbody>

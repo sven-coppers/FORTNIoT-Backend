@@ -28,6 +28,10 @@ abstract public class Trigger {
         this.available = true;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     /**
      * Get the execution history of this rule
      */

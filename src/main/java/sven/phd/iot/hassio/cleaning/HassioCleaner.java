@@ -3,6 +3,8 @@ package sven.phd.iot.hassio.cleaning;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.sensor.HassioBattery;
+import sven.phd.iot.hassio.sensor.HassioBatteryAttributes;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
@@ -14,8 +16,15 @@ import java.util.HashMap;
 import java.util.List;
 
 public class HassioCleaner extends HassioDevice {
-    public HassioCleaner(String entityID, String friendlyName) {
+    private String batteryID;
+    private int depletionMinutesPerProcent;
+    private int chargingMinutesPerProcent;
+
+    public HassioCleaner(String entityID, String friendlyName, String batteryID) {
         super(entityID, friendlyName);
+        this.batteryID = batteryID;
+        this.depletionMinutesPerProcent = 1;
+        this.chargingMinutesPerProcent = 3;
     }
 
     @Override
@@ -23,28 +32,41 @@ public class HassioCleaner extends HassioDevice {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioCleanerAttributes.class);
     }
 
-    @Override
+    /**
+     * Let the device predict its own future state, based on the last state of all devices in the previous frame (e.g. update temperature)...
+     * This function is called ONCE at the beginning of every 'frame' in the simulation
+     * @return
+     */
     protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<ImplicitBehaviorEvent> result = new ArrayList<>();
+        ArrayList<ImplicitBehaviorEvent> result = new ArrayList<>();
 
-        HassioState state = hassioStates.get(this.entityID);
+        HassioState roombaState = hassioStates.get(this.entityID);
+        HassioState batteryState = hassioStates.get(this.batteryID);
 
-        if(state == null || state.state.equals("docked")) return result;
+        if(batteryState == null || roombaState == null) return result;
 
-        double timeLeft = ((HassioCleanerAttributes) state.attributes).timeLeft;
-        Long deltaTimeInMilliseconds = newDate.getTime() - state.getLastChanged().getTime();
+        double oldBatteryState = Double.parseDouble(batteryState.state);
+        Long deltaTimeInMilliseconds = newDate.getTime() - batteryState.getLastChanged().getTime();
         double deltaTimeInMinutes = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0);
+        double newBatteryState = oldBatteryState;
+        ImplicitBehaviorEvent event = new ImplicitBehaviorEvent(newDate);
+        event.addActionDeviceID(this.batteryID);
 
-        timeLeft -= deltaTimeInMinutes;
+        if(roombaState.state.equals("cleaning")) {
+            newBatteryState -= (deltaTimeInMinutes / depletionMinutesPerProcent);
+            event.addTriggerDeviceID(this.entityID);
+        } else if(roombaState.state.equals("docked")) {
+            newBatteryState = Math.min(100.0, newBatteryState + (deltaTimeInMinutes / chargingMinutesPerProcent));
 
-        if(timeLeft > 0.0) {
-            hassioStates.put(this.entityID, new HassioState(this.entityID, "cleaning", state.getLastChanged(), new HassioCleanerAttributes(timeLeft)));
-            result.add(new ImplicitBehaviorEvent(newDate, this.entityID));
-        } else {
-            hassioStates.put(this.entityID, new HassioState(this.entityID, "docked", state.getLastChanged(), new HassioCleanerAttributes(0)));
-            result.add(new ImplicitBehaviorEvent(newDate, this.entityID));
+            event.addTriggerDeviceID(this.batteryID);
+            if(newBatteryState != 100.0) {
+                event.addTriggerDeviceID(this.entityID);
+            }
         }
 
+        hassioStates.put(this.batteryID, new HassioState(this.batteryID, "" + newBatteryState, batteryState.getLastChanged(), null));
+
+        result.add(event);
         return result;
     }
 }

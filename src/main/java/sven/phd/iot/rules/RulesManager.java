@@ -138,11 +138,6 @@ public class RulesManager {
     public void setRuleAvailable(String ruleID, boolean available) {
         if(rules.containsKey(ruleID)) {
             rules.get(ruleID).setAvailable(available);
-
-            // It would be confusing if a rule is unavailable to the user, but still active
-            if(available == false) {
-                this.setRuleEnabled(ruleID, false);
-            }
         }
     }
 

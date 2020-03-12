@@ -33,6 +33,9 @@ public class LightRules extends StudyRuleSet {
         sunSetTrigger.addAction(new LightOnAction("turn on kitchen spots", LightDevices.KITCHEN_SPOTS, Color.YELLOW, false));
         sunSetTrigger.addAction(new LightOnAction("turn on living spots", LightDevices.LIVING_SPOTS, Color.YELLOW, false));
         sunSetTrigger.addAction(new LightOnAction("turn on standing lamp", LightDevices.LIVING_STANDING_LAMP, Color.YELLOW, false));
-        rulesManager.addRule(sunSetTrigger);
+
+        Trigger rainTrigger = new StateTrigger("rule.weather_rain_lamps", "weather.dark_sky", "light_rain", "going to rain");
+        rainTrigger.addAction(new LightOnAction("flash the living led strip purple", LightDevices.LIVING_LED_STRIPS, Color.PINK, true));
+        rulesManager.addRule(rainTrigger);
     }
 }

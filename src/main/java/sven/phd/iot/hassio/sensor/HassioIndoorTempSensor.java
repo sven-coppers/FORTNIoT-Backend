@@ -2,7 +2,6 @@ package sven.phd.iot.hassio.sensor;
 
 import sven.phd.iot.hassio.climate.HassioCoolerAttributes;
 import sven.phd.iot.hassio.climate.HassioHeaterAttributes;
-import sven.phd.iot.hassio.climate.HassioThermostatAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 
@@ -65,8 +64,10 @@ public class HassioIndoorTempSensor extends HassioSensor {
             }
         }
 
-        if(allEco && targetTemp < currentTemp) {
+        if(allEco && targetTemp < currentTemp && variationRate < 0.0) {
             newTemp = Math.max(newTemp + variationRate * deltaTimeInHours, targetTemp);
+        } else if(allEco && targetTemp > currentTemp && variationRate > 0.0) {
+            newTemp = Math.min(newTemp + variationRate * deltaTimeInHours, targetTemp);
         } else {
             //newTemp += variationRate * deltaTimeInHours;
         }

@@ -19,7 +19,7 @@ public class WeatherRainStates extends StudyStateSet {
         calendar.setTime(startDate);
 
         calendar.add(Calendar.MINUTE, 250);
-        attributes.forecast.add(new HassioWeatherForecast("light_rain", 0.0f, 16.3f, calendar.getTime()));
+        attributes.forecast.add(new HassioWeatherForecast("light_rain", 0.0f, 0.0f, calendar.getTime()));
         calendar.add(Calendar.MINUTE, 30);
         attributes.forecast.add(new HassioWeatherForecast("rainy", 0.0f, 16.0f, calendar.getTime()));
         calendar.add(Calendar.MINUTE, 250);

@@ -45,7 +45,6 @@ public class StudyManager {
         this.ruleSets.put("security_rules", new SecurityRules());
         this.ruleSets.put("cleaning_rules", new CleaningRules());
         this.ruleSets.put("blind_rules", new BlindRules());
-        this.ruleSets.put("weather_rules", new WeatherRules());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -60,7 +59,7 @@ public class StudyManager {
         this.deviceSets.put("security_devices", new SecurityDevices());
         this.deviceSets.put("cleaning_devices", new CleaningDevices());
         this.deviceSets.put("blind_devices", new BlindDevices());
-        this.deviceSets.put("weather_devices", new WeatherDevices());
+        this.deviceSets.put("virtual_weather", new WeatherDevices());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -70,7 +69,8 @@ public class StudyManager {
         this.stateSets.put("parent_temperature", new ParentTempStates());
         this.stateSets.put("routine_devices", new WeekDayRoutineStates());
         this.stateSets.put("shower_temperature", new ShowerTempStates());
-        this.stateSets.put("virtual_sun_states", new VirtualSunStates());
+        this.stateSets.put("sun_day_night_day", new VirtualSunStates());
+        this.stateSets.put("sun_night_day_night", new VirtualSunStatesNight());
         this.stateSets.put("tv_news", new TVNewsStates());
         this.stateSets.put("tv_sports", new TVSportsStates());
         this.stateSets.put("tv_movies", new TVMovieStates());

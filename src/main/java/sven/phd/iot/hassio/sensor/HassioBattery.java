@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioEvent;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 
 import java.io.IOException;
 import java.util.*;
@@ -22,8 +23,13 @@ public class HassioBattery extends HassioSensor {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioBatteryAttributes.class);
     }
 
-   /* @Override
+
+  /*  @Override
     protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
+
+
+
+
         List<HassioState> result = new ArrayList<>();
 
         HassioState lastState = hassioStates.get(this.entityID);
@@ -38,7 +44,7 @@ public class HassioBattery extends HassioSensor {
         result.add(new HassioState(this.entityID, "" + newLevel, newDate, new HassioBatteryAttributes()));
 
         return result;
-    } */
+    }
 
     @Override
     public List<HassioState> predictFutureStates() {
@@ -60,5 +66,5 @@ public class HassioBattery extends HassioSensor {
         }
 
         return result;
-    }
+    } */
 }

@@ -9,11 +9,11 @@ import java.util.ArrayList;
 
 public class BlindDevices extends StudyDeviceSet {
     public static final String LIVING_BLINDS = "blinds.living_blinds";
-    public static final String KITCHEN_BLINDS = "blinds.kitchen_blinds";
+   // public static final String KITCHEN_BLINDS = "blinds.kitchen_blinds";
 
     @Override
     public void createDevices(ArrayList<HassioDevice> devices) {
-        devices.add(new HassioBlind(LIVING_BLINDS, "Living blinds"));
-        devices.add(new HassioBlind(KITCHEN_BLINDS, "Kitchen blinds"));
+        devices.add(new HassioBlind(LIVING_BLINDS, "Blinds"));
+     //   devices.add(new HassioBlind(KITCHEN_BLINDS, "Kitchen blinds"));
     }
 }

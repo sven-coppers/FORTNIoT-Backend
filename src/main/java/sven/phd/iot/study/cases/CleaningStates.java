@@ -15,7 +15,7 @@ public class CleaningStates extends StudyStateSet {
     @Override
     public void setInitialStates(HassioDeviceManager DM, Date startDate) {
         DM.logState(new HassioState(CleaningDevices.ROOMBA_DOWNSTAIRS, "docked", startDate, new HassioCleanerAttributes()));
-        DM.logState(new HassioState(CleaningDevices.ROOMBA_UPSTAIRS, "docked", startDate, new HassioCleanerAttributes()));
+        DM.logState(new HassioState(CleaningDevices.ROOMBA_DOWNSTAIRS_BATTERY, "100", startDate, null));
     }
 
     @Override

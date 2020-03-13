@@ -51,7 +51,7 @@ td {
     vertical-align: top;
 }
 
-tbody tr:hover td {
+table:not(#use_case_table) tbody tr:hover td {
     background-color: #cce9f6;
 }
 

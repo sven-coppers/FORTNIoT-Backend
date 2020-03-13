@@ -17,13 +17,13 @@ public class LightRules extends StudyRuleSet {
     public void createRules(RulesManager rulesManager) {
         Trigger nobodyHomeTrigger = new PeopleHomeTrigger("rule.nobody_home_lights", false);
         nobodyHomeTrigger.addAction(new LightOffAction("turn off kitchen spots", LightDevices.KITCHEN_SPOTS));
-        nobodyHomeTrigger.addAction(new LightOffAction("turn off living spots", LightDevices.LIVING_SPOTS));
+        nobodyHomeTrigger.addAction(new LightOffAction("turn off living spots", LightSimpleDevices.LIVING_SPOTS));
         nobodyHomeTrigger.addAction(new LightOffAction("turn off standing lamp", LightDevices.LIVING_STANDING_LAMP));
         rulesManager.addRule(nobodyHomeTrigger);
 
         Trigger sunRiseTrigger = new StateTrigger("rule.sun_rise_lights", "sun.sun", "above_horizon", "sun rises");
         sunRiseTrigger.addAction(new LightOffAction("turn off kitchen spots", LightDevices.KITCHEN_SPOTS));
-        sunRiseTrigger.addAction(new LightOffAction("turn off living spots", LightDevices.LIVING_SPOTS));
+        sunRiseTrigger.addAction(new LightOffAction("turn off living spots", LightSimpleDevices.LIVING_SPOTS));
         sunRiseTrigger.addAction(new LightOffAction("turn off standing lamp", LightDevices.LIVING_STANDING_LAMP));
         rulesManager.addRule(sunRiseTrigger);
 
@@ -31,7 +31,7 @@ public class LightRules extends StudyRuleSet {
         sunSetTrigger.addTrigger(new StateTrigger("", "sun.sun", "below_horizon", "sun sets"));
         sunSetTrigger.addTrigger(new PeopleHomeTrigger("", true));
         sunSetTrigger.addAction(new LightOnAction("turn on kitchen spots", LightDevices.KITCHEN_SPOTS, Color.YELLOW, false));
-        sunSetTrigger.addAction(new LightOnAction("turn on living spots", LightDevices.LIVING_SPOTS, Color.YELLOW, false));
+        sunSetTrigger.addAction(new LightOnAction("turn on living spots", LightSimpleDevices.LIVING_SPOTS, Color.YELLOW, false));
         sunSetTrigger.addAction(new LightOnAction("turn on standing lamp", LightDevices.LIVING_STANDING_LAMP, Color.YELLOW, false));
 
         Trigger rainTrigger = new StateTrigger("rule.weather_rain_lamps", "weather.dark_sky", "light_rain", "going to rain");

@@ -25,6 +25,96 @@ $("#update_predictions").click(function() {
     });
 });
 
+$("select#preset"). change(function(){
+    let selection = $(this). children("option:selected"). val();
+
+    clearUseCaseSets();
+
+    if(selection.indexOf("training") != -1) {
+        selectRules(["light_simple", "smoke"]);
+        selectDevices(["light_simple", "smoke", "sun"]);
+
+        if (selection.indexOf("t1") != -1) {
+            selectStates(["light_simple", "smoke_idle", "sun_day_night_day"]);
+        } else if (selection.indexOf("t2") != -1) {
+            selectStates(["light_simple", "smoke_smoke", "sun_night_day_night"]);
+        } else if (selection.indexOf("f3") != -1) {
+            selectStates(["light_simple", "smoke_idle", "sun_night_day_night"]);
+        } else if (selection.indexOf("f4") != -1) {
+            selectStates(["light_simple", "smoke_smoke", "sun_day_night_day"]);
+        }
+    } else if(selection.indexOf("uc_1") != -1) {
+        selectRules(["cleaning_start"]);
+        selectDevices(["cleaning_devices", "routine_devices"]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectRules(["cleaning_stop"]);
+            selectStates(["cleaning_ongoing", "routine_workday"]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates(["cleaning_idle", "routine_workday"]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates(["cleaning_ongoing", "routine_workday"]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectRules(["cleaning_stop"]);
+            selectStates(["cleaning_idle", "routine_weekend"]);
+        }
+    }  else if(selection.indexOf("uc_2") != -1) {
+        selectRules([]);
+        selectDevices([]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates([]);
+        }
+    }  else if(selection.indexOf("uc_3") != -1) {
+        selectRules([]);
+        selectDevices([]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates([]);
+        }
+    }  else if(selection.indexOf("uc_4") != -1) {
+        selectRules([]);
+        selectDevices([]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates([]);
+        }
+    }  else if(selection.indexOf("uc_5") != -1) {
+        selectRules([]);
+        selectDevices([]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates([]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates([]);
+        }
+    } else {
+        console.error("unknwon preset: " + selection);
+    }
+});
+
 function refresh() {
     this.refreshDevices();
     this.refreshRules();
@@ -214,19 +304,26 @@ function refreshStudy() {
 
         // Select
         selectRules(data["rule_set"]);
-
-        for(let deviceSetSelection of data["device_set"]) {
-            $('#device_set_' + deviceSetSelection).prop('checked', true);
-        }
-        for(let stateSetSelection of data["state_set"]) {
-            $('#state_set_' + stateSetSelection).prop('checked', true);
-        }
+        selectDevices(data["device_set"]);
+        selectStates(data["state_set"]);
     });
 }
 
 function selectRules(rules) {
     for(let rulSetSelection of rules) {
         $('#rule_set_' + rulSetSelection).prop('checked', true);
+    }
+}
+
+function selectDevices(devices) {
+    for(let deviceSetSelection of devices) {
+        $('#device_set_' + deviceSetSelection).prop('checked', true);
+    }
+}
+
+function selectStates(states) {
+    for(let stateSetSelection of states) {
+        $('#state_set_' + stateSetSelection).prop('checked', true);
     }
 }
 
@@ -312,4 +409,18 @@ function timeToString(date) {
     let minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
 
     return hours + ":" + minutes;
+}
+
+function clearUseCaseSets() {
+    $.each($("#rule_sets input"), function () {
+        $(this).prop('checked', false);
+    });
+
+    $.each($("#device_sets input"), function () {
+        $(this).prop('checked', false);
+    });
+
+    $.each($("#state_sets input"), function () {
+        $(this).prop('checked', false);
+    });
 }

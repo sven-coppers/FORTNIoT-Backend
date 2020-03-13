@@ -12,9 +12,15 @@ public class CleaningDevices extends StudyDeviceSet {
     public static final String ROOMBA_DOWNSTAIRS            = "cleaning.roomba_downstairs";
     public static final String ROOMBA_DOWNSTAIRS_BATTERY    = "sensor.roomba_downstairs_battery";
 
+    public static final String ROOMBA_UPSTAIRS            = "cleaning.roomba_upstairs";
+    public static final String ROOMBA_UPSTAIRS_BATTERY    = "sensor.roomba_upstairs_battery";
+
     @Override
     public void createDevices(ArrayList<HassioDevice> devices) {
-        devices.add(new HassioCleaner(ROOMBA_DOWNSTAIRS, "Roomba", ROOMBA_DOWNSTAIRS_BATTERY));
-        devices.add(new HassioBattery(ROOMBA_DOWNSTAIRS_BATTERY, "Roomba Battery (%)", 5));
+        devices.add(new HassioCleaner(ROOMBA_DOWNSTAIRS, "Roomba downstairs", ROOMBA_DOWNSTAIRS_BATTERY, 1, 4));
+        devices.add(new HassioBattery(ROOMBA_DOWNSTAIRS_BATTERY, "Roomba downstairs battery (%)"));
+
+        devices.add(new HassioCleaner(ROOMBA_UPSTAIRS, "Roomba upstairs", ROOMBA_UPSTAIRS_BATTERY, 2, 5));
+        devices.add(new HassioBattery(ROOMBA_UPSTAIRS_BATTERY, "Roomba upstairs battery (%)"));
     }
 }

@@ -17,7 +17,7 @@ public class WeatherWindyStates extends StudyStateSet {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
 
-        calendar.add(Calendar.MINUTE, 910);
+        calendar.add(Calendar.MINUTE, 850);
         attributes.forecast.add(new HassioWeatherForecast("storm", 0.0f, 22.3f, calendar.getTime()));
         calendar.add(Calendar.MINUTE, 600);
         attributes.forecast.add(new HassioWeatherForecast("windy", 0.0f, 22.3f, calendar.getTime()));

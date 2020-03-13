@@ -1,8 +1,12 @@
 package sven.phd.iot.hassio;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 import org.glassfish.jersey.media.sse.EventListener;
+import org.glassfish.jersey.media.sse.EventSource;
 import org.glassfish.jersey.media.sse.InboundEvent;
+import org.glassfish.jersey.media.sse.SseFeature;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.bus.HassioBus;
@@ -10,7 +14,10 @@ import sven.phd.iot.hassio.calendar.HassioCalendar;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.change.HassioChangeRaw;
 import sven.phd.iot.hassio.light.HassioLight;
+import sven.phd.iot.hassio.moon.HassioMoon;
 import sven.phd.iot.hassio.outlet.HassioOutlet;
+import sven.phd.iot.hassio.person.HassioPerson;
+import sven.phd.iot.hassio.sensor.HassioBattery;
 import sven.phd.iot.hassio.sensor.HassioBinarySensor;
 import sven.phd.iot.hassio.sensor.HassioSensor;
 import sven.phd.iot.hassio.services.HassioCallService;
@@ -19,100 +26,166 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
-import sven.phd.iot.hassio.updates.HassioEvent;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
+import sven.phd.iot.students.bram.questions.why.user.UserService;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.util.*;
 
 public class HassioDeviceManager implements EventListener {
-    private static String HASSIO_URL = "http://hassio.local:8123/api/";
-    private static Map<String, HassioDevice> hassioDeviceMap;
+    private String HASSIO_URL;
+    private Map<String, HassioDevice> hassioDeviceMap;
     private ContextManager contextManager;
+    private Client client;
+    private WebTarget target;
+    private EventSource eventSource;
+    private HassioStateScheduler stateScheduler;
 
     public HassioDeviceManager(ContextManager contextManager) {
-        System.out.println("Initiating HassioDeviceManager ...");
+        System.out.println("HassioDeviceManager - Initiating...");
+
+        this.hassioDeviceMap = new HashMap<String, HassioDevice>();
+        this.eventSource = null;
+        this.HASSIO_URL = null;
+
         this.contextManager = contextManager;
-        this.initialiseDevices();
+        this.stateScheduler = new HassioStateScheduler(this);
+    }
+
+    public void addDevice(HassioDevice device) {
+        this.hassioDeviceMap.put(device.entityID, device);
+    }
+
+    public void startListening() {
+        if(isConnectedToHassioInstance()) return;
+        System.out.println("HassioDeviceManager - Connecting to Hassio Instance...");
+
+        this.HASSIO_URL = BearerToken.getInstance().getUrl() + "/api/";
+
+        this.initialiseHassioDevices();
+
+        try {
+            BearerToken bearerToken = BearerToken.getInstance();
+
+            client = ClientBuilder.newBuilder().register(SseFeature .class).build();
+            if(bearerToken.isUsingBearer()) {
+                Feature feature = OAuth2ClientSupport.feature(bearerToken.getBearerToken());
+                client.register(feature);
+                target = client.target(HASSIO_URL + "stream");
+            } else {
+                target = client.target(HASSIO_URL + "stream?api_password=test1234");
+            }
+
+            eventSource = EventSource.target(target).build();
+            eventSource.register(contextManager.getHassioDeviceManager()); // Everything needs to go to a single listener, since Hassio does not support event types
+            eventSource.open();
+
+            //Fetch users from the server
+            UserService.getInstance();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public void stopListening() {
+        eventSource.close();
+        System.out.println("HassioDeviceManager - Disconnected from Hassio Instance");
     }
 
     /**
      * Choose which devices we will keep track of
      */
-    public void initialiseDevices() {
-        this.hassioDeviceMap = new HashMap<String, HassioDevice>();
+    public void initialiseHassioDevices() {
+        System.out.println("HassioDeviceManager - Initialising Hassio Devices...");
         List<HassioStateRaw> hassioStateRawList = this.queryHassioStatesRaw();
 
         for(HassioStateRaw hassioStateRaw : hassioStateRawList) {
             String entity_id = hassioStateRaw.entity_id;
+            String friendlyName = "UNKNOWN";
+
+            if(hassioStateRaw.attributes != null && hassioStateRaw.attributes.get("friendly_name") != null) {
+                friendlyName = hassioStateRaw.attributes.get("friendly_name").asText();
+            }
+
             HassioDevice device = null;
 
             if(entity_id.contains("sun.")) {
                 device = new HassioSun();
             } else if(entity_id.contains("device_tracker.")) {
-                device = new HassioDeviceTracker(entity_id);
+                device = new HassioDeviceTracker(entity_id, friendlyName);
             } else if(entity_id.contains("switch.")) {
-                device = new HassioOutlet(entity_id);
+                device = new HassioOutlet(entity_id, friendlyName);
+            } else if(entity_id.contains("person.")) {
+                device = new HassioPerson(entity_id, friendlyName);
             } else if(entity_id.contains(".updater")) {
                 // Ignore
                 continue;
             } else if(entity_id.contains("binary_sensor")) {
                 if(entity_id.contains("motion_sensor_motion")) {
-                    device = new HassioBinarySensor(entity_id);
+                    device = new HassioBinarySensor(entity_id, friendlyName);
                 } else if(entity_id.contains("remote_ui")) {
-                    device = new HassioBinarySensor(entity_id);
+                    device = new HassioBinarySensor(entity_id, friendlyName);
+                } else if(entity_id.contains("_contact")) {
+                    device = new HassioBinarySensor(entity_id, friendlyName);
+                } else if(entity_id.contains("_acceleration")) {
+                    device = new HassioBinarySensor(entity_id, friendlyName);
                 }
             } else if(entity_id.contains("sensor.")) {
                 if(entity_id.contains("sensor.yr_symbol")) continue; // Ignore
-
-                if(entity_id.contains("sensor.agoralaan_diepenbeek")) {
-                    device = new HassioBus(entity_id);
+                if(entity_id.contains("sensor.moon")) {
+                    device = new HassioMoon();
+                } else if(entity_id.contains("sensor.agoralaan_diepenbeek")) {
+                    device = new HassioBus(entity_id, "Bus Stop - Agoralaan");
                 } else if(entity_id.contains("temperature_measurement")) {
-                    device = new HassioSensor(entity_id);
-                } else if(entity_id.contains("battery")) {
-                    device = new HassioSensor(entity_id);
+                    device = new HassioSensor(entity_id, friendlyName);
+                } else if(entity_id.contains("battery")) { // battery_level
+                    device = new HassioBattery(entity_id, friendlyName, 2400.0);
+               // } else if(entity_id.contains("battery")) {
+              //      device = new HassioSensor(entity_id, friendlyName);
+                } else if(entity_id.contains("_coordinate")) {
+                    device = new HassioSensor(entity_id, friendlyName);
                 }
             } else if(entity_id.contains("light.")) {
-                device = new HassioLight(entity_id);
+                device = new HassioLight(entity_id, friendlyName);
             } else if (entity_id.contains("weather.dark_sky")) {
-                device = new HassioWeather(entity_id);
+                device = new HassioWeather(entity_id, friendlyName);
             } else if(entity_id.contains("automation.")) {
                 continue; // Ignore
             }  else if(entity_id.contains("calendar.")) {
-                 if(entity_id.contains("calendar.sven_coppers_uhasselt_be")) {
-                     device = new HassioCalendar(entity_id);
-                } else {
-                     continue; // Ignore
-                }
+                device = new HassioCalendar(entity_id, friendlyName);
             } else if(entity_id.contains("group.")) {
                 // TODO
                 continue;
             } else if(entity_id.contains("zone.")) {
                 // TODO
                 continue;
+            } else if(entity_id.contains("scene.")) {
+                continue; // Ignore
+            } else if(entity_id.contains("persistent_notification.")) {
+                continue; // Ignore
             }
 
             if(device != null) {
                 device.logState(hassioStateRaw);
                 this.hassioDeviceMap.put(entity_id, device);
             } else {
-                System.err.println("Device detected that Sven does not support yet: " + entity_id);
+                System.err.println("HassioDeviceManager - Device detected that Sven does not support yet: " + entity_id);
 
-                /*try {
+                try {
                     System.err.println(new ObjectMapper().writeValueAsString(hassioStateRaw));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
-                } */
+                }
             }
         }
+
+        System.out.println("HassioDeviceManager - " + this.hassioDeviceMap.keySet().size() + " devices found");
     }
 
     /**
@@ -143,17 +216,124 @@ public class HassioDeviceManager implements EventListener {
 
     /**
      * Ask Home Assistant to perform some state changes
-     * @param hassioStates
+     * @param states
      * @return
      */
-    public List<HassioContext> setHassioDeviceStates(List<HassioState> hassioStates) {
+    public List<HassioContext> setHassioDeviceStates(List<HassioState> states) {
         List<HassioContext> contexts = new ArrayList<>();
 
-        for(HassioState hassioState : hassioStates) {
-            contexts.addAll(this.hassioDeviceMap.get(hassioState.entity_id).setState(hassioState));
+        for(HassioState state : states) {
+            contexts.addAll(this.hassioDeviceMap.get(state.entity_id).setState(state));
         }
 
         return contexts;
+    }
+
+    public List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+        HashMap<String, HassioState> newHassioStates = new HashMap<>();
+
+        // Make a copy
+        for(String entityID : lastHassioStates.keySet()) {
+            newHassioStates.put(entityID, lastHassioStates.get(entityID));
+        }
+
+        List<ImplicitBehaviorEvent> results = new ArrayList<>();
+
+        for(String entityID : hassioDeviceMap.keySet()) {
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+            results.addAll(hassioDeviceMap.get(entityID).predictImplicitRules(newDate, newHassioStates));
+        }
+
+        results = mergeDuplicates(results);
+
+        // Process the change events
+        for(ImplicitBehaviorEvent changeEvent : results) {
+            // Finally update the last_changed field
+            for(String changedDevice : changeEvent.getActionDeviceIDs()) {
+                newHassioStates.get(changedDevice).setLastChanged(newDate);
+                newHassioStates.get(changedDevice).setLastUpdated(newDate);
+            }
+
+            // Resolve
+            changeEvent.resolveContextIDs(newHassioStates);
+        }
+
+        return results;
+    }
+
+    /**
+     * Ask which states change based on the new context to the devices themselves
+     * @return
+     */
+    public List<ImplicitBehaviorEvent> predictImplictStates(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+        HashMap<String, HassioState> newHassioStates = new HashMap<>();
+
+        // Make a copy
+        for(String entityID : lastHassioStates.keySet()) {
+            newHassioStates.put(entityID, lastHassioStates.get(entityID));
+        }
+
+        List<ImplicitBehaviorEvent> results = new ArrayList<>();
+
+        for(String entityID : hassioDeviceMap.keySet()) {
+                if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+                results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates));
+        }
+
+        results = mergeDuplicates(results);
+
+        // Process the change events
+        for(ImplicitBehaviorEvent changeEvent : results) {
+            // Finally update the last_changed field
+            for(String changedDevice : changeEvent.getActionDeviceIDs()) {
+                newHassioStates.get(changedDevice).setLastChanged(newDate);
+                newHassioStates.get(changedDevice).setLastUpdated(newDate);
+            }
+
+            // Resolve
+            changeEvent.resolveContextIDs(newHassioStates);
+        }
+
+        return results;
+    }
+
+    private List<ImplicitBehaviorEvent> mergeDuplicates(List<ImplicitBehaviorEvent> events) {
+        List<ImplicitBehaviorEvent> result = new ArrayList<>();
+
+        for(ImplicitBehaviorEvent consideringEvent : events) {
+            ImplicitBehaviorEvent foundUniqueEvent = null;
+
+            for(ImplicitBehaviorEvent uniqueEvent: result) {
+                for(String consideringEventAction : consideringEvent.getActionDeviceIDs()) {
+                    if(uniqueEvent.getActionDeviceIDs().contains(consideringEventAction)) {
+                        foundUniqueEvent = uniqueEvent;
+                        break;
+                    }
+                }
+            }
+
+            if(foundUniqueEvent != null) {
+                // Add all other triggers from the considering event to the unique event
+                for(String consideringEventAction : consideringEvent.getActionDeviceIDs()) {
+                    if(!foundUniqueEvent.getActionDeviceIDs().contains(consideringEventAction)) {
+                        foundUniqueEvent.addActionDeviceID(consideringEventAction);
+                    }
+                }
+
+                // Add all other actions from the considering event to the unique event
+                for(String consideringEventTrigger : consideringEvent.getTriggerDeviceIDs()) {
+                    if(!foundUniqueEvent.getTriggerDeviceIDs().contains(consideringEventTrigger)) {
+                        foundUniqueEvent.addTriggerDeviceID(consideringEventTrigger);
+                    }
+                }
+            } else {
+                result.add(consideringEvent);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -191,20 +371,51 @@ public class HassioDeviceManager implements EventListener {
 
                 HassioChange hassioChange = new HassioChange(entityID, oldState, newState, hassioChangeRaw.timeFired);
 
-                if(this.hassioDeviceMap.containsKey(entityID)) {
-                    this.hassioDeviceMap.get(entityID).logState(newState);
-
-                    // Check if something needs to happen
-                    this.contextManager.deviceChanged(hassioChange);
-                } else {
-                    System.out.println("Ignored change: " + message);
-                }
+                this.stateChanged(hassioChange);
             } else {
                 System.err.println(message);
             }
         } catch (IOException e) {
             System.err.println(message);
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * To be called by Home assistant, or by stateScheduler
+     */
+    private void stateChanged(HassioChange hassioChange) {
+        if(this.hassioDeviceMap.containsKey(hassioChange.entity_id)) {
+            this.hassioDeviceMap.get(hassioChange.entity_id).logState(hassioChange.hassioChangeData.newState);
+
+            // Check if something needs to happen
+            this.contextManager.deviceChanged(hassioChange);
+        } else {
+            System.err.println("Ignored incoming change");
+        }
+    }
+
+    /**
+     * To be called by stateScheduler
+     */
+    public void stateChanged(HassioState newState) {
+        if(this.hassioDeviceMap.containsKey(newState.entity_id)) {
+            HassioState oldState = this.hassioDeviceMap.get(newState.entity_id).getLastState();
+            HassioChange hassioChange = new HassioChange(newState.entity_id, oldState, newState, newState.getLastChanged());
+
+            this.stateChanged(hassioChange);
+        }
+    }
+
+    /** Log a state without triggering rules
+     * To be called by StudyStates
+     * @param newState
+     */
+    public void logState(HassioState newState) {
+        if(this.hassioDeviceMap.containsKey(newState.entity_id)) {
+            this.hassioDeviceMap.get(newState.entity_id).logState(newState);
+        } else {
+            System.err.println("Could not log state for " + newState.entity_id);
         }
     }
 
@@ -267,38 +478,6 @@ public class HassioDeviceManager implements EventListener {
     }
 
     /**
-     * Get the history of all device events
-     * @return
-     */
-    public List<HassioEvent> getEventHistory() {
-        List<HassioEvent> hassioStates = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getPastEvents());
-        }
-
-        Collections.sort(hassioStates);
-
-        return hassioStates;
-    }
-
-    /**
-     * Get the cached version of all future events of each device
-     * @return
-     */
-   /* public List<HassioEvent> getEventFuture() {
-        List<HassioEvent> hassioStates = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getFutureEvents());
-        }
-
-        Collections.sort(hassioStates);
-
-        return hassioStates;
-    } */
-
-    /**
      * Predict future states, based on the devices internal knowledge
      * @return
      */
@@ -306,6 +485,8 @@ public class HassioDeviceManager implements EventListener {
         List<HassioState> hassioStates = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
             hassioStates.addAll(hassioDeviceMap.get(entityID).predictFutureStates());
         }
 
@@ -329,5 +510,45 @@ public class HassioDeviceManager implements EventListener {
      */
     public Map<String, HassioDevice> getDevices() {
         return this.hassioDeviceMap;
+    }
+
+    public boolean isConnectedToHassioInstance() {
+        if(eventSource == null) return false;
+
+        return eventSource.isOpen();
+    }
+
+    public void setAllDevicesAvailable(boolean available) {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).setAvailable(available);
+        }
+    }
+
+    public void setDeviceEnabled(String deviceID, boolean enabled) {
+        if(hassioDeviceMap.containsKey(deviceID)) {
+            hassioDeviceMap.get(deviceID).setEnabled(enabled);
+        }
+    }
+
+    public void setDeviceAvailable(String deviceID, boolean available) {
+        if(hassioDeviceMap.containsKey(deviceID)) {
+            hassioDeviceMap.get(deviceID).setAvailable(available);
+        }
+    }
+
+    public HassioStateScheduler getStateScheduler() {
+        return this.stateScheduler;
+    }
+
+    public void clearLogs() {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).clearHistory();
+        }
+    }
+
+    public void setAllDevicesEnabled(boolean enabled) {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).setEnabled(enabled);
+        }
     }
 }

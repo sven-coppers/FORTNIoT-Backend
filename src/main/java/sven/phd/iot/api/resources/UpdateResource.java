@@ -13,8 +13,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+
+/** THE WHOLE CLASS IS DEPRECATED */
 @Path("updates/")
 public class UpdateResource {
     private static UpdateResource updateResource;
@@ -42,7 +45,7 @@ public class UpdateResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<HassioUpdate> getUpdates() {
-        return ContextManager.getInstance().getAllUpdates();
+        return new ArrayList<>(); // ContextManager.getInstance().getAllUpdates(); // NO LONGER SUPPORTED
     }
 
     /**

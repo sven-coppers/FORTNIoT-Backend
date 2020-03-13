@@ -1,49 +1,55 @@
 package sven.phd.iot.hassio;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
-import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.services.HassioService;
-import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
-import sven.phd.iot.hassio.updates.HassioEvent;
+import sven.phd.iot.hassio.states.*;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
-    protected List<HassioEvent> hassioEventHistory;
-  //  protected List<HassioEvent> hassioEventFuture;
     protected String entityID;
+    protected String friendlyName;
+    private boolean enabled;
+    private boolean available;
 
-    public HassioDevice(String entityID) {
+    public HassioDevice(String entityID, String friendlyName) {
         this.hassioStateHistory = new ArrayList<>();
-        this.hassioEventHistory = new ArrayList<>();
-    //    this.hassioEventFuture = new ArrayList<>();
         this.entityID = entityID;
+        this.friendlyName = friendlyName;
+        this.setEnabled(true);
+        this.setAvailable(true);
     }
 
     /**
      * Get the friendly name of the device
      * @return the friendly name
      */
-    abstract public String getFriendlyName();
-
+    public String getFriendlyName() {
+        return this.friendlyName;
+    }
 
     /**
      * Commit the state to the physical device
      * @param hassioState
      * @return
      */
-    abstract public List<HassioContext> setState(HassioState hassioState);
+    public List<HassioContext> setState(HassioState hassioState) {
+        return new ArrayList<>();
+    }
 
     /**
      * Get the last known state of this device
@@ -65,15 +71,11 @@ abstract public class HassioDevice {
         this.logState(this.processRawState(hassioStateRaw));
     }
 
-    public void logEvent(HassioEvent hassioEvent) {
-        this.hassioEventHistory.add(hassioEvent);
-    }
-
     /**
      * Add the newHassioState to the state history
      * @param hassioState
      */
-    protected void logState(HassioState hassioState) {
+    public void logState(HassioState hassioState) {
         this.hassioStateHistory.add(hassioState);
         StateResource.getInstance().broadcastState(hassioState);
     }
@@ -88,48 +90,54 @@ abstract public class HassioDevice {
 
     /**
      * Let the device predict its own future states (without external influences)
+     * This function is called once for every simulation
      * @return
      */
-    abstract protected List<HassioState> predictFutureStates();
-
-    /**
-     * Let the deivce predict its own future state changes (without external influences)
-     * @return
-     */
-    public List<HassioChange> predictFutureChanges() {
-        List<HassioChange> result = new ArrayList<>();
-        List<HassioState> states = new ArrayList<>();
-
-        states.add(this.getLastState());
-        states.addAll(this.predictFutureStates());
-
-        for(int i = 1; i < states.size(); i++) {
-            result.add(new HassioChange(this.entityID, states.get(i - 1), states.get(i), states.get(i).last_changed));
-        }
-
-        return result;
+    protected List<HassioState> predictFutureStates() {
+        return new ArrayList<>();
     }
 
     /**
-     * Get the whole event history of this device
+     * Let the device predict its own future state, based on the last state of all devices in the previous frame (e.g. update temperature)...
+     * This function is called ONCE at the beginning of every 'frame' in the simulation
      * @return
      */
-    public List<HassioEvent> getPastEvents() {
-        return this.hassioEventHistory;
+    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
+        return new ArrayList<>(); // Most devices do not change on other devices
     }
 
     /**
-     * Let the device predict its own future state changes (without external influences)
+     * Let the device predict its own future state, based on current the state of all devices in the current frame (e.g. turn heater on/off)...
+     * This function is called for EVERY new state that is processed in a 'frame' in the simulation
      * @return
      */
-    abstract public List<HassioEvent> predictFutureEvents();
+    protected List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
+        return new ArrayList<>(); // Most devices do not change on other devices
+    }
 
     /**
      * Process the raw HassioState to full fledged Java objects (and apply some fixes if needed)
      * @param hassioStateRaw
      * @return
      */
-    abstract public HassioState processRawState(HassioStateRaw hassioStateRaw);
+    public HassioState processRawState(HassioStateRaw hassioStateRaw) {
+        try {
+            HassioAttributes hassioAttributes = processRawAttributes(hassioStateRaw.attributes);
+            return new HassioState(hassioStateRaw, hassioAttributes);
+        } catch (IOException e) {
+            System.err.println("Could not process the attributes in " + hassioStateRaw.attributes.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Process the raw json for attributes of a state
+     * @param rawAttributes
+     * @return
+     * @throws IOException
+     */
+    abstract public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException;
 
     /**
      * Call a service to set the state of this device
@@ -141,7 +149,8 @@ abstract public class HassioDevice {
         List<HassioContext> contexts = new ArrayList<>();
         Client client = ClientBuilder.newClient();
 
-        WebTarget webTarget = client.target("http://hassio.local:8123/api/services/");
+        String servicesUrl = BearerToken.getInstance().getUrl() + "/api/services";
+        WebTarget webTarget = client.target(servicesUrl);
         WebTarget employeeWebTarget = webTarget.path(uri);
         Invocation.Builder invocationBuilder = employeeWebTarget.request(MediaType.APPLICATION_JSON);
         //Add authentication
@@ -157,13 +166,13 @@ abstract public class HassioDevice {
             String hassioString = new ObjectMapper().writeValueAsString(hassioService);
             Response response = invocationBuilder.post(Entity.entity(hassioString, MediaType.APPLICATION_JSON));
 
-       //     System.out.println(hassioString);
-       //     System.out.println(response.getStatus());
-       //     System.out.println("SET STATE RESPONSE: " + response.readEntity(String.class)); // Werkt niet tegelijk met de volgende regel
+            //     System.out.println(hassioString);
+            //     System.out.println(response.getStatus());
+            //     System.out.println("SET STATE RESPONSE: " + response.readEntity(String.class)); // Werkt niet tegelijk met de volgende regel - Je kan maar 1 keer readen
 
             List<HassioStateRaw> hassioStates = response.readEntity(new GenericType<List<HassioStateRaw>>() {});
 
-            for(HassioState hassioState : hassioStates) {
+            for(HassioStateRaw hassioState : hassioStates) {
                 contexts.add(hassioState.context);
             }
         } catch (Exception e) {
@@ -171,5 +180,25 @@ abstract public class HassioDevice {
         }
 
         return contexts;
+    }
+
+    public void clearHistory() {
+        this.hassioStateHistory.clear();
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

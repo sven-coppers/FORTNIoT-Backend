@@ -1,6 +1,5 @@
 package sven.phd.iot.rules;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.change.HassioChange;
@@ -17,6 +16,7 @@ abstract public class Trigger {
     @JsonProperty("id") public String id;
     private long offset;
     @JsonProperty("enabled") public boolean enabled; // Is the rule enabled. When the rule is disabled, it cannot be triggered
+    @JsonProperty("available") public boolean available; // True if the rule should be accessible through the UI
 
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
@@ -25,6 +25,11 @@ abstract public class Trigger {
         this.id = id;
         this.offset = 0;
         this.enabled = true;
+        this.available = true;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /**
@@ -55,7 +60,7 @@ abstract public class Trigger {
 
             if(triggerContexts != null) {
                 // The rule is triggered
-                HassioRuleExecutionEvent newEvent = new HassioRuleExecutionEvent(this, hassioChange.datetime, this.offset);
+                HassioRuleExecutionEvent newEvent = new HassioRuleExecutionEvent(this, hassioChange.datetime);
                 newEvent.addTriggerContexts(triggerContexts);
 
                 return newEvent;
@@ -72,29 +77,30 @@ abstract public class Trigger {
     }
 
     /**
-     * Check if the rule is interested in being verified after this change
+     * Check if the rule is interested in being verified after this change (e.g. temp update)
      * @param hassioChange the change that this rule might be interested in
      * @return true if the rule is interested, false otherwise
      * SHOULD ONLY BE CALLED BY THE RULE ITSELF
      */
-    protected abstract boolean isTriggeredBy(HassioChange hassioChange);
+
+    public abstract boolean isTriggeredBy(HassioChange hassioChange);
 
     /**
      * Check if the hassioChange causes this trigger to be triggered
      * @param hassioStates a map with states for each device
      * @return a list of HassioContexts that trigger the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is triggered by itself
      */
-    protected abstract List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates);
+    public abstract List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates);
 
     /**
      * Run all actions and collect all states that would result from it
      * @return
      */
-    public List<HassioState> simulate(HassioRuleExecutionEvent executionEvent) {
+    public List<HassioState> simulate(HassioRuleExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> results = new ArrayList<>();
 
         for(Action action : this.actions) {
-            results.addAll(action.simulate(executionEvent));
+            results.addAll(action.simulate(executionEvent, hassioStates));
         }
 
         return results;
@@ -121,5 +127,22 @@ abstract public class Trigger {
         }
 
         return result;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public Action getActionOnDevice(String deviceId) {
+        for(Action action: actions) {
+            if(action.toString().contains(deviceId)) {
+                return action;
+            }
+        }
+        return null;
     }
 }

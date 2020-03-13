@@ -35,13 +35,14 @@ public class HassioBusAttributes extends HassioAttributes {
     }
 
     public HassioBusAttributes(HassioBusPassage hassioBusPassage) {
+        super(hassioBusPassage.stopName);
+
         this.attribution = "Data provided by data.delijn.be";
         this.deviceClass = "timestamp";
         this.realtime = hassioBusPassage.realtime;
         this.scheduled = hassioBusPassage.scheduled;
         this.finalDestination = hassioBusPassage.finalDestination;
         this.icon = "mdi:bus";
-        this.friendly_name = hassioBusPassage.stopName;
         this.lineNumberPublic = hassioBusPassage.lineNumberPublic;
         this.lineTransportType = "BUS";
         this.nextPassages = new ArrayList<>();

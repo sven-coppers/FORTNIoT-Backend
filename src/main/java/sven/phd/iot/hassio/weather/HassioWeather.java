@@ -1,69 +1,46 @@
 package sven.phd.iot.hassio.weather;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public class HassioWeather extends HassioDevice {
-    public HassioWeather(String entityID) {
-        super(entityID);
-    }
-
-    public List<HassioContext> setState(HassioState hassioState) {
-        // We cannot set the state of the weather
-        return new ArrayList<HassioContext>();
-    }
-
-    public HassioState processRawState(HassioStateRaw hassioStateRaw) {
-        HassioWeatherState hassioWeatherState = new HassioWeatherState(hassioStateRaw);
-
-      //  Calendar calendar = Calendar.getInstance();
-      //  calendar.setTime(hassioWeatherState.last_updated);
-      //  calendar.add(Calendar.MINUTE, -10);
-      //  hassioWeatherState.last_updated = calendar.getTime();
-
-        return hassioWeatherState;
+    public HassioWeather(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
     @Override
-    public String getFriendlyName() {
-        HassioWeatherState state = (HassioWeatherState) this.getLastState();
-        return state.attributes.friendly_name;
+    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioWeatherAttributes.class);
     }
 
     @Override
     public List<HassioState> predictFutureStates() {
         List<HassioState> result = new ArrayList<>();
-        HassioWeatherState hassioWeatherState = (HassioWeatherState) this.getLastState();
+        HassioState state = this.getLastState();
 
-        if(hassioWeatherState != null) {
-            List<HassioWeatherForecast> hassioWeatherForecastList = hassioWeatherState.attributes.forecast;
+        if(state != null) {
+            HassioWeatherAttributes attributes = (HassioWeatherAttributes) state.attributes;
+            List<HassioWeatherForecast> hassioWeatherForecastList = attributes.forecast;
 
-            for(int i = 2; i < hassioWeatherForecastList.size(); ++i) {
-                HassioWeatherForecast forecast = hassioWeatherForecastList.get(i - 1);
+            for(int i = 0; i < hassioWeatherForecastList.size(); ++i) {
+                HassioWeatherForecast forecast = hassioWeatherForecastList.get(i);
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(forecast.datetime);
-                calendar.add(Calendar.HOUR_OF_DAY, -3);
-                Date previousDate = calendar.getTime();
-
-                result.add(new HassioWeatherState(forecast.condition, previousDate, forecast.precipitation, forecast.temperature));
+                if(forecast.datetime.getTime() > new Date().getTime()) {
+                    result.add(new HassioState(this.entityID, forecast.condition, forecast.datetime, new HassioWeatherAttributes(forecast.temperature)));
+                }
             }
         }
-
-        return result;
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        List<HassioEvent> result = new ArrayList<HassioEvent>();
 
         return result;
     }

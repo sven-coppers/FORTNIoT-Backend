@@ -1,15 +1,13 @@
 package sven.phd.iot.rules.actions;
 
-import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.hassio.light.HassioLightState;
-import sven.phd.iot.hassio.states.HassioContext;
+import sven.phd.iot.hassio.light.HassioLightAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class LightOnAction extends Action {
@@ -17,8 +15,9 @@ public class LightOnAction extends Action {
     private Color color;
     private boolean flash;
 
-    public LightOnAction(String deviceIdentifier, Color color, boolean flash) {
-        super("Turn on " + deviceIdentifier + " {color: [" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "], flash: " + flash + "}");
+    public LightOnAction(String description, String deviceIdentifier,  Color color, boolean flash) {
+        // super("Turn on " + friendlyName + " {color: [" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "], flash: " + flash + "}");
+        super(description);
         this.deviceIdentifier = deviceIdentifier;
 
         if(color == null) {
@@ -29,14 +28,14 @@ public class LightOnAction extends Action {
         this.flash = flash;
     }
 
-    public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
+    public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
-        HassioLightState hassioLightState = new HassioLightState(deviceIdentifier, "on", hassioRuleExecutionEvent.datetime);
-        hassioLightState.attributes.brightness = 254;
+        HassioLightAttributes attributes = new HassioLightAttributes();
+        attributes.brightness = 254;
 
         if(this.flash) {
-            hassioLightState.attributes.flash = "short";
+            attributes.flash = "short";
         }
 
         List<Float> rgb_colors = new ArrayList<>();
@@ -44,10 +43,9 @@ public class LightOnAction extends Action {
         rgb_colors.add((float) this.color.getGreen() / 255.0f);
         rgb_colors.add((float) this.color.getBlue() / 255.0f);
 
-        hassioLightState.attributes.rgb_color = rgb_colors;
-        hassioLightState.context = new HassioContext();
+        attributes.rgb_color = rgb_colors;
 
-        newStates.add(hassioLightState);
+        newStates.add(new HassioState(deviceIdentifier, "on", hassioRuleExecutionEvent.datetime, attributes));
 
         return newStates;
     }

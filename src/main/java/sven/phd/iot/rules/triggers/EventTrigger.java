@@ -3,7 +3,6 @@ package sven.phd.iot.rules.triggers;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.models.Event;
 import sven.phd.iot.rules.Trigger;
 
@@ -46,12 +45,12 @@ public class EventTrigger extends Trigger {
     }
 
     @Override
-    protected boolean isTriggeredBy(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HassioChange hassioChange) {
         return true;
     }
 
     @Override
-    protected List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         return null;
     }
 }

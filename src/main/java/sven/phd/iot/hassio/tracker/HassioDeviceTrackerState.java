@@ -1,12 +1,12 @@
 package sven.phd.iot.hassio.tracker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 
 import java.io.IOException;
 
-public class HassioDeviceTrackerState extends HassioState {
+public class HassioDeviceTrackerState extends HassioAbstractState {
     public HassioDeviceTrackerAttributes attributes;
 
     public HassioDeviceTrackerState(HassioStateRaw hassioState) {
@@ -15,7 +15,7 @@ public class HassioDeviceTrackerState extends HassioState {
         try {
             this.attributes = new ObjectMapper().readValue(hassioState.attributes.toString(), HassioDeviceTrackerAttributes.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println(hassioState.attributes.toString());
         }
     }

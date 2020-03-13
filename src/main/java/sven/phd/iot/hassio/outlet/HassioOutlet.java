@@ -1,27 +1,26 @@
 package sven.phd.iot.hassio.outlet;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
-import sven.phd.iot.hassio.light.HassioLightServiceOff;
-import sven.phd.iot.hassio.light.HassioLightServiceOn;
-import sven.phd.iot.hassio.light.HassioLightState;
 import sven.phd.iot.hassio.services.HassioService;
+import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.states.HassioStateRaw;
-import sven.phd.iot.hassio.tracker.HassioDeviceTrackerState;
 import sven.phd.iot.hassio.updates.HassioEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class HassioOutlet extends HassioDevice {
-    public HassioOutlet(String entityID) {
-        super(entityID);
+    public HassioOutlet(String entityID, String friendlyName) {
+        super(entityID, friendlyName);
     }
 
-    public HassioState processRawState(HassioStateRaw hassioStateRaw) {
-        return new HassioOutletState(hassioStateRaw);
+    @Override
+    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioOutletAttributes.class);
     }
 
     public List<HassioContext> setState(HassioState hassioState) {
@@ -30,23 +29,5 @@ public class HassioOutlet extends HassioDevice {
         } else {
             return this.callService("switch/turn_off", new HassioService(this.entityID));
         }
-    }
-
-    @Override
-    public String getFriendlyName() {
-        HassioOutletState state = (HassioOutletState) this.getLastState();
-        return state.attributes.friendly_name;
-    }
-
-    @Override
-    public List<HassioState> predictFutureStates() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        List<HassioEvent> result = new ArrayList<>();
-
-        return result;
     }
 }

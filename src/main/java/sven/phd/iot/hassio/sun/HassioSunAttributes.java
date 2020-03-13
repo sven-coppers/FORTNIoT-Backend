@@ -2,6 +2,7 @@ package sven.phd.iot.hassio.sun;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.weather.HassioWeatherForecast;
 
@@ -9,33 +10,33 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class HassioSunAttributes extends HassioAttributes {
-    @JsonProperty("azimuth") float azimuth;
-    @JsonProperty("elevation") float elevation;
-    @JsonProperty("rising") boolean rising;
+    @JsonProperty("azimuth") public float azimuth;
+    @JsonProperty("elevation") public float elevation;
+    @JsonProperty("rising") public boolean rising;
 
     @JsonProperty("next_dawn")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX")
-    Date nextDawn;
+    public Date nextDawn;
     
     @JsonProperty("next_dusk")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX")
-    Date nextDusk;
+    public Date nextDusk;
 
     @JsonProperty("next_midnight")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX")
-    Date nextMidnight;
+    public Date nextMidnight;
 
     @JsonProperty("next_noon")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX")
-    Date nextNoon;
+    public Date nextNoon;
 
     @JsonProperty("next_rising")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX")
-    Date nextRising;
+    public Date nextRising;
 
     @JsonProperty("next_setting")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX")
-    Date nextSetting;
+    public Date nextSetting;
 
     public HassioSunAttributes() {
         // Used by the serializer

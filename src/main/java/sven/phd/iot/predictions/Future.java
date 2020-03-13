@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Future {
-    @JsonProperty("states") public List<HassioState> futureStates;
+    @JsonProperty("states") private List<HassioState> futureStates;
     @JsonProperty("executions") public List<HassioRuleExecutionEvent> futureExecutions;
     @JsonProperty("conflicts") public List<HassioConflictState> futureConflicts;
     @JsonProperty("last_generated") public Date lastGenerated;

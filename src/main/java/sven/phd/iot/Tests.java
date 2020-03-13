@@ -1,16 +1,7 @@
 package sven.phd.iot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import sven.phd.iot.hassio.bus.HassioBusState;
-import sven.phd.iot.hassio.calendar.HassioCalendarState;
-import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.states.HassioAbstractState;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -26,9 +17,9 @@ public class Tests {
             e.printStackTrace();
         } */
 
-        PriorityQueue<HassioState> queue = new PriorityQueue<>();
-        queue.add(new HassioCalendarState("1000", "bus", new Date(1000), "test", "test"));
-        queue.add(new HassioCalendarState("3000", "bus", new Date(3000), "test", "test"));
+        PriorityQueue<HassioAbstractState> queue = new PriorityQueue<>();
+      //  queue.add(new HassioCalendarState("1000", "bus", new Date(1000), "test", "test"));
+     //   queue.add(new HassioCalendarState("3000", "bus", new Date(3000), "test", "test"));
 
         printQueue(queue);
 
@@ -36,15 +27,15 @@ public class Tests {
 
     }
 
-    private static void printQueue(Queue<HassioState> queue) {
+    private static void printQueue(Queue<HassioAbstractState> queue) {
         boolean isAdded = false;
 
 
         while (!queue.isEmpty()) {
-            HassioState state = queue.remove();
+            HassioAbstractState state = queue.remove();
 
             if(!isAdded) {
-                queue.add(new HassioCalendarState("2000", "bus", new Date(2000), "test", "test"));
+       //         queue.add(new HassioCalendarState("2000", "bus", new Date(2000), "test", "test"));
                 isAdded = true;
             }
 

@@ -3,32 +3,32 @@ package sven.phd.iot.rules.triggers;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.weather.HassioWeather;
-import sven.phd.iot.hassio.weather.HassioWeatherState;
 import sven.phd.iot.rules.Trigger;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
 public class TemperatureTrigger extends Trigger {
     private int min;
     private int max;
+    private String sensorIdentifier;
 
-    public TemperatureTrigger(String ruleIdentifier, int min, int max) {
-        super(ruleIdentifier, "IF temperature between [" + min + ", " + max + "]");
+    public TemperatureTrigger(String ruleIdentifier, String sensorIdentifier, int min, int max) {
+        super(ruleIdentifier, "temperature between [" + min + ", " + max + "]");
 
         this.min = min;
         this.max = max;
+        this.sensorIdentifier = sensorIdentifier;
     }
 
     @Override
     public boolean isTriggeredBy(HassioChange hassioChange) {
-        if(hassioChange.entity_id.equals("weather.dark_sky")) {
-            float oldTemp = ((HassioWeatherState) hassioChange.hassioChangeData.oldState).attributes.temperature;
-            float newTemp = ((HassioWeatherState) hassioChange.hassioChangeData.newState).attributes.temperature;
+        if(hassioChange.entity_id.equals(this.sensorIdentifier)) {
+            float oldTemp = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
+            float newTemp = Float.parseFloat(hassioChange.hassioChangeData.newState.state);
+
+           // float newTemp = ((HassioWeatherAttributes) hassioChange.hassioChangeData.newState.attributes).temperature;
 
             if(newTemp <= min || newTemp >= max) {
                 return true;
@@ -42,11 +42,11 @@ public class TemperatureTrigger extends Trigger {
     }
 
     @Override
-    protected List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
-        HassioWeatherState hassioWeatherState = (HassioWeatherState) hassioStates.get("weather.dark_sky");
-        float temperature = hassioWeatherState.attributes.temperature;
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+        HassioState hassioWeatherState = hassioStates.get(this.sensorIdentifier);
+        float temperature = Float.parseFloat(hassioWeatherState.state);
 
-        if(temperature > min && temperature < max) {
+        if(temperature >= min && temperature <= max) {
             List<HassioContext> triggerContexts = new ArrayList<>();
             triggerContexts.add(hassioWeatherState.context);
             return triggerContexts;

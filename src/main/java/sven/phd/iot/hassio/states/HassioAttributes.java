@@ -8,7 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HassioAttributes implements Serializable {
-    @JsonProperty("friendly_name") public String friendly_name;
+    @JsonProperty("friendly_name") public String friendlyName;
+
+    public HassioAttributes() {
+        // Empty constructor for serialisation
+    }
+
+    public HassioAttributes(String friendlyName) {
+        this.friendlyName = friendlyName;
+    }
 
     /**
      * Override equals function
@@ -17,8 +25,8 @@ public class HassioAttributes implements Serializable {
      */
     public List<HassioConflictingAttribute> checkForConflicts(HassioLightAttributes other) {
         List<HassioConflictingAttribute> result = new ArrayList<>();
-        if (this.friendly_name != other.friendly_name) {
-            result.add(new HassioConflictingAttribute("friendly_name", this.friendly_name, other.friendly_name));
+        if (this.friendlyName != other.friendlyName) {
+            result.add(new HassioConflictingAttribute("friendly_name", this.friendlyName, other.friendlyName));
         }
 
         return result;

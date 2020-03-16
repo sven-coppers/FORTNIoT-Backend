@@ -25,7 +25,8 @@ public class TVRules extends StudyRuleSet {
         movieTrigger.addTrigger(new StateTrigger("", TVDevices.LIVING_TV, "on", "tv is on"));
         movieTrigger.addTrigger(new TVGuideTrigger("", "movie starts", TVDevices.LIVING_TV_GUIDE, null, "movie"));
         movieTrigger.addAction(new LightOffAction("turn off chandelier", LightDevices.LIVING_CHANDELIER));
-        movieTrigger.addAction(new LightOnAction("turn on led strip", LightDevices.LIVING_LED_STRIPS, Color.ORANGE, false));
+        movieTrigger.addAction(new LightOffAction("turn off standing lamp", LightDevices.LIVING_STANDING_LAMP));
+    //    movieTrigger.addAction(new LightOnAction("turn on led strip", LightDevices.LIVING_LED_STRIPS, Color.ORANGE, false));
         rulesManager.addRule(movieTrigger);
 
         ANDTrigger sportsTrigger = new ANDTrigger("rule.tv_sports_started");
@@ -40,7 +41,9 @@ public class TVRules extends StudyRuleSet {
         serieTrigger.addAction(new LightOffAction("turn off led strip", LightDevices.LIVING_LED_STRIPS));
         rulesManager.addRule(serieTrigger);
 
-        Trigger newsTrigger = new TVGuideTrigger("rule.tv_news_started", "the news is on", TVDevices.LIVING_TV_GUIDE, null, "news");
+        ANDTrigger newsTrigger = new ANDTrigger("rule.tv_news_started");
+        newsTrigger.addTrigger(new PeopleHomeTrigger("", true));
+        newsTrigger.addTrigger(new TVGuideTrigger("", "the news is on", TVDevices.LIVING_TV_GUIDE, null, "news"));
         newsTrigger.addAction(new StateAction("turn on tv", TVDevices.LIVING_TV, "on"));
         rulesManager.addRule(newsTrigger);
 

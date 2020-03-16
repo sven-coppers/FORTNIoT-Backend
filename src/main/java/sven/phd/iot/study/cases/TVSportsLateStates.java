@@ -10,7 +10,7 @@ import sven.phd.iot.study.StudyStateSet;
 import java.util.Calendar;
 import java.util.Date;
 
-public class TVMovieStates extends StudyStateSet {
+public class TVSportsLateStates extends StudyStateSet {
     @Override
     public void setInitialStates(HassioDeviceManager DM, Date startDate) {
         DM.logState(new HassioState(TVDevices.LIVING_TV, "on", startDate, new HassioTVAttributes()));
@@ -19,10 +19,9 @@ public class TVMovieStates extends StudyStateSet {
 
     @Override
     public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Star Wars: The Empire Strikes Back", relativeTime.getTime(), new HassioTVGuideAttributes("movie")));
-        relativeTime.add(Calendar.MINUTE, 180);
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Masterchef", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
-        relativeTime.add(Calendar.MINUTE, 60);
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Lord of the Rings Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("movie")));
+        relativeTime.add(Calendar.HOUR, 8);
+        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Superbowl", relativeTime.getTime(), new HassioTVGuideAttributes("sports")));
+        relativeTime.add(Calendar.MINUTE, 240);
+        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
     }
 }

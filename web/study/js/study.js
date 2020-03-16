@@ -44,32 +44,30 @@ $("select#preset"). change(function(){
             selectStates(["light_simple", "smoke_smoke", "sun_day_night_day"]);
         }
     } else if(selection.indexOf("uc_1") != -1) {
-        selectRules(["cleaning_start"]);
+        selectRules(["cleaning_start", "cleaning_stop"]);
         selectDevices(["cleaning_devices", "routine_devices"]);
 
         if(selection.indexOf("t1") != -1) {
-            selectRules(["cleaning_stop"]);
             selectStates(["cleaning_ongoing", "routine_workday"]);
         } else if(selection.indexOf("t2") != -1) {
             selectStates(["cleaning_idle", "routine_workday"]);
         } else if(selection.indexOf("f3") != -1) {
             selectStates(["cleaning_ongoing", "routine_workday"]);
         } else if(selection.indexOf("f4") != -1) {
-            selectRules(["cleaning_stop"]);
             selectStates(["cleaning_idle", "routine_weekend"]);
         }
     }  else if(selection.indexOf("uc_2") != -1) {
-        selectRules([]);
-        selectDevices([]);
+        selectRules(["tv_rules"]);
+        selectDevices(["light_devices", "routine_devices", "tv_devices"]);
 
         if(selection.indexOf("t1") != -1) {
-            selectStates([]);
+            selectStates(["light_off", "routine_workday", "tv_news"]);
         } else if(selection.indexOf("t2") != -1) {
-            selectStates([]);
+            selectStates(["light_off", "routine_workday", "tv_sports"]);
         } else if(selection.indexOf("f3") != -1) {
-            selectStates([]);
+            selectStates(["light_on", "routine_home", "tv_movies"]);
         } else if(selection.indexOf("f4") != -1) {
-            selectStates([]);
+            selectStates(["light_on", "routine_weekend", "tv_sports_late"]);
         }
     }  else if(selection.indexOf("uc_3") != -1) {
         selectRules([]);

@@ -68,7 +68,8 @@ public class StudyManager {
         this.stateSets.put("children_temperature", new ChildrenTempStates());
         this.stateSets.put("light_off", new LightStates());
         this.stateSets.put("light_on", new LightStatesOn());
-        this.stateSets.put("living_temperature", new LivingTempStates());
+        this.stateSets.put("living_temperature_off", new LivingTempStates());
+        this.stateSets.put("living_temperature_on", new LivingTempOnStates());
         this.stateSets.put("parent_temperature", new ParentTempStates());
         this.stateSets.put("routine_workday", new RoutineWorkingStates());
         this.stateSets.put("routine_vacation", new RoutineVacationStates());

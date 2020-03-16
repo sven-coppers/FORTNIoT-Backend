@@ -70,30 +70,30 @@ $("select#preset"). change(function(){
             selectStates(["light_on", "routine_weekend", "tv_sports_late"]);
         }
     }  else if(selection.indexOf("uc_3") != -1) {
-        selectRules([]);
-        selectDevices([]);
+        selectRules(["living_temperature"]);
+        selectDevices(["living_temperature", "routine_devices"]);
 
         if(selection.indexOf("t1") != -1) {
-            selectStates([]);
+            selectStates(["living_temperature_off", "routine_workday"]);
         } else if(selection.indexOf("t2") != -1) {
-            selectStates([]);
+            selectStates(["living_temperature_off", "routine_workday"]);
         } else if(selection.indexOf("f3") != -1) {
-            selectStates([]);
+            selectStates(["living_temperature_on", "routine_weekend"]);
         } else if(selection.indexOf("f4") != -1) {
-            selectStates([]);
+            selectStates(["living_temperature_on", "routine_weekend"]);
         }
     }  else if(selection.indexOf("uc_4") != -1) {
-        selectRules([]);
-        selectDevices([]);
+        selectRules(["blind_rules", "light_rules"]);
+        selectDevices(["blind_devices", "light_devices", "sun", "weather"]);
 
         if(selection.indexOf("t1") != -1) {
-            selectStates([]);
+            selectStates(["blind_states", "light_off", "sun_day_night_day", "weather_clear_states"]);
         } else if(selection.indexOf("t2") != -1) {
-            selectStates([]);
+            selectStates(["blind_states"]);
         } else if(selection.indexOf("f3") != -1) {
-            selectStates([]);
+            selectStates(["blind_states"]);
         } else if(selection.indexOf("f4") != -1) {
-            selectStates([]);
+            selectStates(["blind_states"]);
         }
     }  else if(selection.indexOf("uc_5") != -1) {
         selectRules([]);

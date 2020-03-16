@@ -25,7 +25,7 @@ public class LivingTempDevices extends StudyDeviceSet {
 
         devices.add(new HassioIndoorTempSensor(LIVING_TEMPERATURE, "Living temperature", heaterIDs, coolerIDs, LIVING_THERMOSTAT, -0.5));
         devices.add(new HassioThermostat(LIVING_THERMOSTAT, "Living target temperature"));
-        devices.add(new HassioHeater(LIVING_FLOOR_HEATING, "Living floor heating", 1.5, 0.5, LIVING_THERMOSTAT, LIVING_TEMPERATURE));
+        devices.add(new HassioHeater(LIVING_FLOOR_HEATING, "Living floor heating", 1.5, 0.5, LIVING_THERMOSTAT, LIVING_TEMPERATURE, LivingTempRules.LIVING_TARGET_HIGHER, LivingTempRules.LIVING_TARGET_REACHED));
         devices.add(new HassioCooler(LIVING_AIRCO, "Living air conditioning", -3.0, 0.0, LIVING_THERMOSTAT, LIVING_TEMPERATURE));
     }
 }

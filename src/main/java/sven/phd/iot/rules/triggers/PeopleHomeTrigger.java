@@ -40,9 +40,15 @@ public class PeopleHomeTrigger extends Trigger {
                 if(personState != null) {
                     if(personState.state.equals("home")) {
                         numPeople++;
-                    }
 
-                    triggerContexts.add(personState.context);
+                        if(anyoneHome) {
+                            triggerContexts.add(personState.context);
+                        }
+                    } else {
+                        if(!anyoneHome) {
+                            triggerContexts.add(personState.context);
+                        }
+                    }
                 }
             }
         }

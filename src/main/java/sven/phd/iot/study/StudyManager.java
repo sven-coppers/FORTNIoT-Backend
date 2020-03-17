@@ -45,6 +45,7 @@ public class StudyManager {
         this.ruleSets.put("blind_rules", new BlindRules());
         this.ruleSets.put("light_simple", new LightSimpleRules());
         this.ruleSets.put("smoke", new SmokeRules());
+        this.ruleSets.put("smoke_advanced", new SmokeAdvancedRules());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -72,7 +73,6 @@ public class StudyManager {
         this.stateSets.put("living_temperature_on", new LivingTempOnStates());
         this.stateSets.put("parent_temperature", new ParentTempStates());
         this.stateSets.put("routine_workday", new RoutineWorkingStates());
-        this.stateSets.put("routine_vacation", new RoutineVacationStates());
         this.stateSets.put("routine_weekend", new RoutineWeekendStates());
         this.stateSets.put("routine_home", new RoutineHomeStates());
         this.stateSets.put("shower_temperature", new ShowerTempStates());

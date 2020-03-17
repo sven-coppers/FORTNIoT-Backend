@@ -19,7 +19,7 @@ public class SecurityRules extends StudyRuleSet {
         rulesManager.addRule(nobodyHomeTrigger);
 
         Trigger comesHomeTrigger = new PeopleHomeTrigger("rule.comes_home_security",true);
-        comesHomeTrigger.addAction(new StateAction("unlock the front door", SecurityDevices.FRONT_DOOR, "open"));
+        comesHomeTrigger.addAction(new StateAction("unlock the front door", SecurityDevices.FRONT_DOOR, "unlocked"));
         rulesManager.addRule(comesHomeTrigger);
 
         ANDTrigger thiefTrigger = new ANDTrigger("rule.thief_detected");
@@ -27,5 +27,11 @@ public class SecurityRules extends StudyRuleSet {
         thiefTrigger.addTrigger(new StateTrigger("", SecurityDevices.LIVING_MOTION, "moving", "movement detected"));
         thiefTrigger.addAction(new StateAction("trigger the alarm siren", SecurityDevices.SIRENE, "sounding"));
         rulesManager.addRule(thiefTrigger);
+
+        Trigger sleepingTrigger = new StateTrigger("rule.sleeping_security_living", RoutineDevices.ROUTINE, "sleeping", "everyone is sleeping");
+        sleepingTrigger.addAction(new StateAction("lock the front door", SecurityDevices.FRONT_DOOR, "locked"));
+        sleepingTrigger.addAction(new StateAction("lock the back door", SecurityDevices.BACK_DOOR, "locked"));
+        sleepingTrigger.addAction(new StateAction("lock the garage door", SecurityDevices.GARAGE_DOOR, "locked"));
+        rulesManager.addRule(sleepingTrigger);
     }
 }

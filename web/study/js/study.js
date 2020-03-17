@@ -87,26 +87,26 @@ $("select#preset"). change(function(){
         selectDevices(["blind_devices", "light_devices", "sun", "weather"]);
 
         if(selection.indexOf("t1") != -1) {
-            selectStates(["blind_states", "light_off", "sun_day_night_day", "weather_clear_states"]);
+            selectStates(["blind_states", "light_on", "sun_day_night_day", "weather_clear_states"]);
         } else if(selection.indexOf("t2") != -1) {
-            selectStates(["blind_states"]);
+            selectStates(["blind_states", "light_off", "sun_night_day_night", "weather_windy_states"]);
         } else if(selection.indexOf("f3") != -1) {
-            selectStates(["blind_states"]);
+            selectStates(["blind_states", "light_on", "sun_day_night_day", "weather_clear_states"]);
         } else if(selection.indexOf("f4") != -1) {
-            selectStates(["blind_states"]);
+            selectStates(["blind_states", "light_off", "sun_night_day_night", "weather_windy_states"]);
         }
     }  else if(selection.indexOf("uc_5") != -1) {
-        selectRules([]);
-        selectDevices([]);
+        selectRules(["security_rules", "smoke_advanced"]);
+        selectDevices(["routine_devices", "security_devices", "smoke"]);
 
         if(selection.indexOf("t1") != -1) {
-            selectStates([]);
+            selectStates(["routine_workday", "security_states", "smoke_idle"]);
         } else if(selection.indexOf("t2") != -1) {
-            selectStates([]);
+            selectStates(["routine_weekend", "security_states", "smoke_idle"]);
         } else if(selection.indexOf("f3") != -1) {
-            selectStates([]);
+            selectStates(["routine_home", "security_states", "smoke_smoke"]);
         } else if(selection.indexOf("f4") != -1) {
-            selectStates([]);
+            selectStates(["routine_workday", "security_states", "smoke_idle"]);
         }
     } else {
         console.error("unknwon preset: " + selection);

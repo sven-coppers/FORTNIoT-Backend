@@ -95,15 +95,15 @@ public class WeatherWindyStates extends StudyStateSet {
         SS.scheduleState(new HassioState(WeatherDevices.WEATHER_WIND_SPEED, "90", relativeTime.getTime(), null));
         relativeTime.add(Calendar.MINUTE, 60);
         SS.scheduleState(new HassioState(WeatherDevices.WEATHER_TEMPERATURE, "10.5", relativeTime.getTime(), null));
-        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_WIND_SPEED, "100", relativeTime.getTime(), null));
-        relativeTime.add(Calendar.MINUTE, 60);
-        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_TEMPERATURE, "10.9", relativeTime.getTime(), null));
-        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_WIND_SPEED, "85", relativeTime.getTime(), null));
-        relativeTime.add(Calendar.MINUTE, 60);
-        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_TEMPERATURE, "11.3", relativeTime.getTime(), null));
         SS.scheduleState(new HassioState(WeatherDevices.WEATHER_WIND_SPEED, "70", relativeTime.getTime(), null));
         relativeTime.add(Calendar.MINUTE, 60);
+        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_TEMPERATURE, "10.9", relativeTime.getTime(), null));
+        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_WIND_SPEED, "55", relativeTime.getTime(), null));
+        relativeTime.add(Calendar.MINUTE, 60);
+        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_TEMPERATURE, "11.3", relativeTime.getTime(), null));
+        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_WIND_SPEED, "45", relativeTime.getTime(), null));
+        relativeTime.add(Calendar.MINUTE, 60);
         SS.scheduleState(new HassioState(WeatherDevices.WEATHER_TEMPERATURE, "11.8", relativeTime.getTime(), null));
-        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_WIND_SPEED, "30", relativeTime.getTime(), null));
+        SS.scheduleState(new HassioState(WeatherDevices.WEATHER_WIND_SPEED, "45", relativeTime.getTime(), null));
     }
 }

@@ -22,11 +22,11 @@ public class ChildrenTempRules extends StudyRuleSet {
         nobodyHomeTrigger.addAction(new ThermostatStateAction(ChildrenTempDevices.BEDROOM_CHILDREN_THERMOSTAT, "children's bedroom thermostat", 15.0));
         rulesManager.addRule(nobodyHomeTrigger);
 
-        Trigger eveningTrigger = new StateTrigger("rule.evening_children", WeekdayRoutineDevices.ROUTINE, "evening", "evening");
+        Trigger eveningTrigger = new StateTrigger("rule.evening_children", RoutineDevices.ROUTINE, "evening", "evening");
         eveningTrigger.addAction(new ThermostatStateAction(ChildrenTempDevices.BEDROOM_CHILDREN_THERMOSTAT, "children's bedroom thermostat", 20.0));
         rulesManager.addRule(eveningTrigger);
 
-        Trigger sleepingTrigger = new StateTrigger("rule.sleeping_children", WeekdayRoutineDevices.ROUTINE, "sleeping", "everyone is sleeping");
+        Trigger sleepingTrigger = new StateTrigger("rule.sleeping_children", RoutineDevices.ROUTINE, "sleeping", "everyone is sleeping");
         sleepingTrigger.addAction(new ThermostatStateAction(ChildrenTempDevices.BEDROOM_CHILDREN_THERMOSTAT, "children's bedroom thermostat", 19.0));
         rulesManager.addRule(sleepingTrigger);
     }

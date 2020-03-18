@@ -9,7 +9,7 @@
     <h1>Intelligible IoT Control Panel</h1>
     <div class="block">
         <h2>Use case</h2>
-        <table>
+        <table id="use_case_table">
             <thead>
             <tr>
                 <td>Rules</td>
@@ -27,14 +27,31 @@
                 <td id="state_sets">
                 </td>
                 <td>
-                    <select size="7">
-                        <option id="preset_training">Training</option>
-                        <option id="preset_uc1">Use Case 1</option>
-                        <option id="preset_uc2">Use Case 2</option>
-                        <option id="preset_uc3">Use Case 3</option>
-                        <option id="preset_uc4">Use Case 4</option>
-                        <option id="preset_uc5">Use Case 5</option>
-                        <option id="preset_uc6">Use Case 6</option>
+                    <select id="preset" size="24">
+                        <option>training_t1</option>
+                        <option>training_t2</option>
+                        <option>training_f3</option>
+                        <option>training_f4</option>
+                        <option>uc_1_t1</option>
+                        <option>uc_1_t2</option>
+                        <option>uc_1_f3</option>
+                        <option>uc_1_f4</option>
+                        <option>uc_2_t1</option>
+                        <option>uc_2_t2</option>
+                        <option>uc_2_f3</option>
+                        <option>uc_2_f4</option>
+                        <option>uc_3_t1</option>
+                        <option>uc_3_t2</option>
+                        <option>uc_3_f3</option>
+                        <option>uc_3_f4</option>
+                        <option>uc_4_t1</option>
+                        <option>uc_4_t2</option>
+                        <option>uc_4_f3</option>
+                        <option>uc_4_f4</option>
+                        <option>uc_5_t1</option>
+                        <option>uc_5_t2</option>
+                        <option>uc_5_f3</option>
+                        <option>uc_5_f4</option>
                     </select>
                 </td>
             </tr>

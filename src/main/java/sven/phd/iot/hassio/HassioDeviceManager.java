@@ -145,7 +145,7 @@ public class HassioDeviceManager implements EventListener {
                 } else if(entity_id.contains("temperature_measurement")) {
                     device = new HassioSensor(entity_id, friendlyName);
                 } else if(entity_id.contains("battery")) { // battery_level
-                    device = new HassioBattery(entity_id, friendlyName, 2400.0);
+                    device = new HassioBattery(entity_id, friendlyName);
                // } else if(entity_id.contains("battery")) {
               //      device = new HassioSensor(entity_id, friendlyName);
                 } else if(entity_id.contains("_coordinate")) {

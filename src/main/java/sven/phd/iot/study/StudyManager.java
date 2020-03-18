@@ -1,13 +1,10 @@
 package sven.phd.iot.study;
 
-import org.dom4j.rule.RuleManager;
-import org.junit.Rule;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.rules.RulesManager;
-import sven.phd.iot.rules.triggers.NeverTrigger;
 import sven.phd.iot.study.cases.*;
 
 import java.util.*;
@@ -39,12 +36,16 @@ public class StudyManager {
         this.ruleSets.put("light_rules", new LightRules());
         this.ruleSets.put("living_temperature", new LivingTempRules());
         this.ruleSets.put("parent_temperature", new ParentTempRules());
-        this.ruleSets.put("routine_rules", new WeekdayRoutineRules());
+        this.ruleSets.put("routine_rules", new RoutineRules());
         this.ruleSets.put("shower_temperature", new ShowerTempRules());
         this.ruleSets.put("tv_rules", new TVRules());
         this.ruleSets.put("security_rules", new SecurityRules());
-        this.ruleSets.put("cleaning_rules", new CleaningRules());
+        this.ruleSets.put("cleaning_start", new CleaningRules());
+        this.ruleSets.put("cleaning_stop", new CleaningStopRules());
         this.ruleSets.put("blind_rules", new BlindRules());
+        this.ruleSets.put("light_simple", new LightSimpleRules());
+        this.ruleSets.put("smoke", new SmokeRules());
+        this.ruleSets.put("smoke_advanced", new SmokeAdvancedRules());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -52,34 +53,45 @@ public class StudyManager {
         this.deviceSets.put("light_devices", new LightDevices());
         this.deviceSets.put("living_temperature", new LivingTempDevices());
         this.deviceSets.put("parent_temperature", new ParentTempDevices());
-        this.deviceSets.put("routine_devices", new WeekdayRoutineDevices());
+        this.deviceSets.put("routine_devices", new RoutineDevices());
         this.deviceSets.put("shower_temperature", new ShowerTempDevices());
-        this.deviceSets.put("virtual_sun", new VirtualSun());
+        this.deviceSets.put("sun", new VirtualSun());
         this.deviceSets.put("tv_devices", new TVDevices());
         this.deviceSets.put("security_devices", new SecurityDevices());
         this.deviceSets.put("cleaning_devices", new CleaningDevices());
         this.deviceSets.put("blind_devices", new BlindDevices());
-        this.deviceSets.put("virtual_weather", new WeatherDevices());
+        this.deviceSets.put("weather", new WeatherDevices());
+        this.deviceSets.put("light_simple", new LightSimpleDevices());
+        this.deviceSets.put("smoke", new SmokeDevices());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
         this.stateSets.put("children_temperature", new ChildrenTempStates());
-        this.stateSets.put("light_states", new LightStates());
-        this.stateSets.put("living_temperature", new LivingTempStates());
+        this.stateSets.put("light_off", new LightStates());
+        this.stateSets.put("light_on", new LightStatesOn());
+        this.stateSets.put("living_temperature_off", new LivingTempStates());
+        this.stateSets.put("living_temperature_on", new LivingTempOnStates());
         this.stateSets.put("parent_temperature", new ParentTempStates());
-        this.stateSets.put("routine_devices", new WeekDayRoutineStates());
+        this.stateSets.put("routine_workday", new RoutineWorkingStates());
+        this.stateSets.put("routine_weekend", new RoutineWeekendStates());
+        this.stateSets.put("routine_home", new RoutineHomeStates());
         this.stateSets.put("shower_temperature", new ShowerTempStates());
         this.stateSets.put("sun_day_night_day", new VirtualSunStates());
         this.stateSets.put("sun_night_day_night", new VirtualSunStatesNight());
         this.stateSets.put("tv_news", new TVNewsStates());
         this.stateSets.put("tv_sports", new TVSportsStates());
+        this.stateSets.put("tv_sports_late", new TVSportsLateStates());
         this.stateSets.put("tv_movies", new TVMovieStates());
         this.stateSets.put("security_states", new SecurityStates());
-        this.stateSets.put("cleaning_states", new CleaningStates());
+        this.stateSets.put("cleaning_idle", new CleaningStates());
+        this.stateSets.put("cleaning_ongoing", new CleaningOngoingStates());
         this.stateSets.put("blind_states", new BlindStates());
         this.stateSets.put("weather_rain_states", new WeatherRainStates());
         this.stateSets.put("weather_clear_states", new WeatherClearStates());
         this.stateSets.put("weather_windy_states", new WeatherWindyStates());
+        this.stateSets.put("light_simple", new LightSimpleStates());
+        this.stateSets.put("smoke_idle", new SmokeIdleStates());
+        this.stateSets.put("smoke_smoke", new SmokeSmokeStates());
     }
 
     public List<String> getRuleSet() {

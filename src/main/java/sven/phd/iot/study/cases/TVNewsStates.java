@@ -21,9 +21,10 @@ public class TVNewsStates extends StudyStateSet {
     public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
         SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
         relativeTime.add(Calendar.MINUTE, 150);
-
+        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Married at first sight", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
+        relativeTime.add(Calendar.MINUTE, 90);
         SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "The News", relativeTime.getTime(), new HassioTVGuideAttributes("news")));
         relativeTime.add(Calendar.MINUTE, 45);
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
+        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "The Walking Dead", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
     }
 }

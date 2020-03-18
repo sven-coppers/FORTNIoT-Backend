@@ -14,11 +14,11 @@ public class ParentTempRules extends StudyRuleSet {
         nobodyHomeTrigger.addAction(new ThermostatStateAction(ParentTempDevices.BEDROOM_MASTER_THERMOSTAT, "master bedroom thermostat", 15.0));
         rulesManager.addRule(nobodyHomeTrigger);
 
-        Trigger eveningTrigger = new StateTrigger("rule.evening_parents", WeekdayRoutineDevices.ROUTINE, "evening", "evening");
+        Trigger eveningTrigger = new StateTrigger("rule.evening_parents", RoutineDevices.ROUTINE, "evening", "evening");
         eveningTrigger.addAction(new ThermostatStateAction(ParentTempDevices.BEDROOM_MASTER_THERMOSTAT, "master bedroom thermostat", 20.0));
         rulesManager.addRule(eveningTrigger);
 
-        Trigger sleepingTrigger = new StateTrigger("rule.sleeping_parents", WeekdayRoutineDevices.ROUTINE, "sleeping", "everyone is sleeping");
+        Trigger sleepingTrigger = new StateTrigger("rule.sleeping_parents", RoutineDevices.ROUTINE, "sleeping", "everyone is sleeping");
         sleepingTrigger.addAction(new ThermostatStateAction(ParentTempDevices.BEDROOM_MASTER_THERMOSTAT, "bedroom thermostat", 19.0));
         rulesManager.addRule(sleepingTrigger);
     }

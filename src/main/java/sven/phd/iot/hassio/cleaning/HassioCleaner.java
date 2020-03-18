@@ -20,11 +20,11 @@ public class HassioCleaner extends HassioDevice {
     private int depletionMinutesPerProcent;
     private int chargingMinutesPerProcent;
 
-    public HassioCleaner(String entityID, String friendlyName, String batteryID) {
+    public HassioCleaner(String entityID, String friendlyName, String batteryID, int depletionMinutesPerProcent, int chargingMinutesPerProcent) {
         super(entityID, friendlyName);
         this.batteryID = batteryID;
-        this.depletionMinutesPerProcent = 1;
-        this.chargingMinutesPerProcent = 3;
+        this.depletionMinutesPerProcent = depletionMinutesPerProcent;
+        this.chargingMinutesPerProcent = chargingMinutesPerProcent;
     }
 
     @Override

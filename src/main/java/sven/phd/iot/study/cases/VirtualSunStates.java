@@ -17,11 +17,11 @@ public class VirtualSunStates extends StudyStateSet {
 
         HassioSunAttributes sunAttributes = new HassioSunAttributes(30.0f, true);
 
-        relativeTime.add(Calendar.HOUR, 2);
+        relativeTime.add(Calendar.HOUR, 3);
         sunAttributes.nextNoon = relativeTime.getTime();
-        relativeTime.add(Calendar.HOUR, 5);
+        relativeTime.add(Calendar.HOUR, 6);
         sunAttributes.nextSetting = relativeTime.getTime();
-        relativeTime.add(Calendar.HOUR, 5);
+        relativeTime.add(Calendar.HOUR, 6);
         sunAttributes.nextMidnight = relativeTime.getTime();
         relativeTime.add(Calendar.HOUR, 6);
         sunAttributes.nextRising = relativeTime.getTime();

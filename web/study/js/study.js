@@ -25,6 +25,94 @@ $("#update_predictions").click(function() {
     });
 });
 
+$("select#preset"). change(function(){
+    let selection = $(this). children("option:selected"). val();
+
+    clearUseCaseSets();
+
+    if(selection.indexOf("training") != -1) {
+        selectRules(["light_simple", "smoke"]);
+        selectDevices(["light_simple", "smoke", "sun"]);
+
+        if (selection.indexOf("t1") != -1) {
+            selectStates(["light_simple", "smoke_idle", "sun_day_night_day"]);
+        } else if (selection.indexOf("t2") != -1) {
+            selectStates(["light_simple", "smoke_smoke", "sun_night_day_night"]);
+        } else if (selection.indexOf("f3") != -1) {
+            selectStates(["light_simple", "smoke_idle", "sun_night_day_night"]);
+        } else if (selection.indexOf("f4") != -1) {
+            selectStates(["light_simple", "smoke_smoke", "sun_day_night_day"]);
+        }
+    } else if(selection.indexOf("uc_1") != -1) {
+        selectRules(["cleaning_start", "cleaning_stop"]);
+        selectDevices(["cleaning_devices", "routine_devices"]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates(["cleaning_ongoing", "routine_workday"]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates(["cleaning_idle", "routine_workday"]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates(["cleaning_ongoing", "routine_workday"]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates(["cleaning_idle", "routine_weekend"]);
+        }
+    }  else if(selection.indexOf("uc_2") != -1) {
+        selectRules(["tv_rules"]);
+        selectDevices(["light_devices", "routine_devices", "tv_devices"]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates(["light_off", "routine_workday", "tv_news"]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates(["light_off", "routine_workday", "tv_sports"]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates(["light_on", "routine_home", "tv_movies"]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates(["light_on", "routine_weekend", "tv_sports_late"]);
+        }
+    }  else if(selection.indexOf("uc_3") != -1) {
+        selectRules(["living_temperature"]);
+        selectDevices(["living_temperature", "routine_devices"]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates(["living_temperature_off", "routine_workday"]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates(["living_temperature_off", "routine_workday"]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates(["living_temperature_on", "routine_weekend"]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates(["living_temperature_on", "routine_weekend"]);
+        }
+    }  else if(selection.indexOf("uc_4") != -1) {
+        selectRules(["blind_rules", "light_rules"]);
+        selectDevices(["blind_devices", "light_devices", "sun", "weather"]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates(["blind_states", "light_on", "sun_day_night_day", "weather_clear_states"]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates(["blind_states", "light_off", "sun_night_day_night", "weather_windy_states"]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates(["blind_states", "light_on", "sun_day_night_day", "weather_clear_states"]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates(["blind_states", "light_off", "sun_night_day_night", "weather_windy_states"]);
+        }
+    }  else if(selection.indexOf("uc_5") != -1) {
+        selectRules(["security_rules", "smoke_advanced"]);
+        selectDevices(["routine_devices", "security_devices", "smoke"]);
+
+        if(selection.indexOf("t1") != -1) {
+            selectStates(["routine_workday", "security_states", "smoke_idle"]);
+        } else if(selection.indexOf("t2") != -1) {
+            selectStates(["routine_weekend", "security_states", "smoke_idle"]);
+        } else if(selection.indexOf("f3") != -1) {
+            selectStates(["routine_home", "security_states", "smoke_smoke"]);
+        } else if(selection.indexOf("f4") != -1) {
+            selectStates(["routine_workday", "security_states", "smoke_idle"]);
+        }
+    } else {
+        console.error("unknwon preset: " + selection);
+    }
+});
+
 function refresh() {
     this.refreshDevices();
     this.refreshRules();
@@ -214,19 +302,26 @@ function refreshStudy() {
 
         // Select
         selectRules(data["rule_set"]);
-
-        for(let deviceSetSelection of data["device_set"]) {
-            $('#device_set_' + deviceSetSelection).prop('checked', true);
-        }
-        for(let stateSetSelection of data["state_set"]) {
-            $('#state_set_' + stateSetSelection).prop('checked', true);
-        }
+        selectDevices(data["device_set"]);
+        selectStates(data["state_set"]);
     });
 }
 
 function selectRules(rules) {
     for(let rulSetSelection of rules) {
         $('#rule_set_' + rulSetSelection).prop('checked', true);
+    }
+}
+
+function selectDevices(devices) {
+    for(let deviceSetSelection of devices) {
+        $('#device_set_' + deviceSetSelection).prop('checked', true);
+    }
+}
+
+function selectStates(states) {
+    for(let stateSetSelection of states) {
+        $('#state_set_' + stateSetSelection).prop('checked', true);
     }
 }
 
@@ -312,4 +407,18 @@ function timeToString(date) {
     let minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
 
     return hours + ":" + minutes;
+}
+
+function clearUseCaseSets() {
+    $.each($("#rule_sets input"), function () {
+        $(this).prop('checked', false);
+    });
+
+    $.each($("#device_sets input"), function () {
+        $(this).prop('checked', false);
+    });
+
+    $.each($("#state_sets input"), function () {
+        $(this).prop('checked', false);
+    });
 }

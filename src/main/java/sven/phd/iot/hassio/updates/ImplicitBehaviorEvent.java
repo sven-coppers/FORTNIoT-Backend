@@ -16,6 +16,13 @@ public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
     @JsonIgnore private List<String> actionDevicesIDs;
     @JsonIgnore private List<HassioState> actionStates;
 
+    public ImplicitBehaviorEvent(String ruleID, Date datetime) {
+        super(ruleID, datetime);
+        triggerDevicesIDs = new ArrayList<>();
+        actionDevicesIDs = new ArrayList<>();
+        actionStates = new ArrayList<>();
+    }
+
     public ImplicitBehaviorEvent(Date datetime) {
         super(RulesManager.RULE_IMPLICIT_BEHAVIOR, datetime);
         triggerDevicesIDs = new ArrayList<>();

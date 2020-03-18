@@ -8,7 +8,7 @@ import sven.phd.iot.study.StudyDeviceSet;
 
 import java.util.ArrayList;
 
-public class WeekdayRoutineDevices extends StudyDeviceSet {
+public class RoutineDevices extends StudyDeviceSet {
     public static final String PEOPLE_MOM                      = "person.mom";
     public static final String PEOPLE_DAD                      = "person.dad";
     public static final String PEOPLE_HOME_COUNTER             = "sensor.people_home_counter";

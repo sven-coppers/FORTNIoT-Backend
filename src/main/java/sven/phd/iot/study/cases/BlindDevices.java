@@ -13,7 +13,7 @@ public class BlindDevices extends StudyDeviceSet {
 
     @Override
     public void createDevices(ArrayList<HassioDevice> devices) {
-        devices.add(new HassioBlind(LIVING_BLINDS, "Blinds"));
+        devices.add(new HassioBlind(LIVING_BLINDS, "Rolling shutter"));
      //   devices.add(new HassioBlind(KITCHEN_BLINDS, "Kitchen blinds"));
     }
 }

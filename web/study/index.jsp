@@ -8,6 +8,26 @@
 <body>
     <h1>Intelligible IoT Control Panel</h1>
     <div class="block">
+        <h2>Experiment</h2>
+        <label>Participant: <input type="text" id="experiment_participant" value="P" /></label>
+        <label>Group: <input type="text" id="experiment_group" value="" /></label>
+        <button id="start_experiment">Start</button>
+        <button class="next_experiment">Next</button>
+        <!--<button id="stop_experiment">Stop</button> -->
+        <table id="task_table">
+            <thead>
+            <tr>
+                <td class="status"></td>
+                <td class="identifier">Task</td>
+                <td>Facilitator</td>
+                <td>Participant</td>
+            </tr>
+            </thead>
+            <tbody id="task_table_body">
+            </tbody>
+        </table>
+    </div>
+    <div class="block">
         <h2>Use case</h2>
         <table id="use_case_table">
             <thead>
@@ -27,37 +47,13 @@
                 <td id="state_sets">
                 </td>
                 <td>
-                    <select id="preset" size="24">
-                        <option>training_t1</option>
-                        <option>training_t2</option>
-                        <option>training_f3</option>
-                        <option>training_f4</option>
-                        <option>uc_1_t1</option>
-                        <option>uc_1_t2</option>
-                        <option>uc_1_f3</option>
-                        <option>uc_1_f4</option>
-                        <option>uc_2_t1</option>
-                        <option>uc_2_t2</option>
-                        <option>uc_2_f3</option>
-                        <option>uc_2_f4</option>
-                        <option>uc_3_t1</option>
-                        <option>uc_3_t2</option>
-                        <option>uc_3_f3</option>
-                        <option>uc_3_f4</option>
-                        <option>uc_4_t1</option>
-                        <option>uc_4_t2</option>
-                        <option>uc_4_f3</option>
-                        <option>uc_4_f4</option>
-                        <option>uc_5_t1</option>
-                        <option>uc_5_t2</option>
-                        <option>uc_5_f3</option>
-                        <option>uc_5_f4</option>
-                    </select>
+                    <select id="preset" size="20"></select>
                 </td>
             </tr>
             </tbody>
         </table>
         <button id="apply">Apply</button>
+        <button id="export">Export</button>
     </div>
     <div class="block">
         <h2>Predictions</h2>

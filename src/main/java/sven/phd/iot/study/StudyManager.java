@@ -1,189 +1,140 @@
 package sven.phd.iot.study;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.hassio.HassioDevice;
-import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
-import sven.phd.iot.rules.RulesManager;
-import sven.phd.iot.study.cases.*;
+import sven.phd.iot.scenarios.Exporter;
 
 import java.util.*;
 
 public class StudyManager {
-    private final HassioDeviceManager deviceManager;
-    private final HassioStateScheduler stateScheduler;
-    private final RulesManager rulesManager;
-    private ContextManager contextManager;
+    private static String SURVEY_INFORMED_CONSENT = "https://docs.google.com/forms/d/e/1FAIpQLSdx4zu-15b8tG7kr7p1xO2Gs5dmpD5vqS_-OJ6r_sm8kUkUvA/viewform?entry.1409557049=";
+    private static String SURVEY_DEMOGRAPHY = "https://docs.google.com/forms/d/e/1FAIpQLSd_PQYBxpwPbGIsi_Lo8RBlPUUiA_Dq-T6rDUM2tmr8-ciVuQ/viewform?usp=pp_url&entry.1409557049=";
+    private static String SURVEY_WHAT = "https://docs.google.com/forms/d/e/1FAIpQLSdAb_UyUtclY6BN4VqOVfCGdw2yp70TOk_zttVyk4VYIZakWg/viewform?usp=pp_url&entry.1409557049=";
+    private static String SURVEY_TRUST = "https://docs.google.com/forms/d/e/1FAIpQLSfs0sTrEZTTm3aFRHxdFvcz1JJOWJWRsZnjOyxFOkay9dEkjQ/viewform?usp=pp_url&entry.1409557049=";
+    private static String SURVEY_USE_CASE_END = "https://docs.google.com/forms/d/e/1FAIpQLSdeYvKCC1OFaABr5HBzgkZ6I0hRiGMOpO1v97C2GmXZ9SHilQ/viewform?usp=pp_url&entry.1409557049=";
+    private static String SURVEY_CLOSING = "https://docs.google.com/forms/d/e/1FAIpQLSfRnR_ScUBngixG9RdMUzrAuXluqFhewcNS25bHc39Hzc5QJQ/viewform?usp=pp_url&entry.1409557049=";
+    private static String TRAINING_A = "https://drive.google.com/file/d/18An-8zEWz5qkSdq9UAFYQCO-N0_XdxQ5/view?usp=sharing";
+    private static String TRAINING_B = "https://drive.google.com/file/d/188kjcFIKB61qDbLjH22ysdzv0zbqlafR/view?usp=sharing";
+    private static String PROTOTYPE = "https://research.edm.uhasselt.be/~scoppers/iot/prototype.php";
 
-    private HashMap<String, StudyDeviceSet> deviceSets;
-    private HashMap<String, StudyRuleSet> ruleSets;
-    private HashMap<String, StudyStateSet> stateSets;
+    private List<Task> tasks;
+    private HashMap<String, String> timings;
+    private Date lastStart;
 
-    private List<String> activeDeviceSets;
-    private List<String> activeRuleSets;
-    private List<String> activeStateSets;
-
-    public StudyManager(ContextManager contextManager) {
-        System.out.println("StudyManager - Initiating...");
-        this.contextManager = contextManager;
-        this.deviceManager = contextManager.getHassioDeviceManager();
-        this.stateScheduler = deviceManager.getStateScheduler();
-        this.rulesManager = contextManager.getRulesManager();
-
-        this.activeRuleSets = new ArrayList<>();
-        this.ruleSets = new HashMap<>();
-        this.ruleSets.put("children_temperature", new ChildrenTempRules());
-        this.ruleSets.put("light_rules", new LightRules());
-        this.ruleSets.put("living_temperature", new LivingTempRules());
-        this.ruleSets.put("parent_temperature", new ParentTempRules());
-        this.ruleSets.put("routine_rules", new RoutineRules());
-        this.ruleSets.put("shower_temperature", new ShowerTempRules());
-        this.ruleSets.put("tv_rules", new TVRules());
-        this.ruleSets.put("security_rules", new SecurityRules());
-        this.ruleSets.put("cleaning_start", new CleaningRules());
-        this.ruleSets.put("cleaning_stop", new CleaningStopRules());
-        this.ruleSets.put("blind_rules", new BlindRules());
-        this.ruleSets.put("light_simple", new LightSimpleRules());
-        this.ruleSets.put("smoke", new SmokeRules());
-        this.ruleSets.put("smoke_advanced", new SmokeAdvancedRules());
-
-        this.activeDeviceSets = new ArrayList<>();
-        this.deviceSets = new HashMap<>();
-        this.deviceSets.put("children_temperature", new ChildrenTempDevices());
-        this.deviceSets.put("light_devices", new LightDevices());
-        this.deviceSets.put("living_temperature", new LivingTempDevices());
-        this.deviceSets.put("parent_temperature", new ParentTempDevices());
-        this.deviceSets.put("routine_devices", new RoutineDevices());
-        this.deviceSets.put("shower_temperature", new ShowerTempDevices());
-        this.deviceSets.put("sun", new VirtualSun());
-        this.deviceSets.put("tv_devices", new TVDevices());
-        this.deviceSets.put("security_devices", new SecurityDevices());
-        this.deviceSets.put("cleaning_devices", new CleaningDevices());
-        this.deviceSets.put("blind_devices", new BlindDevices());
-        this.deviceSets.put("weather", new WeatherDevices());
-        this.deviceSets.put("light_simple", new LightSimpleDevices());
-        this.deviceSets.put("smoke", new SmokeDevices());
-
-        this.activeStateSets = new ArrayList<>();
-        this.stateSets = new HashMap<>();
-        this.stateSets.put("children_temperature", new ChildrenTempStates());
-        this.stateSets.put("light_off", new LightStates());
-        this.stateSets.put("light_on", new LightStatesOn());
-        this.stateSets.put("living_temperature_off", new LivingTempStates());
-        this.stateSets.put("living_temperature_on", new LivingTempOnStates());
-        this.stateSets.put("parent_temperature", new ParentTempStates());
-        this.stateSets.put("routine_workday", new RoutineWorkingStates());
-        this.stateSets.put("routine_weekend", new RoutineWeekendStates());
-        this.stateSets.put("routine_home", new RoutineHomeStates());
-        this.stateSets.put("shower_temperature", new ShowerTempStates());
-        this.stateSets.put("sun_day_night_day", new VirtualSunStates());
-        this.stateSets.put("sun_night_day_night", new VirtualSunStatesNight());
-        this.stateSets.put("tv_news", new TVNewsStates());
-        this.stateSets.put("tv_sports", new TVSportsStates());
-        this.stateSets.put("tv_sports_late", new TVSportsLateStates());
-        this.stateSets.put("tv_movies", new TVMovieStates());
-        this.stateSets.put("security_states", new SecurityStates());
-        this.stateSets.put("cleaning_idle", new CleaningStates());
-        this.stateSets.put("cleaning_ongoing", new CleaningOngoingStates());
-        this.stateSets.put("blind_states", new BlindStates());
-        this.stateSets.put("weather_rain_states", new WeatherRainStates());
-        this.stateSets.put("weather_clear_states", new WeatherClearStates());
-        this.stateSets.put("weather_windy_states", new WeatherWindyStates());
-        this.stateSets.put("light_simple", new LightSimpleStates());
-        this.stateSets.put("smoke_idle", new SmokeIdleStates());
-        this.stateSets.put("smoke_smoke", new SmokeSmokeStates());
+    public StudyManager() {
+        this.tasks = new ArrayList<>();
+        this.timings = new HashMap<>();
     }
 
-    public List<String> getRuleSet() {
-        return this.activeRuleSets;
-    }
-    public List<String> getDeviceSet() {
-        return this.activeDeviceSets;
-    }
-    public List<String> getStateSet() {
-        return this.activeStateSets;
-    }
+    public void start(String participantID, String group) {
+        this.tasks.clear();
+        this.timings.clear();
 
-    public List<String> getRuleSetOptions() { return new ArrayList<>(this.ruleSets.keySet()); }
-    public List<String> getDeviceSetOptions() {
-        return new ArrayList<>(this.deviceSets.keySet());
-    }
-    public List<String> getStateSetOptions() {
-        return new ArrayList<>(this.stateSets.keySet());
-    }
+        this.timings.put("group", group);
+        this.timings.put("participant", participantID);
 
-    public void setDeviceSet(List<String> deviceSets) {
-        System.out.print("Device set: ");
-        this.printStringList(deviceSets);
+        this.tasks.add(new Task("vpn", false, "Start the VPN", null, null));
+        this.tasks.add(new Task("sync", false, "Enable syncing the cache in WIN_SCP", null, null));
+        this.tasks.add(new Task("engine", false, (group.equals("A")? "Start" : "Stop") + " the prediction engine", null, null));
+        this.tasks.add(new Task("intro",false, "In this experiment, we ask questions about the behavior of fictive smart homes. You will use our prototype visualizations to come up with answers to these questions. ", null, null));
+        this.tasks.add(new Task("consent",true, "Fill in the informed consent", SURVEY_INFORMED_CONSENT + participantID, null));
+        this.tasks.add(new Task("demographics",true, "Fill in the demographics", getSurveyDemography(participantID, group), null));
+        this.tasks.add(new Task("training",true, "Read the training document", group.equals("A")? TRAINING_A : TRAINING_B, null));
+        this.tasks.add(new Task("prototype",true, "Share the prototype", PROTOTYPE, "tr_v1"));
 
-        this.activeDeviceSets.clear();
-
-        this.deviceManager.setAllDevicesAvailable(false);
-        this.deviceManager.setAllDevicesEnabled(false);
-        ArrayList<HassioDevice> devices = new ArrayList<>();
-
-        for(String deviceSet: deviceSets) {
-            this.activeDeviceSets.add(deviceSet);
-            this.deviceSets.get(deviceSet).createDevices(devices);
+        // Training
+        this.tasks.add(new Task("tr_what", false, "What will happen?", getWhatSurvey(participantID, group, "tr"), null));
+        for(int i = 1; i <= 4; i++) {
+            this.tasks.add(new Task("tr_v" + i, false, "Trust question " + i, getSurveyTrust(participantID, group, "tr", "v" + i), "tr_v" + i));
         }
 
-        for(HassioDevice device: devices) {
-            this.deviceManager.addDevice(device);
-            device.setAvailable(true);
-            device.setEnabled(true);
+        // Full use cases
+        List<Integer> useCases = new ArrayList<>();
+
+        for(int i = 1; i <= 4; i++) {
+            useCases.add(i);
         }
+
+        Collections.shuffle(useCases);
+
+        for(int i = 0; i < useCases.size(); i++) {
+            String useCase = "uc" + useCases.get(i);
+
+            List<Integer> trustQuestions = new ArrayList<>();
+            trustQuestions.addAll(useCases);
+            Collections.shuffle(trustQuestions);
+            String preset = useCase + "_v1";
+
+            this.tasks.add(new Task(useCase + "_what", false, "What will happen?", getWhatSurvey(participantID, group, useCase), preset));
+
+            for(int j = 0; j < trustQuestions.size(); j++) {
+                String question = "v" + trustQuestions.get(j);
+                preset = useCase + "_" + question;
+
+                this.tasks.add(new Task(useCase + "_" + question, false, "Trust question " + trustQuestions.get(j), getSurveyTrust(participantID, group, useCase, question), preset));
+            }
+
+            this.tasks.add(new Task(useCase + "_closing", false, "Use Case Closing", getUseCaseEnd(participantID, group, useCase), null));
+        }
+
+        this.tasks.add(new Task("closing", true, "Fill in the closing survey", getClosing(participantID, group), null));
+
+        this.tasks.get(0).ongoing = true;
+        this.lastStart = new Date();
     }
 
-    public void setRuleSet(List<String> ruleSets) {
-        System.out.print("Rule sets: ");
-        this.printStringList(ruleSets);
-        
-        this.activeRuleSets.clear();
+    private String getSurveyDemography(String participant, String group) {
+        return SURVEY_DEMOGRAPHY + participant + "&entry.1889097042=" + group;
+    }
 
-        this.rulesManager.setAllRulesAvailable(false);
-        this.rulesManager.setAllRulesEnabled(false);
+    private String getWhatSurvey(String participant, String group, String useCase) {
+        return SURVEY_WHAT + participant + "&entry.574035086=" + group + "&entry.1542649745=" + useCase;
+    }
 
-        for(String rulSet: ruleSets) {
-            this.activeRuleSets.add(rulSet);
-            this.ruleSets.get(rulSet).createRules(this.rulesManager);
+    private String getSurveyTrust(String participant, String group, String useCase, String question) {
+        return SURVEY_TRUST + participant + "&entry.574035086=" + group + "&entry.1542649745=" + useCase + "&entry.642607458=" + question;
+    }
+
+    private String getUseCaseEnd(String participant, String group, String useCase) {
+        return SURVEY_USE_CASE_END + participant + "&entry.1992576792=" + group + "&entry.519341768=" + useCase;
+    }
+
+    private String getClosing(String participant, String group) {
+        return SURVEY_CLOSING + participant + "&entry.720023718=" + group;
+    }
+
+    public void next() {
+        for(int i = 0; i < this.tasks.size(); i++) {
+            Task task = this.tasks.get(i);
+
+            if(task.ongoing) {
+                // Modify old task
+                task.completed = true;
+                task.ongoing = false;
+
+                // LOG TIME
+                long timePassed = new Date().getTime() - lastStart.getTime();
+                timings.put(task.taskID, "" + timePassed);
+
+                // Set new task
+                if(i < this.tasks.size() - 1) {
+                    this.tasks.get(i + 1).ongoing = true;
+                    lastStart = new Date();
+
+                    if(this.tasks.get(i + 1).preset != null) {
+                        ContextManager.getInstance().getScenarioManager().setPreset(this.tasks.get(i + 1).preset);
+                        ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();
+                        Exporter.export();
+                    }
+                } else { // There are no new tasks
+                    LogWriter.write(timings);
+                }
+
+                break;
+            }
         }
     }
 
-    public void setStateSet(List<String> stateSets) {
-        this.deviceManager.clearLogs();
-        this.stateScheduler.clearScheduledStates();
-        this.activeStateSets.clear();
-
-        System.out.print("State sets: ");
-        this.printStringList(stateSets);
-        Calendar relativeTime = Calendar.getInstance();
-        Date startDate = new Date();
-
-        for(String stateSet: stateSets) {
-            this.activeStateSets.add(stateSet);
-
-            relativeTime.setTime(startDate);
-            relativeTime.add(Calendar.MINUTE, -240); // Begin 4 uur
-
-            this.stateSets.get(stateSet).setInitialStates(this.deviceManager, relativeTime.getTime());
-
-            relativeTime.setTime(startDate);
-            relativeTime.add(Calendar.MINUTE, 10); // 10 minuten in de toekomst
-
-            this.stateSets.get(stateSet).scheduleFutureStates(this.stateScheduler, relativeTime);
-        }
-
-    }
-
-    private void printStringList(List<String> stringlist) {
-        if(stringlist.size() > 0) {
-            System.out.print(stringlist.get(0));
-        }
-
-        for(int i = 1; i < stringlist.size(); i++) {
-            System.out.print(", " + stringlist.get(i));
-        }
-
-        System.out.println();
+    public List<Task> getTasks() {
+        return this.tasks;
     }
 }

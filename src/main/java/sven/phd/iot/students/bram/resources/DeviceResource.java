@@ -99,7 +99,7 @@ public class DeviceResource {
      * Get all devices in the system
      * @return
      */
-    private static String getAllDevices() {
+    public static String getAllDevices() {
         Map<String, HassioDevice> devices = ContextManager.getInstance().getHassioDeviceManager().getDevices();
 
         JSONArray arr = new JSONArray();

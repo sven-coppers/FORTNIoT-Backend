@@ -58,3 +58,42 @@ table:not(#use_case_table) tbody tr:hover td {
 .checkbox_option {
     display: block;
 }
+
+button {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#task_table a {
+    color: blue;
+}
+
+#task_table tr {
+    color: #999999;
+}
+
+#task_table tr.completed {
+    color: darkgreen;
+}
+
+#task_table tr.ongoing {
+    font-weight: bold;
+    color: black;
+}
+
+#task_table td {
+    width: 50%;
+}
+
+#task_table td.status {
+    width: 15px;
+}
+
+#task_table td.identifier {
+    width: 30px;
+}
+
+.loading {
+    font-style: italic;
+    color: red;
+}

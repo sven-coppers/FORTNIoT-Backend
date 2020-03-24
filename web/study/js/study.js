@@ -9,9 +9,42 @@ $(document).on('submit','form',function(){
 });
 
 
+$("#start_experiment").click(function() {
+    startExperiment();
+    $(this).attr('disabled', true);
+});
+
+
+$(".next_experiment").click(function() {
+    nextStep();
+});
+
+
 $("#apply").click(function() {
     applyUseCase();
+    $("#export").attr('disabled', false);
 });
+
+$("#export").click(function() {
+    exportUseCase();
+});
+
+function exportUseCase() {
+    let selection = $("select#preset").children("option:selected").val();
+
+    $("#export").attr('disabled', true);
+
+    $.ajax({
+        url:            "/intelligibleIoT/api/config/export/" + selection + "/",
+        type:           "GET",
+        headers: {
+            Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
+        }
+    }).done(function (data) {
+        refresh();
+        $("#export").attr('disabled', false);
+    });
+}
 
 $("#update_predictions").click(function() {
     $.ajax({
@@ -26,91 +59,7 @@ $("#update_predictions").click(function() {
 });
 
 $("select#preset"). change(function(){
-    let selection = $(this). children("option:selected"). val();
-
-    clearUseCaseSets();
-
-    if(selection.indexOf("training") != -1) {
-        selectRules(["light_simple", "smoke"]);
-        selectDevices(["light_simple", "smoke", "sun"]);
-
-        if (selection.indexOf("t1") != -1) {
-            selectStates(["light_simple", "smoke_idle", "sun_day_night_day"]);
-        } else if (selection.indexOf("t2") != -1) {
-            selectStates(["light_simple", "smoke_smoke", "sun_night_day_night"]);
-        } else if (selection.indexOf("f3") != -1) {
-            selectStates(["light_simple", "smoke_idle", "sun_night_day_night"]);
-        } else if (selection.indexOf("f4") != -1) {
-            selectStates(["light_simple", "smoke_smoke", "sun_day_night_day"]);
-        }
-    } else if(selection.indexOf("uc_1") != -1) {
-        selectRules(["cleaning_start", "cleaning_stop"]);
-        selectDevices(["cleaning_devices", "routine_devices"]);
-
-        if(selection.indexOf("t1") != -1) {
-            selectStates(["cleaning_ongoing", "routine_workday"]);
-        } else if(selection.indexOf("t2") != -1) {
-            selectStates(["cleaning_idle", "routine_workday"]);
-        } else if(selection.indexOf("f3") != -1) {
-            selectStates(["cleaning_ongoing", "routine_workday"]);
-        } else if(selection.indexOf("f4") != -1) {
-            selectStates(["cleaning_idle", "routine_weekend"]);
-        }
-    }  else if(selection.indexOf("uc_2") != -1) {
-        selectRules(["tv_rules"]);
-        selectDevices(["light_devices", "routine_devices", "tv_devices"]);
-
-        if(selection.indexOf("t1") != -1) {
-            selectStates(["light_off", "routine_workday", "tv_news"]);
-        } else if(selection.indexOf("t2") != -1) {
-            selectStates(["light_off", "routine_workday", "tv_sports"]);
-        } else if(selection.indexOf("f3") != -1) {
-            selectStates(["light_on", "routine_home", "tv_movies"]);
-        } else if(selection.indexOf("f4") != -1) {
-            selectStates(["light_on", "routine_weekend", "tv_sports_late"]);
-        }
-    }  else if(selection.indexOf("uc_3") != -1) {
-        selectRules(["living_temperature"]);
-        selectDevices(["living_temperature", "routine_devices"]);
-
-        if(selection.indexOf("t1") != -1) {
-            selectStates(["living_temperature_off", "routine_workday"]);
-        } else if(selection.indexOf("t2") != -1) {
-            selectStates(["living_temperature_off", "routine_workday"]);
-        } else if(selection.indexOf("f3") != -1) {
-            selectStates(["living_temperature_on", "routine_weekend"]);
-        } else if(selection.indexOf("f4") != -1) {
-            selectStates(["living_temperature_on", "routine_weekend"]);
-        }
-    }  else if(selection.indexOf("uc_4") != -1) {
-        selectRules(["blind_rules", "light_rules"]);
-        selectDevices(["blind_devices", "light_devices", "sun", "weather"]);
-
-        if(selection.indexOf("t1") != -1) {
-            selectStates(["blind_states", "light_on", "sun_day_night_day", "weather_clear_states"]);
-        } else if(selection.indexOf("t2") != -1) {
-            selectStates(["blind_states", "light_off", "sun_night_day_night", "weather_windy_states"]);
-        } else if(selection.indexOf("f3") != -1) {
-            selectStates(["blind_states", "light_on", "sun_day_night_day", "weather_clear_states"]);
-        } else if(selection.indexOf("f4") != -1) {
-            selectStates(["blind_states", "light_off", "sun_night_day_night", "weather_windy_states"]);
-        }
-    }  else if(selection.indexOf("uc_5") != -1) {
-        selectRules(["security_rules", "smoke_advanced"]);
-        selectDevices(["routine_devices", "security_devices", "smoke"]);
-
-        if(selection.indexOf("t1") != -1) {
-            selectStates(["routine_workday", "security_states", "smoke_idle"]);
-        } else if(selection.indexOf("t2") != -1) {
-            selectStates(["routine_weekend", "security_states", "smoke_idle"]);
-        } else if(selection.indexOf("f3") != -1) {
-            selectStates(["routine_home", "security_states", "smoke_smoke"]);
-        } else if(selection.indexOf("f4") != -1) {
-            selectStates(["routine_workday", "security_states", "smoke_idle"]);
-        }
-    } else {
-        console.error("unknwon preset: " + selection);
-    }
+    applyPreset();
 });
 
 function refresh() {
@@ -118,8 +67,9 @@ function refresh() {
     this.refreshRules();
     this.refreshStates();
     this.refreshConfig();
-    this.refreshStudy();
+    this.refreshUseCases();
     this.refreshPredictions();
+    this.refreshStudy();
 }
 
 $("#start_listening").click(function() { applyConfig(true); });
@@ -131,7 +81,8 @@ function applyUseCase() {
     let useCase = {
         rule_set: [],
         device_set: [],
-        state_set: []
+        state_set: [],
+        preset: null
     };
 
     $.each($("#rule_sets input"), function () {
@@ -152,10 +103,25 @@ function applyUseCase() {
         }
     });
 
+    applyUseCaseSettings(useCase);
+}
+
+function applyPreset() {
+    let useCase = {
+        rule_set: [],
+        device_set: [],
+        state_set: [],
+        preset: $("select#preset").children("option:selected").val()
+    };
+
+    applyUseCaseSettings(useCase);
+}
+
+function applyUseCaseSettings(settings) {
     $.ajax({
         url:            "/intelligibleIoT/api/study/case/",
         type:           "PUT",
-        data: JSON.stringify(useCase),
+        data: JSON.stringify(settings),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
     }).done(function (data) {
@@ -277,6 +243,58 @@ function refreshPredictions() {
 
 function refreshStudy() {
     $.ajax({
+        url:            "/intelligibleIoT/api/study/steps/",
+        type:           "GET",
+        headers: {
+            Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
+        }
+    }).done(function (data) {
+        $("#task_table_body").empty();
+
+        for (let step of data) {
+            let newRow = '';
+
+            if(step["completed"]) {
+                newRow += '<tr class="completed"><td class="status">&#10004;</td>';
+            } else if(step["ongoing"]) {
+                newRow += '<tr class="ongoing"><td class="status"><button class="next_experiment">Next</button></td>';
+            } else {
+                newRow += '<tr><td class="status"></td>';
+            }
+
+            newRow += '<td class="identifier">' + step["task_id"] + '</td>';
+
+            // Empty for facilitator?
+            if(step["for_participant"]) {
+                newRow += '<td></td>';
+            }
+
+            newRow += '<td>' + step["instruction"];
+
+            if(step["url"] != null && step["ongoing"]) {
+                newRow += '<br /><a target="_blank" href="' + step["url"] + '">link</a>';
+            }
+
+            newRow += '</td>';
+
+            // Empty for participant?
+            if(!step["for_participant"]) {
+                newRow += '<td></td>';
+            }
+
+            newRow += '</tr>';
+
+            $("#task_table_body").append(newRow);
+        }
+
+        $("#task_table_body").find(".next_experiment").click(function() {
+             nextStep();
+         });
+    });
+}
+
+function refreshUseCases() {
+    $.ajax({
         url:            "/intelligibleIoT/api/study/case/",
         type:           "GET",
         headers: {
@@ -286,6 +304,7 @@ function refreshStudy() {
         $("#rule_sets").empty();
         $("#device_sets").empty();
         $("#state_sets").empty();
+        $("select#preset").empty();
 
         // Populate
         for(let rulSetOption of data["rule_set_options"].sort()) {
@@ -300,10 +319,15 @@ function refreshStudy() {
             $("#state_sets").append('<div class="checkbox_option"><input type="checkbox" id="state_set_' + stateSetOption + '" value="state_set_' + stateSetOption + '"><label for="state_set_' + stateSetOption + '">' + stateSetOption + '</label></div>');
         }
 
+        for(let presetOption of data["preset_options"]) {
+            $("select#preset").append('<option>' + presetOption + '</option>');
+        }
+
         // Select
         selectRules(data["rule_set"]);
         selectDevices(data["device_set"]);
         selectStates(data["state_set"]);
+        document.getElementById("preset").value = data["preset"];
     });
 }
 
@@ -395,6 +419,7 @@ function applyPredictions(predictions) {
         dataType: "json",
     }).done(function (data) {
         refresh();
+        exportUseCase();
     });
 }
 
@@ -420,5 +445,31 @@ function clearUseCaseSets() {
 
     $.each($("#state_sets input"), function () {
         $(this).prop('checked', false);
+    });
+}
+
+function startExperiment() {
+    let participant = {
+        participant : $("#experiment_participant").val(),
+        group: $("#experiment_group").val()
+    };
+
+    $.ajax({
+        url:            "/intelligibleIoT/api/study/start/",
+        type:           "PUT",
+        data: JSON.stringify(participant),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+    }).done(function (data) {
+        refresh();
+    });
+}
+
+function nextStep() {
+    $.ajax({
+        url:            "/intelligibleIoT/api/study/next/",
+        type:           "GET",
+    }).done(function (data) {
+        refresh();
     });
 }

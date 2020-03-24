@@ -92,6 +92,10 @@ public class PredictionEngine {
 
         System.out.println("Predictions updated: " + future.getFutureStates().size());
 
+        // MATHIAS TESTING
+        FutureConflictDetector detector = new FutureConflictDetector();
+        future.addFutureConflict(detector.getFutureConflicts());
+
         return future;
     }
 

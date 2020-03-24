@@ -92,6 +92,21 @@ public class StudyManager {
         this.stateSets.put("light_simple", new LightSimpleStates());
         this.stateSets.put("smoke_idle", new SmokeIdleStates());
         this.stateSets.put("smoke_smoke", new SmokeSmokeStates());
+
+        // ADDING STUDY
+        ArrayList<String> rules = new ArrayList<>();
+        rules.add("light_rules");
+
+        ArrayList<String> devices = new ArrayList<>();
+        devices.add("light_devices");
+
+        ArrayList<String> states = new ArrayList<>();
+        states.add("light_off");
+        states.add("light_on");
+
+        setRuleSet(rules);
+        setDeviceSet(devices);
+        setStateSet(states);
     }
 
     public List<String> getRuleSet() {

@@ -38,5 +38,10 @@ public class LightRules extends StudyRuleSet {
         Trigger rainTrigger = new StateTrigger("rule.weather_rain_lamps", "weather.dark_sky", "light_rain", "going to rain");
         rainTrigger.addAction(new LightOnAction("flash the living led strip purple", LightDevices.LIVING_LED_STRIPS, Color.PINK, true));
         rulesManager.addRule(rainTrigger);
+
+        // Mathias test trigger
+        Trigger testTrigger = new StateTrigger("rule.test_lights", "sun.sun", "above_horizon", "TEST sun rises");
+        testTrigger.addAction(new LightOffAction("turn off living spots", LightSimpleDevices.LIVING_SPOTS));
+        rulesManager.addRule(testTrigger);
     }
 }

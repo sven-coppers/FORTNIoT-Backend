@@ -3,7 +3,7 @@ package sven.phd.iot.hassio.light;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.states.HassioAttributes;
-import sven.phd.iot.hassio.states.HassioConflictingAttribute;
+//import sven.phd.iot.hassio.states.HassioConflictingAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class HassioLightAttributes extends HassioAttributes {
      * Override equals function
      * @param other
      * @return List of attributes that aren't equal
-     */
+     *//*
     @Override
     public List<HassioConflictingAttribute> checkForConflicts(HassioLightAttributes other) {
         List<HassioConflictingAttribute> result = super.checkForConflicts(other);
@@ -89,5 +89,5 @@ public class HassioLightAttributes extends HassioAttributes {
         }
 
         return result;
-    }
+    }*/
 }

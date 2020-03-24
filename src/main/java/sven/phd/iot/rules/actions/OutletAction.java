@@ -26,4 +26,6 @@ public class OutletAction extends Action {
 
         return newStates;
     }
+
+    public String getDeviceID() { return this.deviceIdentifier; }
 }

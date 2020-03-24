@@ -49,4 +49,25 @@ public class LightOnAction extends Action {
 
         return newStates;
     }
+
+    public String getDeviceID() { return this.deviceIdentifier; }
+
+
+    @Override
+    public boolean onSameDevice(Action other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || (this.getClass() != other.getClass() && LightOffAction.class != other.getClass())) {
+            return false;
+        }
+        if (this.getClass() == other.getClass()) {
+            return this.deviceIdentifier == ((LightOnAction) other).deviceIdentifier;
+        }
+        if (LightOffAction.class == other.getClass()) {
+            return this.deviceIdentifier == ((LightOffAction) other).getDeviceID();
+        }
+
+        return false;
+    }
 }

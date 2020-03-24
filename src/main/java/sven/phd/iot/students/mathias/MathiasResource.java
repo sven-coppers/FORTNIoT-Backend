@@ -38,7 +38,7 @@ public class MathiasResource {
      * Get the conflicts in the future.
      * @return Get the conflicts in the future.
      */
-    @Path("future/")
+    @Path("conflicts/future/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<HassioConflictState> getConflictFuture() {
@@ -50,7 +50,7 @@ public class MathiasResource {
      * @param id
      * @return Get the conflicts in the future.
      */
-    @Path("future/{id}")
+    @Path("conflicts/future/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<HassioConflictState> getConflictFuture(@PathParam("id") String id) {

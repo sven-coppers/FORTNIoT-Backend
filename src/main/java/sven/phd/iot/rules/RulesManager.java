@@ -4,6 +4,7 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.triggers.NeverTrigger;
+import sven.phd.iot.students.bram.rules.BramRulesManager;
 
 import java.util.*;
 import java.util.List;

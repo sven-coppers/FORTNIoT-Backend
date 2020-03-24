@@ -22,7 +22,7 @@ public class HassioAttributes implements Serializable {
      * Override equals function
      * @param other
      * @return List of attributes that aren't equal
-     */
+     *//*
     public List<HassioConflictingAttribute> checkForConflicts(HassioLightAttributes other) {
         List<HassioConflictingAttribute> result = new ArrayList<>();
         if (this.friendlyName != other.friendlyName) {
@@ -30,5 +30,5 @@ public class HassioAttributes implements Serializable {
         }
 
         return result;
-    }
+    }*/
 }

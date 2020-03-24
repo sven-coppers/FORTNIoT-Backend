@@ -19,6 +19,10 @@ abstract public class Action {
 
     abstract public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates);
 
+    public String getDeviceID() { return ""; };
+
+    public boolean onSameDevice(Action other) { return false; }
+
     @Override
     public String toString() {
         return this.description;

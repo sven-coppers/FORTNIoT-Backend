@@ -1,7 +1,7 @@
 package sven.phd.iot.predictions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sven.phd.iot.hassio.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.HassioConflictState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 

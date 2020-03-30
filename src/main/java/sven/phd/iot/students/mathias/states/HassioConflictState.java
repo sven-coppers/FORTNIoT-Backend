@@ -1,8 +1,10 @@
-package sven.phd.iot.hassio.states;
+package sven.phd.iot.students.mathias.states;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import sven.phd.iot.hassio.states.HassioDateDeserializer;
+import sven.phd.iot.hassio.states.HassioDateSerializer;
 
 import java.util.ArrayList;
 import java.util.Date;

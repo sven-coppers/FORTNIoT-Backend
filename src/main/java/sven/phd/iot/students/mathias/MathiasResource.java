@@ -1,8 +1,7 @@
 package sven.phd.iot.students.mathias;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.hassio.states.HassioConflictState;
-import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.students.mathias.states.HassioConflictState;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

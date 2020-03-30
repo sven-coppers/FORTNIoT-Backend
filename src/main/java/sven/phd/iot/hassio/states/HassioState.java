@@ -1,5 +1,7 @@
 package sven.phd.iot.hassio.states;
 
+import sven.phd.iot.students.mathias.states.HassioConflictState;
+
 import java.util.Date;
 
 public class HassioState extends HassioAbstractState {

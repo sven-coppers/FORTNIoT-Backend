@@ -1,12 +1,12 @@
 package sven.phd.iot.students.mathias;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.hassio.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.HassioConflictState;
 //import sven.phd.iot.hassio.states.HassioConflictingAttribute;
-import sven.phd.iot.hassio.states.HassioConflictingRuleState;
-import sven.phd.iot.hassio.states.HassioContext;
+import sven.phd.iot.students.mathias.states.HassioConflictingRuleState;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
 
@@ -20,7 +20,7 @@ public class FutureConflictDetector {
     public FutureConflictDetector() {
     }
 
-    public List<HassioConflictState> getFutureConflicts() {
+    public List<HassioConflictState> getFutureConflicts(Future future) {
         List<HassioState> futureStates = ContextManager.getInstance().getStateFuture();
         List<HassioConflictState> result = new ArrayList<>();
 
@@ -29,7 +29,7 @@ public class FutureConflictDetector {
          * Should become more general => for every rule (trigger), check if it effects same device(Identifier)
          * FUTURE: Optimally you would like to look at the action contexts first, where all light actions have the same contextId!!
          */
-        List<HassioRuleExecutionEvent> futuresRuleExecutions = ContextManager.getInstance().getFutureRuleExecutions();
+        List<HassioRuleExecutionEvent> futuresRuleExecutions = future.futureExecutions;
         for (int i = 0; i < futuresRuleExecutions.size(); i++) {
             HassioRuleExecutionEvent comparingRule = futuresRuleExecutions.get(i);
             Trigger comparingTrigger = comparingRule.getTrigger();

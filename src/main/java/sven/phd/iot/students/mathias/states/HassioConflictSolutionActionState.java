@@ -16,7 +16,7 @@ public class HassioConflictSolutionActionState {
     @JsonProperty("action_id") public String action_id;
     @JsonProperty("description") public String title;
     @JsonProperty("type") public String type;
-    @JsonProperty("values") public JSONArray values;
+    @JsonProperty("values") public List<Action> values;
 
     @JsonDeserialize(using = HassioDateDeserializer.class)
     @JsonSerialize(using = HassioDateSerializer.class)
@@ -27,6 +27,6 @@ public class HassioConflictSolutionActionState {
         this.title = description;
         this.type = actionType;
         this.action_time = datetime;
-        this.values = new JSONArray();
+        this.values = new ArrayList<>();
     }
 }

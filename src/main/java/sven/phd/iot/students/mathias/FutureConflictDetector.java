@@ -17,8 +17,7 @@ import java.util.List;
 public class FutureConflictDetector {
     private List<HassioConflictState> _futureConflicts;
 
-    public FutureConflictDetector() {
-    }
+    public FutureConflictDetector() {}
 
     public List<HassioConflictState> getFutureConflicts(Future future) {
         List<HassioState> futureStates = ContextManager.getInstance().getStateFuture();

@@ -52,6 +52,8 @@
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/">mathias/</a> Hello, world</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/future">mathias/conflicts/future</a> Get the future conflicts</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/future/light.hue_color_spot_2">mathias/conflicts/future/{id}</a> Get the future conflicts of the device with {id}, e.g. 'light.hue_color_spot_2'</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/solutions/future">mathias/conflicts/solutions/future</a> Get the future conflict solutionss</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/solutions/future/light.hue_color_spot_2">mathias/conflicts/solutions/future/{id}</a> Get the future conflict solutions for the device with {id}, e.g. 'light.hue_color_spot_2'</li>
     </ul>
     </div>
   </body>

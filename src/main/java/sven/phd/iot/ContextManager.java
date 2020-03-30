@@ -3,6 +3,7 @@ package sven.phd.iot;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
+import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
 import sven.phd.iot.students.mathias.states.HassioConflictState;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
@@ -222,5 +223,23 @@ public class ContextManager {
      */
     public List<HassioConflictState> getFutureConflicts(String id) {
         return this.predictionEngine.getFuture().getFutureConflicts(id);
+    }
+
+    /*****************************************************************************************/
+    /**
+     * Get the cached version of the future conflict solutions
+     * @return
+     */
+    public List<HassioConflictSolutionState> getFutureConflictSolutions() {
+        return this.predictionEngine.getFuture().getFutureConflictSolutions();
+    }
+
+    /**
+     * Get the cached version of the future conflicts of a single device
+     * @param id
+     * @return
+     */
+    public List<HassioConflictSolutionState> getFutureConflictSolutions(String id) {
+        return this.predictionEngine.getFuture().getFutureConflictSolutions(id);
     }
 }

@@ -11,7 +11,7 @@ public class ConflictSolver {
     }
 
     /**
-     * This function checks if there are any changes to the conflict sulotions and updates the attached actions
+     * This function checks if there are any changes to the conflict solutions and updates the attached actions
      * TODO: fill in
      */
     public void updateConflictSolver(){

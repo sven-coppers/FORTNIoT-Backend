@@ -6,7 +6,7 @@ import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioEvent;
+import sven.phd.iot.students.mathias.states.HassioAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +20,17 @@ public class HassioLight extends HassioDevice {
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioLightAttributes.class);
+    }
+
+    @Override
+    public List<HassioAction> getAllActions() {
+        List<HassioAction> result = new ArrayList<>();
+        HassioAction lightOffAction = new HassioAction("LightOffAction", "Turn off light");
+        HassioAction lightOnAction = new HassioAction("LightOnAction", "Turn on light");
+        result.add(lightOffAction);
+        result.add(lightOnAction);
+
+        return result;
     }
 
     public List<HassioContext> setState(HassioState hassioState) {

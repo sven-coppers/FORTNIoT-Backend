@@ -41,7 +41,7 @@
     <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/bram/">bram/</a> Hello, world</li>
       <li><span class="method">GET</span> <a class="uri" href="api/bram/devices">bram/devices</a> Get the id and friendly name of all the devices</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/bram/devices/sun.sun">bram/devices/{id}</a> Get the id and friendly name of a particular device</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/bram/devices/light.living_standing_lamp">bram/devices/{id}</a> Get the id and friendly name of a particular device</li>
       <li><span class="method">GET</span> <a class="uri" href="api/bram/why/light.hue_color_lamp_2">bram/why/{id}</a> Get the reason of the state of a entity</li>
     </ul>
   </div>
@@ -50,6 +50,7 @@
     <h1>Endpoints Mathias</h1>
     <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/">mathias/</a> Hello, world</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/mathias/devices/actions/light.living_standing_lamp">mathias/devices/actions/{id}</a> Get the actions for the device with {id}, e.g. 'light.living_standing_lamp</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/future">mathias/conflicts/future</a> Get the future conflicts</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/future/light.hue_color_spot_2">mathias/conflicts/future/{id}</a> Get the future conflicts of the device with {id}, e.g. 'light.hue_color_spot_2'</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/solutions/future">mathias/conflicts/solutions/future</a> Get the future conflict solutionss</li>

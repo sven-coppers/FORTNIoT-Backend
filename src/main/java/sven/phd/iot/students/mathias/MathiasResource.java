@@ -1,6 +1,8 @@
 package sven.phd.iot.students.mathias;
 
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.rules.Action;
+import sven.phd.iot.students.mathias.states.HassioAction;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
 import sven.phd.iot.students.mathias.states.HassioConflictState;
 
@@ -35,6 +37,18 @@ public class MathiasResource {
     }
 
     /**
+     * Get the actions that are possible on the given device
+     * @param id
+     * @return Get the actions possible on the device.
+     */
+    @Path("devices/actions/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<HassioAction> getAllActionsOnDevice(@PathParam("id") String id) {
+        return ContextManager.getInstance().getAllActionsOnDevice(id);
+    }
+
+    /**
      * Get the conflicts in the future.
      * @return Get the conflicts in the future.
      */
@@ -56,7 +70,7 @@ public class MathiasResource {
     public List<HassioConflictState> getConflictFuture(@PathParam("id") String id) {
         return ContextManager.getInstance().getFutureConflicts(id);
     }
-/*****************************************************************************************************************/
+
     /**
      * Get the conflict solutions in the future.
      * @return Get the conflict solutions in the future.

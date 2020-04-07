@@ -2,6 +2,7 @@ package sven.phd.iot.students.mathias;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.rules.Action;
+import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.students.mathias.states.HassioAction;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
 import sven.phd.iot.students.mathias.states.HassioConflictState;
@@ -46,6 +47,18 @@ public class MathiasResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<HassioAction> getAllActionsOnDevice(@PathParam("id") String id) {
         return ContextManager.getInstance().getAllActionsOnDevice(id);
+    }
+
+    /**
+     * Get the rule that matches the ruleID
+     * @param id
+     * @return Get the rule.
+     */
+    @Path("rules/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Trigger getRule(@PathParam("id") String id) {
+        return ContextManager.getInstance().getRuleById(id);
     }
 
     /**

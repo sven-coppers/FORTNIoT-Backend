@@ -36,10 +36,10 @@ public class LightOffAction extends Action {
             return false;
         }
         if (this.getClass() == other.getClass()) {
-            return this.deviceIdentifier == ((LightOffAction) other).deviceIdentifier;
+            return this.deviceIdentifier.equals(((LightOffAction) other).deviceIdentifier);
         }
         if (LightOnAction.class == other.getClass()) {
-            return this.deviceIdentifier == ((LightOnAction) other).getDeviceID();
+            return this.deviceIdentifier.equals(((LightOnAction) other).getDeviceID());
         }
 
         return false;

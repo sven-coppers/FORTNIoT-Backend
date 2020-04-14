@@ -46,7 +46,7 @@ public class RulesManager {
         List<HassioRuleExecutionEvent> triggerEvents = new ArrayList<>();
 
         for(String triggerName : this.rules.keySet()) {
-            boolean enabled = this.rules.get(triggerName).isEnabled();
+            boolean enabled = this.rules.get(triggerName).isEnabled(hassioChange.datetime);
 
             if(simulatedRulesEnabled.containsKey(triggerName)) {
                 enabled = simulatedRulesEnabled.get(triggerName);

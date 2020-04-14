@@ -20,6 +20,10 @@ public class LightOffAction extends Action {
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
+        if (!isEnabled(hassioRuleExecutionEvent.datetime)) {
+            return newStates;
+        }
+
         newStates.add(new HassioState(this.deviceIdentifier, "off", hassioRuleExecutionEvent.datetime, new HassioLightAttributes()));
 
         return newStates;

@@ -31,6 +31,10 @@ public class LightOnAction extends Action {
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
+        if (!isEnabled(hassioRuleExecutionEvent.datetime)) {
+            return newStates;
+        }
+
         HassioLightAttributes attributes = new HassioLightAttributes();
         attributes.brightness = 254;
 

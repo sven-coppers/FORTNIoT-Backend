@@ -128,12 +128,11 @@ abstract public class Trigger {
     }
 
     /*MATHIAS*/
-    public boolean isEnabled(){
-        Date currentTime = new Date();
+    public boolean isEnabled(Date currentTime){
         if (startTimeMute != null && currentTime.compareTo(startTimeMute) >= 0 && enabled) {
             enabled = false;
         }
-        if (stopTimeMute != null && currentTime.compareTo(stopTimeMute) >= 0 && !enabled) {
+        if (stopTimeMute != null && currentTime.compareTo(stopTimeMute) > 0 && !enabled) {
             enabled = true;
         }
         return enabled;

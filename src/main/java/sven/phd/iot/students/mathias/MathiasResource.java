@@ -1,8 +1,12 @@
 package sven.phd.iot.students.mathias;
 
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.api.request.SimulationRequest;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
+import sven.phd.iot.students.mathias.request.SolutionRequest;
+import sven.phd.iot.students.mathias.response.HassioSolutionResponse;
 import sven.phd.iot.students.mathias.states.HassioAction;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
 import sven.phd.iot.students.mathias.states.HassioConflictState;
@@ -105,5 +109,22 @@ public class MathiasResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<HassioConflictSolutionState> getConflictSolutionsFuture(@PathParam("id") String id) {
         return ContextManager.getInstance().getFutureConflictSolutions(id);
+    }
+
+    @Path("conflicts/solution/")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public HassioSolutionResponse setConflictSolution(HassioConflictSolutionState conflictSolutionRequest)  {
+        HassioSolutionResponse response = new HassioSolutionResponse();
+
+        if(ContextManager.getInstance().addConflictSolution(conflictSolutionRequest)) {
+            response.success = true;
+            response.response = "Successfully added solution";
+        } else {
+            response.success = false;
+            response.response = "something went wrong";
+        }
+        return response;
     }
 }

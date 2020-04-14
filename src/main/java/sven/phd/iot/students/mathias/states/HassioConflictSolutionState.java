@@ -13,15 +13,22 @@ import java.util.List;
 public class HassioConflictSolutionState {
     @JsonProperty("entity_id") public String entity_id;
 
-    @JsonDeserialize(using = HassioDateDeserializer.class)
     @JsonSerialize(using = HassioDateSerializer.class)
     @JsonProperty("datetime") public Date datetime;
 
     @JsonProperty("actions") public List<HassioConflictSolutionActionState> actions;
 
+    public  HassioConflictSolutionState(){}
+
     public HassioConflictSolutionState(String entityID, Date datetime){
         this.entity_id = entityID;
         this.datetime = datetime;
         this.actions = new ArrayList<HassioConflictSolutionActionState>();
+    }
+
+    public HassioConflictSolutionState(HassioConflictSolutionState other){
+        this.entity_id = other.entity_id;
+        this.datetime = other.datetime;
+        this.actions = other.actions;
     }
 }

@@ -1,6 +1,7 @@
 package sven.phd.iot.predictions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sven.phd.iot.students.mathias.ConflictSolver;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionActionState;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
 import sven.phd.iot.students.mathias.states.HassioConflictState;
@@ -22,7 +23,7 @@ public class Future {
         this.futureStates = new ArrayList<>();
         this.futureExecutions = new ArrayList<>();
         this.futureConflicts = new ArrayList<>();
-        this.fututeConflictSolutions = new ArrayList<>();
+        this.fututeConflictSolutions = ConflictSolver.getInstance().getConflictSolutions();
         this.lastGenerated = new Date();
     }
 

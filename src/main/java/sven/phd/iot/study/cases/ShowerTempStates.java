@@ -15,8 +15,8 @@ import java.util.Date;
 public class ShowerTempStates extends StudyStateSet {
     @Override
     public void setInitialStates(HassioDeviceManager DM, Date startDate) {
-        DM.logState(new HassioState(ShowerTempDevices.SHOWER_HEATER, "eco", startDate, null));
-        DM.logState(new HassioState(ShowerTempDevices.SHOWER_VENTILATION, "off", startDate, null));
+        DM.logState(new HassioState(ShowerTempDevices.SHOWER_HEATER, "eco", startDate, new HassioHeaterAttributes()));
+        DM.logState(new HassioState(ShowerTempDevices.SHOWER_VENTILATION, "off", startDate, new HassioCoolerAttributes()));
         DM.logState(new HassioState(ShowerTempDevices.SHOWER_TEMPERATURE, "17.0", startDate, new HassioSensorAttributes("temperature", "°C")));
         DM.logState(new HassioState(ShowerTempDevices.SHOWER_THERMOSTAT, "17.0", startDate, new HassioThermostatAttributes()));
     }

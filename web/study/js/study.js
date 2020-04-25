@@ -271,7 +271,6 @@ function refreshPredictions() {
     }).done(function (data) {
         $("#start_predicting").attr('disabled', data["predictions"]);
         $("#stop_predicting").attr('disabled', !data["predictions"]);
-        $("#update_predictions").attr('disabled', !data["predictions"]);
     });
 }
 

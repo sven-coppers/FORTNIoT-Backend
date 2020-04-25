@@ -27,9 +27,7 @@
     </ul>
     <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/config">config/</a> Get the system configuration</li>
-      <li><span class="method">PUT</span> <a class="uri" href="api/config">config/</a> Set the system configuration </li>
-      <li><span class="method">GET</span> <a class="uri" href="api/config/predictions">config/predictions/</a> Check if the prediction engine is on</li>
-      <li><span class="method">PUT</span> <a class="uri" href="api/config/predictions">config/predictions/</a> Turn the prediction engine on/off</li>
+      <li><span class="method">PUT</span> <a class="uri" href="api/config">config/</a> Set the system configuration {enabled: true, available: true}</li>
       <li><span class="method">GET</span> <a class="uri" href="api/study/case">study/case/</a> Get the current use case of the study</li>
       <li><span class="method">PUT</span> <a class="uri" href="api/study/case/">study/case/</a> Set the current use case of the study</li>
     </ul>
@@ -39,10 +37,12 @@
   <div class="block">
     <h1>Endpoints Bram</h1>
     <ul>
-      <li><span class="method">GET</span> <a class="uri" href="api/bram/">bram/</a> Hello, world</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/bram/devices">bram/devices</a> Get the id and friendly name of all the devices</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/bram/devices/sun.sun">bram/devices/{id}</a> Get the id and friendly name of a particular device</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/bram/why/light.hue_color_lamp_2">bram/why/{id}</a> Get the reason of the state of a entity</li>
+      <li><span class="method">GET</span> <a href="api/bram/devices">bram/devices</a> Get the id and friendly name of all the devices</li>
+      <li><span class="method">GET</span> <a href="api/bram/devices/sun.sun">bram/devices/{id}</a> Get the id and friendly name of a particular device</li>
+      <li><span class="method">GET</span> <a href="api/bram/why/light.table_lights">bram/why/{id}</a> Get the reason of the state of a entity</li>
+      <li><span class="method">GET</span> <a href="api/bram/ruledescription/rule.sun_set_bram/switch.lamp">bram/ruledescription/{rule_id}/{device_id}</a> <p>Get the actions on a device of a given rule</p></li>
+      <li><span class="method">POST</span> <a href="api/bram/simulation">bram/simulation</a> Simulate an alternative future based on an alternative state</li>
+      <li><span class="method">GET</span> <a href="api/bram/why_not/light.table_lights/on">bram/why_not/{device_id}/{desired_state}</a> Get possible reasons why a device has not a particular state</li>
     </ul>
   </div>
 

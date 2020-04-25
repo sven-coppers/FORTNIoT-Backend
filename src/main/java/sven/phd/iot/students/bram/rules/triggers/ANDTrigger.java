@@ -78,4 +78,12 @@ public class ANDTrigger extends Trigger {
         this.triggers.add(trigger);
         this.makeTitle();
     }
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        for(Trigger t:triggers) {
+            result.addAll(t.getTriggeringEntities());
+        }
+        return result;
+    }
 }

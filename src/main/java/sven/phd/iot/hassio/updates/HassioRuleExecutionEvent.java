@@ -3,35 +3,28 @@ package sven.phd.iot.hassio.updates;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Trigger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public class HassioRuleExecutionEvent extends HassioEvent {
     @JsonProperty("execution_id") public String execution_id;
     @JsonProperty("trigger_contexts") public  List<HassioContext> triggerContexts;
     @JsonProperty("action_contexts") public List<HassioContext> actionContexts;
- //   @JsonProperty("offset") public long offset;
-    @JsonIgnore protected Trigger trigger;
+    @JsonProperty("offset") public long offset;
+    @JsonIgnore private Trigger trigger;
 
-    public HassioRuleExecutionEvent(Trigger trigger, Date datetime) {
+    public HassioRuleExecutionEvent(Trigger trigger, Date datetime, long offset) {
         super(trigger.id, datetime);
 
         this.execution_id = UUID.randomUUID().toString();
         this.trigger = trigger;
         this.triggerContexts = new ArrayList<>();
         this.actionContexts = new ArrayList<>();
-   //     this.offset = offset;
-    }
-
-    public HassioRuleExecutionEvent(String triggerID, Date datetime) {
-        super(triggerID, datetime);
-
-        this.execution_id = UUID.randomUUID().toString();
-        this.trigger = null;
-        this.triggerContexts = new ArrayList<>();
-        this.actionContexts = new ArrayList<>();
+        this.offset = offset;
     }
 
     public void addTriggerContexts(List<HassioContext> triggerContexts) {
@@ -44,15 +37,5 @@ public class HassioRuleExecutionEvent extends HassioEvent {
 
     public Trigger getTrigger() {
         return this.trigger;
-    }
-
-    public void resolveContexts(HashMap<String, HassioState> hassioStates, List<String> triggerDevices, List<String> actionDevices) {
-        for(String triggerDevice : triggerDevices) {
-            this.triggerContexts.add(hassioStates.get(triggerDevice).context);
-        }
-
-        for(String actionDevice : actionDevices) {
-            this.actionContexts.add(hassioStates.get(actionDevice).context);
-        }
     }
 }

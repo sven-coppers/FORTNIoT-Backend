@@ -24,7 +24,7 @@ public class BramRulesManager {
 
         // AND rule test
         Trigger voetenZakOffTrigger = new StateTrigger("rule.and_rule_2", "switch.voetenzak", "off", "");
-        Action lampOnAction = new OutletOnAction("switch.lamp");
+        Action lampOnAction = new OutletOnAction("switch.lamp", "turn on the lamp");
         Action lampOffAction = new OutletOffAction("switch.lamp");
 
         List<Trigger> andTriggers = new ArrayList<>();

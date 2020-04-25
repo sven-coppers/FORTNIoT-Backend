@@ -7,6 +7,7 @@ import sven.phd.iot.students.bram.questions.why.WhyResult;
 import sven.phd.iot.students.bram.questions.why.rule.RuleJson;
 import sven.phd.iot.students.bram.questions.why.rule.RuleService;
 import sven.phd.iot.students.bram.questions.why.rule.WhyRuleResult;
+import sven.phd.iot.students.bram.questions.why.user.HassioUser;
 import sven.phd.iot.students.bram.questions.why.user.WhyUserResult;
 
 import javax.ws.rs.GET;
@@ -40,16 +41,19 @@ public class WhyResource {
 
         RuleJson rule = RuleService.getLastRuleByActionDevice(deviceId);
         if(rule == null) {
-            WhyResult unkownResult = new WhyResult();
-            unkownResult.device_id = deviceId;
-            unkownResult.actor = "unknown";
-            unkownResult.state = state;
-            unkownResult.friendly_name = friendlyName;
-            return unkownResult;
+            return unknownResult(deviceId, state, friendlyName);
         }
         result.rule_id = rule.rule_id;
         result.rule = rule;
         return result;
+    }
+    private WhyResult unknownResult(String deviceId, String state, String friendlyName) {
+        WhyResult unkownResult = new WhyResult();
+        unkownResult.device_id = deviceId;
+        unkownResult.actor = "unknown";
+        unkownResult.state = state;
+        unkownResult.friendly_name = friendlyName;
+        return unkownResult;
     }
     private WhyResult becauseOfUser(String id) {
         WhyUserResult result = new WhyUserResult();
@@ -61,7 +65,11 @@ public class WhyResource {
 
         result.actor = "user";
         result.user_id = WhyQuestion.getActorID(id);
-        result.user = WhyQuestion.getUserActor(id);
+        HassioUser user = WhyQuestion.getUserActor(id);
+        if(user == null) {
+            return unknownResult(id, state, friendlyName);
+        }
+        result.user = user;
 
         return result;
     }

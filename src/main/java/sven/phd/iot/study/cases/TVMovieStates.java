@@ -20,9 +20,7 @@ public class TVMovieStates extends StudyStateSet {
     @Override
     public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
         SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Star Wars: The Empire Strikes Back", relativeTime.getTime(), new HassioTVGuideAttributes("movie")));
-        relativeTime.add(Calendar.MINUTE, 180);
+        relativeTime.add(Calendar.MINUTE, 160);
         SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Masterchef", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
-        relativeTime.add(Calendar.MINUTE, 60);
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Lord of the Rings Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("movie")));
     }
 }

@@ -69,6 +69,8 @@ public class SimulationResource {
 
     private HassioState jsonToState(JSONObject obj) {
        /* String lastChanged = obj.get("last_updated").toString();
+        System.out.println(obj);
+        String lastChanged = obj.get("last_updated").toString();
 
         obj.remove("last_changed");
         obj.remove("datetime");

@@ -22,4 +22,26 @@ public class HassioDeviceTracker extends HassioDevice {
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioDeviceTrackerAttributes.class);
     }
+
+    public List<HassioContext> setState(HassioState hassioState) {
+        return new ArrayList<HassioContext>();
+    }
+
+    @Override
+    public List<HassioState> getFutureStates() {
+        List<HassioState> result = new ArrayList<>();
+
+        // TODO
+
+        Collections.sort(result);
+
+        return result;
+    }
+
+    @Override
+    public List<HassioEvent> predictFutureEvents() {
+        List<HassioEvent> result = new ArrayList<>();
+
+        return result;
+    }
 }

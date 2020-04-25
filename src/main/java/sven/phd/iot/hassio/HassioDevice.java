@@ -6,7 +6,7 @@ import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.*;
-import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.hassio.updates.HassioEvent;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
@@ -21,6 +21,8 @@ import java.util.List;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
+    protected List<HassioEvent> hassioEventHistory;
+    //  protected List<HassioEvent> hassioEventFuture;
     protected String entityID;
     protected String friendlyName;
     private boolean enabled;
@@ -28,6 +30,8 @@ abstract public class HassioDevice {
 
     public HassioDevice(String entityID, String friendlyName) {
         this.hassioStateHistory = new ArrayList<>();
+        this.hassioEventHistory = new ArrayList<>();
+        //    this.hassioEventFuture = new ArrayList<>();
         this.entityID = entityID;
         this.friendlyName = friendlyName;
         this.setEnabled(true);
@@ -47,9 +51,9 @@ abstract public class HassioDevice {
      * @param hassioState
      * @return
      */
-    public List<HassioContext> setState(HassioState hassioState) {
-        return new ArrayList<>();
-    }
+    abstract public List<HassioContext> setState(HassioState hassioState);
+
+   // abstract public HassioGenericState simulateState(String state, Date date);
 
     /**
      * Get the last known state of this device
@@ -71,6 +75,10 @@ abstract public class HassioDevice {
         this.logState(this.processRawState(hassioStateRaw));
     }
 
+    public void logEvent(HassioEvent hassioEvent) {
+        this.hassioEventHistory.add(hassioEvent);
+    }
+
     /**
      * Add the newHassioState to the state history
      * @param hassioState
@@ -90,19 +98,16 @@ abstract public class HassioDevice {
 
     /**
      * Let the device predict its own future states (without external influences)
-     * This function is called once for every simulation
      * @return
      */
-    protected List<HassioState> predictFutureStates() {
-        return new ArrayList<>();
-    }
+    abstract protected List<HassioState> getFutureStates();
 
     /**
      * Let the device predict its own future state, based on the last state of all devices in the previous frame (e.g. update temperature)...
      * This function is called ONCE at the beginning of every 'frame' in the simulation
      * @return
      */
-    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
         return new ArrayList<>(); // Most devices do not change on other devices
     }
 
@@ -111,9 +116,33 @@ abstract public class HassioDevice {
      * This function is called for EVERY new state that is processed in a 'frame' in the simulation
      * @return
      */
-    protected List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
-        return new ArrayList<>(); // Most devices do not change on other devices
+  /*  public List<HassioChange> predictFutureChanges() {
+        List<HassioChange> result = new ArrayList<>();
+        List<HassioState> states = new ArrayList<>();
+
+        states.add(this.getLastState());
+        states.addAll(this.predictFutureStates());
+
+        for(int i = 1; i < states.size(); i++) {
+            result.add(new HassioChange(this.entityID, states.get(i - 1), states.get(i), states.get(i).last_changed));
+        }
+
+        return result;
+    } */
+
+    /**
+     * Get the whole event history of this device
+     * @return
+     */
+    public List<HassioEvent> getPastEvents() {
+        return this.hassioEventHistory;
     }
+
+    /**
+     * Let the device predict its own future events (without external influences)
+     * @return
+     */
+    abstract public List<HassioEvent> predictFutureEvents();
 
     /**
      * Process the raw HassioState to full fledged Java objects (and apply some fixes if needed)
@@ -184,6 +213,7 @@ abstract public class HassioDevice {
 
     public void clearHistory() {
         this.hassioStateHistory.clear();
+        this.hassioEventHistory.clear();
     }
 
     public boolean isEnabled() {

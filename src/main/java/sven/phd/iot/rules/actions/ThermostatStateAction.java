@@ -23,4 +23,7 @@ public class ThermostatStateAction extends StateAction {
 
         return newStates;
     }
+    public String getDeviceIdentifier() {
+        return this.deviceIdentifier;
+    }
 }

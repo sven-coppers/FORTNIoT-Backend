@@ -6,8 +6,9 @@ import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.sensor.HassioBattery;
 import sven.phd.iot.hassio.sensor.HassioBatteryAttributes;
 import sven.phd.iot.hassio.states.HassioAttributes;
+import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.hassio.updates.HassioEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public class HassioCleaner extends HassioDevice {
     }
 
     @Override
-    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
-        return new ObjectMapper().readValue(rawAttributes.toString(), HassioCleanerAttributes.class);
+    public List<HassioContext> setState(HassioState hassioState) {
+        return new ArrayList<>();
     }
 
     /**
@@ -68,5 +69,10 @@ public class HassioCleaner extends HassioDevice {
 
         result.add(event);
         return result;
+    }
+
+    @Override
+    public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioCleanerAttributes.class);
     }
 }

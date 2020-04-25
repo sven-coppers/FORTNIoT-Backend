@@ -15,35 +15,24 @@ abstract public class HassioAbstractState implements Comparable<HassioAbstractSt
 
     @JsonDeserialize(using = HassioDateDeserializer.class)
     @JsonSerialize(using = HassioDateSerializer.class)
-    protected Date last_changed;
+    public Date last_changed;
 
     @JsonDeserialize(using = HassioDateDeserializer.class)
     @JsonSerialize(using = HassioDateSerializer.class)
     protected Date last_updated;
 
     @JsonSetter("last_updated")
-    public void setLastUpdated(Date last_updated) {
+    public void setLast_updated(Date last_updated) {
         this.last_updated = last_updated;
-        this.context = new HassioContext(this.entity_id, last_updated);
     }
 
     @JsonGetter("last_updated")
-    public Date getLastUpdated() {
+    public Date getLast_updated() {
         return this.last_updated;
     }
 
-    @JsonSetter("last_changed")
-    public void setLastChanged(Date lastChanged) {
-        this.last_changed = lastChanged;
-        this.context = new HassioContext(this.entity_id, lastChanged);
-    }
-
-    @JsonGetter("last_changed")
-    public Date getLastChanged() {
-        return this.last_changed;
-    }
-
     @JsonProperty("state") public String state;
+
 
     // Default constructor for deserialization purposes
     public HassioAbstractState() {

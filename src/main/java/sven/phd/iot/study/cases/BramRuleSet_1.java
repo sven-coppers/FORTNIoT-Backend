@@ -8,6 +8,7 @@ import sven.phd.iot.rules.actions.LightOffAction;
 import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
+import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
 import sven.phd.iot.study.StudyRuleSet;
 
 import java.awt.*;
@@ -17,17 +18,25 @@ import java.util.Date;
 public class BramRuleSet_1 extends StudyRuleSet {
     @Override
     public void createRules(RulesManager rulesManager) {
-        // When the sun goes below horizon, turn on the table lights
+        // When the sun goes below horizon
         Trigger sunSet = new StateTrigger("rule.sun_set", "sun.sun", "below_horizon", "When the sun goes below horizon");
+        //When anyone is home
+        Trigger anyoneHome = new PeopleHomeTrigger("rule.anyone_home", true);
+        // AND trigger
+        ANDTrigger sunSetAndHome = new ANDTrigger("rule.lamp_on");
+        sunSetAndHome.addTrigger(sunSet);
+        sunSetAndHome.addTrigger(anyoneHome);
+        // Turn on the lights
         Action tableLightOn = new LightOnAction("turn on the table lights", BramDeviceSet_1.TABLE_LIGHTS, Color.YELLOW, false);
-        sunSet.addAction(tableLightOn);
+        sunSetAndHome.addAction(tableLightOn);
         //Add execution yesterday at 7pm
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -1);
         cal.setTime(new Date(getTime(19,00)));
 
-        sunSet.addExecution(new HassioRuleExecutionEvent(sunSet, cal.getTime(), 0));
-        rulesManager.addRule(sunSet);
+
+        sunSetAndHome.addExecution(new HassioRuleExecutionEvent(sunSetAndHome, cal.getTime(), 0));
+        rulesManager.addRule(sunSetAndHome);
 
         // When the sun goes above horizon, turn off the table lights
         Trigger sunRise = new StateTrigger("rule.sun_rise", "sun.sun", "above_horizon", "When the sun goes above horizon");

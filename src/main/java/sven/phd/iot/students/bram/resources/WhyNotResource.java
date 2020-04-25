@@ -74,8 +74,14 @@ public class WhyNotResource {
             for(String d:triggeringDevices) {
                 CurrentState cs = new CurrentState();
                 cs.deviceId = d;
-                cs.currentState = getStateValue(d);
-                cs.deviceName = getFriendlyName(d);
+                try {
+                    cs.currentState = getStateValue(d);
+                    cs.deviceName = getFriendlyName(d);
+                } catch(Exception e) {
+                    // When device is not found, att an unknown state
+                    cs.currentState = "unknown";
+                    cs.deviceName = "unknown";
+                }
                 currentStates.add(cs);
             }
 

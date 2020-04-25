@@ -1,4 +1,4 @@
-package sven.phd.iot.hassio.climate;
+package sven.phd.iot.hassio.blinds;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HassioThermostat extends HassioDevice {
-    public HassioThermostat(String entityID, String friendlyName) {
+public class HassioBlind extends HassioDevice {
+    public HassioBlind(String entityID, String friendlyName) {
         super(entityID, friendlyName);
     }
 
     @Override
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
-        return new ObjectMapper().readValue(rawAttributes.toString(), HassioHeaterAttributes.class);
+        return new ObjectMapper().readValue(rawAttributes.toString(), HassioBlindAttributes.class);
     }
 }

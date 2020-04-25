@@ -52,11 +52,12 @@ public class BramStateSet_1 extends StudyStateSet {
     }
     private static HassioPersonAttributes PersonAttributes() {
         HassioPersonAttributes attr = new HassioPersonAttributes();
-        attr.editable = false;
-        attr.id = BramDeviceSet_1.PERSON_ID;
+        attr.setEditable(false);
+        attr.setUserID(BramDeviceSet_1.PERSON_ID);
+        attr.setID(BramDeviceSet_1.PERSON_ID);
         attr.friendlyName = BramDeviceSet_1.PERSON_NAME;
-        attr.gpsAccuracy = 5;
-        attr.source = "device.phone";
+        attr.setGpsAccuracy(5);
+        attr.setSource("device.phone");
         return attr;
     }
 

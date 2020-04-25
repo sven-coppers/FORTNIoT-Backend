@@ -96,15 +96,15 @@ public class WhyNotResource {
         Map<String, Trigger> rules = contextManager.getRules();
         List<Trigger> result = new ArrayList<Trigger>();
         for(Map.Entry<String, Trigger> entry : rules.entrySet()) {
-            List<Action> actions = entry.getValue().getActionOnDevice(deviceId);
-            for(Action a:actions) {
-                List<HassioState> states = a.simulate(new HassioRuleExecutionEvent(entry.getValue(), new Date(), 0), null);
+            Action action = entry.getValue().getActionOnDevice(deviceId);
+
+                List<HassioState> states = action.simulate(new HassioRuleExecutionEvent(entry.getValue(), new Date()), null);
                 for(HassioState s:states) {
                     if(s.state.compareTo(state) == 0) {
                         result.add(entry.getValue());
                     }
                 }
-            }
+
         }
         return result;
     }

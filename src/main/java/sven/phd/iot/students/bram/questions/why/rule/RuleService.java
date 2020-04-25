@@ -22,24 +22,15 @@ public class RuleService {
             Trigger rule = ContextManager.getInstance().getRuleById(eventId);
 
 
-            List<Action> actions = rule.getActionOnDevice(deviceId);
-            if(actions.size() == 0) {
+            Action action = rule.getActionOnDevice(deviceId);
+            if(action == null) {
                 return  null;
             }
             RuleJson obj = new RuleJson();
             obj.rule_id = eventId;
             obj.trigger = rule.getTitle();
-            obj.action = "";
-            int actionAmount = actions.size();
-            for(int j = 0; j < actionAmount; j++) {
-                obj.action += actions.get(j).description;
-                if(i < actionAmount - 2) {
-                    obj.action += ", ";
-                }
-                if(i < actionAmount - 1) {
-                    obj.action += " and ";
-                }
-            }
+            obj.action = action.description;
+
             return obj;
         }
         return null;

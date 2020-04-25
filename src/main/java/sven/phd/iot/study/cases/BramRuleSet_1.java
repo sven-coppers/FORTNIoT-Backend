@@ -35,7 +35,7 @@ public class BramRuleSet_1 extends StudyRuleSet {
         cal.setTime(new Date(getTime(19,00)));
 
 
-        sunSetAndHome.addExecution(new HassioRuleExecutionEvent(sunSetAndHome, cal.getTime(), 0));
+        sunSetAndHome.addExecution(new HassioRuleExecutionEvent(sunSetAndHome, cal.getTime()));
         rulesManager.addRule(sunSetAndHome);
 
         // When the sun goes above horizon, turn off the table lights

@@ -1,7 +1,6 @@
 package sven.phd.iot.rules.actions;
 
 import sven.phd.iot.hassio.outlet.HassioOutletAttributes;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
@@ -11,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class OutletAction extends Action {
-    @JsonProperty("entity_id")
     private final String deviceIdentifier;
     private final String newState;
 
@@ -27,8 +25,5 @@ public class OutletAction extends Action {
         newStates.add(new HassioState(this.deviceIdentifier, newState, hassioRuleExecutionEvent.datetime, new HassioOutletAttributes()));
 
         return newStates;
-    }
-    public String getDeviceIdentifier() {
-        return this.deviceIdentifier;
     }
 }

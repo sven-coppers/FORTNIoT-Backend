@@ -23,6 +23,4 @@ abstract public class Action {
     public String toString() {
         return this.description;
     }
-
-    abstract public String getDeviceIdentifier();
 }

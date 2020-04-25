@@ -6,41 +6,40 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Trigger;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class TimeTrigger extends Trigger {
-    public enum REPEATING {DAILY, WEEKLY, MONTHLY, YEARLY, NONE};
-
-    private Date recurringStartDate; // Absolute date
-    private int frequencyMultiplier;
-    private REPEATING repeating;
-    private Date relativeStartTime;
-    private Date relativeEndTime;
-
-    public TimeTrigger(String ruleIdentifier) {
-        super(ruleIdentifier, "Each day...");
-
-        this.recurringStartDate = null;
+/**
+ * This class is a 'hack' to represent implicit behavior, which cannot be modelled as rules
+ */
+public class NeverTrigger extends Trigger {
+    public NeverTrigger(String id, String title) {
+        super(id, title);
+        this.enabled = true;
+        this.available = false;
     }
 
     @Override
     public boolean isTriggeredBy(HassioChange hassioChange) {
-        return true;
+        return false; // Never
     }
 
     @Override
     public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+        return null; // Never
+    }
 
-        List<HassioContext> triggerDates = new ArrayList<>();
+    public void setEnabled(boolean enabled) {
+        // DO NOTHING
+    }
 
-        return triggerDates;
+    public void setAvailable(boolean available) {
+        // DO NOTHING
     }
     @Override
     public List<String> getTriggeringEntities() {
         List<String> result = new ArrayList<>();
-        result.add("time");
+        result.add("never");
         return result;
     }
 }

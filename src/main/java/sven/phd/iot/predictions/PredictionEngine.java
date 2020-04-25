@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.rules.RulesManager;
 
 import java.util.*;
@@ -15,8 +16,8 @@ public class PredictionEngine {
     private HassioDeviceManager hassioDeviceManager;
     private Future future;
     private Boolean predicting;
-    private final long tickRate = 5; // minutes
-    private final long predictionWindow = 1 * 24 * 60; // in minutes
+    private long tickRate = 5; // minutes
+    private long predictionWindow = 1 * 24 * 60; // 1 day in minutes
 
     public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager) {
         this.rulesManager = rulesManager;
@@ -63,45 +64,54 @@ public class PredictionEngine {
         queue.addAll(stateScheduler.getScheduledStates());
 
         Date lastFrameDate = new Date(); // Prediction start
-        Date predictionEnd = new Date(new Date().getTime() + predictionWindow * 60l * 1000l); // Convert prediction window from minutes to milliseconds
+        Date predictionEnd = new Date(new Date().getTime() + getPredictionWindow() * 60l * 1000l); // Convert prediction window from minutes to milliseconds
 
         // Predict the first day with high precision
         while(lastFrameDate.getTime() < predictionEnd.getTime()) {
-            Date nextTickDate = new Date(lastFrameDate.getTime() + (tickRate * 60l * 1000l)); // Convert tickrate from minutes to milliseconds
+            Date nextTickDate = new Date(lastFrameDate.getTime() + (getTickRate() * 60l * 1000l)); // Convert tickrate from minutes to milliseconds
 
             // If there is an element in the queue that will happen before the tick
-            if(!queue.isEmpty() && queue.peek().last_changed.getTime() < nextTickDate.getTime()) {
-                nextTickDate = queue.peek().last_changed;
+            if(!queue.isEmpty() && queue.peek().getLastChanged().getTime() < nextTickDate.getTime()) {
+                nextTickDate = queue.peek().getLastChanged();
             }
 
             this.tick(nextTickDate, lastStates, queue, future, simulatedRulesEnabled);
             lastFrameDate = nextTickDate;
         }
 
-        // Finish predicting the rest of the queue
+        // Finish predicting the rest of the queue (within the prediction window)
         while(!queue.isEmpty()) {
-            this.tick(queue.peek().last_changed, lastStates, queue, future, simulatedRulesEnabled);
+            if(queue.peek().getLastChanged().getTime() < predictionEnd.getTime()) {
+                this.tick(queue.peek().getLastChanged(), lastStates, queue, future, simulatedRulesEnabled);
+            } else {
+                queue.poll();
+            }
         }
 
-        System.out.println("Predictions updated: " + future.futureStates.size());
+        System.out.println("Predictions updated: " + future.getFutureStates().size());
 
         return future;
     }
 
     private void tick(Date newDate, HashMap<String, HassioState> lastStates, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
-        //System.out.println(newDate);
-
-        // Let the devices predict their state, based on the future context
+        // Let the devices predict their state, based on the past states (e.g. temperature)
         if(this.isPredicting()) {
-            List<String> changedDeviceIDs = hassioDeviceManager.adaptStateToContext(newDate, lastStates);
+            List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplictStates(newDate, lastStates);
 
-            for(String changedDeviceID : changedDeviceIDs) {
-                globalQueue.add(lastStates.get(changedDeviceID));
+            // Add changes to prediction queue
+            for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
+                for(HassioState newState : behaviorEvent.getActionStates()) {
+                    globalQueue.add(newState);
+                }
+
+                // Add Implicit behavior to the future
+                behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
+                future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
             }
         }
 
         // Remove every State from the global queue that has occurred before the new Date
-        while(!globalQueue.isEmpty() && globalQueue.peek().last_changed.getTime() <= newDate.getTime()) {
+        while(!globalQueue.isEmpty() && globalQueue.peek().getLastChanged().getTime() <= newDate.getTime()) {
             HassioState newState = globalQueue.poll();
 
             // Log the predicted state in the device
@@ -110,7 +120,7 @@ public class PredictionEngine {
             // Only when additional predictions are enabled
             if(this.isPredicting()) {
                 HassioState lastState = lastStates.get(newState.entity_id);
-                HassioChange newChange = new HassioChange(newState.entity_id, lastState, newState, newState.last_changed);
+                HassioChange newChange = new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged());
                 lastStates.put(newState.entity_id, newState);
 
                 // Pass the stateChange to the set of rules
@@ -133,17 +143,23 @@ public class PredictionEngine {
                     // Add the actions to the prediction QUEUEs
                     globalQueue.addAll(resultingActions);
                 }
+
+                // Pass the stateChange to the implicit rules (e.g. turn heater on/off)
+                List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, lastStates);
+
+                // Add changes to prediction queue
+                for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
+                    for(HassioState newActionState : behaviorEvent.getActionStates()) {
+                        globalQueue.add(newActionState);
+                    }
+
+                    // Add Implicit behavior to the future
+                    behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
+                    future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
+                }
             }
         }
     }
-
-   /* private void removePredictionsFromQueue(PriorityQueue<HassioState> queue, String deviceID) {
-        for(HassioState state : queue) {
-            if(state.entity_id.equals(deviceID)) {
-                queue.remove(state);
-            }
-        }
-    } */
 
     public void stopFuturePredictions() {
         this.predicting = false;
@@ -157,5 +173,23 @@ public class PredictionEngine {
 
     public boolean isPredicting() {
         return this.predicting;
+    }
+
+    public long getTickRate() {
+        return tickRate;
+    }
+
+    public void setTickRate(long tickRate) {
+        this.tickRate = tickRate;
+        this.updateFuturePredictions();
+    }
+
+    public long getPredictionWindow() {
+        return predictionWindow;
+    }
+
+    public void setPredictionWindow(long predictionWindow) {
+        this.predictionWindow = predictionWindow;
+        this.updateFuturePredictions();
     }
 }

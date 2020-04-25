@@ -30,19 +30,8 @@ public class RuleDescriptionResource {
 
         
 
-        List<Action> actions = rule.getActionOnDevice(deviceId);
-        result.action = "";
-
-        int actionAmount = actions.size();
-        for(int i = 0; i < actionAmount; i++) {
-            result.action += actions.get(i).description;
-            if(i < actionAmount - 2) {
-                result.action += ", ";
-            }
-            if(i < actionAmount - 1) {
-                result.action += " and ";
-            }
-        }
+        Action action = rule.getActionOnDevice(deviceId);
+        result.action = action.description;
 
         return result;
     }

@@ -17,19 +17,4 @@ abstract public class HassioTemperatureModifier extends HassioDevice {
         this.thermostatID = thermostatID;
         this.tempSensorID = tempSensorID;
     }
-
-    @Override
-    public List<HassioContext> setState(HassioState hassioState) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    protected List<HassioState> getFutureStates() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        return new ArrayList<>();
-    }
 }

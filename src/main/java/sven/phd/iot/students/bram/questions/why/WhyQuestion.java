@@ -30,7 +30,7 @@ public class WhyQuestion {
             if(!entry.getKey().contains("person"))
                 continue;
             HassioPersonAttributes attr = (HassioPersonAttributes) entry.getValue().attributes;
-            if(attr.id.compareTo(userId) == 0) {
+            if(attr.getID().compareTo(userId) == 0) {
                 HassioUser user = new HassioUser();
                 user.id= userId;
                 user.name = attr.friendlyName;

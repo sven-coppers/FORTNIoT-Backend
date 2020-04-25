@@ -26,7 +26,7 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
-import sven.phd.iot.hassio.updates.HassioEvent;
+import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
 import sven.phd.iot.students.bram.questions.why.user.UserService;
 
@@ -229,34 +229,111 @@ public class HassioDeviceManager implements EventListener {
         return contexts;
     }
 
+    public List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+        HashMap<String, HassioState> newHassioStates = new HashMap<>();
+
+        // Make a copy
+        for(String entityID : lastHassioStates.keySet()) {
+            newHassioStates.put(entityID, lastHassioStates.get(entityID));
+        }
+
+        List<ImplicitBehaviorEvent> results = new ArrayList<>();
+
+        for(String entityID : hassioDeviceMap.keySet()) {
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+            results.addAll(hassioDeviceMap.get(entityID).predictImplicitRules(newDate, newHassioStates));
+        }
+
+        results = mergeDuplicates(results);
+
+        // Process the change events
+        for(ImplicitBehaviorEvent changeEvent : results) {
+            // Finally update the last_changed field
+            for(String changedDevice : changeEvent.getActionDeviceIDs()) {
+                newHassioStates.get(changedDevice).setLastChanged(newDate);
+                newHassioStates.get(changedDevice).setLastUpdated(newDate);
+            }
+
+            // Resolve
+            changeEvent.resolveContextIDs(newHassioStates);
+        }
+
+        return results;
+    }
+
     /**
      * Ask which states change based on the new context to the devices themselves
      * @return
      */
-    public List<String> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<String> results = new ArrayList<>();
+    public List<ImplicitBehaviorEvent> predictImplictStates(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+        HashMap<String, HassioState> newHassioStates = new HashMap<>();
 
-        for(Map.Entry<String, HassioDevice> entry : hassioDeviceMap.entrySet()) {
-            if(! entry.getValue().isEnabled()) {
-                continue;
-            }
-            List<HassioState> newChanges = hassioDeviceMap.get(entry.getKey()).adaptStateToContext(newDate, hassioStates);
-
-            for(HassioState newChange : newChanges) {
-                hassioStates.put(newChange.entity_id, newChange);
-
-                if(!results.contains(newChange.entity_id)) {
-                    results.add(newChange.entity_id);
-                }
-            }
+        // Make a copy
+        for(String entityID : lastHassioStates.keySet()) {
+            newHassioStates.put(entityID, lastHassioStates.get(entityID));
         }
 
-        // Finally update the last_changed field
-        for(String changedDevice : results) {
-            hassioStates.get(changedDevice).last_changed = newDate;
+        List<ImplicitBehaviorEvent> results = new ArrayList<>();
+
+        for(String entityID : hassioDeviceMap.keySet()) {
+                if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+                results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates));
+        }
+
+        results = mergeDuplicates(results);
+
+        // Process the change events
+        for(ImplicitBehaviorEvent changeEvent : results) {
+            // Finally update the last_changed field
+            for(String changedDevice : changeEvent.getActionDeviceIDs()) {
+                newHassioStates.get(changedDevice).setLastChanged(newDate);
+                newHassioStates.get(changedDevice).setLastUpdated(newDate);
+            }
+
+            // Resolve
+            changeEvent.resolveContextIDs(newHassioStates);
         }
 
         return results;
+    }
+
+    private List<ImplicitBehaviorEvent> mergeDuplicates(List<ImplicitBehaviorEvent> events) {
+        List<ImplicitBehaviorEvent> result = new ArrayList<>();
+
+        for(ImplicitBehaviorEvent consideringEvent : events) {
+            ImplicitBehaviorEvent foundUniqueEvent = null;
+
+            for(ImplicitBehaviorEvent uniqueEvent: result) {
+                for(String consideringEventAction : consideringEvent.getActionDeviceIDs()) {
+                    if(uniqueEvent.getActionDeviceIDs().contains(consideringEventAction)) {
+                        foundUniqueEvent = uniqueEvent;
+                        break;
+                    }
+                }
+            }
+
+            if(foundUniqueEvent != null) {
+                // Add all other triggers from the considering event to the unique event
+                for(String consideringEventAction : consideringEvent.getActionDeviceIDs()) {
+                    if(!foundUniqueEvent.getActionDeviceIDs().contains(consideringEventAction)) {
+                        foundUniqueEvent.addActionDeviceID(consideringEventAction);
+                    }
+                }
+
+                // Add all other actions from the considering event to the unique event
+                for(String consideringEventTrigger : consideringEvent.getTriggerDeviceIDs()) {
+                    if(!foundUniqueEvent.getTriggerDeviceIDs().contains(consideringEventTrigger)) {
+                        foundUniqueEvent.addTriggerDeviceID(consideringEventTrigger);
+                    }
+                }
+            } else {
+                result.add(consideringEvent);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -324,7 +401,7 @@ public class HassioDeviceManager implements EventListener {
     public void stateChanged(HassioState newState) {
         if(this.hassioDeviceMap.containsKey(newState.entity_id)) {
             HassioState oldState = this.hassioDeviceMap.get(newState.entity_id).getLastState();
-            HassioChange hassioChange = new HassioChange(newState.entity_id, oldState, newState, newState.last_changed);
+            HassioChange hassioChange = new HassioChange(newState.entity_id, oldState, newState, newState.getLastChanged());
 
             this.stateChanged(hassioChange);
         }
@@ -357,26 +434,12 @@ public class HassioDeviceManager implements EventListener {
 
         return result;
     }
-    public void disableVirtualDevices() {
-        this.setAllDevicesAvailable(false);
-        HashMap<String, HassioState> states = getCurrentStates();
-        for (Map.Entry<String, HassioState> entry: states.entrySet()) {
-            if(entry.getValue() != null) {
-                System.out.println("Enabling device: " + entry.getKey());
-                this.setDeviceAvailable(entry.getKey(), true);
-            } else {
-                this.setDeviceEnabled(entry.getKey(), false);
-            }
 
-        }
-    }
     public HashMap<String, HassioState> getCurrentStates() {
         HashMap<String, HassioState> result = new HashMap<>();
 
-        for(Map.Entry<String, HassioDevice> entry: hassioDeviceMap.entrySet()) {
-            if(entry.getValue().isEnabled()) {
-                result.put(entry.getKey(), hassioDeviceMap.get(entry.getKey()).getLastState());
-            }
+        for(String entityID : hassioDeviceMap.keySet()) {
+            result.put(entityID, hassioDeviceMap.get(entityID).getLastState());
         }
 
         return result;
@@ -415,48 +478,16 @@ public class HassioDeviceManager implements EventListener {
     }
 
     /**
-     * Get the history of all device events
-     * @return
-     */
-    public List<HassioEvent> getEventHistory() {
-        List<HassioEvent> hassioStates = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getPastEvents());
-        }
-
-        Collections.sort(hassioStates);
-
-        return hassioStates;
-    }
-
-    /**
-     * Get the cached version of all future events of each device
-     * @return
-     */
-   /* public List<HassioEvent> getEventFuture() {
-        List<HassioEvent> hassioStates = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getFutureEvents());
-        }
-
-        Collections.sort(hassioStates);
-
-        return hassioStates;
-    } */
-
-    /**
      * Predict future states, based on the devices internal knowledge
      * @return
      */
     public List<HassioState> predictFutureStates() {
         List<HassioState> hassioStates = new ArrayList<>();
 
-        for(Map.Entry<String, HassioDevice> entry: hassioDeviceMap.entrySet()) {
-            if(entry.getValue().isEnabled()) {
-                hassioStates.addAll(hassioDeviceMap.get(entry.getKey()).getFutureStates());
-            }
+        for(String entityID : hassioDeviceMap.keySet()) {
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+            hassioStates.addAll(hassioDeviceMap.get(entityID).predictFutureStates());
         }
 
         Collections.sort(hassioStates);
@@ -512,6 +543,12 @@ public class HassioDeviceManager implements EventListener {
     public void clearLogs() {
         for(String deviceID : this.hassioDeviceMap.keySet()) {
             hassioDeviceMap.get(deviceID).clearHistory();
+        }
+    }
+
+    public void setAllDevicesEnabled(boolean enabled) {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).setEnabled(enabled);
         }
     }
 }

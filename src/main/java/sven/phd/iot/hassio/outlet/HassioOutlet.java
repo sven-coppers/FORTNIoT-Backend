@@ -30,16 +30,4 @@ public class HassioOutlet extends HassioDevice {
             return this.callService("switch/turn_off", new HassioService(this.entityID));
         }
     }
-
-    @Override
-    public List<HassioState> getFutureStates() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        List<HassioEvent> result = new ArrayList<>();
-
-        return result;
-    }
 }

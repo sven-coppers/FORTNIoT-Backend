@@ -9,10 +9,7 @@ import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.rules.RulesManager;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class HassioHeater extends HassioTemperatureModifier {
     private final double onRate;
@@ -42,8 +39,8 @@ public class HassioHeater extends HassioTemperatureModifier {
     }
 
     @Override
-    protected List<HassioState> adaptStateToContext(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<HassioState> result = new ArrayList<>();
+    protected List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
+        List<ImplicitBehaviorEvent> result = new ArrayList<>();
         HassioState thermostatState = hassioStates.get(this.thermostatID);
         HassioState temperatureState = hassioStates.get(this.tempSensorID);
         HassioState heaterState = hassioStates.get(this.entityID);
@@ -52,10 +49,10 @@ public class HassioHeater extends HassioTemperatureModifier {
 
         double targetTemp = Double.parseDouble(thermostatState.state);
         double currentTemp = Double.parseDouble(temperatureState.state);
-        Long deltaTimeInMilliseconds = newDate.getTime() - temperatureState.last_changed.getTime();
-        double deltaTimeInHours = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0 * 60.0);
 
-        // Give the new state the old date, because it might be changed by another device as well
+        // Adjust heater state if needed
+        if(heaterState.state.equals("heating") && currentTemp > targetTemp) {
+            hassioStates.put(this.entityID, new HassioState(this.entityID, "eco", heaterState.getLastChanged(), null));
 
             ImplicitBehaviorEvent newHeaterState = new ImplicitBehaviorEvent(this.stopHeatingRule, newDate);
             newHeaterState.addActionDeviceID(this.entityID);

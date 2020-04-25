@@ -21,23 +21,4 @@ public class HassioPerson  extends HassioDevice {
     public HassioAttributes processRawAttributes(JsonNode rawAttributes) throws IOException {
         return new ObjectMapper().readValue(rawAttributes.toString(), HassioPersonAttributes.class);
     }
-
-    public List<HassioContext> setState(HassioState hassioState) {
-        // We cannot change the state off a person
-        return new ArrayList<HassioContext>();
-    }
-
-    @Override
-    public List<HassioState> getFutureStates() {
-        List<HassioState> result = new ArrayList<>();
-
-        return result;
-    }
-
-    @Override
-    public List<HassioEvent> predictFutureEvents() {
-        List<HassioEvent> result = new ArrayList<>();
-
-        return result;
-    }
 }

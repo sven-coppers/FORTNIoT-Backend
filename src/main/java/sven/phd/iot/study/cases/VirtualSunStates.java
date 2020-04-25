@@ -25,7 +25,6 @@ public class VirtualSunStates extends StudyStateSet {
         sunAttributes.nextMidnight = relativeTime.getTime();
         relativeTime.add(Calendar.HOUR, 6);
         sunAttributes.nextRising = relativeTime.getTime();
-        sunAttributes.friendlyName = "Sun";
 
         DM.logState(new HassioState("sun.sun", "above_horizon", startDate, sunAttributes));
     }

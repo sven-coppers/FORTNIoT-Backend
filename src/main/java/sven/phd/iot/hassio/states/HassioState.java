@@ -22,6 +22,4 @@ public class HassioState extends HassioAbstractState {
         super(new HassioContext(hassioState.entity_id, date), hassioState.entity_id, date, date, hassioState.state);
         this.attributes = hassioState.attributes;
     }
-
-
 }

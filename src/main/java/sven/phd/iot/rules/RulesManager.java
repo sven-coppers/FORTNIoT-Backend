@@ -4,6 +4,7 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.triggers.NeverTrigger;
+import sven.phd.iot.students.bram.rules.BramRulesManager;
 
 import java.util.*;
 import java.util.List;
@@ -45,7 +46,7 @@ public class RulesManager {
         List<HassioRuleExecutionEvent> triggerEvents = new ArrayList<>();
 
         for(String triggerName : this.rules.keySet()) {
-            boolean enabled = this.rules.get(triggerName).enabled;
+            boolean enabled = this.rules.get(triggerName).isEnabled(hassioChange.datetime);
 
             if(simulatedRulesEnabled.containsKey(triggerName)) {
                 enabled = simulatedRulesEnabled.get(triggerName);

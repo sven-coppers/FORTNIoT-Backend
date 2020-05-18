@@ -183,7 +183,7 @@ public class ScenarioManager {
                 continue;
             }
 
-            this.ruleSets.get(rulSet).createRules(this.rulesManager);
+            this.ruleSets.get(rulSet).createRules(this.rulesManager, null);
         }
     }
 

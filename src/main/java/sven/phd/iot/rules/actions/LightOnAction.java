@@ -31,6 +31,10 @@ public class LightOnAction extends Action {
     public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
+        if (!isEnabled(hassioRuleExecutionEvent.datetime)) {
+            return newStates;
+        }
+
         HassioLightAttributes attributes = new HassioLightAttributes();
         attributes.brightness = 254;
 
@@ -48,5 +52,26 @@ public class LightOnAction extends Action {
         newStates.add(new HassioState(deviceIdentifier, "on", hassioRuleExecutionEvent.datetime, attributes));
 
         return newStates;
+    }
+
+    public String getDeviceID() { return this.deviceIdentifier; }
+
+
+    @Override
+    public boolean onSameDevice(Action other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || (this.getClass() != other.getClass() && LightOffAction.class != other.getClass())) {
+            return false;
+        }
+        if (this.getClass() == other.getClass()) {
+            return this.deviceIdentifier.equals(((LightOnAction) other).deviceIdentifier);
+        }
+        if (LightOffAction.class == other.getClass()) {
+            return this.deviceIdentifier.equals(((LightOffAction) other).getDeviceID());
+        }
+
+        return false;
     }
 }

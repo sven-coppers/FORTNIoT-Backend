@@ -7,6 +7,7 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.rules.RulesManager;
+import sven.phd.iot.students.mathias.FutureConflictDetector;
 
 import java.util.*;
 
@@ -89,6 +90,10 @@ public class PredictionEngine {
         }
 
         System.out.println("Predictions updated: " + future.getFutureStates().size());
+
+        // MATHIAS TESTING
+        FutureConflictDetector detector = new FutureConflictDetector();
+        future.addFutureConflict(detector.getFutureConflicts(future));
 
         return future;
     }

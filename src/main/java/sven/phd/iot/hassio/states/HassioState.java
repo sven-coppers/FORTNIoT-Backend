@@ -1,5 +1,7 @@
 package sven.phd.iot.hassio.states;
 
+import sven.phd.iot.students.mathias.states.HassioConflictState;
+
 import java.util.Date;
 
 public class HassioState extends HassioAbstractState {
@@ -21,5 +23,17 @@ public class HassioState extends HassioAbstractState {
     public HassioState(HassioState hassioState, Date date) {
         super(new HassioContext(hassioState.entity_id, date), hassioState.entity_id, date, date, hassioState.state);
         this.attributes = hassioState.attributes;
+    }
+
+    public HassioConflictState compareAttributes(HassioState state) {
+        /*
+        if(this.state != state.state) {
+            HassioConflictState conflict = new HassioConflictState(this.entity_id, this.type, this.datetime);
+            HassioConflictingAttribute attr = new HassioConflictingAttribute("state", this.state, state.state);
+            conflict.conflicts.add(attr);
+            return conflict;
+        }
+*/
+        return null;
     }
 }

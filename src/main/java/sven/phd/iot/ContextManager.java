@@ -1,17 +1,24 @@
 package sven.phd.iot;
 
 import sven.phd.iot.api.resources.StateResource;
+import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
+import sven.phd.iot.rules.Action;
+import sven.phd.iot.students.mathias.ActionsManager;
+import sven.phd.iot.students.mathias.ConflictSolver;
+import sven.phd.iot.students.mathias.states.HassioAction;
+import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
+import sven.phd.iot.students.mathias.states.HassioConflictState;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.scenarios.ScenarioManager;
+import sven.phd.iot.study.StudyManager;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.study.StudyManager;
 
 import java.util.*;
 
@@ -23,7 +30,13 @@ public class ContextManager {
     private ScenarioManager scenarioManager;
     private StudyManager studyManager;
 
+    // MATHIAS
+    private ActionsManager actionsManager;
+
     private ContextManager() {
+        // MATHIAS
+        this.actionsManager = new ActionsManager();
+
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager);
@@ -210,4 +223,72 @@ public class ContextManager {
     }
 
     public StudyManager getStudyManager() { return this.studyManager; }
+
+    /**
+     * Get the cached version of the future conflicts
+     * @return
+     */
+    public List<HassioConflictState> getFutureConflicts() {
+        return this.predictionEngine.getFuture().getFutureConflicts();
+    }
+
+    /**
+     * Get the cached version of the future conflicts of a single device
+     * @param id
+     * @return
+     */
+    public List<HassioConflictState> getFutureConflicts(String id) {
+        return this.predictionEngine.getFuture().getFutureConflicts(id);
+    }
+
+    /**
+     * Get the cached version of the future conflict solutions
+     * @return
+     */
+    public List<HassioConflictSolutionState> getFutureConflictSolutions() {
+        return this.predictionEngine.getFuture().getFutureConflictSolutions();
+    }
+
+    /**
+     * Get the cached version of the future conflicts of a single device
+     * @param id
+     * @return
+     */
+    public List<HassioConflictSolutionState> getFutureConflictSolutions(String id) {
+        return this.predictionEngine.getFuture().getFutureConflictSolutions(id);
+    }
+
+
+    public List<HassioAction> getAllActionsOnDevice(String id){
+        List<HassioAction> result = new ArrayList<>();
+        HassioDevice device = this.hassioDeviceManager.getDevice(id);
+
+        if (device == null) {
+            return result;
+        }
+
+        return device.getAllActions();
+
+    }
+
+    public boolean addConflictSolution(HassioConflictSolutionState solution) {
+        boolean success = false;
+        ConflictSolver solver = ConflictSolver.getInstance();
+        if (solver.addSolution(solution)) {
+            this.updateFuturePredictions();
+            success =  true;
+        }
+        return success;
+    }
+
+    public ActionsManager getActionsManager() { return this.actionsManager; }
+
+    public Action getActionById(String id) {
+        return this.actionsManager.getAction(id);
+    }
+
+    public Map<String, Action> getActions() {
+        return this.actionsManager.getActions();
+    }
+
 }

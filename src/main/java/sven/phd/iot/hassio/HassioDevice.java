@@ -7,6 +7,7 @@ import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.*;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.students.mathias.states.HassioAction;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
@@ -200,5 +201,9 @@ abstract public class HassioDevice {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public List<HassioAction> getAllActions(){
+        return new ArrayList<>();
     }
 }

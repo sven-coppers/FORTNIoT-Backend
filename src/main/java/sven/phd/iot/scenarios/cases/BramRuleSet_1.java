@@ -10,13 +10,15 @@ import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
+import sven.phd.iot.students.mathias.ActionsManager;
+
 import java.awt.*;
 import java.util.Calendar;
 import java.util.Date;
 
 public class BramRuleSet_1 extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager) {
+    public void createRules(RulesManager rulesManager, ActionsManager actionsManager) {
         // When the sun goes below horizon
         Trigger sunSet = new StateTrigger("rule.sun_set", "sun.sun", "below_horizon", "When the sun goes below horizon");
         //When anyone is home

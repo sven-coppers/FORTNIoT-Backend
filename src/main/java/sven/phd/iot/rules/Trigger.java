@@ -2,8 +2,12 @@ package sven.phd.iot.rules;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
+import sven.phd.iot.hassio.states.HassioDateDeserializer;
+import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 
@@ -18,6 +22,17 @@ abstract public class Trigger {
     @JsonProperty("enabled") public boolean enabled; // Is the rule enabled. When the rule is disabled, it cannot be triggered
     @JsonProperty("available") public boolean available; // True if the rule should be accessible through the UI
 
+    /* Mathias adding mute properties
+    *  It should be possible to have multiple start and stop times, so a list should be kept
+     */
+    @JsonDeserialize(using = HassioDateDeserializer.class)
+    @JsonSerialize(using = HassioDateSerializer.class)
+    @JsonProperty("start_time_mute") public Date startTimeMute;
+
+    @JsonDeserialize(using = HassioDateDeserializer.class)
+    @JsonSerialize(using = HassioDateSerializer.class)
+    @JsonProperty("stop_time_mute") public Date stopTimeMute;
+
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
         this.actions = new ArrayList<>();
@@ -26,6 +41,8 @@ abstract public class Trigger {
         this.offset = 0;
         this.enabled = true;
         this.available = true;
+        this.startTimeMute = null;
+        this.stopTimeMute = null;
     }
 
     public void setTitle(String title) {
@@ -113,6 +130,17 @@ abstract public class Trigger {
         this.enabled = enabled;
     }
 
+    /*MATHIAS*/
+    public boolean isEnabled(Date currentTime){
+        if (startTimeMute != null && currentTime.compareTo(startTimeMute) >= 0 && enabled) {
+            enabled = false;
+        }
+        if (stopTimeMute != null && currentTime.compareTo(stopTimeMute) > 0 && !enabled) {
+            enabled = true;
+        }
+        return enabled;
+    }
+
     @Override
     public String toString() {
         String result = "";
@@ -144,7 +172,7 @@ abstract public class Trigger {
 
     public Action getActionOnDevice(String deviceId) {
         for(Action action: actions) {
-            if(action.toString().contains(deviceId)) {
+            if(action.getDeviceID().equals(deviceId)) {
                 return action;
             }
         }

@@ -1,11 +1,14 @@
 package sven.phd.iot.scenarios;
 
 import sven.phd.iot.rules.RulesManager;
+import sven.phd.iot.students.mathias.ActionsManager;
+
 import java.util.Calendar;
 
 
+
 abstract public class RuleSet {
-    abstract public void createRules(RulesManager rulesManager);
+    abstract public void createRules(RulesManager rulesManager, ActionsManager actionsManager);
     protected static long getTime(int hours, int minutes) {
         return getTime(hours, minutes, 0);
     }

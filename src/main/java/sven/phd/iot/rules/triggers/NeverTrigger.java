@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Trigger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,5 +35,11 @@ public class NeverTrigger extends Trigger {
 
     public void setAvailable(boolean available) {
         // DO NOTHING
+    }
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        result.add("never");
+        return result;
     }
 }

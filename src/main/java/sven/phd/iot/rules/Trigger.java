@@ -32,6 +32,9 @@ abstract public class Trigger {
         this.title = title;
     }
 
+    public void addExecution(HassioRuleExecutionEvent executionEvent) {
+        this.executionHistory.add(executionEvent);
+    }
     /**
      * Get the execution history of this rule
      */
@@ -136,6 +139,8 @@ abstract public class Trigger {
     public String getTitle() {
         return this.title;
     }
+
+    public abstract List<String> getTriggeringEntities();
 
     public Action getActionOnDevice(String deviceId) {
         for(Action action: actions) {

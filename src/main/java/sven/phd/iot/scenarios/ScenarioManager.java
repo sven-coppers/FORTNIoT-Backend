@@ -117,6 +117,7 @@ public class ScenarioManager {
         this.stateSets.put("light_simple", new LightSimpleStates());
         this.stateSets.put("smoke_idle", new SmokeIdleStates());
         this.stateSets.put("smoke_smoke", new SmokeSmokeStates());
+        this.stateSets.put("teaser", new TeaserStates());
     }
 
     public List<String> getRuleSet() {

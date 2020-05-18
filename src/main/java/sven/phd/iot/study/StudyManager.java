@@ -73,7 +73,7 @@ public class StudyManager {
                 this.tasks.add(new Task(useCase + "_" + question, false, "Trust question " + trustQuestions.get(j), getSurveyTrust(participantID, group, useCase, question), preset));
             }
 
-            this.tasks.add(new Task(useCase + "_closing", false, "Use Case Closing", getUseCaseEnd(participantID, group, useCase), null));
+            this.tasks.add(new Task(useCase + "_closing", true, "Use Case Closing", getUseCaseEnd(participantID, group, useCase), null));
         }
 
         this.tasks.add(new Task("closing", true, "Fill in the closing survey", getClosing(participantID, group), null));
@@ -123,7 +123,7 @@ public class StudyManager {
                     if(this.tasks.get(i + 1).preset != null) {
                         ContextManager.getInstance().getScenarioManager().setPreset(this.tasks.get(i + 1).preset);
                         ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();
-                        Exporter.export();
+                        Exporter.export(this.getQuestion(this.tasks.get(i + 1).taskID));
                     }
                 } else { // There are no new tasks
                     LogWriter.write(timings);
@@ -136,5 +136,36 @@ public class StudyManager {
 
     public List<Task> getTasks() {
         return this.tasks;
+    }
+
+    public String getQuestion(String taskID) {
+        HashMap<String, String> questions = new HashMap<>();
+        questions.put("tr_what", "What will happen? Why?");
+        questions.put("tr_v1", "The lights turn off when the sun rises?");
+        questions.put("tr_v2", "The lights turn on when smoke is detected");
+        questions.put("tr_v3", "The lights turn on when the sun sets, but only when somebody is home");
+        questions.put("tr_v4", "The lights turn off when there is no longer smoke detected");
+        questions.put("uc1_what", "What will happen? Why?");
+        questions.put("uc1_v1", "The TV will turn on when the news starts and somebody is home");
+        questions.put("uc1_v2", "The led strip turns on when the superbowl starts");
+        questions.put("uc1_v3", "All lights turn off when Star Wars starts ");
+        questions.put("uc1_v4", "The led strip turns on when the superbowl starts");
+        questions.put("uc2_what", "What will happen? Why?");
+        questions.put("uc2_v1", "The floor heating will start heating in the morning");
+        questions.put("uc2_v2", "The heating will turn to eco when the target temperature has been reached");
+        questions.put("uc2_v3", "The airco will turn on when the target temperature is lower than the measured temperature");
+        questions.put("uc2_v4", "The floor heating will turn on earlier to anticipate target temperature ");
+        questions.put("uc3_what", "What will happen? Why?");
+        questions.put("uc3_v1", "The rolling shutter will raise at sun rise, even when nobody is home");
+        questions.put("uc3_v2", "The rolling shutter lowers when the wind speed reaches 55KM/H");
+        questions.put("uc3_v3", "All lights will turn off when the sun rises");
+        questions.put("uc3_v4", "The rolling shutter will raise when the wind speed drops below 55KM/H");
+        questions.put("uc4_what", "What will happen? Why?");
+        questions.put("uc4_v1", "The front door remains unlocked when somebody leaves, but there still is somebody home");
+        questions.put("uc4_v2", "All doors unlock when smoke is detected");
+        questions.put("uc4_v3", "All doors unlock when routine = sleeping ends");
+        questions.put("uc4_v4", "All doors are locked as long as everyone is sleeping");
+
+        return questions.get(taskID);
     }
 }

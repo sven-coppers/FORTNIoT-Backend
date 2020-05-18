@@ -16,6 +16,9 @@ public class SmokeIdleStates extends StateSet {
 
     @Override
     public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
-
+        relativeTime.add(Calendar.HOUR, 2);
+        SS.scheduleState(new HassioState(SmokeDevices.SENSOR_LIVING_SMOKE, "smoke detected", relativeTime.getTime(), null));
+        relativeTime.add(Calendar.HOUR, 2);
+        SS.scheduleState(new HassioState(SmokeDevices.SENSOR_LIVING_SMOKE, "idle", relativeTime.getTime(), null));
     }
 }

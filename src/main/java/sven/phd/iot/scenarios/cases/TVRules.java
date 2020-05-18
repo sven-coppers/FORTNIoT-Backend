@@ -25,7 +25,7 @@ public class TVRules extends RuleSet {
         movieTrigger.addTrigger(new StateTrigger("", TVDevices.LIVING_TV, "on", "tv is on"));
         movieTrigger.addTrigger(new TVGuideTrigger("", "movie starts", TVDevices.LIVING_TV_GUIDE, null, "movie"));
         movieTrigger.addAction(new LightOffAction("turn off chandelier", LightDevices.LIVING_CHANDELIER));
-        movieTrigger.addAction(new LightOffAction("turn off standing lamp", LightDevices.LIVING_STANDING_LAMP));
+        movieTrigger.addAction(new LightOffAction("turn off floor lamp", LightDevices.LIVING_STANDING_LAMP));
     //    movieTrigger.addAction(new LightOnAction("turn on led strip", LightDevices.LIVING_LED_STRIPS, Color.ORANGE, false));
         rulesManager.addRule(movieTrigger);
 

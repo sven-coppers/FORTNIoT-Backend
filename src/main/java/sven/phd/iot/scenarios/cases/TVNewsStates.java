@@ -27,7 +27,7 @@ public class TVNewsStates extends StateSet {
         relativeTime.add(Calendar.MINUTE, 45);
         SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "The Walking Dead Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
         relativeTime.add(Calendar.HOUR, 9);
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "The News Morning", relativeTime.getTime(), new HassioTVGuideAttributes("news")));
+        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "The Morning News", relativeTime.getTime(), new HassioTVGuideAttributes("news")));
         relativeTime.add(Calendar.HOUR, 1);
         SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "The Walking Dead Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
     }

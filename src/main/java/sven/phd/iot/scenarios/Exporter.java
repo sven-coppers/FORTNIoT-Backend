@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class Exporter {
-    public static void export() {
+    public static void export(String question) {
         ObjectMapper objectMapper = new ObjectMapper();
         ContextManager cm = ContextManager.getInstance();
         PredictionEngine pe = cm.getPredictionEngine();
@@ -26,7 +26,7 @@ public class Exporter {
             outputFolder.mkdirs();
 
             System.out.println(" - Settings...");
-            PredictionsRequest settings = new PredictionsRequest(pe.isPredicting(), pe.getTickRate(), pe.getPredictionWindow(), preset);
+            PredictionsRequest settings = new PredictionsRequest(pe.isPredicting(), pe.getTickRate(), pe.getPredictionWindow(), preset, question);
             PrintWriter settingsWritter = new PrintWriter(outputFolderName + "settings.json", "UTF-8");
             settingsWritter.write(objectMapper.writeValueAsString(settings));
             settingsWritter.close();

@@ -88,6 +88,6 @@ public class ConfigResource {
     @GET
     @Path("export/{id}/")
     public void export(@PathParam("id") String useCase) {
-        Exporter.export();
+        Exporter.export(null);
     }
 }

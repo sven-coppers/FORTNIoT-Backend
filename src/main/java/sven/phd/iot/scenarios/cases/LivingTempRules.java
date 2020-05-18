@@ -44,6 +44,6 @@ public class LivingTempRules extends RuleSet {
 
         Trigger targetTempHigher = new ANDTrigger(LIVING_TARGET_HIGHER);
         rulesManager.addRule(targetTempHigher);
-        targetTempHigher.setTitle("IF target temperature higher THEN set floor heating to HEATING");
+        targetTempHigher.setTitle("IF target temperature higher than measured temperature THEN set floor heating to HEATING");
     }
 }

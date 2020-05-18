@@ -23,4 +23,11 @@ public class AlwaysTrigger extends Trigger {
     public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         return new ArrayList<>();
     }
+
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        result.add("always");
+        return result;
+    }
 }

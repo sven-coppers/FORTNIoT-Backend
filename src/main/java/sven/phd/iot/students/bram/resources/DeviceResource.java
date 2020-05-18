@@ -42,9 +42,11 @@ public class DeviceResource {
 
         try {
             String finalSearch = search;
-            devices.forEach((id, device) -> {
+            for(Map.Entry<String, HassioDevice> entry: devices.entrySet()) {
+                if(!entry.getValue().isEnabled())
+                    continue;
                 JSONObject item = new JSONObject();
-                String name = device.getFriendlyName();
+                String name = entry.getValue().getFriendlyName();
                 //Default similarity is 0
                 double similarity = 0;
                 //If the device has a friendly name compare it
@@ -53,14 +55,14 @@ public class DeviceResource {
                 }
                 //If the similarity is more than 50%
                 if(similarity > 0.2) {
-                    item.put("id", id);
-                    item.put("friendly_name", device.getFriendlyName());
+                    item.put("id", entry.getKey());
+                    item.put("friendly_name", name);
                     item.put("confidence", "" + similarity);
                     arr.put(item);
                 }
 
 
-            });
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,14 +82,17 @@ public class DeviceResource {
 
         List<String> types = new ArrayList<String>();
 
-        devices.forEach((id, device) -> {
-            String type = device.getClass().getSimpleName();
+        for(Map.Entry<String, HassioDevice> entry : devices.entrySet()) {
+            if(!entry.getValue().isEnabled()) {
+                continue;
+            }
+            String type = entry.getValue().getClass().getSimpleName();
             type = type.replace("Hassio", "");
 
             if(!types.contains(type)) {
                 types.add(type);
             }
-        });
+        }
 
         JSONObject obj = new JSONObject();
         obj.put("types", types);
@@ -105,14 +110,17 @@ public class DeviceResource {
         JSONArray arr = new JSONArray();
 
         try {
-            devices.forEach((id, device) -> {
+            for(Map.Entry<String, HassioDevice> entry: devices.entrySet()){
+                if(!entry.getValue().isEnabled()) {
+                    continue;
+                }
                 JSONObject item = new JSONObject();
-                item.put("id", id);
-                item.put("available", device.isAvailable()); // Added by Sven
-                item.put("enabled", device.isEnabled()); // Added by Sven
-                item.put("friendly_name", device.getFriendlyName());
+                item.put("id", entry.getKey());
+                item.put("available", entry.getValue().isAvailable()); // Added by Sven
+                item.put("enabled", entry.getValue().isEnabled()); // Added by Sven
+                item.put("friendly_name", entry.getValue().getFriendlyName());
                 arr.put(item);
-            });
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

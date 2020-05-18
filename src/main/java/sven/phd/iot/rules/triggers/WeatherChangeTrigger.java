@@ -35,4 +35,10 @@ public class WeatherChangeTrigger extends Trigger {
         triggerContexts.add(hassioWeatherState.context);
         return triggerContexts;
     }
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        result.add("weather.dark_sky");
+        return result;
+    }
 }

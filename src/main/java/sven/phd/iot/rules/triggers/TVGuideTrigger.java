@@ -47,4 +47,10 @@ public class TVGuideTrigger extends Trigger {
 
         return result;
     }
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        result.add(guideID);
+        return result;
+    }
 }

@@ -15,19 +15,23 @@ public class RuleService {
         List<HassioRuleExecutionEvent> events =  ContextManager.getInstance().getPastRuleExecutions();
 
         String lastEventId;
+        RuleJson result = null;
 
         for(int i = events.size()-1; i >= 0; i--) {
             String eventId = events.get(i).entity_id;
             Trigger rule = ContextManager.getInstance().getRuleById(eventId);
 
+
             Action action = rule.getActionOnDevice(deviceId);
-            if(action != null) {
-                RuleJson obj = new RuleJson();
-                obj.rule_id =  eventId;
-                obj.trigger= rule.getTitle();
-                obj.action =  action.toString();
-                return obj;
+            if(action == null) {
+                return  null;
             }
+            RuleJson obj = new RuleJson();
+            obj.rule_id = eventId;
+            obj.trigger = rule.getTitle();
+            obj.action = action.description;
+
+            return obj;
         }
         return null;
     }

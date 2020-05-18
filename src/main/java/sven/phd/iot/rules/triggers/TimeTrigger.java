@@ -37,4 +37,10 @@ public class TimeTrigger extends Trigger {
 
         return triggerDates;
     }
+    @Override
+    public List<String> getTriggeringEntities() {
+        List<String> result = new ArrayList<>();
+        result.add("time");
+        return result;
+    }
 }

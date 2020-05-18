@@ -44,6 +44,8 @@ public class StudyManager {
         this.ruleSets.put("shower_temperature", new ShowerTempRules());
         this.ruleSets.put("tv_rules", new TVRules());
         this.ruleSets.put("security_rules", new SecurityRules());
+        this.ruleSets.put("cleaning_rules", new CleaningRules());
+        this.ruleSets.put("bram_rules_1", new BramRuleSet_1());
         this.ruleSets.put("cleaning_start", new CleaningRules());
         this.ruleSets.put("cleaning_stop", new CleaningStopRules());
         this.ruleSets.put("blind_rules", new BlindRules());
@@ -63,10 +65,12 @@ public class StudyManager {
         this.deviceSets.put("tv_devices", new TVDevices());
         this.deviceSets.put("security_devices", new SecurityDevices());
         this.deviceSets.put("cleaning_devices", new CleaningDevices());
+        this.deviceSets.put("bram_devices_1", new BramDeviceSet_1());
         this.deviceSets.put("blind_devices", new BlindDevices());
         this.deviceSets.put("weather", new WeatherDevices());
         this.deviceSets.put("light_simple", new LightSimpleDevices());
         this.deviceSets.put("smoke", new SmokeDevices());
+
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -87,6 +91,11 @@ public class StudyManager {
         this.stateSets.put("tv_sports_late", new TVSportsLateStates());
         this.stateSets.put("tv_movies", new TVMovieStates());
         this.stateSets.put("security_states", new SecurityStates());
+        this.stateSets.put("cleaning_states", new CleaningStates());
+        this.stateSets.put("bram_states_1", new BramStateSet_1());
+
+
+
         this.stateSets.put("cleaning_idle", new CleaningStates());
         this.stateSets.put("cleaning_ongoing", new CleaningOngoingStates());
         this.stateSets.put("blind_states", new BlindStates());
@@ -143,7 +152,6 @@ public class StudyManager {
         this.activeDeviceSets.clear();
 
         this.deviceManager.setAllDevicesAvailable(false);
-        this.deviceManager.setAllDevicesEnabled(false);
         ArrayList<HassioDevice> devices = new ArrayList<>();
 
         for(String deviceSet: deviceSets) {
@@ -187,7 +195,7 @@ public class StudyManager {
             this.activeStateSets.add(stateSet);
 
             relativeTime.setTime(startDate);
-            relativeTime.add(Calendar.MINUTE, -240); // Begin 4 uur
+            relativeTime.add(Calendar.MINUTE, -90); // Begin 90 minuten in het verleden
 
             this.stateSets.get(stateSet).setInitialStates(this.deviceManager, relativeTime.getTime());
 

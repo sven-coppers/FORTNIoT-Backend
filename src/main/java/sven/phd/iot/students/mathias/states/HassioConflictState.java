@@ -17,7 +17,7 @@ public class HassioConflictState {
     @JsonSerialize(using = HassioDateSerializer.class)
     @JsonProperty("datetime") public Date datetime;
 
-    @JsonProperty("rules") public List<HassioConflictingRuleState> rules;
+    @JsonProperty("actions") public List<HassioConflictingActionState> actions;
 
     public HassioConflictState() {
         // Default constructor
@@ -26,16 +26,25 @@ public class HassioConflictState {
     public HassioConflictState(String entityID, Date datetime) {
         this.entity_id = entityID;
         this.datetime = datetime;
-        this.rules = new ArrayList<HassioConflictingRuleState>();
+        this.actions = new ArrayList<HassioConflictingActionState>();
     }
 
     public boolean alreadyExist(String entityID, Date datetime) {
         return (this.entity_id.equals(entityID) && this.datetime == datetime);
     }
 
-    public boolean containsRule(String ruleId) {
-        for (HassioConflictingRuleState rule: rules) {
-            if (rule.rule_id.equals(ruleId)) {
+    public boolean containsRule(String ruleID) {
+        for (HassioConflictingActionState action: actions) {
+            if (action.rule_id.equals(ruleID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsAction(String actionID) {
+        for (HassioConflictingActionState action: actions) {
+            if (action.action_id.equals(actionID)) {
                 return true;
             }
         }

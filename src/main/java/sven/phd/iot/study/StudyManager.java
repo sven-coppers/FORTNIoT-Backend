@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.rules.RulesManager;
+import sven.phd.iot.students.mathias.ActionsManager;
 import sven.phd.iot.study.cases.*;
 
 import java.util.*;
@@ -13,6 +14,7 @@ public class StudyManager {
     private final HassioDeviceManager deviceManager;
     private final HassioStateScheduler stateScheduler;
     private final RulesManager rulesManager;
+    private final ActionsManager actionsManager;
     private ContextManager contextManager;
 
     private HashMap<String, StudyDeviceSet> deviceSets;
@@ -29,6 +31,8 @@ public class StudyManager {
         this.deviceManager = contextManager.getHassioDeviceManager();
         this.stateScheduler = deviceManager.getStateScheduler();
         this.rulesManager = contextManager.getRulesManager();
+        // MATHIAS
+        this.actionsManager = contextManager.getActionsManager();
 
         this.activeRuleSets = new ArrayList<>();
         this.ruleSets = new HashMap<>();
@@ -93,16 +97,21 @@ public class StudyManager {
         this.stateSets.put("smoke_idle", new SmokeIdleStates());
         this.stateSets.put("smoke_smoke", new SmokeSmokeStates());
 
-        // ADDING STUDY
+        // MATHIAS ADDING STUDY
         ArrayList<String> rules = new ArrayList<>();
         rules.add("light_rules");
 
         ArrayList<String> devices = new ArrayList<>();
         devices.add("light_devices");
+        devices.add("light_simple");
+        devices.add("sun");
 
         ArrayList<String> states = new ArrayList<>();
         states.add("light_off");
         states.add("light_on");
+        states.add("light_simple");
+        states.add("sun_day_night_day");
+        states.add("sun_night_day_night");
 
         setRuleSet(rules);
         setDeviceSet(devices);
@@ -160,7 +169,7 @@ public class StudyManager {
 
         for(String rulSet: ruleSets) {
             this.activeRuleSets.add(rulSet);
-            this.ruleSets.get(rulSet).createRules(this.rulesManager);
+            this.ruleSets.get(rulSet).createRules(this.rulesManager, this.actionsManager);
         }
     }
 

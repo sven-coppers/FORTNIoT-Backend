@@ -4,6 +4,8 @@ import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
+import sven.phd.iot.rules.Action;
+import sven.phd.iot.students.mathias.ActionsManager;
 import sven.phd.iot.students.mathias.ConflictSolver;
 import sven.phd.iot.students.mathias.states.HassioAction;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
@@ -26,7 +28,13 @@ public class ContextManager {
     private PredictionEngine predictionEngine;
     private StudyManager studyManager;
 
+    // MATHIAS
+    private ActionsManager actionsManager;
+
     private ContextManager() {
+        // MATHIAS
+        this.actionsManager = new ActionsManager();
+
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager);
@@ -266,5 +274,15 @@ public class ContextManager {
             success =  true;
         }
         return success;
+    }
+
+    public ActionsManager getActionsManager() { return this.actionsManager; }
+
+    public Action getActionById(String id) {
+        return this.actionsManager.getAction(id);
+    }
+
+    public Map<String, Action> getActions() {
+        return this.actionsManager.getActions();
     }
 }

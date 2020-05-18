@@ -7,11 +7,12 @@ import sven.phd.iot.rules.actions.StateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.SensorReachesTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
+import sven.phd.iot.students.mathias.ActionsManager;
 import sven.phd.iot.study.StudyRuleSet;
 
 public class CleaningRules extends StudyRuleSet {
     @Override
-    public void createRules(RulesManager rulesManager) {
+    public void createRules(RulesManager rulesManager, ActionsManager actionsManager) {
         Trigger nobodyHomeTrigger = new PeopleHomeTrigger("rule.nobody_home_cleaning", false);
         nobodyHomeTrigger.addAction(new StateAction("clean upstairs", CleaningDevices.ROOMBA_UPSTAIRS, "cleaning"));
         rulesManager.addRule(nobodyHomeTrigger);

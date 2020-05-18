@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 
 abstract public class Action {
+    private static int random = 0;
+
+    @JsonProperty("id") public String id;
     @JsonProperty("description") public String description;
 
     /* Mathias adding action disabling properties
@@ -28,6 +31,7 @@ abstract public class Action {
 
 
     public Action(String description) {
+        this.id = ("actionId" + random++);
         this.description = description;
         this.startTimeDisable = null;
         this.stopTimeDisable = null;
@@ -39,10 +43,13 @@ abstract public class Action {
     abstract public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates);
 
     /*MATHIAS*/
+    public String getActionID() { return id; }
+
+    /*MATHIAS*/
     public String getDeviceID() { return ""; };
 
     /*MATHIAS*/
-    public boolean onSameDevice(Action other) { return false; }
+    public boolean onSameDevice(Action other) { return id.equals(other.id); }
 
     /*MATHIAS*/
     public boolean isEnabled(Date currentTime) {

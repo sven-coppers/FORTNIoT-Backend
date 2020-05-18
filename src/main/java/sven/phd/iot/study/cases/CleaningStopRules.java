@@ -4,11 +4,12 @@ import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.rules.actions.StateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
+import sven.phd.iot.students.mathias.ActionsManager;
 import sven.phd.iot.study.StudyRuleSet;
 
 public class CleaningStopRules extends StudyRuleSet {
     @Override
-    public void createRules(RulesManager rulesManager) {
+    public void createRules(RulesManager rulesManager, ActionsManager actionsManager) {
         Trigger stopCleaningTrigger = new PeopleHomeTrigger("rule.anyone_home_stop_cleaning", true);
         stopCleaningTrigger.addAction(new StateAction("return roomba downstairs to dock", CleaningDevices.ROOMBA_DOWNSTAIRS, "docked"));
         stopCleaningTrigger.addAction(new StateAction("return roomba upstairs to dock", CleaningDevices.ROOMBA_UPSTAIRS, "docked"));

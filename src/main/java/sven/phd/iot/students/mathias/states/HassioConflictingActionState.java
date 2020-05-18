@@ -8,14 +8,16 @@ import sven.phd.iot.hassio.states.HassioDateSerializer;
 
 import java.util.Date;
 
-public class HassioConflictingRuleState {
+public class HassioConflictingActionState {
+    @JsonProperty("action_id") public String action_id;
     @JsonProperty("rule_id") public String rule_id;
 
     @JsonDeserialize(using = HassioDateDeserializer.class)
     @JsonSerialize(using = HassioDateSerializer.class)
     @JsonProperty("triggered_time") public Date triggered_time;
 
-    public HassioConflictingRuleState(String rule_id, Date triggered_time) {
+    public HassioConflictingActionState(String action_id, String rule_id, Date triggered_time) {
+        this.action_id = action_id;
         this.rule_id = rule_id;
         this.triggered_time = triggered_time;
     }

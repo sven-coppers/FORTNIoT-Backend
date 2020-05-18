@@ -50,6 +50,8 @@
     <h1>Endpoints Mathias</h1>
     <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/">mathias/</a> Hello, world</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/mathias/actions/">mathias/actions/</a> Get all actions</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/mathias/actions/actionId1">mathias/actions/{id}</a> Get the action with {id}, e.g. 'actionId1'</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/rules/rule.sun_rise_lights">mathias/rules/{id}</a> Get the rule with {id}, e.g. 'rule.sun_rise_lights'</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/devices/actions/light.living_standing_lamp">mathias/devices/actions/{id}</a> Get the actions for the device with {id}, e.g. 'light.living_standing_lamp'</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/future">mathias/conflicts/future</a> Get the future conflicts</li>

@@ -6,13 +6,14 @@ import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.rules.actions.StateAction;
 import sven.phd.iot.rules.triggers.SensorReachesTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
+import sven.phd.iot.students.mathias.ActionsManager;
 import sven.phd.iot.study.StudyRuleSet;
 
 import java.awt.*;
 
 public class BlindRules extends StudyRuleSet {
     @Override
-    public void createRules(RulesManager rulesManager) {
+    public void createRules(RulesManager rulesManager, ActionsManager actionsManager) {
         Trigger sunBelowHorizonTrigger = new StateTrigger("rule.sun_below_horizon_blinds", "sun.sun", "below_horizon", "sun set");
         sunBelowHorizonTrigger.addAction(new StateAction("lower the rolling shutter", BlindDevices.LIVING_BLINDS, "lowered"));
         rulesManager.addRule(sunBelowHorizonTrigger);

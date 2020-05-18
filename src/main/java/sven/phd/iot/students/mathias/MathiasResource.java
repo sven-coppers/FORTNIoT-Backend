@@ -14,6 +14,7 @@ import sven.phd.iot.students.mathias.states.HassioConflictState;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Map;
 
 @Path("mathias/")
 public class MathiasResource {
@@ -63,6 +64,29 @@ public class MathiasResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Trigger getRule(@PathParam("id") String id) {
         return ContextManager.getInstance().getRuleById(id);
+    }
+
+    /**
+     * Get the action that matches the actionID
+     * @param id
+     * @return Get the action.
+     */
+    @Path("actions/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Action getAction(@PathParam("id") String id) {
+        return ContextManager.getInstance().getActionById(id);
+    }
+
+    /**
+     * Get the actions.
+     * @return Get the actions.
+     */
+    @Path("actions/")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Action> getActions() {
+        return ContextManager.getInstance().getActions();
     }
 
     /**

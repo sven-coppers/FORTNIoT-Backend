@@ -6,6 +6,7 @@ import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.scenarios.cases.*;
+import sven.phd.iot.students.mathias.ActionsManager;
 
 import java.util.*;
 
@@ -13,6 +14,7 @@ public class ScenarioManager {
     private final HassioDeviceManager deviceManager;
     private final HassioStateScheduler stateScheduler;
     private final RulesManager rulesManager;
+    private final ActionsManager actionManager;
     private ContextManager contextManager;
 
     private HashMap<String, DeviceSet> deviceSets;
@@ -31,6 +33,8 @@ public class ScenarioManager {
         this.deviceManager = contextManager.getHassioDeviceManager();
         this.stateScheduler = deviceManager.getStateScheduler();
         this.rulesManager = contextManager.getRulesManager();
+
+        this.actionManager = contextManager.getActionsManager();
 
         this.presets = new ArrayList<>();
         this.presets.add("tr_v1");
@@ -183,7 +187,7 @@ public class ScenarioManager {
                 continue;
             }
 
-            this.ruleSets.get(rulSet).createRules(this.rulesManager, null);
+            this.ruleSets.get(rulSet).createRules(this.rulesManager, this.actionManager);
         }
     }
 

@@ -12,6 +12,7 @@ public class HassioRuleExecutionEvent extends HassioEvent {
     @JsonProperty("execution_id") public String execution_id;
     @JsonProperty("trigger_contexts") public  List<HassioContext> triggerContexts;
     @JsonProperty("action_contexts") public List<HassioContext> actionContexts;
+    @JsonProperty("actions_executed") public List<String> actionsExecuted;
  //   @JsonProperty("offset") public long offset;
     @JsonIgnore protected Trigger trigger;
 
@@ -22,6 +23,7 @@ public class HassioRuleExecutionEvent extends HassioEvent {
         this.trigger = trigger;
         this.triggerContexts = new ArrayList<>();
         this.actionContexts = new ArrayList<>();
+        this.actionsExecuted = new ArrayList<>();
    //     this.offset = offset;
     }
 
@@ -32,10 +34,15 @@ public class HassioRuleExecutionEvent extends HassioEvent {
         this.trigger = null;
         this.triggerContexts = new ArrayList<>();
         this.actionContexts = new ArrayList<>();
+        this.actionsExecuted = new ArrayList<>();
     }
 
     public void addTriggerContexts(List<HassioContext> triggerContexts) {
         this.triggerContexts.addAll(triggerContexts);
+    }
+
+    public void addActionExecuted(String actionID) {
+        this.actionsExecuted.add(actionID);
     }
 
     public void addActionContexts(List<HassioContext> contexts) {

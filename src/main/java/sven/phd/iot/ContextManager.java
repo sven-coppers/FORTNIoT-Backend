@@ -290,5 +290,4 @@ public class ContextManager {
     public Map<String, Action> getActions() {
         return this.actionsManager.getActions();
     }
-
 }

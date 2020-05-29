@@ -56,9 +56,9 @@
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/devices/actions/light.living_standing_lamp">mathias/devices/actions/{id}</a> Get the actions for the device with {id}, e.g. 'light.living_standing_lamp'</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/future">mathias/conflicts/future</a> Get the future conflicts</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/future/light.hue_color_spot_2">mathias/conflicts/future/{id}</a> Get the future conflicts of the device with {id}, e.g. 'light.hue_color_spot_2'</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/solutions/future">mathias/conflicts/solutions/future</a> Get the future conflict solutionss</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/solutions/future/light.hue_color_spot_2">mathias/conflicts/solutions/future/{id}</a> Get the future conflict solutions for the device with {id}, e.g. 'light.hue_color_spot_2'</li>
-      <li><span class="method">POST</span> <a class="uri" href="api/mathias/conflicts/solution">mathias/conflicts/solution</a> Set solutions for conflicts</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/mathias/solutions/future">mathias/solutions/future</a> Get the future conflict solutions</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/mathias/solutions/future/light.hue_color_spot_2">mathias/solutions/future/{id}</a> Get the future conflict solutions for the device with {id}, e.g. 'light.hue_color_spot_2'</li>
+      <li><span class="method">POST</span> <a class="uri" href="api/mathias/solutions">mathias/solutions</a> Set solutions for conflicts</li>
     </ul>
     </div>
   </body>

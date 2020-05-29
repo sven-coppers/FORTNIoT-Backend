@@ -17,6 +17,7 @@ abstract public class Action {
 
     @JsonProperty("id") public String id;
     @JsonProperty("description") public String description;
+    @JsonProperty("enabled") public Boolean enabled;
 
     /* Mathias adding action disabling properties
      *  It should be possible to have multiple start and stop times, so a list should be kept

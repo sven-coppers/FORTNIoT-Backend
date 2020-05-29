@@ -13,6 +13,7 @@ import sven.phd.iot.students.mathias.states.HassioConflictState;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.scenarios.ScenarioManager;
 import sven.phd.iot.study.StudyManager;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.predictions.PredictionEngine;
@@ -26,6 +27,7 @@ public class ContextManager {
     private HassioDeviceManager hassioDeviceManager;
     private RulesManager rulesManager;
     private PredictionEngine predictionEngine;
+    private ScenarioManager scenarioManager;
     private StudyManager studyManager;
 
     // MATHIAS
@@ -38,7 +40,8 @@ public class ContextManager {
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager);
-        this.studyManager = new StudyManager(this);
+        this.scenarioManager = new ScenarioManager(this);
+        this.studyManager = new StudyManager();
 
         // NEVER EVER START PREDICTING WHEN LAUNCHING THIS SHIT
     }
@@ -207,8 +210,8 @@ public class ContextManager {
         return this.predictionEngine.whatIf(simulatedRulesEnabled, simulatedStates);
     }
 
-    public StudyManager getStudyManager() {
-        return studyManager;
+    public ScenarioManager getScenarioManager() {
+        return scenarioManager;
     }
 
     public RulesManager getRulesManager() {
@@ -218,6 +221,8 @@ public class ContextManager {
     public PredictionEngine getPredictionEngine() {
         return this.predictionEngine;
     }
+
+    public StudyManager getStudyManager() { return this.studyManager; }
 
     /**
      * Get the cached version of the future conflicts

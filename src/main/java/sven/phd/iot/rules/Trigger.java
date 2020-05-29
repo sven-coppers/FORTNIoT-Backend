@@ -120,7 +120,10 @@ abstract public class Trigger {
         List<HassioState> results = new ArrayList<>();
 
         for(Action action : this.actions) {
-            results.addAll(action.simulate(executionEvent, hassioStates));
+            if(action.isEnabled(executionEvent.datetime)) {
+                executionEvent.addActionExecuted(action.id);
+                results.addAll(action.simulate(executionEvent, hassioStates));
+            }
         }
 
         return results;

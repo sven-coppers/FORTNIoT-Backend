@@ -6,11 +6,11 @@ import sven.phd.iot.rules.actions.ThermostatStateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
-import sven.phd.iot.students.mathias.ActionsManager;
+import sven.phd.iot.students.mathias.ActionExecutions;
 
 public class ChildrenTempRules extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager, ActionsManager actionsManager) {
+    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
         Trigger childrenMovingTrigger = new StateTrigger("rule.children_moving", ChildrenTempDevices.BEDROOM_CHILDREN_MOTION, "moving", "movement in children's room");
         childrenMovingTrigger.addAction(new ThermostatStateAction(ChildrenTempDevices.BEDROOM_CHILDREN_THERMOSTAT, "children's room thermostat", 21.0));
         rulesManager.addRule(childrenMovingTrigger);

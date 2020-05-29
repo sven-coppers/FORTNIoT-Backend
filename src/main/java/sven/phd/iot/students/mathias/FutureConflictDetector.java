@@ -115,7 +115,7 @@ public class FutureConflictDetector {
         for (int i = 0; i < futureStates.size(); i++) {
             HassioState comparingState = futureStates.get(i);
             HassioRuleExecutionEvent comparingEvent = findFutureRuleExecutionByActionContext(future, comparingState.context.id, comparingState.getLastUpdated()); // this checks if state is the cause of a rule execution
-            Action comparingAction = ContextManager.getInstance().getActionsManager().getActionByContextID(comparingState.context.id);
+            Action comparingAction = ContextManager.getInstance().getActionExecutions().getActionByContextID(comparingState.context.id);
 
             for (int j = i + 1; j < futureStates.size(); j++) {
                 HassioState state = futureStates.get(j);
@@ -123,7 +123,7 @@ public class FutureConflictDetector {
                 if (state.getLastUpdated().compareTo(comparingState.getLastUpdated()) == 0
                         && state.entity_id.equals(comparingState.entity_id)) {
                     HassioRuleExecutionEvent event = findFutureRuleExecutionByActionContext(future, state.context.id, state.getLastUpdated()); // this checks if state is the cause of a rule execution
-                    Action action = ContextManager.getInstance().getActionsManager().getActionByContextID(state.context.id);
+                    Action action = ContextManager.getInstance().getActionExecutions().getActionByContextID(state.context.id);
 
                     boolean conflictAlreadyExists = false;
                     HassioConflictState comparingActionConflictState = containsConflict(result, comparingState.entity_id, comparingState.getLastUpdated());

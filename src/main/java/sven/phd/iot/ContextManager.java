@@ -5,7 +5,7 @@ import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.rules.Action;
-import sven.phd.iot.students.mathias.ActionsManager;
+import sven.phd.iot.students.mathias.ActionExecutions;
 import sven.phd.iot.students.mathias.ConflictSolver;
 import sven.phd.iot.students.mathias.states.HassioAction;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
@@ -31,11 +31,11 @@ public class ContextManager {
     private StudyManager studyManager;
 
     // MATHIAS
-    private ActionsManager actionsManager;
+    private ActionExecutions actionExecutions;
 
     private ContextManager() {
         // MATHIAS
-        this.actionsManager = new ActionsManager();
+        this.actionExecutions = new ActionExecutions();
 
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
@@ -281,13 +281,22 @@ public class ContextManager {
         return success;
     }
 
-    public ActionsManager getActionsManager() { return this.actionsManager; }
+    public ActionExecutions getActionExecutions() { return this.actionExecutions; }
 
     public Action getActionById(String id) {
-        return this.actionsManager.getAction(id);
+        Map<String, Action> allActions = rulesManager.getAllActions();
+        allActions.putAll(actionExecutions.getAllActions());
+        for (String actionID : allActions.keySet()) {
+            if (actionID.equals(id)) {
+                return allActions.get(actionID);
+            }
+        }
+        return null;
     }
 
     public Map<String, Action> getActions() {
-        return this.actionsManager.getActions();
+        Map<String, Action> allActions = rulesManager.getAllActions();
+        allActions.putAll(actionExecutions.getAllActions());
+        return allActions;
     }
 }

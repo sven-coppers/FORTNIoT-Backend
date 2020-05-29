@@ -122,6 +122,18 @@ public class ScenarioManager {
         this.stateSets.put("smoke_idle", new SmokeIdleStates());
         this.stateSets.put("smoke_smoke", new SmokeSmokeStates());
         this.stateSets.put("teaser", new TeaserStates());
+
+
+        // MATHIAS SETUP
+        this.activeRuleSets.add("light_rules");
+        this.activeDeviceSets.add("light_devices");
+        this.activeDeviceSets.add("sun");
+        this.activeStateSets.add("light_off");
+        this.activeStateSets.add("light_on");
+        this.activeStateSets.add("light_simple");
+        this.activeStateSets.add("sun_day_night_day");
+        this.activeStateSets.add("sun_night_day_night");
+
     }
 
     public List<String> getRuleSet() {

@@ -1,7 +1,5 @@
 package sven.phd.iot.students.mathias;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
@@ -13,9 +11,7 @@ import sven.phd.iot.students.mathias.states.HassioConflictSolutionActionState;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 public class ConflictSolver {
@@ -57,8 +53,8 @@ public class ConflictSolver {
 
                 Trigger rule = ContextManager.getInstance().getRule(ruleID);
                 if (rule != null) {
-                    rule.startTimeMute = startTime;
-                    rule.stopTimeMute = stopTime;
+                    rule.startingTimesMute.add(startTime);
+                    rule.stoppingTimesMute.add(stopTime);
                 }
 
                 success = true;
@@ -68,26 +64,15 @@ public class ConflictSolver {
                 Date startTime = action.values.startTime;
                 Date stopTime = action.values.stopTime;
 
-                // TODO rewrite this when there is a list of all actions in the system
-                // At the moment this is rule based
-                if (!ruleID.isEmpty()) {
-                    Trigger rule = ContextManager.getInstance().getRule(ruleID);
-                    if (rule != null) {
-                        List<Action> ruleActions = rule.actions;
-                        for (int i = 0; i < ruleActions.size(); i++) {
-                            Action ruleAction = ruleActions.get(i);
-                            if (ruleAction.id.equals(actionID)) {
-                                ruleAction.startTimeDisable = startTime;
-                                ruleAction.stopTimeDisable = stopTime;
-                                System.out.println("Rule: " + rule.id + ", with action (description): " + ruleAction.description + " is muted with time " + ruleAction.startTimeDisable.toString());
-                            }
-                        }
-                    }
+                Map<String, Action> allActions = ContextManager.getInstance().getActions();
+                Action actionFromAllActions = allActions.get(actionID);
+                if (actionFromAllActions != null) {
+                    actionFromAllActions.startingTimesDisable.add(startTime);
+                    actionFromAllActions.stoppingTimesDisable.add(stopTime);
                 }
 
                 success = true;
             } else if (action.type.equals("CREATE ACTION")) {
-                // TODO fill in create action
                 System.out.println("Create actions");
 
                 String actionID = action.values.actionID;
@@ -103,8 +88,7 @@ public class ConflictSolver {
                         LightOnAction lightOnAction = new LightOnAction(description, entity_id, color, true);
                         List<HassioState> lightOnState = lightOnAction.simulate(new HassioRuleExecutionEvent("", datetime), null);
                         if (!lightOnState.isEmpty()) {
-                            ContextManager.getInstance().getActionsManager().addAction(lightOnAction);
-                            ContextManager.getInstance().getActionsManager().addActionExecution(lightOnAction.id, lightOnState.get(0).context.id);
+                            ContextManager.getInstance().getActionExecutions().addActionExecution(lightOnAction, lightOnState.get(0).context.id);
                             ContextManager.getInstance().getHassioDeviceManager().getStateScheduler().scheduleState(lightOnState.get(0));
                         }
                         break;
@@ -112,8 +96,7 @@ public class ConflictSolver {
                         LightOffAction lightOffAction = new LightOffAction(description, entity_id);
                         List<HassioState> lightOffState = lightOffAction.simulate(new HassioRuleExecutionEvent("", datetime), null);
                         if (!lightOffState.isEmpty()) {
-                            ContextManager.getInstance().getActionsManager().addAction(lightOffAction);
-                            ContextManager.getInstance().getActionsManager().addActionExecution(lightOffAction.id, lightOffState.get(0).context.id);
+                            ContextManager.getInstance().getActionExecutions().addActionExecution(lightOffAction, lightOffState.get(0).context.id);
                             ContextManager.getInstance().getHassioDeviceManager().getStateScheduler().scheduleState(lightOffState.get(0));
                         }
                         break;
@@ -130,6 +113,8 @@ public class ConflictSolver {
         for (HassioConflictSolutionState conflictSolution: _conflicSolutions) {
             if (conflictSolution.entity_id.equals(solution.entity_id) && conflictSolution.datetime.compareTo(solution.datetime) == 0) {
                 addedToExistingConflict = true;
+                // TODO when this is set to false, remove all repeated solutions
+                conflictSolution.repeating = solution.repeating;
 
                 // If solutions already exists, check if actions on same device already exist and change to the new actions
                 // TODO not only remove from list, but also revert previous action

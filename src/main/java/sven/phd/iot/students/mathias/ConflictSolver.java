@@ -113,8 +113,6 @@ public class ConflictSolver {
         for (HassioConflictSolutionState conflictSolution: _conflicSolutions) {
             if (conflictSolution.entity_id.equals(solution.entity_id) && conflictSolution.datetime.compareTo(solution.datetime) == 0) {
                 addedToExistingConflict = true;
-                // TODO when this is set to false, remove all repeated solutions
-                conflictSolution.repeating = solution.repeating;
 
                 // If solutions already exists, check if actions on same device already exist and change to the new actions
                 // TODO not only remove from list, but also revert previous action

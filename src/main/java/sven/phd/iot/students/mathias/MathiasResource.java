@@ -13,6 +13,7 @@ import sven.phd.iot.students.mathias.states.HassioConflictState;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +86,7 @@ public class MathiasResource {
     @Path("actions/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<String, Action> getActions() {
-        return ContextManager.getInstance().getActions();
+    public List<Action> getActions() {
+        return new ArrayList<>(ContextManager.getInstance().getActions().values());
     }
 }

@@ -36,6 +36,7 @@ abstract public class Action {
         this.description = description;
         this.startTimeDisable = null;
         this.stopTimeDisable = null;
+        this.enabled = true;
     }
 
   //  abstract public void previewHandler(Map<String, HassioState> newState);
@@ -54,7 +55,7 @@ abstract public class Action {
 
     /*MATHIAS*/
     public boolean isEnabled(Date currentTime) {
-        boolean enabled = true;
+        boolean enabled = this.enabled;
 
         if (startTimeDisable != null && currentTime.compareTo(startTimeDisable) >= 0) {
             enabled = false;

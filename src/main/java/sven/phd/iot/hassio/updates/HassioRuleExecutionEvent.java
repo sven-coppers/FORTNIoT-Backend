@@ -11,8 +11,7 @@ import java.util.*;
 public class HassioRuleExecutionEvent extends HassioEvent {
     @JsonProperty("execution_id") public String execution_id;
     @JsonProperty("trigger_contexts") public  List<HassioContext> triggerContexts;
-    @JsonProperty("action_contexts") public List<HassioContext> actionContexts;
-    @JsonProperty("actions_executed") public List<String> actionsExecuted;
+    @JsonProperty("action_contexts") public HashMap<String, List<HassioContext>> actionContexts;
  //   @JsonProperty("offset") public long offset;
     @JsonIgnore protected Trigger trigger;
 
@@ -22,8 +21,7 @@ public class HassioRuleExecutionEvent extends HassioEvent {
         this.execution_id = UUID.randomUUID().toString();
         this.trigger = trigger;
         this.triggerContexts = new ArrayList<>();
-        this.actionContexts = new ArrayList<>();
-        this.actionsExecuted = new ArrayList<>();
+        this.actionContexts = new HashMap<>();
    //     this.offset = offset;
     }
 
@@ -33,33 +31,33 @@ public class HassioRuleExecutionEvent extends HassioEvent {
         this.execution_id = UUID.randomUUID().toString();
         this.trigger = null;
         this.triggerContexts = new ArrayList<>();
-        this.actionContexts = new ArrayList<>();
-        this.actionsExecuted = new ArrayList<>();
+        this.actionContexts = new HashMap<>();
     }
 
     public void addTriggerContexts(List<HassioContext> triggerContexts) {
         this.triggerContexts.addAll(triggerContexts);
     }
 
-    public void addActionExecuted(String actionID) {
-        this.actionsExecuted.add(actionID);
-    }
+    public void addActionExecuted(String actionID, List<HassioContext> contexts) {
+        if(this.actionContexts.get(actionID) == null) {
+            this.actionContexts.put(actionID, new ArrayList<>());
+        }
 
-    public void addActionContexts(List<HassioContext> contexts) {
-        this.actionContexts.addAll(contexts);
+        this.actionContexts.get(actionID).addAll(contexts);
     }
 
     public Trigger getTrigger() {
         return this.trigger;
     }
 
+    /* Deprecated??? */
     public void resolveContexts(HashMap<String, HassioState> hassioStates, List<String> triggerDevices, List<String> actionDevices) {
         for(String triggerDevice : triggerDevices) {
             this.triggerContexts.add(hassioStates.get(triggerDevice).context);
         }
 
         for(String actionDevice : actionDevices) {
-            this.actionContexts.add(hassioStates.get(actionDevice).context);
+            //this.actionContexts.add(hassioStates.get(actionDevice).context); // Incompatible now
         }
     }
 }

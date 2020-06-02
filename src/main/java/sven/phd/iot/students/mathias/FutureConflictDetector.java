@@ -13,6 +13,7 @@ import sven.phd.iot.rules.Trigger;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class FutureConflictDetector {
@@ -157,6 +158,8 @@ public class FutureConflictDetector {
         return result;
     }
 
+
+
     private String getActionIdFromInvolvedRule(String entityID, Trigger rule) {
         Action action = rule.getActionOnDevice(entityID);
         if (action != null) {
@@ -170,10 +173,17 @@ public class FutureConflictDetector {
         List<HassioRuleExecutionEvent> futuresRuleExecutions = future.futureExecutions;
         for (HassioRuleExecutionEvent event: futuresRuleExecutions) {
             if (event.datetime.compareTo(datetime) == 0) {
-                List<HassioContext> actionContexts = event.actionContexts;
-                for (HassioContext context: actionContexts) {
-                    if (context.id.equals(contextId)) {
-                        return event;
+                /* TODO MATHIAS:
+                    Dit kan waarschijnlijk meer robust, want HassioRuleExecutionEvent now contains a Hashmap: actionID -> List of hassioContexts caused by that action,
+                    Groetjes Sven
+                 */
+                HashMap<String, List<HassioContext>> actionContexts = event.actionContexts;
+
+                for(String actionID : actionContexts.keySet()) {
+                    for (HassioContext context: actionContexts.get(actionID)) {
+                        if (context.id.equals(contextId)) {
+                            return event;
+                        }
                     }
                 }
             }

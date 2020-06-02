@@ -170,12 +170,13 @@ public class ContextManager {
         List<HassioRuleExecutionEvent> triggerEvents = rulesManager.verifyTriggers(hassioStates, hassioChange);
 
         for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
-            List<HassioState> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, hassioStates);
+            HashMap<String, List<HassioState>> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, hassioStates);
 
-            // Apply additional changes as result of the rules as the new state
-            List<HassioContext> contexts = this.hassioDeviceManager.setHassioDeviceStates(resultingActions);
+            // Apply changes as result of the rules as the new state
+            for(String actionID : resultingActions.keySet()) {
+                triggerEvent.addActionExecuted(actionID, this.hassioDeviceManager.setHassioDeviceStates(resultingActions.get(actionID)));
+            }
 
-            triggerEvent.addActionContexts(contexts);
             triggerEvent.getTrigger().logHassioRuleExecutionEvent(triggerEvent);
         }
     }

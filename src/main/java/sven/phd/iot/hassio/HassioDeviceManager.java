@@ -250,9 +250,11 @@ public class HassioDeviceManager implements EventListener {
         // Process the change events
         for(ImplicitBehaviorEvent changeEvent : results) {
             // Finally update the last_changed field
-            for(String changedDevice : changeEvent.getActionDeviceIDs()) {
-                newHassioStates.get(changedDevice).setLastChanged(newDate);
-                newHassioStates.get(changedDevice).setLastUpdated(newDate);
+            for(String actionID : changeEvent.getActionDeviceIDs().keySet()) {
+                for(String changedDevice : changeEvent.getActionDeviceIDs().get(actionID)) {
+                    newHassioStates.get(changedDevice).setLastChanged(newDate);
+                    newHassioStates.get(changedDevice).setLastUpdated(newDate);
+                }
             }
 
             // Resolve
@@ -287,9 +289,11 @@ public class HassioDeviceManager implements EventListener {
         // Process the change events
         for(ImplicitBehaviorEvent changeEvent : results) {
             // Finally update the last_changed field
-            for(String changedDevice : changeEvent.getActionDeviceIDs()) {
-                newHassioStates.get(changedDevice).setLastChanged(newDate);
-                newHassioStates.get(changedDevice).setLastUpdated(newDate);
+            for(String actionID : changeEvent.getActionDeviceIDs().keySet()) {
+                for(String changedDevice : changeEvent.getActionDeviceIDs().get(actionID)) {
+                    newHassioStates.get(changedDevice).setLastChanged(newDate);
+                    newHassioStates.get(changedDevice).setLastUpdated(newDate);
+                }
             }
 
             // Resolve
@@ -306,19 +310,23 @@ public class HassioDeviceManager implements EventListener {
             ImplicitBehaviorEvent foundUniqueEvent = null;
 
             for(ImplicitBehaviorEvent uniqueEvent: result) {
-                for(String consideringEventAction : consideringEvent.getActionDeviceIDs()) {
-                    if(uniqueEvent.getActionDeviceIDs().contains(consideringEventAction)) {
-                        foundUniqueEvent = uniqueEvent;
-                        break;
+                for(String actionID : consideringEvent.getActionDeviceIDs().keySet()) {
+                    for(String consideringEventAction : consideringEvent.getActionDeviceIDs().get(actionID)) {
+                        if(uniqueEvent.getActionDeviceIDs().get(actionID).contains(consideringEventAction)) {
+                            foundUniqueEvent = uniqueEvent;
+                            break;
+                        }
                     }
                 }
             }
 
             if(foundUniqueEvent != null) {
                 // Add all other triggers from the considering event to the unique event
-                for(String consideringEventAction : consideringEvent.getActionDeviceIDs()) {
-                    if(!foundUniqueEvent.getActionDeviceIDs().contains(consideringEventAction)) {
-                        foundUniqueEvent.addActionDeviceID(consideringEventAction);
+                for(String actionID : consideringEvent.getActionDeviceIDs().keySet()) {
+                    for (String consideringEventAction : consideringEvent.getActionDeviceIDs().get(actionID)) {
+                        if (!foundUniqueEvent.getActionDeviceIDs().get(actionID).contains(consideringEventAction)) {
+                            foundUniqueEvent.addActionDeviceID(consideringEventAction);
+                        }
                     }
                 }
 

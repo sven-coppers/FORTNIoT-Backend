@@ -33,6 +33,7 @@ abstract public class Action {
         this.description = description;
         this.startingTimesDisable = new ArrayList<>();
         this.stoppingTimesDisable = new ArrayList<>();
+        this.enabled = true;
     }
 
   //  abstract public void previewHandler(Map<String, HassioState> newState);
@@ -51,7 +52,7 @@ abstract public class Action {
 
     /*MATHIAS*/
     public boolean isEnabled(Date currentTime) {
-        boolean enabled = true;
+        boolean enabled = this.enabled;
 
         for (int i = 0; i < stoppingTimesDisable.size(); i++) {
             Date startTime = startingTimesDisable.get(i);

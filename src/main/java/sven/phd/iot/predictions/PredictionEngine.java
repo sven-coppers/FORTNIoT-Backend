@@ -132,21 +132,26 @@ public class PredictionEngine {
                 List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(lastStates, newChange, simulatedRulesEnabled);
 
                 for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
-                    List<HassioState> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, lastStates);
-                    List<HassioContext> resultingContexts = new ArrayList<>();
+                    HashMap<String, List<HassioState>> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, lastStates);
 
                     // Add the context of the simulated actions as a result in the triggerEvent
-                    for(HassioState resultingAction : resultingActions) {
-                        resultingContexts.add(resultingAction.context);
-                    }
+                    for(String actionID : resultingActions.keySet()) {
+                        List<HassioContext> resultingContexts = new ArrayList<>();
 
-                    triggerEvent.addActionContexts(resultingContexts);
+                        for(HassioState resultingAction : resultingActions.get(actionID)) {
+                            resultingContexts.add(resultingAction.context);
+                        }
+
+                        triggerEvent.addActionExecuted(actionID, resultingContexts);
+                    }
 
                     // Add predicted executions to the rule's prediction list
                     future.addHassioRuleExecutionEventPrediction(triggerEvent);
 
                     // Add the actions to the prediction QUEUEs
-                    globalQueue.addAll(resultingActions);
+                    for(String actionID : resultingActions.keySet()) {
+                        globalQueue.addAll(resultingActions.get(actionID));
+                    }
                 }
 
                 // Pass the stateChange to the implicit rules (e.g. turn heater on/off)

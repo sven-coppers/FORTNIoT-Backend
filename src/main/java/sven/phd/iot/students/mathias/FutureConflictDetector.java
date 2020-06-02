@@ -106,6 +106,17 @@ public class FutureConflictDetector {
         return false;
     }
 
+    private boolean containsAction(List<HassioConflictState> allConflicts, String deviceID, Date datetime, Action action) {
+        for (HassioConflictState conflict: allConflicts) {
+            if (conflict.alreadyExist(deviceID,datetime)){
+                if (conflict.containsAction(action.id)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private List<HassioConflictState> findRaceConditionsInStates(Future future){
         List<HassioState> futureStates = future.getFutureStates();
         List<HassioConflictState> result = new ArrayList<>();
@@ -115,41 +126,58 @@ public class FutureConflictDetector {
         // This means that actions that are in conflict should also be added in another way to the conflict scheme
         for (int i = 0; i < futureStates.size(); i++) {
             HassioState comparingState = futureStates.get(i);
+            // Find rule execution event
             HassioRuleExecutionEvent comparingEvent = findFutureRuleExecutionByActionContext(future, comparingState.context.id, comparingState.getLastUpdated()); // this checks if state is the cause of a rule execution
-            Action comparingAction = ContextManager.getInstance().getActionExecutions().getActionByContextID(comparingState.context.id);
+            // Find responsible action for the state change
+            Action comparingAction = null;
+            if (comparingEvent == null) {                                                                                                                         // this check if state is the cause of a independent action execution
+                comparingAction = ContextManager.getInstance().getActionExecutions().getActionByContextID(comparingState.context.id);
+            } else {
+                comparingAction = getActionFromInvolvedRule(comparingEvent, comparingState.context.id);
+            }
+            // Find out if the result already contains this possible conflict as a real conflict
+            boolean conflictAlreadyExists = false;
+            HassioConflictState comparingActionConflictState = containsConflict(result, comparingState.entity_id, comparingState.getLastUpdated());
+            if (comparingActionConflictState != null) {
+                conflictAlreadyExists = true;
+            }
 
             for (int j = i + 1; j < futureStates.size(); j++) {
                 HassioState state = futureStates.get(j);
                 // if race condition on same entities -> get future rules that execute them
                 if (state.getLastUpdated().compareTo(comparingState.getLastUpdated()) == 0
                         && state.entity_id.equals(comparingState.entity_id)) {
+                    // FInd rule execution event
                     HassioRuleExecutionEvent event = findFutureRuleExecutionByActionContext(future, state.context.id, state.getLastUpdated()); // this checks if state is the cause of a rule execution
-                    Action action = ContextManager.getInstance().getActionExecutions().getActionByContextID(state.context.id);
-
-                    boolean conflictAlreadyExists = false;
-                    HassioConflictState comparingActionConflictState = containsConflict(result, comparingState.entity_id, comparingState.getLastUpdated());
-                    if (comparingActionConflictState != null) {
-                        conflictAlreadyExists = true;
+                    // Find responsible action for the state change
+                    Action action = null;
+                    if (event == null) {                                                                                                       // this check if state is the cause of a independent action execution
+                        action = ContextManager.getInstance().getActionExecutions().getActionByContextID(state.context.id);
+                    } else {
+                        action = getActionFromInvolvedRule(event, state.context.id);
                     }
-
+                    // Create new conflict if the result didn't already contain this one
                     if (!conflictAlreadyExists) {
                         comparingActionConflictState = new HassioConflictState(comparingState.entity_id, comparingState.getLastUpdated());
                         result.add(comparingActionConflictState);
                         conflictAlreadyExists = true;
                     }
 
-                    // TODO here should be checked if comparingEvent and event exist
-                    // If they don't exist, the should be added to the conflict in another way
-                    if (comparingEvent != null && !containsRule(result, comparingState.entity_id, comparingState.getLastUpdated(), comparingEvent.getTrigger())) {
+                    // Add conflicting actions to the conflict
+                    if (!containsAction(result, comparingState.entity_id, comparingState.getLastUpdated(), comparingAction)) {
+                        if (comparingEvent != null){
+                            comparingActionConflictState.actions.add(new HassioConflictingActionState(comparingAction.id, comparingEvent.getTrigger().id, comparingState.context.id, comparingEvent.datetime));
+                        } else {
+                            comparingActionConflictState.actions.add(new HassioConflictingActionState(comparingAction.id, "", comparingState.context.id, comparingState.getLastChanged()));
+                        }
 
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(getActionIdFromInvolvedRule(comparingState.entity_id, comparingEvent.getTrigger()), comparingEvent.getTrigger().id, comparingEvent.datetime));
-                    } else if (comparingAction != null) {
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(comparingAction.id, "", comparingState.getLastChanged()));
                     }
-                    if (event != null && !containsRule(result, comparingState.entity_id, comparingState.getLastUpdated(), event.getTrigger())){
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(getActionIdFromInvolvedRule(comparingState.entity_id, event.getTrigger()), event.getTrigger().id, event.datetime));
-                    } else if (action != null) {
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(action.id, "", state.getLastChanged()));
+                    if (!containsAction(result, comparingState.entity_id, comparingState.getLastUpdated(), action)){
+                        if (event != null) {
+                            comparingActionConflictState.actions.add(new HassioConflictingActionState(action.id, event.getTrigger().id, state.context.id, event.datetime));
+                        } else {
+                            comparingActionConflictState.actions.add(new HassioConflictingActionState(action.id, "", state.context.id, state.getLastChanged()));
+                        }
                     }
                 }
             }
@@ -158,8 +186,20 @@ public class FutureConflictDetector {
         return result;
     }
 
+    private Action getActionFromInvolvedRule(HassioRuleExecutionEvent event, String contextId) {
+        HashMap<String, List<HassioContext>> actionContexts = event.actionContexts;
+        for (String actionID: actionContexts.keySet()) {
+            for (HassioContext context: actionContexts.get(actionID)) {
+                if (context.id.equals(contextId)) {
+                    return ContextManager.getInstance().getActionById(actionID);
+                }
+            }
+        }
+        return null;
+    }
 
-
+    // This is not a robust way to get the right action from the rule
+    // Depr.
     private String getActionIdFromInvolvedRule(String entityID, Trigger rule) {
         Action action = rule.getActionOnDevice(entityID);
         if (action != null) {

@@ -34,14 +34,14 @@ public class StateTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStateHashMap) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStateHashMap) {
         HassioState hassioAbstractState = hassioStateHashMap.get(entityID);
 
         if(hassioAbstractState == null) return null;
 
         if(hassioAbstractState.state.equals(triggerState)) {
-            List<HassioContext> triggerContexts = new ArrayList<>();
-            triggerContexts.add(hassioAbstractState.context);
+            List<HassioState> triggerContexts = new ArrayList<>();
+            triggerContexts.add(hassioAbstractState);
             return triggerContexts;
         }
 

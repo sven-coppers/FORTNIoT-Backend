@@ -45,13 +45,13 @@ public class SensorReachesTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
         HassioState hassioState = hassioStates.get(this.sensorIdentifier);
         float value = Float.parseFloat(hassioState.state);
 
         if((decreasing && value <= targetValue) || (!decreasing && value >= targetValue)){
-            List<HassioContext> triggerContexts = new ArrayList<>();
-            triggerContexts.add(hassioState.context);
+            List<HassioState> triggerContexts = new ArrayList<>();
+            triggerContexts.add(hassioState);
             return triggerContexts;
         }
 

@@ -10,7 +10,7 @@ import java.util.*;
 
 public class HassioRuleExecutionEvent extends HassioEvent {
     @JsonProperty("execution_id") public String execution_id;
-    @JsonProperty("trigger_contexts") public  List<HassioContext> triggerContexts;
+    @JsonProperty("trigger_contexts") public HashMap<String, List<HassioContext>> triggerContexts;
     @JsonProperty("action_contexts") public HashMap<String, List<HassioContext>> actionContexts;
  //   @JsonProperty("offset") public long offset;
     @JsonIgnore protected Trigger trigger;
@@ -20,7 +20,7 @@ public class HassioRuleExecutionEvent extends HassioEvent {
 
         this.execution_id = UUID.randomUUID().toString();
         this.trigger = trigger;
-        this.triggerContexts = new ArrayList<>();
+        this.triggerContexts = new HashMap<>();
         this.actionContexts = new HashMap<>();
    //     this.offset = offset;
     }
@@ -30,12 +30,16 @@ public class HassioRuleExecutionEvent extends HassioEvent {
 
         this.execution_id = UUID.randomUUID().toString();
         this.trigger = null;
-        this.triggerContexts = new ArrayList<>();
+        this.triggerContexts = new HashMap<>();
         this.actionContexts = new HashMap<>();
     }
 
-    public void addTriggerContexts(List<HassioContext> triggerContexts) {
-        this.triggerContexts.addAll(triggerContexts);
+    public void addTriggerContext(String actionID, HassioContext context) {
+        if(this.triggerContexts.get(actionID) == null) {
+            this.triggerContexts.put(actionID, new ArrayList<>());
+        }
+
+        this.triggerContexts.get(actionID).add(context);
     }
 
     public void addActionExecuted(String actionID, List<HassioContext> contexts) {
@@ -52,9 +56,9 @@ public class HassioRuleExecutionEvent extends HassioEvent {
 
     /* Deprecated??? */
     public void resolveContexts(HashMap<String, HassioState> hassioStates, List<String> triggerDevices, List<String> actionDevices) {
-        for(String triggerDevice : triggerDevices) {
+    /*    for(String triggerDevice : triggerDevices) {
             this.triggerContexts.add(hassioStates.get(triggerDevice).context);
-        }
+        } */
 
         for(String actionDevice : actionDevices) {
             //this.actionContexts.add(hassioStates.get(actionDevice).context); // Incompatible now

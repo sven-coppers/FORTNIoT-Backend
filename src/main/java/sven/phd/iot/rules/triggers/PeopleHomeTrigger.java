@@ -31,10 +31,10 @@ public class PeopleHomeTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
         // Count People
         int numPeople = 0;
-        List<HassioContext> triggerContexts = new ArrayList<>();
+        List<HassioState> triggerContexts = new ArrayList<>();
 
         for(String deviceID : hassioStates.keySet()) {
             if(deviceID.contains("person.")) {
@@ -45,11 +45,11 @@ public class PeopleHomeTrigger extends Trigger {
                         numPeople++;
 
                         if(anyoneHome) {
-                            triggerContexts.add(personState.context);
+                            triggerContexts.add(personState);
                         }
                     } else {
                         if(!anyoneHome) {
-                            triggerContexts.add(personState.context);
+                            triggerContexts.add(personState);
                         }
                     }
                 }

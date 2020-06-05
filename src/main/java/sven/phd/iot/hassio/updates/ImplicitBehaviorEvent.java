@@ -70,7 +70,7 @@ public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
 
     public void resolveContextIDs(HashMap<String, HassioState> hassioStates) {
         for(String deviceID: this.triggerDevicesIDs) {
-            this.triggerContexts.add(hassioStates.get(deviceID).context);
+            this.addTriggerContext(deviceID, hassioStates.get(deviceID).context);
         }
 
         for(String actionID : this.actionDevicesIDs.keySet()) {

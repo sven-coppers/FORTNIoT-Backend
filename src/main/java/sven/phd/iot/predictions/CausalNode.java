@@ -75,17 +75,7 @@ public class CausalNode {
 
     public void addChild(CausalNode node) {
         consequences.add(node);
-    }
-
-    public CausalNode chainNode(CausalNode node) {
-        if(consequences.isEmpty()) {
-            consequences.add(node);
-            node.setParent(this);
-        } else {
-            consequences.get(0).chainNode(node);
-        }
-
-        return node;
+        node.setParent(this);
     }
 
     public void print(int depth) {
@@ -131,4 +121,51 @@ public class CausalNode {
     public List<CausalNode> getQueue() {
         return this.queue;
     }
+
+    public boolean hadSomethingQueuedThatDependsOn(String deviceID) {
+        for(CausalNode node : this.queue) {
+            if(node.executionEvent.triggerContexts.containsKey(deviceID)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param deviceID
+     * @return null if it is safe
+     */
+    public CausalNode getOldestAncestorThatHasSomethingQueuedThatDependsOn(String deviceID) {
+        // Try the oldest stuff first
+        if(this.getParent() != null) {
+            CausalNode potentialResult = this.getParent().getOldestAncestorThatHasSomethingQueuedThatDependsOn(deviceID);
+
+            if(potentialResult != null) {
+                return potentialResult;
+            }
+        }
+
+        // Try ourselves
+        if(this.hadSomethingQueuedThatDependsOn(deviceID)) {
+            return this;
+        }
+
+        return null;
+    }
+
+    public void clearChildren() {
+        this.consequences.clear();
+    }
+
+    /*     public CausalNode getClosestAncestorAbout(String deviceID) {
+        if(this.hassioState.entity_id.equals(deviceID)) return this;
+
+        if(this.getParent() != null) {
+            return this.getParent().getOldestAncestorThatDependedOn(deviceID);
+        } else {
+            return null;
+        }
+    } */
 }

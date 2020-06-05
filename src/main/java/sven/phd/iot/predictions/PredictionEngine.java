@@ -134,6 +134,8 @@ public class PredictionEngine {
 
         // The first element becomes the root, the rest will be added to its queue
         if(!tempQueue.isEmpty()) {
+            System.out.println("Tick " + newDate);
+
             causalTree = tempQueue.pop();
             causalTree.pushToQueue(tempQueue);
 
@@ -143,15 +145,10 @@ public class PredictionEngine {
 
             if(this.isPredicting()) {
                 while (!leafQueue.isEmpty()) {
-                    CausalNode potentialLeaf = handleLeaf(newDate, lastStates, leafQueue.pop(), simulatedRulesEnabled);
-
-                    if(potentialLeaf != null) {
-                        leafQueue.add(potentialLeaf);
-                    }
+                    causalTree.print();
+                    leafQueue.addAll(handleLeaf(newDate, lastStates, leafQueue.pop(), simulatedRulesEnabled));
                 }
             }
-
-            System.out.println("Tick " + newDate);
             causalTree.print();
         }
 
@@ -182,7 +179,9 @@ public class PredictionEngine {
      * @return a newly created leaf if there is one, null otherwise
      * @post TODO: the newly created leaf is already placed at the right place in the tree
      */
-    private CausalNode handleLeaf(Date newDate, HashMap<String, HassioState> lastStates, CausalNode oldLeaf, HashMap<String, Boolean> simulatedRulesEnabled) {
+    private List<CausalNode> handleLeaf(Date newDate, HashMap<String, HassioState> lastStates, CausalNode oldLeaf, HashMap<String, Boolean> simulatedRulesEnabled) {
+        List<CausalNode> newLeafs = new ArrayList<>();
+
         // Build the states from this branch
         HashMap<String, HassioState> branchSpecificStates = buildBranchSpecificStates(lastStates, oldLeaf);
 
@@ -226,16 +225,46 @@ public class PredictionEngine {
         }
 
         // Check if this leaf is finished
-        if(oldLeaf.peekFromQueue() == null) {
-            return null; // This is a finished leaf
-        } else {
+        while(oldLeaf.peekFromQueue() != null) {
             // Not yet -> create a leaf as a child
             CausalNode newLeaf = oldLeaf.popFromQueue();
-            newLeaf.pushToQueue(oldLeaf.getQueue());
-            oldLeaf.chainNode(newLeaf);
 
-            return newLeaf;
+            // TODO: Check if there is already an ancestor with conflicting information
+            CausalNode conflictingAncestor = oldLeaf.getOldestAncestorThatHasSomethingQueuedThatDependsOn(newLeaf.getState().entity_id);
+
+            if(conflictingAncestor == null ) {
+                // NO CONFLICT
+                newLeaf.pushToQueue(oldLeaf.getQueue());
+                oldLeaf.addChild(newLeaf);
+                newLeafs.add(newLeaf);
+
+                break;
+            } else {
+                // SEND HELP
+                System.out.println("INCONSISTENCY DETECTED");
+
+                CausalNode conflictingAncestorParent = conflictingAncestor.getParent();
+
+                if(conflictingAncestorParent == null) {
+                    System.err.println("Dit mag nooit gebeuren: er is een conflict met de root van de tree");
+                } else {
+                    conflictingAncestorParent.clearChildren();
+
+                    // Old option
+                    CausalNode alternativeLeaf = new CausalNode(lastStates.get(newLeaf.getState().entity_id), null);
+                    alternativeLeaf.pushToQueue(conflictingAncestorParent.getQueue());
+                    conflictingAncestorParent.addChild(alternativeLeaf);
+                    newLeafs.add(alternativeLeaf);
+
+                    // New option
+                    newLeaf.pushToQueue(conflictingAncestorParent.getQueue());
+                    conflictingAncestorParent.addChild(newLeaf);
+                    newLeafs.add(newLeaf);
+                }
+            }
         }
+
+        return newLeafs;
     }
 
     /**

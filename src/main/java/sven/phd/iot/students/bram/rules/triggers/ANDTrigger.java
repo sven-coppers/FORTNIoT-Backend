@@ -57,11 +57,11 @@ public class ANDTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
         // Verify all individual rules
-        List<HassioContext> contexts = new ArrayList<>();
+        List<HassioState> contexts = new ArrayList<>();
         for(Trigger trigger: this.triggers) {
-            List<HassioContext> context = trigger.verifyCondition(hassioStates);
+            List<HassioState> context = trigger.verifyCondition(hassioStates);
 
             // IF child was not triggered
             if(context == null) {

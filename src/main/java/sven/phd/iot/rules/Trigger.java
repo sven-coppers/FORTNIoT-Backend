@@ -76,12 +76,15 @@ abstract public class Trigger {
     public HassioRuleExecutionEvent verify(HashMap<String, HassioState> hassioStates, HassioChange hassioChange, boolean enabled) {
         if(enabled && this.isTriggeredBy(hassioChange)) {
             // Check if the rule would be triggered by this change (AND WHY)
-            List<HassioContext> triggerContexts = this.verifyCondition(hassioStates);
+            List<HassioState> triggerStates = this.verifyCondition(hassioStates);
 
-            if(triggerContexts != null) {
+            if(triggerStates != null) {
                 // The rule is triggered
                 HassioRuleExecutionEvent newEvent = new HassioRuleExecutionEvent(this, hassioChange.datetime);
-                newEvent.addTriggerContexts(triggerContexts);
+
+                for(HassioState triggerState : triggerStates) {
+                    newEvent.addTriggerContext(triggerState.entity_id, triggerState.context);
+                }
 
                 return newEvent;
             } else {
@@ -110,7 +113,7 @@ abstract public class Trigger {
      * @param hassioStates a map with states for each device
      * @return a list of HassioContexts that trigger the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is triggered by itself
      */
-    public abstract List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates);
+    public abstract List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates);
 
     /**
      * Run all actions and collect all states that would result from it

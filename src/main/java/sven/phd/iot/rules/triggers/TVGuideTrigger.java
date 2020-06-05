@@ -29,18 +29,18 @@ public class TVGuideTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
         HassioState tvguideState = hassioStates.get(guideID);
 
         if(tvguideState == null) return null;
 
         String liveProgramType = ((HassioTVGuideAttributes) tvguideState.attributes).contentType;
-        ArrayList<HassioContext> result = new ArrayList<>();
+        ArrayList<HassioState> result = new ArrayList<>();
 
         if(this.program != null && this.program.equals(tvguideState.state)) {
-            result.add(tvguideState.context);
+            result.add(tvguideState);
         } else if(this.programType != null && this.programType.equals(liveProgramType)) {
-            result.add(tvguideState.context);
+            result.add(tvguideState);
         } else {
             return null;
         }

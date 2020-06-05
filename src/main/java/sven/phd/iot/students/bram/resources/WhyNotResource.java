@@ -57,10 +57,10 @@ public class WhyNotResource {
     public Boolean isTriggered(Trigger t) {
         ContextManager cm = ContextManager.getInstance();
         HashMap<String, HassioState> states = cm.getHassioDeviceManager().getCurrentStates();
-        List<HassioContext> contexts = t.verifyCondition(states);
-        return contexts != null && contexts.size() > 0;
-
+        List<HassioState> triggerStates = t.verifyCondition(states);
+        return triggerStates != null && triggerStates.size() > 0;
     }
+
     private List<WhyNotRule> transform(List<Trigger> rules) {
         List<WhyNotRule> result = new ArrayList<>();
         for(Trigger t:rules) {

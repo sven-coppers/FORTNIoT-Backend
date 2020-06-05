@@ -1,6 +1,13 @@
 package sven.phd.iot;
 
+import sven.phd.iot.hassio.light.HassioLightAttributes;
+import sven.phd.iot.hassio.person.HassioPersonAttributes;
+import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.hassio.sun.HassioSunAttributes;
+import sven.phd.iot.hassio.tv.HassioTVAttributes;
+import sven.phd.iot.predictions.CausalNode;
 import sven.phd.iot.hassio.states.HassioAbstractState;
+import sven.phd.iot.scenarios.cases.InconsistencyDevices;
 
 import java.util.Date;
 import java.util.PriorityQueue;
@@ -23,9 +30,32 @@ public class Tests {
 
         printQueue(queue);
 
-
+        testTree();
 
     }
+
+
+
+
+    private static void testTree() {
+        CausalNode zonOnder = new CausalNode(new HassioState("sun", "down", new Date(), new HassioSunAttributes()), null);
+        CausalNode mathiasWeg = new CausalNode(new HassioState("mathias", "weg", new Date(), new HassioPersonAttributes()), null);
+
+        CausalNode lichtAan = new CausalNode(new HassioState("licht", "aan", new Date(), new HassioLightAttributes()), null);
+        CausalNode lichtUit = new CausalNode(new HassioState("licht", "uit", new Date(), new HassioLightAttributes()), null);
+
+        CausalNode root = new CausalNode(null, null);
+        root.addChild(zonOnder);
+        root.addChild(mathiasWeg);
+        zonOnder.addChild(lichtAan);
+        mathiasWeg.addChild(lichtUit);
+
+        root.print();
+    }
+
+
+
+
 
     private static void printQueue(Queue<HassioAbstractState> queue) {
         boolean isAdded = false;

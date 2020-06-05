@@ -26,6 +26,9 @@
       <li><span class="method">PUT</span> <a class="uri" href="api/rules/'rule.sun_rise">rules/{id}/</a> Set the state of a rule {enabled: true, available: true}</li>
     </ul>
     <ul>
+      <li><span class="method">GET</span> <a class="uri" href="api/solutions">solutions/</a> Get all solutions</li>
+    </ul>
+    <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/config">config/</a> Get the system configuration</li>
       <li><span class="method">PUT</span> <a class="uri" href="api/config">config/</a> Set the system configuration </li>
       <li><span class="method">GET</span> <a class="uri" href="api/config/predictions">config/predictions/</a> Check if the prediction engine is on</li>
@@ -58,7 +61,7 @@
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/future/light.hue_color_spot_2">mathias/conflicts/future/{id}</a> Get the future conflicts of the device with {id}, e.g. 'light.hue_color_spot_2'</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/solutions/future">mathias/conflicts/solutions/future</a> Get the future conflict solutionss</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/conflicts/solutions/future/light.hue_color_spot_2">mathias/conflicts/solutions/future/{id}</a> Get the future conflict solutions for the device with {id}, e.g. 'light.hue_color_spot_2'</li>
-      <li><span class="method">POST</span> <a class="uri" href="api/mathias/conflicts/solution">mathias/conflicts/solution</a> Set solutions for conflicts</li>
+      <li><span class="method">POST</span> <a class="uri" href="api/mathias/conflicts/conflictSolution">mathias/conflicts/conflictSolution</a> Set solutions for conflicts</li>
     </ul>
     </div>
   </body>

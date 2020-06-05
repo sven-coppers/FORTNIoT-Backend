@@ -1,6 +1,7 @@
 package sven.phd.iot;
 
 import sven.phd.iot.api.resources.StateResource;
+import sven.phd.iot.predictions.ConflictSolutionManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
@@ -10,7 +11,6 @@ import sven.phd.iot.students.mathias.ConflictSolver;
 import sven.phd.iot.students.mathias.states.HassioAction;
 import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
 import sven.phd.iot.students.mathias.states.HassioConflictState;
-import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.scenarios.ScenarioManager;
@@ -29,6 +29,7 @@ public class ContextManager {
     private PredictionEngine predictionEngine;
     private ScenarioManager scenarioManager;
     private StudyManager studyManager;
+    private ConflictSolutionManager conflictSolutionManager;
 
     // MATHIAS
     private ActionsManager actionsManager;
@@ -42,12 +43,13 @@ public class ContextManager {
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager);
         this.scenarioManager = new ScenarioManager(this);
         this.studyManager = new StudyManager();
+        this.conflictSolutionManager = new ConflictSolutionManager();
 
         // NEVER EVER START PREDICTING WHEN LAUNCHING THIS SHIT
     }
 
     /**
-     * Singleton
+     * Singleton, there is only one context
      * @return
      */
     public static ContextManager getInstance() {
@@ -290,5 +292,9 @@ public class ContextManager {
 
     public Map<String, Action> getActions() {
         return this.actionsManager.getActions();
+    }
+
+    public ConflictSolutionManager getConflictSolutionManager() {
+        return this.conflictSolutionManager;
     }
 }

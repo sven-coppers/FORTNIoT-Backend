@@ -13,9 +13,9 @@ import java.util.List;
 public class HassioConflictState {
     @JsonProperty("entity_id") public String entity_id;
 
-    @JsonDeserialize(using = HassioDateDeserializer.class)
-    @JsonSerialize(using = HassioDateSerializer.class)
-    @JsonProperty("datetime") public Date datetime;
+    //@JsonDeserialize(using = HassioDateDeserializer.class)
+   // @JsonSerialize(using = HassioDateSerializer.class)
+   // @JsonProperty("datetime") public Date datetime;
 
     @JsonProperty("actions") public List<HassioConflictingActionState> actions;
 
@@ -23,14 +23,14 @@ public class HassioConflictState {
         // Default constructor
     }
 
-    public HassioConflictState(String entityID, Date datetime) {
+    public HassioConflictState(String entityID) {
         this.entity_id = entityID;
-        this.datetime = datetime;
+        //this.datetime = datetime;
         this.actions = new ArrayList<HassioConflictingActionState>();
     }
 
-    public boolean alreadyExist(String entityID, Date datetime) {
-        return (this.entity_id.equals(entityID) && this.datetime == datetime);
+    public boolean alreadyExist(String entityID) {
+        return (this.entity_id.equals(entityID));
     }
 
     public boolean containsRule(String ruleID) {

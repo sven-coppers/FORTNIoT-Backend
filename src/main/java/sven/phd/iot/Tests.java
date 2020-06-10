@@ -29,33 +29,7 @@ public class Tests {
      //   queue.add(new HassioCalendarState("3000", "bus", new Date(3000), "test", "test"));
 
         printQueue(queue);
-
-        testTree();
-
     }
-
-
-
-
-    private static void testTree() {
-        CausalNode zonOnder = new CausalNode(new HassioState("sun", "down", new Date(), new HassioSunAttributes()), null);
-        CausalNode mathiasWeg = new CausalNode(new HassioState("mathias", "weg", new Date(), new HassioPersonAttributes()), null);
-
-        CausalNode lichtAan = new CausalNode(new HassioState("licht", "aan", new Date(), new HassioLightAttributes()), null);
-        CausalNode lichtUit = new CausalNode(new HassioState("licht", "uit", new Date(), new HassioLightAttributes()), null);
-
-        CausalNode root = new CausalNode(null, null);
-        root.addChild(zonOnder);
-        root.addChild(mathiasWeg);
-        zonOnder.addChild(lichtAan);
-        mathiasWeg.addChild(lichtUit);
-
-        root.print();
-    }
-
-
-
-
 
     private static void printQueue(Queue<HassioAbstractState> queue) {
         boolean isAdded = false;

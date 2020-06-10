@@ -2,6 +2,7 @@ package sven.phd.iot.predictions;
 
 import sven.phd.iot.hassio.states.HassioState;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -46,5 +47,33 @@ public class CausalStack {
 
     public CausalLayer getTopLayer() {
         return this.stack.get(this.stack.size() - 1);
+    }
+
+    public boolean hasChange(String entity_id) {
+        Iterator<CausalLayer> stackIterator = stack.iterator();
+
+        while(stackIterator.hasNext()) {
+            CausalLayer layer = stackIterator.next();
+
+            for(int i = 0; i < layer.getNumStates(); ++i) {
+                if(layer.getState(i).getState().entity_id.equals(entity_id)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public List<CausalNode> flatten() {
+        Iterator<CausalLayer> stackIterator = stack.iterator();
+        List<CausalNode> result = new ArrayList<>();
+
+        while(stackIterator.hasNext()) {
+            CausalLayer layer = stackIterator.next();
+            result.addAll(layer.getStates());
+        }
+
+        return result;
     }
 }

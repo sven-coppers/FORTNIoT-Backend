@@ -71,7 +71,7 @@ public class FutureConflictDetector {
                     // Else, if result conflict contains both rules => do nothing
                     // Else add rule(s) to result conflict
                     if (!conflictAlreadyExists) {
-                        comparingActionConflictState = new HassioConflictState(comparingAction.getDeviceID(), comparingRule.datetime);
+                        comparingActionConflictState = new HassioConflictState(comparingAction.getDeviceID());
                         result.add(comparingActionConflictState);
                         conflictAlreadyExists = true;
                     }
@@ -88,7 +88,7 @@ public class FutureConflictDetector {
 
     private HassioConflictState containsConflict(List<HassioConflictState> allConflicts, String deviceID, Date datetime) {
         for (HassioConflictState conflict: allConflicts) {
-            if (conflict.alreadyExist(deviceID,datetime)){
+            if (conflict.alreadyExist(deviceID)){
                 return conflict;
             }
         }
@@ -97,7 +97,7 @@ public class FutureConflictDetector {
 
     private boolean containsRule(List<HassioConflictState> allConflicts, String deviceID, Date datetime, Trigger rule) {
         for (HassioConflictState conflict: allConflicts) {
-            if (conflict.alreadyExist(deviceID,datetime)){
+            if (conflict.alreadyExist(deviceID)){
                 if (conflict.containsRule(rule.id)){
                     return true;
                 }
@@ -133,7 +133,7 @@ public class FutureConflictDetector {
                     }
 
                     if (!conflictAlreadyExists) {
-                        comparingActionConflictState = new HassioConflictState(comparingState.entity_id, comparingState.getLastUpdated());
+                        comparingActionConflictState = new HassioConflictState(comparingState.entity_id);
                         result.add(comparingActionConflictState);
                         conflictAlreadyExists = true;
                     }
@@ -142,14 +142,14 @@ public class FutureConflictDetector {
                     // If they don't exist, the should be added to the conflict in another way
                     if (comparingEvent != null && !containsRule(result, comparingState.entity_id, comparingState.getLastUpdated(), comparingEvent.getTrigger())) {
 
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(getActionIdFromInvolvedRule(comparingState.entity_id, comparingEvent.getTrigger()), comparingEvent.getTrigger().id, comparingEvent.datetime));
+                        comparingActionConflictState.actions.add(new HassioConflictingActionState(getActionIdFromInvolvedRule(comparingState.entity_id, comparingEvent.getTrigger()), comparingEvent.getTrigger().id));
                     } else if (comparingAction != null) {
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(comparingAction.id, "", comparingState.getLastChanged()));
+                        comparingActionConflictState.actions.add(new HassioConflictingActionState(comparingAction.id, ""));
                     }
                     if (event != null && !containsRule(result, comparingState.entity_id, comparingState.getLastUpdated(), event.getTrigger())){
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(getActionIdFromInvolvedRule(comparingState.entity_id, event.getTrigger()), event.getTrigger().id, event.datetime));
+                        comparingActionConflictState.actions.add(new HassioConflictingActionState(getActionIdFromInvolvedRule(comparingState.entity_id, event.getTrigger()), event.getTrigger().id));
                     } else if (action != null) {
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(action.id, "", state.getLastChanged()));
+                        comparingActionConflictState.actions.add(new HassioConflictingActionState(action.id, ""));
                     }
                 }
             }

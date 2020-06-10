@@ -105,10 +105,6 @@ public class PredictionEngine {
         // IMPLICIT Let the devices predict their state, based on the past states (e.g. temperature)
         if(this.isPredicting()) {
             newLayer.addAll(this.verifyImplicitBehvaior(newDate, lastStates));
-
-            // Add Implicit behavior to the future
-            // TODO: POSTPONE TO END OF THE TICK
-            //future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
         }
 
         // BASELINE: Add states from the global queue (before the current date), which could induce conflicts
@@ -116,9 +112,6 @@ public class PredictionEngine {
             HassioState newState = globalQueue.poll();
 
             newLayer.addState(new CausalNode(newState, null));
-
-            // TODO: POSTPONE TO END OF THE TICK
-            //future.addFutureState(newState);
         }
 
         if(!newLayer.isEmpty()) {
@@ -126,37 +119,55 @@ public class PredictionEngine {
         }
 
         if(this.isPredicting()) {
+            // Determine future (could contain inconsistencies
             while (!newLayer.isEmpty()) {
                 newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled);
 
                 if (!newLayer.isEmpty()) {
                     causalStack.addLayer(newLayer);
+
                 }
             }
+
+            // Find inconsistencies
+            for(int i = 0; i < newLayer.getNumStates(); ++i) {
+                CausalNode newChange = newLayer.getState(i);
+
+                if(causalStack.hasChange(newChange.getState().entity_id)) {
+                    System.err.println("INCONSISTENCY DETECTED");
+                }
+            }
+
+            // Apply Solutions
+
+
+            // Determine future with solutions in place (hopefully without inconsistencies)
+
 
             if (!causalStack.isEmpty()) {
                 System.out.println("Tick " + newDate);
                 causalStack.print();
             }
+
+            // Undo solutions
         }
 
 
         // Conflict detection: inconsistency
 
 
-        // ---- BEGIN: We cannot confirm this yet
-        // Add predicted executions to the rule's prediction list
-       /* future.addHassioRuleExecutionEventPrediction(potentialTriggerEvent);
 
-        // Add the actions to the prediction QUEUEs
-        for(String actionID : resultingActions.keySet()) {
-            globalQueue.addAll(resultingActions.get(actionID));
-        } */
-        // ----- END: We cannot confirm this yet
 
-        // TODO
-        // SOLUTIONS gebruiken om de boom te prunen
-        // Overgebleven boom committen we als predicted states
+        // Overgebleven states committen we als predicted states
+        List<CausalNode> finalNewChanges = causalStack.flatten();
+
+        for(CausalNode node : finalNewChanges) {
+            future.addFutureState(node.getState());
+
+            if(node.getExecutionEvent() != null) {
+                future.addHassioRuleExecutionEventPrediction(node.getExecutionEvent());
+            }
+        }
     }
 
     private CausalLayer deduceLayer(Date newDate, CausalStack causalStack, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled) {
@@ -177,57 +188,21 @@ public class PredictionEngine {
             newChanges.add(new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged()));
         }
 
-        // Pass the stateChange to the set of rules and to the implict behavior
+        // Pass the stateChange to the set of rules and to the implicit behavior
         newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, layerSpecificStates, simulatedRulesEnabled));
         newLayer.addAll(this.verifyImplicitBehvaior(newDate, layerSpecificStates));
-
-  /*
-
-
-
-        // Check if this leaf is finished
-        while(oldLeaf.peekFromQueue() != null) {
-            // Not yet -> create a leaf as a child
-            CausalNode newLeaf = oldLeaf.popFromQueue();
-
-            // TODO: Check if there is already an ancestor with conflicting information
-            CausalNode conflictingAncestor = oldLeaf.getOldestAncestorThatHasSomethingQueuedThatDependsOn(newLeaf.getState().entity_id);
-
-            if(conflictingAncestor == null ) {
-                // NO CONFLICT
-                newLeaf.pushToQueue(oldLeaf.getQueue());
-                oldLeaf.addChild(newLeaf);
-                newLeafs.add(newLeaf);
-
-                break;
-            } else {
-                // SEND HELP
-                System.out.println("INCONSISTENCY DETECTED");
-
-                CausalNode conflictingAncestorParent = conflictingAncestor.getParent();
-
-                if(conflictingAncestorParent == null) {
-                    System.err.println("Dit mag nooit gebeuren: er is een conflict met de root van de tree");
-                } else {
-                    conflictingAncestorParent.clearChildren();
-
-                    // Old option
-                    CausalNode alternativeLeaf = new CausalNode(lastStates.get(newLeaf.getState().entity_id), null);
-                    alternativeLeaf.pushToQueue(conflictingAncestorParent.getQueue());
-                    conflictingAncestorParent.addChild(alternativeLeaf);
-                    newLeafs.add(alternativeLeaf);
-
-                    // New option
-                    newLeaf.pushToQueue(conflictingAncestorParent.getQueue());
-                    conflictingAncestorParent.addChild(newLeaf);
-                    newLeafs.add(newLeaf);
-                }
-            }
-        } */
 
         return newLayer;
     }
 
+    /**
+     * Pass the changes to all rules developed by the user
+     * @param date
+     * @param newChanges
+     * @param states
+     * @param simulatedRulesEnabled
+     * @return
+     */
     private List<CausalNode> verifyExplicitRules(Date date, List<HassioChange> newChanges, HashMap<String, HassioState> states, HashMap<String, Boolean> simulatedRulesEnabled) {
         List<CausalNode> result = new ArrayList<>();
 

@@ -98,7 +98,7 @@ public class WhyNotResource {
         for(Map.Entry<String, Trigger> entry : rules.entrySet()) {
             Action action = entry.getValue().getActionOnDevice(deviceId);
 
-                List<HassioState> states = action.simulate(new HassioRuleExecutionEvent(entry.getValue(), new Date()), null);
+                List<HassioState> states = action.simulate(new HassioRuleExecutionEvent(entry.getValue(), new Date(), null), null);
                 for(HassioState s:states) {
                     if(s.state.compareTo(state) == 0) {
                         result.add(entry.getValue());

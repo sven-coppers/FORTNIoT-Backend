@@ -124,7 +124,7 @@ public class CausalNode {
 
     public boolean hadSomethingQueuedThatDependsOn(String deviceID) {
         for(CausalNode node : this.queue) {
-            if(node.executionEvent.triggerContexts.containsKey(deviceID)) {
+            if(node.executionEvent.conditionContexts.containsKey(deviceID)) {
                 return true;
             }
         }

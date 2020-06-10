@@ -10,18 +10,20 @@ import java.util.*;
 
 public class HassioRuleExecutionEvent extends HassioEvent {
     @JsonProperty("execution_id") public String execution_id;
-    @JsonProperty("trigger_contexts") public HashMap<String, List<HassioContext>> triggerContexts;
+    @JsonProperty("condition_satisfying_contexts") public HashMap<String, List<HassioContext>> conditionContexts;
+    @JsonProperty("trigger_context") public List<HassioContext> triggerContext;
     @JsonProperty("action_contexts") public HashMap<String, List<HassioContext>> actionContexts;
  //   @JsonProperty("offset") public long offset;
     @JsonIgnore protected Trigger trigger;
 
-    public HassioRuleExecutionEvent(Trigger trigger, Date datetime) {
+    public HassioRuleExecutionEvent(Trigger trigger, Date datetime, List<HassioContext> triggerContext) {
         super(trigger.id, datetime);
 
         this.execution_id = UUID.randomUUID().toString();
         this.trigger = trigger;
-        this.triggerContexts = new HashMap<>();
+        this.conditionContexts = new HashMap<>();
         this.actionContexts = new HashMap<>();
+        this.triggerContext = triggerContext;
    //     this.offset = offset;
     }
 
@@ -30,16 +32,16 @@ public class HassioRuleExecutionEvent extends HassioEvent {
 
         this.execution_id = UUID.randomUUID().toString();
         this.trigger = null;
-        this.triggerContexts = new HashMap<>();
+        this.conditionContexts = new HashMap<>();
         this.actionContexts = new HashMap<>();
     }
 
-    public void addTriggerContext(String actionID, HassioContext context) {
-        if(this.triggerContexts.get(actionID) == null) {
-            this.triggerContexts.put(actionID, new ArrayList<>());
+    public void addConditionContext(String actionID, HassioContext context) {
+        if(this.conditionContexts.get(actionID) == null) {
+            this.conditionContexts.put(actionID, new ArrayList<>());
         }
 
-        this.triggerContexts.get(actionID).add(context);
+        this.conditionContexts.get(actionID).add(context);
     }
 
     public void addActionExecuted(String actionID, List<HassioContext> contexts) {

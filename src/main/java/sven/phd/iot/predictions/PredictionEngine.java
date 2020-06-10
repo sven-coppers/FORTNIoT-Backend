@@ -99,57 +99,45 @@ public class PredictionEngine {
     }
 
     private void tick(Date newDate, HashMap<String, HassioState> lastStates, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
-        // Build local Queue (bevat geen conflicten, maar kan wel conflicten veroorzaken)
-        CausalNode causalTree = null;
-        LinkedList<CausalNode> tempQueue = new LinkedList<CausalNode>();
-        CausalNode lastAddedNode = causalTree;
+        CausalStack causalStack = new CausalStack();
+        CausalLayer newLayer = new CausalLayer();
 
         // IMPLICIT Let the devices predict their state, based on the past states (e.g. temperature)
         if(this.isPredicting()) {
-            List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplictStates(newDate, lastStates);
+            newLayer.addAll(this.verifyImplicitBehvaior(newDate, lastStates));
 
-            // Add changes to prediction queue
-            for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
-                behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
-
-                for(HassioState newState : behaviorEvent.getActionStates()) {
-                    tempQueue.add(new CausalNode(newState, behaviorEvent));
-                }
-
-                // Add Implicit behavior to the future
-                // TODO: POSTPONE TO END OF THE TICK
-                //future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
-            }
+            // Add Implicit behavior to the future
+            // TODO: POSTPONE TO END OF THE TICK
+            //future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
         }
 
         // BASELINE: Add states from the global queue (before the current date), which could induce conflicts
         while(!globalQueue.isEmpty() && globalQueue.peek().getLastChanged().getTime() <= newDate.getTime()) {
             HassioState newState = globalQueue.poll();
 
-            tempQueue.add(new CausalNode(newState, null));
+            newLayer.addState(new CausalNode(newState, null));
 
             // TODO: POSTPONE TO END OF THE TICK
             //future.addFutureState(newState);
         }
 
-        // The first element becomes the root, the rest will be added to its queue
-        if(!tempQueue.isEmpty()) {
-            System.out.println("Tick " + newDate);
+        if(!newLayer.isEmpty()) {
+            causalStack.addLayer(newLayer);
+        }
 
-            causalTree = tempQueue.pop();
-            causalTree.pushToQueue(tempQueue);
+        if(this.isPredicting()) {
+            while (!newLayer.isEmpty()) {
+                newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled);
 
-            // Werk verder tot ieder blad een lege queue heeft
-            LinkedList<CausalNode> leafQueue = new LinkedList<CausalNode>();
-            leafQueue.add(causalTree);
-
-            if(this.isPredicting()) {
-                while (!leafQueue.isEmpty()) {
-                    causalTree.print();
-                    leafQueue.addAll(handleLeaf(newDate, lastStates, leafQueue.pop(), simulatedRulesEnabled));
+                if (!newLayer.isEmpty()) {
+                    causalStack.addLayer(newLayer);
                 }
             }
-            causalTree.print();
+
+            if (!causalStack.isEmpty()) {
+                System.out.println("Tick " + newDate);
+                causalStack.print();
+            }
         }
 
 
@@ -171,58 +159,31 @@ public class PredictionEngine {
         // Overgebleven boom committen we als predicted states
     }
 
-    /**
-     *
-     * @param lastStates
-     * @param oldLeaf
-     * @param simulatedRulesEnabled
-     * @return a newly created leaf if there is one, null otherwise
-     * @post TODO: the newly created leaf is already placed at the right place in the tree
-     */
-    private List<CausalNode> handleLeaf(Date newDate, HashMap<String, HassioState> lastStates, CausalNode oldLeaf, HashMap<String, Boolean> simulatedRulesEnabled) {
-        List<CausalNode> newLeafs = new ArrayList<>();
+    private CausalLayer deduceLayer(Date newDate, CausalStack causalStack, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled) {
+        // Build the states for this layer
+        HashMap<String, HassioState> layerSpecificStates = buildLayerSpecificStates(lastStates, causalStack);
 
-        // Build the states from this branch
-        HashMap<String, HassioState> branchSpecificStates = buildBranchSpecificStates(lastStates, oldLeaf);
+        CausalLayer previousLayer = causalStack.getTopLayer();
+        CausalLayer newLayer = new CausalLayer();
 
-        // Build a change
-        HassioState newState = oldLeaf.getState();
-        HassioState lastState = lastStates.get(newState.entity_id);
-        HassioChange newChange = new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged());
+        // Build a list of changes in this layer
+        List<HassioChange> newChanges = new ArrayList<>();
+        for(int i = 0; i < previousLayer.getNumStates(); ++i) {
+            CausalNode node = previousLayer.getState(i);
 
-        // Pass the stateChange to the set of rules
-        List<HassioRuleExecutionEvent> potentialTriggerEvents = this.rulesManager.verifyTriggers(branchSpecificStates, newChange, simulatedRulesEnabled);
-        for(HassioRuleExecutionEvent potentialTriggerEvent : potentialTriggerEvents) {
-            HashMap<String, List<HassioState>> proposedActionState = potentialTriggerEvent.getTrigger().simulate(potentialTriggerEvent, branchSpecificStates); // ZEKER
+            HassioState newState = node.getState();
+            HassioState lastState = lastStates.get(newState.entity_id);
 
-            // For every proposed action, add it to the queue
-            for(String actionID : proposedActionState.keySet()) {
-                for(HassioState proposedState : proposedActionState.get(actionID)) {
-                    oldLeaf.pushToQueue(new CausalNode(proposedState, potentialTriggerEvent));
-                }
-            }
-
-            // Add the context of the simulated actions as a result in the potentialTriggerEvent
-            for(String actionID : proposedActionState.keySet()) {
-                List<HassioContext> resultingContexts = new ArrayList<>();
-
-                for(HassioState proposedState : proposedActionState.get(actionID)) {
-                    resultingContexts.add(proposedState.context);
-                }
-
-                potentialTriggerEvent.addActionExecuted(actionID, resultingContexts);
-            }
+            newChanges.add(new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged()));
         }
 
-        // Pass the stateChange to the implicit rules (e.g. turn heater on/off)
-        List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, lastStates);
-        for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
-            behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
+        // Pass the stateChange to the set of rules and to the implict behavior
+        newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, layerSpecificStates, simulatedRulesEnabled));
+        newLayer.addAll(this.verifyImplicitBehvaior(newDate, layerSpecificStates));
 
-            for(HassioState newActionState : behaviorEvent.getActionStates()) {
-                oldLeaf.pushToQueue(new CausalNode(newActionState, behaviorEvent));
-            }
-        }
+  /*
+
+
 
         // Check if this leaf is finished
         while(oldLeaf.peekFromQueue() != null) {
@@ -262,32 +223,80 @@ public class PredictionEngine {
                     newLeafs.add(newLeaf);
                 }
             }
+        } */
+
+        return newLayer;
+    }
+
+    private List<CausalNode> verifyExplicitRules(Date date, List<HassioChange> newChanges, HashMap<String, HassioState> states, HashMap<String, Boolean> simulatedRulesEnabled) {
+        List<CausalNode> result = new ArrayList<>();
+
+        List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(date, newChanges, new HashMap<>());
+        List<HassioRuleExecutionEvent> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
+
+        for(HassioRuleExecutionEvent potentialExecutionEvent : conditionTrueEvents) {
+            HashMap<String, List<HassioState>> proposedActionState = potentialExecutionEvent.getTrigger().simulate(potentialExecutionEvent, states);
+
+            // For every proposed action, add it to the queue
+            for(String actionID : proposedActionState.keySet()) {
+                for(HassioState proposedState : proposedActionState.get(actionID)) {
+                    result.add(new CausalNode(proposedState, potentialExecutionEvent));
+                }
+            }
+
+            // Add the context of the simulated actions as a result in the potentialTriggerEvent
+            for(String actionID : proposedActionState.keySet()) {
+                List<HassioContext> resultingContexts = new ArrayList<>();
+
+                for(HassioState proposedState : proposedActionState.get(actionID)) {
+                    resultingContexts.add(proposedState.context);
+                }
+
+                potentialExecutionEvent.addActionExecuted(actionID, resultingContexts);
+            }
         }
 
-        return newLeafs;
+        return result;
     }
+
+    /**
+     * Pass the stateChange to the implicit rules (e.g. turn heater on/off)
+     * @param states
+     * @return
+     */
+    private List<CausalNode> verifyImplicitBehvaior(Date newDate, HashMap<String, HassioState> states) {
+        List<CausalNode> result = new ArrayList<>();
+
+        List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, states);
+        for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
+            behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
+
+            for(HassioState newActionState : behaviorEvent.getActionStates()) {
+                result.add(new CausalNode(newActionState, behaviorEvent));
+            }
+        }
+
+        return result;
+    }
+
+
 
     /**
      * Build a hasmap with the last states, updated with all changes that are specific to this branch in the three
      * @param lastStates
-     * @param causalNode
      * @return
      */
-    private HashMap<String, HassioState> buildBranchSpecificStates(HashMap<String, HassioState> lastStates, CausalNode causalNode) {
-        HassioState newState = causalNode.getState();
-
+    private HashMap<String, HassioState> buildLayerSpecificStates(HashMap<String, HassioState> lastStates, CausalStack causalStack) {
         HashMap<String, HassioState> branchSpecificStates = new HashMap<>();
+
         for(String deviceID : lastStates.keySet()) {
             branchSpecificStates.put(deviceID, lastStates.get(deviceID));
         }
 
-        branchSpecificStates.put(newState.entity_id, newState);
-
-        CausalNode ancestor = causalNode;
-
-        while(ancestor != null && ancestor.getState() != null) {
-            branchSpecificStates.put(ancestor.getState().entity_id, ancestor.getState());
-            ancestor = ancestor.getParent();
+        for(int i = 0; i < causalStack.getNumLayers(); ++i) {
+            for(CausalNode causalNode : causalStack.getLayer(i).getStates()) {
+                branchSpecificStates.put(causalNode.getState().entity_id, causalNode.getState());
+            }
         }
 
         return branchSpecificStates;

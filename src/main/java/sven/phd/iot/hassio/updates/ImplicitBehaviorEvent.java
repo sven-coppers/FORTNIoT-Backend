@@ -1,7 +1,6 @@
 package sven.phd.iot.hassio.updates;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.RulesManager;
@@ -70,7 +69,7 @@ public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
 
     public void resolveContextIDs(HashMap<String, HassioState> hassioStates) {
         for(String deviceID: this.triggerDevicesIDs) {
-            this.addTriggerContext(deviceID, hassioStates.get(deviceID).context);
+            this.addConditionContext(deviceID, hassioStates.get(deviceID).context);
         }
 
         for(String actionID : this.actionDevicesIDs.keySet()) {

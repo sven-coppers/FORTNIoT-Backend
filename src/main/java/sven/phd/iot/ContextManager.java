@@ -168,18 +168,21 @@ public class ContextManager {
      */
     private void executeRules(HassioChange hassioChange) {
         HashMap<String, HassioState> hassioStates = this.getHassioStates();
+        List<HassioChange> hassioChanges = new ArrayList<>();
+        hassioChanges.add(hassioChange);
 
-        List<HassioRuleExecutionEvent> triggerEvents = rulesManager.verifyTriggers(hassioStates, hassioChange);
+        List<HassioRuleExecutionEvent> triggerEvents = rulesManager.verifyTriggers(new Date(), hassioChanges, new HashMap<>());
+        List<HassioRuleExecutionEvent> conditionTrueEvents = rulesManager.verifyConditions(hassioStates, triggerEvents);
 
-        for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
-            HashMap<String, List<HassioState>> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, hassioStates);
+        for(HassioRuleExecutionEvent conditionTrueEvent : conditionTrueEvents) {
+            HashMap<String, List<HassioState>> resultingActions = conditionTrueEvent.getTrigger().simulate(conditionTrueEvent, hassioStates);
 
             // Apply changes as result of the rules as the new state
             for(String actionID : resultingActions.keySet()) {
-                triggerEvent.addActionExecuted(actionID, this.hassioDeviceManager.setHassioDeviceStates(resultingActions.get(actionID)));
+                conditionTrueEvent.addActionExecuted(actionID, this.hassioDeviceManager.setHassioDeviceStates(resultingActions.get(actionID)));
             }
 
-            triggerEvent.getTrigger().logHassioRuleExecutionEvent(triggerEvent);
+            conditionTrueEvent.getTrigger().logHassioRuleExecutionEvent(conditionTrueEvent);
         }
     }
 

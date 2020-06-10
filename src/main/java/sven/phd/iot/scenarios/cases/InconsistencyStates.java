@@ -23,7 +23,7 @@ public class InconsistencyStates extends StateSet {
         DM.logState(new HassioState(InconsistencyDevices.LIVING_BLINDS, "lowered", startDate, new HassioBlindAttributes()));
         DM.logState(new HassioState(InconsistencyDevices.ROOMBA_DOWNSTAIRS, "off", startDate, new HassioCleanerAttributes()));
         DM.logState(new HassioState(InconsistencyDevices.GARDEN_LIGHTS, "on", startDate, new HassioLightAttributes()));
-        DM.logState(new HassioState(InconsistencyDevices.LIVING_SPOTS, "on", startDate, new HassioLightAttributes()));
+        DM.logState(new HassioState(InconsistencyDevices.LIVING_SPOTS, "off", startDate, new HassioLightAttributes()));
         DM.logState(new HassioState(InconsistencyDevices.LIVING_TV, "off", startDate, new HassioTVAttributes()));
         DM.logState(new HassioState(InconsistencyDevices.FRONT_DOOR, "locked", startDate, new HassioLockAttributes()));
 

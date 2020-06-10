@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
@@ -67,34 +66,6 @@ abstract public class Trigger {
         this.actions.add(action);
     }
 
-    /**
-     * Check when the rule will trigger, based on specified hassioChanges
-     * @param hassioStates the state at that time
-     * @param hassioChange the change that caused this rule to be validated
-     * @return
-     */
-    public HassioRuleExecutionEvent verify(HashMap<String, HassioState> hassioStates, HassioChange hassioChange, boolean enabled) {
-        if(enabled && this.isTriggeredBy(hassioChange)) {
-            // Check if the rule would be triggered by this change (AND WHY)
-            List<HassioState> triggerStates = this.verifyCondition(hassioStates);
-
-            if(triggerStates != null) {
-                // The rule is triggered
-                HassioRuleExecutionEvent newEvent = new HassioRuleExecutionEvent(this, hassioChange.datetime);
-
-                for(HassioState triggerState : triggerStates) {
-                    newEvent.addTriggerContext(triggerState.entity_id, triggerState.context);
-                }
-
-                return newEvent;
-            } else {
-                // The rule is not triggered
-            }
-        }
-
-        return null;
-    }
-
     public void logHassioRuleExecutionEvent(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
         this.executionHistory.add(hassioRuleExecutionEvent);
     }
@@ -102,8 +73,7 @@ abstract public class Trigger {
     /**
      * Check if the rule is interested in being verified after this change (e.g. temp update)
      * @param hassioChange the change that this rule might be interested in
-     * @return true if the rule is interested, false otherwise
-     * SHOULD ONLY BE CALLED BY THE RULE ITSELF
+     * @return true if the rule is triggered by this changed, false otherwise.
      */
 
     public abstract boolean isTriggeredBy(HassioChange hassioChange);
@@ -111,7 +81,7 @@ abstract public class Trigger {
     /**
      * Check if the hassioChange causes this trigger to be triggered
      * @param hassioStates a map with states for each device
-     * @return a list of HassioContexts that trigger the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is triggered by itself
+     * @return a list of HassioContexts that satisfy the condition of the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is satisfied without any states
      */
     public abstract List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates);
 

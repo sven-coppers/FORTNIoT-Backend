@@ -1,10 +1,10 @@
 package sven.phd.iot.rules;
 
 import sven.phd.iot.hassio.change.HassioChange;
+import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.triggers.NeverTrigger;
-import sven.phd.iot.students.bram.rules.BramRulesManager;
 
 import java.util.*;
 import java.util.List;
@@ -26,40 +26,67 @@ public class RulesManager {
     }
 
     /**
-     * Check when the rules will trigger
-     * @param hassioStates the expected states at that time
-     * @param hassioChange the change that caused the rules to be validated
+     * Rules could be triggered by multiple triggers in the same "tick"
+     * @param date
+     * @param hassioChanges
+     * @param simulatedRulesEnabled
      * @return
      */
-    public List<HassioRuleExecutionEvent> verifyTriggers(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
-        return this.verifyTriggers(hassioStates, hassioChange, new HashMap<>());
-    }
-
-    /**
-     * Check when the rules will trigger
-     * @param hassioStates the expected states at that time
-     * @param hassioChange the change that caused the rules to be validated
-     * @param simulatedRulesEnabled simulate whether some rules are enbaled/disabled
-     * @return
-     */
-    public List<HassioRuleExecutionEvent> verifyTriggers(HashMap<String, HassioState> hassioStates, HassioChange hassioChange, HashMap<String, Boolean> simulatedRulesEnabled) {
+    public List<HassioRuleExecutionEvent> verifyTriggers(Date date, List<HassioChange> hassioChanges, HashMap<String, Boolean> simulatedRulesEnabled) {
         List<HassioRuleExecutionEvent> triggerEvents = new ArrayList<>();
 
-        for(String triggerName : this.rules.keySet()) {
-            boolean enabled = this.rules.get(triggerName).isEnabled(hassioChange.datetime);
+        HashMap<String, List<HassioContext>> ruleContextTriggerMap = new HashMap<>();
 
-            if(simulatedRulesEnabled.containsKey(triggerName)) {
-                enabled = simulatedRulesEnabled.get(triggerName);
-            }
+        // Find all unique rules that will be triggered
+        for(HassioChange hassioChange : hassioChanges) {
+            for(String triggerName : this.rules.keySet()) {
+                boolean enabled = this.rules.get(triggerName).isEnabled(date);
 
-            HassioRuleExecutionEvent newEvent = this.rules.get(triggerName).verify(hassioStates, hassioChange, enabled);
+                if(simulatedRulesEnabled.containsKey(triggerName)) {
+                    enabled = simulatedRulesEnabled.get(triggerName);
+                }
 
-            if(newEvent != null) {
-                triggerEvents.add(newEvent);
+                if(enabled && this.rules.get(triggerName).isTriggeredBy(hassioChange)) {
+                    if(!ruleContextTriggerMap.containsKey(triggerName)) {
+                        ruleContextTriggerMap.put(triggerName, new ArrayList<>());
+                    }
+
+                    ruleContextTriggerMap.get(triggerName).add(hassioChange.hassioChangeData.newState.context);
+                }
             }
         }
 
+        // Create trigger events for each unique rule
+        for(String ruleName : ruleContextTriggerMap.keySet()) {
+            triggerEvents.add(new HassioRuleExecutionEvent(this.rules.get(ruleName), date, ruleContextTriggerMap.get(ruleName)));
+        }
+
         return triggerEvents;
+    }
+
+    /**
+     * Check for every triggerEvent if the condition holds
+     * @param states
+     * @param triggerEvents
+     * @return
+     */
+    public List<HassioRuleExecutionEvent> verifyConditions(HashMap<String, HassioState> states, List<HassioRuleExecutionEvent> triggerEvents) {
+        List<HassioRuleExecutionEvent> filteredTriggerEvents = new ArrayList<>();
+
+        for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
+            List<HassioState> conditionStates = triggerEvent.getTrigger().verifyCondition(states);
+
+            // If the condition was not false
+            if(conditionStates != null) {
+                for(HassioState conditionState : conditionStates) {
+                    triggerEvent.addConditionContext(conditionState.entity_id, conditionState.context);
+                }
+
+                filteredTriggerEvents.add(triggerEvent);
+            }
+        }
+
+        return filteredTriggerEvents;
     }
 
     public List<HassioRuleExecutionEvent> getPastRuleExecutions() {

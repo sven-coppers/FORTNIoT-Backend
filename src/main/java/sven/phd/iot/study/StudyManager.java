@@ -123,7 +123,7 @@ public class StudyManager {
                     if(this.tasks.get(i + 1).preset != null) {
                         ContextManager.getInstance().getScenarioManager().setPreset(this.tasks.get(i + 1).preset);
                         ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();
-                    //    Exporter.export(this.getQuestion(this.tasks.get(i + 1).taskID));
+                        //Exporter.export(this.getQuestion(this.tasks.get(i + 1).taskID));
                     }
                 } else { // There are no new tasks
                     LogWriter.write(timings);

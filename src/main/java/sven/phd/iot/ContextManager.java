@@ -8,9 +8,8 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.students.mathias.ActionsManager;
 import sven.phd.iot.students.mathias.ConflictSolver;
-import sven.phd.iot.students.mathias.states.HassioAction;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
+import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.scenarios.ScenarioManager;
@@ -234,7 +233,7 @@ public class ContextManager {
      * Get the cached version of the future conflicts
      * @return
      */
-    public List<HassioConflictState> getFutureConflicts() {
+    public List<Conflict> getFutureConflicts() {
         return this.predictionEngine.getFuture().getFutureConflicts();
     }
 
@@ -243,7 +242,7 @@ public class ContextManager {
      * @param id
      * @return
      */
-    public List<HassioConflictState> getFutureConflicts(String id) {
+    public List<Conflict> getFutureConflicts(String id) {
         return this.predictionEngine.getFuture().getFutureConflicts(id);
     }
 
@@ -251,7 +250,7 @@ public class ContextManager {
      * Get the cached version of the future conflict solutions
      * @return
      */
-    public List<HassioConflictSolutionState> getFutureConflictSolutions() {
+    public List<ConflictSolution> getFutureConflictSolutions() {
         return this.predictionEngine.getFuture().getFutureConflictSolutions();
     }
 
@@ -260,13 +259,13 @@ public class ContextManager {
      * @param id
      * @return
      */
-    public List<HassioConflictSolutionState> getFutureConflictSolutions(String id) {
+    public List<ConflictSolution> getFutureConflictSolutions(String id) {
         return this.predictionEngine.getFuture().getFutureConflictSolutions(id);
     }
 
 
-    public List<HassioAction> getAllActionsOnDevice(String id){
-        List<HassioAction> result = new ArrayList<>();
+    public List<Action> getAllActionsOnDevice(String id){
+        List<Action> result = new ArrayList<>();
         HassioDevice device = this.hassioDeviceManager.getDevice(id);
 
         if (device == null) {
@@ -277,7 +276,7 @@ public class ContextManager {
 
     }
 
-    public boolean addConflictSolution(HassioConflictSolutionState solution) {
+    public boolean addConflictSolution(ConflictSolution solution) {
         boolean success = false;
         ConflictSolver solver = ConflictSolver.getInstance();
         if (solver.addSolution(solution)) {

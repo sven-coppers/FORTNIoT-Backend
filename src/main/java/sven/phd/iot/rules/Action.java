@@ -18,6 +18,7 @@ abstract public class Action {
     @JsonProperty("id") public String id;
     @JsonProperty("description") public String description;
     @JsonProperty("enabled") public Boolean enabled;
+    @JsonProperty("action_name") public String actionName;
 
     /* Mathias adding action disabling properties
      *  It should be possible to have multiple start and stop times, so a list should be kept
@@ -37,6 +38,7 @@ abstract public class Action {
         this.startTimeDisable = null;
         this.stopTimeDisable = null;
         this.enabled = true;
+        this.actionName = this.getClass().getName();
     }
 
   //  abstract public void previewHandler(Map<String, HassioState> newState);

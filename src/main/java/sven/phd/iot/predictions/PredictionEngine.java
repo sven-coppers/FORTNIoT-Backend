@@ -8,8 +8,8 @@ import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.students.mathias.FutureConflictDetector;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
-import sven.phd.iot.students.mathias.states.HassioConflictingActionState;
+import sven.phd.iot.students.mathias.states.Conflict;
+import sven.phd.iot.students.mathias.states.ConflictingAction;
 
 import java.util.*;
 
@@ -150,7 +150,7 @@ public class PredictionEngine {
             for(String entityID : potentialChanges.keySet()) {
                 if(potentialChanges.get(entityID).size() > 1) {
                     System.out.println("INCONSISTENCY DETECTED FOR " + entityID);
-                    HassioConflictState newInconsistency = new HassioConflictState(entityID);
+                    Conflict newInconsistency = new Conflict(entityID);
 
                     for(CausalNode node : potentialChanges.get(entityID)) {
                         if(node.getExecutionEvent() == null) {
@@ -165,7 +165,7 @@ public class PredictionEngine {
                             System.err.println("The conflicting state is not caused by a rule");
                         }
 
-                        newInconsistency.addAction(new HassioConflictingActionState(causingAction, node.getExecutionEvent().getTrigger().id));
+                        newInconsistency.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().getTrigger().id));
                     }
 
                     future.addFutureConflict(newInconsistency);

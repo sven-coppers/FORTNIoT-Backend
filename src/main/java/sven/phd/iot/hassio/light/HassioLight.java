@@ -6,8 +6,11 @@ import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.students.mathias.states.HassioAction;
+import sven.phd.iot.rules.Action;
+import sven.phd.iot.rules.actions.LightOffAction;
+import sven.phd.iot.rules.actions.LightOnAction;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +26,10 @@ public class HassioLight extends HassioDevice {
     }
 
     @Override
-    public List<HassioAction> getAllActions() {
-        List<HassioAction> result = new ArrayList<>();
-        HassioAction lightOffAction = new HassioAction("LightOffAction", "Turn off light");
-        HassioAction lightOnAction = new HassioAction("LightOnAction", "Turn on light");
-        result.add(lightOffAction);
-        result.add(lightOnAction);
-
+    public List<Action> getAllActions() {
+        List<Action> result = new ArrayList<>();
+        result.add(new LightOffAction("Turn off " + friendlyName, entityID));
+        result.add(new LightOnAction("Turn on " + friendlyName, entityID, Color.YELLOW, false));
         return result;
     }
 

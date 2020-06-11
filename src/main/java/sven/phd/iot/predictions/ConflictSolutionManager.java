@@ -1,5 +1,8 @@
 package sven.phd.iot.predictions;
 
+import sven.phd.iot.students.mathias.states.ConflictSolution;
+import sven.phd.iot.students.mathias.states.ConflictingAction;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +12,16 @@ public class ConflictSolutionManager {
     public ConflictSolutionManager() {
         this.conflictSolutionList = new ArrayList<>();
 
-        ConflictSolution testConflictSolution = new ConflictSolution();
+        ConflictSolution testConflictSolution = new ConflictSolution("light.living_spots");
+
+        ConflictingAction lichtOffAction = new ConflictingAction("actionId2", "rule.nobody_home_lights");
+        ConflictingAction lichtOnAction = new ConflictingAction("actionId4", "rule.blinds_up");
+
+        testConflictSolution.addConflictingAction(lichtOffAction);
+        testConflictSolution.addConflictingAction(lichtOnAction);
+
+        testConflictSolution.snoozeAction(lichtOffAction, true);
+        testConflictSolution.snoozeAction(lichtOnAction, false);
 
         this.addSolution(testConflictSolution);
     }

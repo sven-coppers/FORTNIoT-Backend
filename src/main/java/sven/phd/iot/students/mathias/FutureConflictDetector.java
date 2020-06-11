@@ -2,9 +2,9 @@ package sven.phd.iot.students.mathias;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.Conflict;
 //import sven.phd.iot.hassio.states.HassioConflictingAttribute;
-import sven.phd.iot.students.mathias.states.HassioConflictingActionState;
+import sven.phd.iot.students.mathias.states.ConflictingAction;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.predictions.Future;
@@ -17,11 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class FutureConflictDetector {
-    private List<HassioConflictState> _futureConflicts;
+    private List<Conflict> _futureConflicts;
 
     public FutureConflictDetector() {}
 
-    public List<HassioConflictState> getFutureConflicts(Future future) {
+    public List<Conflict> getFutureConflicts(Future future) {
         //List<HassioState> futureStates = ContextManager.getInstance().getStateFuture();
         //List<HassioConflictState> result = new ArrayList<>();
 
@@ -56,10 +56,10 @@ public class FutureConflictDetector {
      * @param trigger, rule that is being compared to the comparingTrigger
      */
     // under construction
-    private void findConflictingActions(List<HassioConflictState> result, HassioRuleExecutionEvent comparingRule, HassioRuleExecutionEvent rule, Trigger comparingTrigger, Trigger trigger) {
+    private void findConflictingActions(List<Conflict> result, HassioRuleExecutionEvent comparingRule, HassioRuleExecutionEvent rule, Trigger comparingTrigger, Trigger trigger) {
         for (Action comparingAction: comparingTrigger.actions) {
             boolean conflictAlreadyExists = false;
-            HassioConflictState comparingActionConflictState = containsConflict(result, comparingAction.getDeviceID(), comparingRule.datetime);
+            Conflict comparingActionConflictState = containsConflict(result, comparingAction.getDeviceID(), comparingRule.datetime);
             if (comparingActionConflictState != null) {
                 conflictAlreadyExists = true;
             }
@@ -71,7 +71,7 @@ public class FutureConflictDetector {
                     // Else, if result conflict contains both rules => do nothing
                     // Else add rule(s) to result conflict
                     if (!conflictAlreadyExists) {
-                        comparingActionConflictState = new HassioConflictState(comparingAction.getDeviceID());
+                        comparingActionConflictState = new Conflict(comparingAction.getDeviceID());
                         result.add(comparingActionConflictState);
                         conflictAlreadyExists = true;
                     }
@@ -86,8 +86,8 @@ public class FutureConflictDetector {
         }
     }
 
-    private HassioConflictState containsConflict(List<HassioConflictState> allConflicts, String deviceID, Date datetime) {
-        for (HassioConflictState conflict: allConflicts) {
+    private Conflict containsConflict(List<Conflict> allConflicts, String deviceID, Date datetime) {
+        for (Conflict conflict: allConflicts) {
             if (conflict.alreadyExist(deviceID)){
                 return conflict;
             }
@@ -95,8 +95,8 @@ public class FutureConflictDetector {
         return null;
     }
 
-    private boolean containsRule(List<HassioConflictState> allConflicts, String deviceID, Date datetime, Trigger rule) {
-        for (HassioConflictState conflict: allConflicts) {
+    private boolean containsRule(List<Conflict> allConflicts, String deviceID, Date datetime, Trigger rule) {
+        for (Conflict conflict: allConflicts) {
             if (conflict.alreadyExist(deviceID)){
                 if (conflict.containsRule(rule.id)){
                     return true;
@@ -106,9 +106,9 @@ public class FutureConflictDetector {
         return false;
     }
 
-    private List<HassioConflictState> findRaceConditionsInStates(Future future){
+    private List<Conflict> findRaceConditionsInStates(Future future){
         List<HassioState> futureStates = future.getFutureStates();
-        List<HassioConflictState> result = new ArrayList<>();
+        List<Conflict> result = new ArrayList<>();
 
         // TODO Under construction
         // actions can exist without having a rule that executed them
@@ -127,13 +127,13 @@ public class FutureConflictDetector {
                     Action action = ContextManager.getInstance().getActionsManager().getActionByContextID(state.context.id);
 
                     boolean conflictAlreadyExists = false;
-                    HassioConflictState comparingActionConflictState = containsConflict(result, comparingState.entity_id, comparingState.getLastUpdated());
+                    Conflict comparingActionConflictState = containsConflict(result, comparingState.entity_id, comparingState.getLastUpdated());
                     if (comparingActionConflictState != null) {
                         conflictAlreadyExists = true;
                     }
 
                     if (!conflictAlreadyExists) {
-                        comparingActionConflictState = new HassioConflictState(comparingState.entity_id);
+                        comparingActionConflictState = new Conflict(comparingState.entity_id);
                         result.add(comparingActionConflictState);
                         conflictAlreadyExists = true;
                     }
@@ -142,14 +142,14 @@ public class FutureConflictDetector {
                     // If they don't exist, the should be added to the conflict in another way
                     if (comparingEvent != null && !containsRule(result, comparingState.entity_id, comparingState.getLastUpdated(), comparingEvent.getTrigger())) {
 
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(getActionIdFromInvolvedRule(comparingState.entity_id, comparingEvent.getTrigger()), comparingEvent.getTrigger().id));
+                        comparingActionConflictState.conflictingActions.add(new ConflictingAction(getActionIdFromInvolvedRule(comparingState.entity_id, comparingEvent.getTrigger()), comparingEvent.getTrigger().id));
                     } else if (comparingAction != null) {
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(comparingAction.id, ""));
+                        comparingActionConflictState.conflictingActions.add(new ConflictingAction(comparingAction.id, ""));
                     }
                     if (event != null && !containsRule(result, comparingState.entity_id, comparingState.getLastUpdated(), event.getTrigger())){
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(getActionIdFromInvolvedRule(comparingState.entity_id, event.getTrigger()), event.getTrigger().id));
+                        comparingActionConflictState.conflictingActions.add(new ConflictingAction(getActionIdFromInvolvedRule(comparingState.entity_id, event.getTrigger()), event.getTrigger().id));
                     } else if (action != null) {
-                        comparingActionConflictState.actions.add(new HassioConflictingActionState(action.id, ""));
+                        comparingActionConflictState.conflictingActions.add(new ConflictingAction(action.id, ""));
                     }
                 }
             }

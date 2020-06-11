@@ -1,15 +1,11 @@
 package sven.phd.iot.students.mathias;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.api.request.SimulationRequest;
-import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.students.mathias.request.SolutionRequest;
 import sven.phd.iot.students.mathias.response.HassioSolutionResponse;
-import sven.phd.iot.students.mathias.states.HassioAction;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
+import sven.phd.iot.students.mathias.states.Conflict;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -50,7 +46,7 @@ public class MathiasResource {
     @Path("devices/actions/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioAction> getAllActionsOnDevice(@PathParam("id") String id) {
+    public List<Action> getAllActionsOnDevice(@PathParam("id") String id) {
         return ContextManager.getInstance().getAllActionsOnDevice(id);
     }
 
@@ -96,7 +92,7 @@ public class MathiasResource {
     @Path("conflicts/future/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioConflictState> getConflictFuture() {
+    public List<Conflict> getConflictFuture() {
         return ContextManager.getInstance().getFutureConflicts();
     }
 
@@ -108,7 +104,7 @@ public class MathiasResource {
     @Path("conflicts/future/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioConflictState> getConflictFuture(@PathParam("id") String id) {
+    public List<Conflict> getConflictFuture(@PathParam("id") String id) {
         return ContextManager.getInstance().getFutureConflicts(id);
     }
 
@@ -119,7 +115,7 @@ public class MathiasResource {
     @Path("conflicts/solutions/future/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioConflictSolutionState> getConflictSolutionsFuture() {
+    public List<ConflictSolution> getConflictSolutionsFuture() {
         return ContextManager.getInstance().getFutureConflictSolutions();
     }
 
@@ -131,7 +127,7 @@ public class MathiasResource {
     @Path("conflicts/solutions/future/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioConflictSolutionState> getConflictSolutionsFuture(@PathParam("id") String id) {
+    public List<ConflictSolution> getConflictSolutionsFuture(@PathParam("id") String id) {
         return ContextManager.getInstance().getFutureConflictSolutions(id);
     }
 
@@ -139,7 +135,7 @@ public class MathiasResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public HassioSolutionResponse setConflictSolution(HassioConflictSolutionState conflictSolutionRequest)  {
+    public HassioSolutionResponse setConflictSolution(ConflictSolution conflictSolutionRequest)  {
         HassioSolutionResponse response = new HassioSolutionResponse();
 
         if(ContextManager.getInstance().addConflictSolution(conflictSolutionRequest)) {

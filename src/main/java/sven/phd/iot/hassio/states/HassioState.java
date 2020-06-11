@@ -1,6 +1,6 @@
 package sven.phd.iot.hassio.states;
 
-import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.Conflict;
 
 import java.util.Date;
 
@@ -25,7 +25,7 @@ public class HassioState extends HassioAbstractState {
         this.attributes = hassioState.attributes;
     }
 
-    public HassioConflictState compareAttributes(HassioState state) {
+    public Conflict compareAttributes(HassioState state) {
         /*
         if(this.state != state.state) {
             HassioConflictState conflict = new HassioConflictState(this.entity_id, this.type, this.datetime);

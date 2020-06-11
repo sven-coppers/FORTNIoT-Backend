@@ -15,7 +15,7 @@ public class LightOnAction extends Action {
     private Color color;
     private boolean flash;
 
-    public LightOnAction(String description, String deviceIdentifier,  Color color, boolean flash) {
+    public LightOnAction(String description, String deviceIdentifier, Color color, boolean flash) {
         // super("Turn on " + friendlyName + " {color: [" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "], flash: " + flash + "}");
         super(description);
         this.deviceIdentifier = deviceIdentifier;

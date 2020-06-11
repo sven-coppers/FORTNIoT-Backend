@@ -8,6 +8,8 @@ import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.students.mathias.FutureConflictDetector;
+import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.HassioConflictingActionState;
 
 import java.util.*;
 
@@ -125,16 +127,48 @@ public class PredictionEngine {
 
                 if (!newLayer.isEmpty()) {
                     causalStack.addLayer(newLayer);
-
                 }
             }
 
-            // Find inconsistencies
-            for(int i = 0; i < newLayer.getNumStates(); ++i) {
-                CausalNode newChange = newLayer.getState(i);
+            if (!causalStack.isEmpty()) {
+                System.out.println("Tick " + newDate);
+                causalStack.print();
+            }
 
-                if(causalStack.hasChange(newChange.getState().entity_id)) {
-                    System.err.println("INCONSISTENCY DETECTED");
+            // Group all potential changes by entityID
+            HashMap<String, List<CausalNode>> potentialChanges = new HashMap<>();
+
+            for(CausalNode node : causalStack.flatten()) {
+                if(potentialChanges.get(node.getState().entity_id) == null) {
+                    potentialChanges.put(node.getState().entity_id, new ArrayList<>());
+                }
+
+                potentialChanges.get(node.getState().entity_id).add(node);
+            }
+
+            // Check if there are multiple potential states for the same entityID (inconsistency)
+            for(String entityID : potentialChanges.keySet()) {
+                if(potentialChanges.get(entityID).size() > 1) {
+                    System.out.println("INCONSISTENCY DETECTED FOR " + entityID);
+                    HassioConflictState newInconsistency = new HassioConflictState(entityID);
+
+                    for(CausalNode node : potentialChanges.get(entityID)) {
+                        if(node.getExecutionEvent() == null) {
+                            System.err.println("The conflicting state did not have an execution event for " + node.getState().entity_id + " = " + node.getState().state);
+                            continue;
+                        }
+
+                        String causingAction = node.getExecutionEvent().getResponsibleAction(node.getState().context);
+
+                        if(causingAction == null) {
+                            // The state is not caused by a rule
+                            System.err.println("The conflicting state is not caused by a rule");
+                        }
+
+                        newInconsistency.addAction(new HassioConflictingActionState(causingAction, node.getExecutionEvent().getTrigger().id));
+                    }
+
+                    future.addFutureConflict(newInconsistency);
                 }
             }
 
@@ -144,10 +178,7 @@ public class PredictionEngine {
             // Determine future with solutions in place (hopefully without inconsistencies)
 
 
-            if (!causalStack.isEmpty()) {
-                System.out.println("Tick " + newDate);
-                causalStack.print();
-            }
+
 
             // Undo solutions
         }

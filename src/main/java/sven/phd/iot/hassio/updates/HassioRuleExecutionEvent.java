@@ -56,6 +56,18 @@ public class HassioRuleExecutionEvent extends HassioEvent {
         return this.trigger;
     }
 
+    public String getResponsibleAction(HassioContext findContext) {
+        for(String actionID : this.actionContexts.keySet()) {
+            for(HassioContext haystackContext : this.actionContexts.get(actionID)) {
+                if(haystackContext.id.equals(findContext.id)) {
+                    return actionID;
+                }
+            }
+        }
+
+        return null;
+    }
+
     /* Deprecated??? */
     public void resolveContexts(HashMap<String, HassioState> hassioStates, List<String> triggerDevices, List<String> actionDevices) {
     /*    for(String triggerDevice : triggerDevices) {

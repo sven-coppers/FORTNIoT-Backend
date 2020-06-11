@@ -29,6 +29,10 @@ public class HassioConflictState {
         this.actions = new ArrayList<HassioConflictingActionState>();
     }
 
+    public void addAction(HassioConflictingActionState conflictingActionState) {
+        this.actions.add(conflictingActionState);
+    }
+
     public boolean alreadyExist(String entityID) {
         return (this.entity_id.equals(entityID));
     }

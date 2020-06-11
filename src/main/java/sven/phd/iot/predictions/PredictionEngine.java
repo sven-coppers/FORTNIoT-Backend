@@ -103,6 +103,14 @@ public class PredictionEngine {
         return future;
     }
 
+    /**
+     * Simulate a tick, and resolve conflicts if needed
+     * @param newDate
+     * @param lastStates
+     * @param globalQueue
+     * @param future
+     * @param simulatedRulesEnabled
+     */
     private void tick(Date newDate, HashMap<String, HassioState> lastStates, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
         List<ConflictingAction> snoozedActions = new ArrayList<>();
         CausalStack causalStack = new CausalStack();
@@ -124,82 +132,69 @@ public class PredictionEngine {
         if(!firstLayer.isEmpty()) {
             causalStack.addLayer(firstLayer);
             System.out.println("Tick " + newDate);
+
+            while(runRequired && this.isPredicting()) {
+                causalStack = this.deduceStack(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions);
+                runRequired = this.detectConflicts(causalStack, snoozedActions);
+            }
+
+            this.commitPredictedStates(causalStack, future);
         }
+    }
 
-        while(runRequired && this.isPredicting()) {
-            if(firstLayer.isEmpty()) break;
+    /**
+     *
+     * @param causalStack
+     * @param snoozedActions (out-parameter) will be extended with snoozedActions, based on applicable rules
+     * @return
+     */
+    private boolean detectConflicts(CausalStack causalStack, List<ConflictingAction> snoozedActions) {
+        if(causalStack.isEmpty()) return false;
 
-            System.out.println("- Running the predictions");
-            causalStack = new CausalStack();
-            causalStack.addLayer(firstLayer);
-            CausalLayer newLayer = firstLayer;
-            runRequired = false;
+        System.out.println("Decting conflicts on the causal stack");
+        causalStack.print();
 
-            // Determine future (could contain inconsistencies
-            while (!newLayer.isEmpty()) {
-                newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions);
+        // Group all potential changes by entityID
+        List<CausalNode> potentialChanges = causalStack.flatten();
 
-                if (!newLayer.isEmpty()) {
-                    causalStack.addLayer(newLayer);
+        for(int i = 0; i < potentialChanges.size(); ++i) {
+            List<CausalNode> conflictingChanges = new ArrayList<>();
+            String initialEntityID = potentialChanges.get(i).getState().entity_id;
+
+            for (int j = i; j < potentialChanges.size(); ++j) {
+                if (potentialChanges.get(j).getState().entity_id.equals(initialEntityID)) {
+                    conflictingChanges.add(potentialChanges.get(j));
                 }
             }
 
-            if (!causalStack.isEmpty()) {
-                causalStack.print();
-            }
+            if (conflictingChanges.size() > 1) {
+                System.out.println("INCONSISTENCY DETECTED FOR " + initialEntityID);
+                Conflict newInconsistency = new Conflict(initialEntityID, conflictingChanges);
+                ConflictSolution potentialSolution = solutionManager.getSolutionForConflict(newInconsistency);
 
-            // Group all potential changes by entityID
-            List<CausalNode> potentialChanges = causalStack.flatten();
+                if (potentialSolution == null) {
+                    future.addFutureConflict(newInconsistency);
+                } else {
+                    // Apply Solutions
+                    System.out.println("Solution applied, rerun required");
 
-            for(int i = 0; i < potentialChanges.size(); ++i) {
-                List<CausalNode> conflictingChanges = new ArrayList<>();
-                String initialEntityID = potentialChanges.get(i).getState().entity_id;
+                    snoozedActions.addAll(potentialSolution.snoozedActions);
+                    // TODO: What about custom actions?
 
-                for(int j = i; j < potentialChanges.size(); ++j) {
-                    if(potentialChanges.get(j).getState().entity_id.equals(initialEntityID)) {
-                        conflictingChanges.add(potentialChanges.get(j));
-                    }
-                }
-
-                if(conflictingChanges.size() > 1) {
-                    System.out.println("INCONSISTENCY DETECTED FOR " + initialEntityID);
-                    Conflict newInconsistency = new Conflict(initialEntityID);
-
-                    // Build the conflict
-                    for(CausalNode node : conflictingChanges) {
-                        if(node.getExecutionEvent() == null) {
-                            System.err.println("The conflicting state did not have an execution event for " + node.getState().entity_id + " = " + node.getState().state);
-                            continue;
-                        }
-
-                        String causingAction = node.getExecutionEvent().getResponsibleAction(node.getState().context);
-
-                        if(causingAction == null) {
-                            // The state is not caused by a rule
-                            System.err.println("The conflicting state is not caused by a rule");
-                        }
-
-                        newInconsistency.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().getTrigger().id));
-                    }
-
-                    ConflictSolution potentialSolution = solutionManager.getSolutionForConflict(newInconsistency);
-
-                    if(potentialSolution == null) {
-                        future.addFutureConflict(newInconsistency);
-                    } else {
-                        // Apply Solutions
-                        System.out.println("Solution applied, rerun required");
-
-                        snoozedActions.addAll(potentialSolution.snoozedActions);
-                        // TODO: What about custom actions?
-                        runRequired = true;
-                        break; // One solution at a time
-                    }
+                    return true;
                 }
             }
         }
 
-        // Overgebleven states committen we als predicted states
+        return false;
+    }
+
+    /**
+     * Commit the predicted states on the causal stack to the future
+     * @param causalStack
+     * @param future
+     */
+    private void commitPredictedStates(CausalStack causalStack, Future future) {
         List<CausalNode> finalNewChanges = causalStack.flatten();
 
         for(CausalNode node : finalNewChanges) {
@@ -211,6 +206,42 @@ public class PredictionEngine {
         }
     }
 
+    /**
+     *
+     * @param newDate
+     * @param firstLayer
+     * @param lastStates
+     * @param simulatedRulesEnabled
+     * @param snoozedActions
+     * @return
+     */
+    private CausalStack deduceStack(Date newDate, CausalLayer firstLayer, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
+        System.out.println("Deducing new causal stack");
+        CausalStack causalStack = new CausalStack();
+        causalStack.addLayer(firstLayer);
+        CausalLayer newLayer = firstLayer;
+
+        // Determine future (could contain inconsistencies
+        while (!newLayer.isEmpty()) {
+            newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions);
+
+            if (!newLayer.isEmpty()) {
+                causalStack.addLayer(newLayer);
+            }
+        }
+
+        return causalStack;
+    }
+
+    /**
+     * Determine which new states would occur (in a new layer) based on the new states from the previous layer)
+     * @param newDate
+     * @param causalStack
+     * @param lastStates
+     * @param simulatedRulesEnabled
+     * @param snoozedActions the actions which are snoozed (e.g. by conflict solutions)
+     * @return
+     */
     private CausalLayer deduceLayer(Date newDate, CausalStack causalStack, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
         // Build the states for this layer
         HashMap<String, HassioState> layerSpecificStates = buildLayerSpecificStates(lastStates, causalStack);
@@ -242,6 +273,7 @@ public class PredictionEngine {
      * @param newChanges
      * @param states
      * @param simulatedRulesEnabled
+     * @param snoozedActions the actions which are snoozed (e.g. by conflict solutions)
      * @return
      */
     private List<CausalNode> verifyExplicitRules(Date date, List<HassioChange> newChanges, HashMap<String, HassioState> states, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
@@ -300,8 +332,6 @@ public class PredictionEngine {
 
         return result;
     }
-
-
 
     /**
      * Build a hasmap with the last states, updated with all changes that are specific to this branch in the three

@@ -57,7 +57,7 @@ public class FutureConflictDetector {
      */
     // under construction
     private void findConflictingActions(List<Conflict> result, HassioRuleExecutionEvent comparingRule, HassioRuleExecutionEvent rule, Trigger comparingTrigger, Trigger trigger) {
-        for (Action comparingAction: comparingTrigger.actions) {
+      /*  for (Action comparingAction: comparingTrigger.actions) {
             boolean conflictAlreadyExists = false;
             Conflict comparingActionConflictState = containsConflict(result, comparingAction.getDeviceID(), comparingRule.datetime);
             if (comparingActionConflictState != null) {
@@ -83,31 +83,31 @@ public class FutureConflictDetector {
                     }
                 }
             }
-        }
+        } */
     }
 
     private Conflict containsConflict(List<Conflict> allConflicts, String deviceID, Date datetime) {
-        for (Conflict conflict: allConflicts) {
+     /*   for (Conflict conflict: allConflicts) {
             if (conflict.alreadyExist(deviceID)){
                 return conflict;
             }
-        }
+        } */
         return null;
     }
 
     private boolean containsRule(List<Conflict> allConflicts, String deviceID, Date datetime, Trigger rule) {
-        for (Conflict conflict: allConflicts) {
+      /*  for (Conflict conflict: allConflicts) {
             if (conflict.alreadyExist(deviceID)){
                 if (conflict.containsRule(rule.id)){
                     return true;
                 }
             }
-        }
+        } */
         return false;
     }
 
     private List<Conflict> findRaceConditionsInStates(Future future){
-        List<HassioState> futureStates = future.getFutureStates();
+    /*    List<HassioState> futureStates = future.getFutureStates();
         List<Conflict> result = new ArrayList<>();
 
         // TODO Under construction
@@ -155,10 +155,10 @@ public class FutureConflictDetector {
             }
         }
 
-        return result;
+        return result; */
+
+        return new ArrayList<>();
     }
-
-
 
     private String getActionIdFromInvolvedRule(String entityID, Trigger rule) {
         Action action = rule.getActionOnDevice(entityID);

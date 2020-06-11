@@ -9,6 +9,7 @@ import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.students.mathias.FutureConflictDetector;
 import sven.phd.iot.students.mathias.states.Conflict;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.ConflictingAction;
 
 import java.util.*;
@@ -17,15 +18,17 @@ public class PredictionEngine {
     private HassioStateScheduler stateScheduler;
     private RulesManager rulesManager;
     private HassioDeviceManager hassioDeviceManager;
+    private ConflictSolutionManager solutionManager;
     private Future future;
     private Boolean predicting;
     private long tickRate = 5; // minutes
     private long predictionWindow = 1 * 24 * 60; // 1 day in minutes
 
-    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager) {
+    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager, ConflictSolutionManager solutionManager) {
         this.rulesManager = rulesManager;
         this.hassioDeviceManager = hassioDeviceManager;
         this.stateScheduler = hassioDeviceManager.getStateScheduler();
+        this.solutionManager = solutionManager;
         this.future = new Future();
         this.predicting = false;
     }
@@ -106,7 +109,7 @@ public class PredictionEngine {
 
         // IMPLICIT Let the devices predict their state, based on the past states (e.g. temperature)
         if(this.isPredicting()) {
-            newLayer.addAll(this.verifyImplicitBehvaior(newDate, lastStates));
+            newLayer.addAll(this.verifyImplicitBehavior(newDate, lastStates));
         }
 
         // BASELINE: Add states from the global queue (before the current date), which could induce conflicts
@@ -152,6 +155,7 @@ public class PredictionEngine {
                     System.out.println("INCONSISTENCY DETECTED FOR " + entityID);
                     Conflict newInconsistency = new Conflict(entityID);
 
+                    // Build the conflict
                     for(CausalNode node : potentialChanges.get(entityID)) {
                         if(node.getExecutionEvent() == null) {
                             System.err.println("The conflicting state did not have an execution event for " + node.getState().entity_id + " = " + node.getState().state);
@@ -168,7 +172,14 @@ public class PredictionEngine {
                         newInconsistency.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().getTrigger().id));
                     }
 
-                    future.addFutureConflict(newInconsistency);
+                    ConflictSolution potentialSolution = solutionManager.getSolutionForConflict(newInconsistency);
+
+                    if(potentialSolution == null) {
+                        future.addFutureConflict(newInconsistency);
+                    } else {
+                        // TODO: apply solution and rerun tick()
+                        System.out.println("Solution found");
+                    }
                 }
             }
 
@@ -221,7 +232,7 @@ public class PredictionEngine {
 
         // Pass the stateChange to the set of rules and to the implicit behavior
         newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, layerSpecificStates, simulatedRulesEnabled));
-        newLayer.addAll(this.verifyImplicitBehvaior(newDate, layerSpecificStates));
+        newLayer.addAll(this.verifyImplicitBehavior(newDate, layerSpecificStates));
 
         return newLayer;
     }
@@ -270,7 +281,7 @@ public class PredictionEngine {
      * @param states
      * @return
      */
-    private List<CausalNode> verifyImplicitBehvaior(Date newDate, HashMap<String, HassioState> states) {
+    private List<CausalNode> verifyImplicitBehavior(Date newDate, HashMap<String, HassioState> states) {
         List<CausalNode> result = new ArrayList<>();
 
         List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, states);

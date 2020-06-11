@@ -28,6 +28,7 @@ import sven.phd.iot.hassio.sun.HassioSun;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.hassio.weather.HassioWeather;
+import sven.phd.iot.predictions.ConflictSolutionManager;
 import sven.phd.iot.students.bram.questions.why.user.UserService;
 
 import javax.ws.rs.client.Client;

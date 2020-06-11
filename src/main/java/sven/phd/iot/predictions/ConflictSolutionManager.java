@@ -1,5 +1,6 @@
 package sven.phd.iot.predictions;
 
+import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.ConflictingAction;
 
@@ -32,5 +33,15 @@ public class ConflictSolutionManager {
 
     public List<ConflictSolution> getSolutions() {
         return this.conflictSolutionList;
+    }
+
+    public ConflictSolution getSolutionForConflict(Conflict conflict) {
+        for(ConflictSolution solution : this.conflictSolutionList) {
+            if(solution.matchesConflict(conflict)) {
+                return solution;
+            }
+        }
+
+        return null;
     }
 }

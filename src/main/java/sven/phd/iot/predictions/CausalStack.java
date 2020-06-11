@@ -29,8 +29,6 @@ public class CausalStack {
             System.out.println();
             ++i;
         }
-
-        System.out.println("------");
     }
 
     public boolean isEmpty() {

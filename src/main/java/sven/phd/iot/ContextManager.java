@@ -39,10 +39,10 @@ public class ContextManager {
 
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
-        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager);
+        this.conflictSolutionManager = new ConflictSolutionManager();
+        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.conflictSolutionManager);
         this.scenarioManager = new ScenarioManager(this);
         this.studyManager = new StudyManager();
-        this.conflictSolutionManager = new ConflictSolutionManager();
 
         // NEVER EVER START PREDICTING WHEN LAUNCHING THIS SHIT
     }

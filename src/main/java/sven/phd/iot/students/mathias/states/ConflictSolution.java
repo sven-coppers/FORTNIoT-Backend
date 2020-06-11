@@ -46,4 +46,15 @@ public class ConflictSolution {
     public boolean isSnoozed(ConflictingAction action) {
         return this.snoozedActions.contains(action);
     }
+
+    public boolean matchesConflict(Conflict conflict) {
+        if(conflict.conflictingActions.size() != this.conflictingActions.size()) return false;
+
+        // Check if all actions in the conflict match our conflicting actions
+        for(ConflictingAction conflictingAction : conflict.conflictingActions) {
+            if(!this.conflictingActions.contains(conflictingAction)) return false;
+        }
+
+        return true;
+    }
 }

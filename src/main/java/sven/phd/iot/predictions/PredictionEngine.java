@@ -178,29 +178,44 @@ public class PredictionEngine {
                 if (potentialSolution == null) {
                     future.addFutureConflict(newInconsistency);
                 } else {
-                    // Apply solution (snooze actions, if any)
-                    SolutionExecutionEvent solutionExecution = new SolutionExecutionEvent(potentialSolution.solutionID, newDate);
-                    snoozedActions.addAll(potentialSolution.snoozedActions);
-
-                    // Apply solution (add custom actions, if any)
-                    for(Action customAction : potentialSolution.customActions) {
-                        List<HassioState> solutionStates = customAction.simulate(newDate, lastStates);
-                        solutionExecution.addActionExecuted(customAction.id, solutionStates);
-
-                        for(HassioState solutionState : solutionStates) {
-                            firstLayer.addState(new CausalNode(solutionState, solutionExecution));
-                        }
-                    }
-
+                    SolutionExecutionEvent solutionExecution = this.applySolution(newDate, potentialSolution, lastStates, firstLayer, snoozedActions);
                     future.addExecutionEvent(solutionExecution);
-
                     System.out.println("Solution applied, rerun required");
+                    // TODO: A solution should only be applied once?
                     return true;
                 }
             }
         }
 
         return false;
+    }
+
+    /**
+     * Apply a solution to the firstLayer
+     * @param newDate
+     * @param potentialSolution
+     * @param lastStates
+     * @param firstLayer
+     * @param snoozedActions
+     * @return
+     */
+    public SolutionExecutionEvent applySolution(Date newDate, ConflictSolution potentialSolution, HashMap<String, HassioState> lastStates, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
+        SolutionExecutionEvent solutionExecution = new SolutionExecutionEvent(potentialSolution.solutionID, newDate);
+
+        // Snooze actions, if any
+        snoozedActions.addAll(potentialSolution.snoozedActions);
+
+        // simulate custom actions, if any
+        for(Action customAction : potentialSolution.customActions) {
+            List<HassioState> solutionStates = customAction.simulate(newDate, lastStates);
+            solutionExecution.addActionExecuted(customAction.id, solutionStates);
+
+            for(HassioState solutionState : solutionStates) {
+                firstLayer.addState(new CausalNode(solutionState, solutionExecution));
+            }
+        }
+
+        return solutionExecution;
     }
 
     /**

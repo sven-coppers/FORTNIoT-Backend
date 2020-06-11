@@ -104,29 +104,40 @@ public class PredictionEngine {
     }
 
     private void tick(Date newDate, HashMap<String, HassioState> lastStates, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
+        List<ConflictingAction> snoozedActions = new ArrayList<>();
         CausalStack causalStack = new CausalStack();
-        CausalLayer newLayer = new CausalLayer();
+        CausalLayer firstLayer = new CausalLayer(); // Never changes, because no rules are executed yet
+        boolean runRequired = true;
 
         // IMPLICIT Let the devices predict their state, based on the past states (e.g. temperature)
         if(this.isPredicting()) {
-            newLayer.addAll(this.verifyImplicitBehavior(newDate, lastStates));
+            firstLayer.addAll(this.verifyImplicitBehavior(newDate, lastStates));
         }
 
         // BASELINE: Add states from the global queue (before the current date), which could induce conflicts
         while(!globalQueue.isEmpty() && globalQueue.peek().getLastChanged().getTime() <= newDate.getTime()) {
             HassioState newState = globalQueue.poll();
 
-            newLayer.addState(new CausalNode(newState, null));
+            firstLayer.addState(new CausalNode(newState, null));
         }
 
-        if(!newLayer.isEmpty()) {
-            causalStack.addLayer(newLayer);
+        if(!firstLayer.isEmpty()) {
+            causalStack.addLayer(firstLayer);
+            System.out.println("Tick " + newDate);
         }
 
-        if(this.isPredicting()) {
+        while(runRequired && this.isPredicting()) {
+            if(firstLayer.isEmpty()) break;
+
+            System.out.println("- Running the predictions");
+            causalStack = new CausalStack();
+            causalStack.addLayer(firstLayer);
+            CausalLayer newLayer = firstLayer;
+            runRequired = false;
+
             // Determine future (could contain inconsistencies
             while (!newLayer.isEmpty()) {
-                newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled);
+                newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions);
 
                 if (!newLayer.isEmpty()) {
                     causalStack.addLayer(newLayer);
@@ -134,7 +145,6 @@ public class PredictionEngine {
             }
 
             if (!causalStack.isEmpty()) {
-                System.out.println("Tick " + newDate);
                 causalStack.print();
             }
 
@@ -177,28 +187,17 @@ public class PredictionEngine {
                     if(potentialSolution == null) {
                         future.addFutureConflict(newInconsistency);
                     } else {
-                        // TODO: apply solution and rerun tick()
-                        System.out.println("Solution found");
+                        // Apply Solutions
+                        System.out.println("Solution applied, rerun required");
+
+                        snoozedActions.addAll(potentialSolution.snoozedActions);
+                        // TODO: What about custom actions?
+                        runRequired = true;
+                        break; // One solution at a time
                     }
                 }
             }
-
-            // Apply Solutions
-
-
-            // Determine future with solutions in place (hopefully without inconsistencies)
-
-
-
-
-            // Undo solutions
         }
-
-
-        // Conflict detection: inconsistency
-
-
-
 
         // Overgebleven states committen we als predicted states
         List<CausalNode> finalNewChanges = causalStack.flatten();
@@ -212,7 +211,7 @@ public class PredictionEngine {
         }
     }
 
-    private CausalLayer deduceLayer(Date newDate, CausalStack causalStack, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled) {
+    private CausalLayer deduceLayer(Date newDate, CausalStack causalStack, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
         // Build the states for this layer
         HashMap<String, HassioState> layerSpecificStates = buildLayerSpecificStates(lastStates, causalStack);
 
@@ -231,7 +230,7 @@ public class PredictionEngine {
         }
 
         // Pass the stateChange to the set of rules and to the implicit behavior
-        newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, layerSpecificStates, simulatedRulesEnabled));
+        newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, layerSpecificStates, simulatedRulesEnabled, snoozedActions));
         newLayer.addAll(this.verifyImplicitBehavior(newDate, layerSpecificStates));
 
         return newLayer;
@@ -245,14 +244,20 @@ public class PredictionEngine {
      * @param simulatedRulesEnabled
      * @return
      */
-    private List<CausalNode> verifyExplicitRules(Date date, List<HassioChange> newChanges, HashMap<String, HassioState> states, HashMap<String, Boolean> simulatedRulesEnabled) {
+    private List<CausalNode> verifyExplicitRules(Date date, List<HassioChange> newChanges, HashMap<String, HassioState> states, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
         List<CausalNode> result = new ArrayList<>();
 
         List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(date, newChanges, new HashMap<>());
         List<HassioRuleExecutionEvent> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
 
         for(HassioRuleExecutionEvent potentialExecutionEvent : conditionTrueEvents) {
-            HashMap<String, List<HassioState>> proposedActionState = potentialExecutionEvent.getTrigger().simulate(potentialExecutionEvent, states);
+            // Find which actions should be snoozed for this rule
+            List<String> ruleSpecificSnoozedActions = new ArrayList<>();
+            for(ConflictingAction conflictingAction : snoozedActions) {
+                if(conflictingAction.rule_id == potentialExecutionEvent.getTrigger().id) ruleSpecificSnoozedActions.add(conflictingAction.action_id);
+            }
+
+            HashMap<String, List<HassioState>> proposedActionState = potentialExecutionEvent.getTrigger().simulate(potentialExecutionEvent, states, ruleSpecificSnoozedActions);
 
             // For every proposed action, add it to the queue
             for(String actionID : proposedActionState.keySet()) {

@@ -89,11 +89,11 @@ abstract public class Trigger {
      * Run all actions and collect all states that would result from it
      * @return a hashmap with actionID -> list of resulting states from this action
      */
-    public HashMap<String, List<HassioState>> simulate(HassioRuleExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates) {
+    public HashMap<String, List<HassioState>> simulate(HassioRuleExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates, List<String> snoozedActions) {
         HashMap<String, List<HassioState>> results = new HashMap<>();
 
         for(Action action : this.actions) {
-            if(action.isEnabled(executionEvent.datetime)) {
+            if(!snoozedActions.contains(action.id)) {
                 results.put(action.id, action.simulate(executionEvent, hassioStates));
             }
         }

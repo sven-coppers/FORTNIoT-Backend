@@ -174,7 +174,7 @@ public class ContextManager {
         List<HassioRuleExecutionEvent> conditionTrueEvents = rulesManager.verifyConditions(hassioStates, triggerEvents);
 
         for(HassioRuleExecutionEvent conditionTrueEvent : conditionTrueEvents) {
-            HashMap<String, List<HassioState>> resultingActions = conditionTrueEvent.getTrigger().simulate(conditionTrueEvent, hassioStates);
+            HashMap<String, List<HassioState>> resultingActions = conditionTrueEvent.getTrigger().simulate(conditionTrueEvent, hassioStates, new ArrayList<>());
 
             // Apply changes as result of the rules as the new state
             for(String actionID : resultingActions.keySet()) {

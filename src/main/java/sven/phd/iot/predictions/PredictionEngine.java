@@ -149,24 +149,24 @@ public class PredictionEngine {
             }
 
             // Group all potential changes by entityID
-            HashMap<String, List<CausalNode>> potentialChanges = new HashMap<>();
+            List<CausalNode> potentialChanges = causalStack.flatten();
 
-            for(CausalNode node : causalStack.flatten()) {
-                if(potentialChanges.get(node.getState().entity_id) == null) {
-                    potentialChanges.put(node.getState().entity_id, new ArrayList<>());
+            for(int i = 0; i < potentialChanges.size(); ++i) {
+                List<CausalNode> conflictingChanges = new ArrayList<>();
+                String initialEntityID = potentialChanges.get(i).getState().entity_id;
+
+                for(int j = i; j < potentialChanges.size(); ++j) {
+                    if(potentialChanges.get(j).getState().entity_id.equals(initialEntityID)) {
+                        conflictingChanges.add(potentialChanges.get(j));
+                    }
                 }
 
-                potentialChanges.get(node.getState().entity_id).add(node);
-            }
-
-            // Check if there are multiple potential states for the same entityID (inconsistency)
-            for(String entityID : potentialChanges.keySet()) {
-                if(potentialChanges.get(entityID).size() > 1) {
-                    System.out.println("INCONSISTENCY DETECTED FOR " + entityID);
-                    Conflict newInconsistency = new Conflict(entityID);
+                if(conflictingChanges.size() > 1) {
+                    System.out.println("INCONSISTENCY DETECTED FOR " + initialEntityID);
+                    Conflict newInconsistency = new Conflict(initialEntityID);
 
                     // Build the conflict
-                    for(CausalNode node : potentialChanges.get(entityID)) {
+                    for(CausalNode node : conflictingChanges) {
                         if(node.getExecutionEvent() == null) {
                             System.err.println("The conflicting state did not have an execution event for " + node.getState().entity_id + " = " + node.getState().state);
                             continue;

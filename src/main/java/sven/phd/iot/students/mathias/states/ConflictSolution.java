@@ -12,7 +12,8 @@ public class ConflictSolution {
     @JsonProperty("conflicting_actions") public List<ConflictingAction> conflictingActions; // The actions that cause the conflict, used for detecting when the solution should be applied
     @JsonProperty("snoozed_actions") public List<ConflictingAction> snoozedActions;
     @JsonProperty("active_actions") public List<ConflictingAction> activeActions;
-    @JsonProperty("custom_action") public Action customAction = null; // Optional
+    @JsonProperty("custom_actions") public List<Action> customActions; // Optional
+    @JsonProperty("solution_id") public String solutionID;
 
     // For deserialization
     public ConflictSolution(){
@@ -20,7 +21,8 @@ public class ConflictSolution {
         this.conflictingActions = new ArrayList<>();
         this.snoozedActions = new ArrayList<>();
         this.activeActions = new ArrayList<>();
-        this.customAction = null;
+        this.customActions = new ArrayList<>();
+        this.updateSolutionID();
     }
 
     public ConflictSolution(String entityID){
@@ -28,11 +30,25 @@ public class ConflictSolution {
         this.conflictingActions = new ArrayList<>();
         this.snoozedActions = new ArrayList<>();
         this.activeActions = new ArrayList<>();
-        this.customAction = null;
+        this.customActions = new ArrayList<>();
+        this.updateSolutionID();
+    }
+
+    private void updateSolutionID() {
+        this.solutionID = this.entity_id;
+
+        for(ConflictingAction action : this.conflictingActions) {
+            this.solutionID += "_" + action.action_id;
+        }
     }
 
     public void addConflictingAction(ConflictingAction action) {
         this.conflictingActions.add(action);
+        this.updateSolutionID();
+    }
+
+    public void addSolvingAction(Action action) {
+        this.customActions.add(action);
     }
 
     public void snoozeAction(ConflictingAction action, boolean snoozed) {

@@ -3,7 +3,7 @@ package sven.phd.iot.rules;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.rules.triggers.NeverTrigger;
 
 import java.util.*;
@@ -32,8 +32,8 @@ public class RulesManager {
      * @param simulatedRulesEnabled
      * @return
      */
-    public List<HassioRuleExecutionEvent> verifyTriggers(Date date, List<HassioChange> hassioChanges, HashMap<String, Boolean> simulatedRulesEnabled) {
-        List<HassioRuleExecutionEvent> triggerEvents = new ArrayList<>();
+    public List<RuleExecutionEvent> verifyTriggers(Date date, List<HassioChange> hassioChanges, HashMap<String, Boolean> simulatedRulesEnabled) {
+        List<RuleExecutionEvent> triggerEvents = new ArrayList<>();
 
         HashMap<String, List<HassioContext>> ruleContextTriggerMap = new HashMap<>();
 
@@ -58,7 +58,7 @@ public class RulesManager {
 
         // Create trigger events for each unique rule
         for(String ruleName : ruleContextTriggerMap.keySet()) {
-            triggerEvents.add(new HassioRuleExecutionEvent(this.rules.get(ruleName), date, ruleContextTriggerMap.get(ruleName)));
+            triggerEvents.add(new RuleExecutionEvent(this.rules.get(ruleName), date, ruleContextTriggerMap.get(ruleName)));
         }
 
         return triggerEvents;
@@ -70,10 +70,10 @@ public class RulesManager {
      * @param triggerEvents
      * @return
      */
-    public List<HassioRuleExecutionEvent> verifyConditions(HashMap<String, HassioState> states, List<HassioRuleExecutionEvent> triggerEvents) {
-        List<HassioRuleExecutionEvent> filteredTriggerEvents = new ArrayList<>();
+    public List<RuleExecutionEvent> verifyConditions(HashMap<String, HassioState> states, List<RuleExecutionEvent> triggerEvents) {
+        List<RuleExecutionEvent> filteredTriggerEvents = new ArrayList<>();
 
-        for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
+        for(RuleExecutionEvent triggerEvent : triggerEvents) {
             List<HassioState> conditionStates = triggerEvent.getTrigger().verifyCondition(states);
 
             // If the condition was not false
@@ -89,8 +89,8 @@ public class RulesManager {
         return filteredTriggerEvents;
     }
 
-    public List<HassioRuleExecutionEvent> getPastRuleExecutions() {
-        List<HassioRuleExecutionEvent> executions = new ArrayList<>();
+    public List<RuleExecutionEvent> getPastRuleExecutions() {
+        List<RuleExecutionEvent> executions = new ArrayList<>();
 
         for(String triggerName : this.rules.keySet()) {
             executions.addAll(this.rules.get(triggerName).getExecutionHistory());
@@ -105,8 +105,8 @@ public class RulesManager {
      * Get the history states of each device
      * @return
      */
-    public List<HassioRuleExecutionEvent> getPastRuleExecutions(String id) {
-        List<HassioRuleExecutionEvent> executions = new ArrayList<>();
+    public List<RuleExecutionEvent> getPastRuleExecutions(String id) {
+        List<RuleExecutionEvent> executions = new ArrayList<>();
 
         if(this.rules.containsKey(id)) {
             executions.addAll(this.rules.get(id).getExecutionHistory());
@@ -175,7 +175,7 @@ public class RulesManager {
         }
     }
 
-    public void addImplicitPrediction(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
+    public void addImplicitPrediction(RuleExecutionEvent ruleExecutionEvent) {
        // rules.get(RULE_IMPLICIT_BEHAVIOR).
     }
 }

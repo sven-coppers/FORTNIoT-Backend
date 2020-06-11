@@ -1,9 +1,13 @@
 package sven.phd.iot.predictions;
 
+import sven.phd.iot.rules.Action;
+import sven.phd.iot.rules.actions.LightOnAction;
+import sven.phd.iot.scenarios.cases.InconsistencyDevices;
 import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.ConflictingAction;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,16 +17,18 @@ public class ConflictSolutionManager {
     public ConflictSolutionManager() {
         this.conflictSolutionList = new ArrayList<>();
 
-        ConflictSolution testConflictSolution = new ConflictSolution("light.living_spots");
+        ConflictSolution testConflictSolution = new ConflictSolution(InconsistencyDevices.LIVING_SPOTS);
 
-        ConflictingAction lichtOffAction = new ConflictingAction("actionId2", "rule.nobody_home_lights");
-        ConflictingAction lichtOnAction = new ConflictingAction("actionId4", "rule.blinds_up");
+        ConflictingAction lichtOffAction = new ConflictingAction("actionId3", "rule.nobody_home_lights");
+        ConflictingAction lichtOnAction = new ConflictingAction("actionId5", "rule.blinds_up");
 
         testConflictSolution.addConflictingAction(lichtOffAction);
         testConflictSolution.addConflictingAction(lichtOnAction);
 
         testConflictSolution.snoozeAction(lichtOffAction, true);
-        testConflictSolution.snoozeAction(lichtOnAction, false);
+        testConflictSolution.snoozeAction(lichtOnAction, true);
+
+        testConflictSolution.addSolvingAction(new LightOnAction("Custom solution action", InconsistencyDevices.LIVING_SPOTS, Color.GREEN, true));
 
         this.addSolution(testConflictSolution);
     }

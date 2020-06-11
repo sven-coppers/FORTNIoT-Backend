@@ -8,12 +8,13 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.ExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 
 import java.util.*;
 
 abstract public class Trigger {
-    @JsonIgnore private List<HassioRuleExecutionEvent> executionHistory;
+    @JsonIgnore private List<RuleExecutionEvent> executionHistory;
     @JsonProperty("actions") public List<Action> actions;
     @JsonProperty("description") public String title;
     @JsonProperty("id") public String id;
@@ -48,13 +49,13 @@ abstract public class Trigger {
         this.title = title;
     }
 
-    public void addExecution(HassioRuleExecutionEvent executionEvent) {
+    public void addExecution(RuleExecutionEvent executionEvent) {
         this.executionHistory.add(executionEvent);
     }
     /**
      * Get the execution history of this rule
      */
-    public List<HassioRuleExecutionEvent> getExecutionHistory() {
+    public List<RuleExecutionEvent> getExecutionHistory() {
         return this.executionHistory;
     }
 
@@ -66,8 +67,8 @@ abstract public class Trigger {
         this.actions.add(action);
     }
 
-    public void logHassioRuleExecutionEvent(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
-        this.executionHistory.add(hassioRuleExecutionEvent);
+    public void logHassioRuleExecutionEvent(RuleExecutionEvent ruleExecutionEvent) {
+        this.executionHistory.add(ruleExecutionEvent);
     }
 
     /**
@@ -89,12 +90,12 @@ abstract public class Trigger {
      * Run all actions and collect all states that would result from it
      * @return a hashmap with actionID -> list of resulting states from this action
      */
-    public HashMap<String, List<HassioState>> simulate(HassioRuleExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates, List<String> snoozedActions) {
+    public HashMap<String, List<HassioState>> simulate(ExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates, List<String> snoozedActions) {
         HashMap<String, List<HassioState>> results = new HashMap<>();
 
         for(Action action : this.actions) {
             if(!snoozedActions.contains(action.id)) {
-                results.put(action.id, action.simulate(executionEvent, hassioStates));
+                results.put(action.id, action.simulate(executionEvent.datetime, hassioStates));
             }
         }
 

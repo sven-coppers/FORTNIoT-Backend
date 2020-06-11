@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
+public class ImplicitBehaviorEvent extends RuleExecutionEvent {
     @JsonIgnore private List<String> triggerDevicesIDs;
     @JsonIgnore private HashMap<String, List<String>> actionDevicesIDs;
     @JsonIgnore private List<HassioState> actionStates;
@@ -73,14 +73,10 @@ public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
         }
 
         for(String actionID : this.actionDevicesIDs.keySet()) {
-            List<HassioContext> actionContexts = new ArrayList<>();
-
             for(String deviceID: this.actionDevicesIDs.get(actionID)) {
-                actionContexts.add(hassioStates.get(deviceID).context);
+                this.addActionExecuted(actionID, hassioStates.get(deviceID));
                 this.actionStates.add(hassioStates.get(deviceID));
             }
-
-            this.addActionExecuted(actionID, actionContexts);
         }
     }
 

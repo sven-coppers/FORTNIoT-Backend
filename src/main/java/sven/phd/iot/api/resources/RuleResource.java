@@ -2,7 +2,8 @@ package sven.phd.iot.api.resources;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.api.request.RuleUpdateRequest;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.ExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.rules.Trigger;
 
 import javax.ws.rs.*;
@@ -60,7 +61,7 @@ public class RuleResource {
     @Path("history/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioRuleExecutionEvent> getPastRuleExecutions() {
+    public List<RuleExecutionEvent> getPastRuleExecutions() {
         return ContextManager.getInstance().getPastRuleExecutions();
     }
 
@@ -72,7 +73,7 @@ public class RuleResource {
     @Path("history/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioRuleExecutionEvent> getRuleHistory(@PathParam("id") String id) {
+    public List<RuleExecutionEvent> getRuleHistory(@PathParam("id") String id) {
         return ContextManager.getInstance().getPastRuleExecutions(id);
     }
 
@@ -80,7 +81,7 @@ public class RuleResource {
     @Path("future/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioRuleExecutionEvent> getFutureRuleExecutions() {
+    public List<ExecutionEvent> getFutureRuleExecutions() {
         return ContextManager.getInstance().getFutureRuleExecutions();
     }
 
@@ -92,7 +93,7 @@ public class RuleResource {
     @Path("future/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioRuleExecutionEvent> getRuleFuture(@PathParam("id") String id) {
+    public List<ExecutionEvent> getRuleFuture(@PathParam("id") String id) {
         return ContextManager.getInstance().getFutureRuleExecutions(id);
     }
 

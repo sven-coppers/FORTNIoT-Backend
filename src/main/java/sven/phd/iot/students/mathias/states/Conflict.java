@@ -31,7 +31,7 @@ public class Conflict {
                 System.err.println("The conflicting state is not caused by a rule");
             }
 
-            this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().getTrigger().id));
+            this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id));
         }
     }
 

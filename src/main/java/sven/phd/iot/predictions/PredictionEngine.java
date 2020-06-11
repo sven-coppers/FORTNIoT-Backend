@@ -4,13 +4,15 @@ import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.students.mathias.FutureConflictDetector;
 import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.ConflictingAction;
+import sven.phd.iot.students.mathias.states.SolutionExecutionEvent;
 
 import java.util.*;
 
@@ -135,7 +137,7 @@ public class PredictionEngine {
 
             while(runRequired && this.isPredicting()) {
                 causalStack = this.deduceStack(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions);
-                runRequired = this.detectConflicts(causalStack, snoozedActions);
+                runRequired = this.detectConflicts(newDate, lastStates, causalStack, firstLayer, snoozedActions);
             }
 
             this.commitPredictedStates(causalStack, future);
@@ -145,10 +147,11 @@ public class PredictionEngine {
     /**
      *
      * @param causalStack
-     * @param snoozedActions (out-parameter) will be extended with snoozedActions, based on applicable rules
+     * @param firstLayer (out-parameter) will be extended with custom actions, based on applicable solutions
+     * @param snoozedActions (out-parameter) will be extended with snoozedActions, based on applicable solutions
      * @return
      */
-    private boolean detectConflicts(CausalStack causalStack, List<ConflictingAction> snoozedActions) {
+    private boolean detectConflicts(Date newDate, HashMap<String, HassioState> lastStates, CausalStack causalStack, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
         if(causalStack.isEmpty()) return false;
 
         System.out.println("Decting conflicts on the causal stack");
@@ -175,12 +178,23 @@ public class PredictionEngine {
                 if (potentialSolution == null) {
                     future.addFutureConflict(newInconsistency);
                 } else {
-                    // Apply Solutions
-                    System.out.println("Solution applied, rerun required");
-
+                    // Apply solution (snooze actions, if any)
+                    SolutionExecutionEvent solutionExecution = new SolutionExecutionEvent(potentialSolution.solutionID, newDate);
                     snoozedActions.addAll(potentialSolution.snoozedActions);
-                    // TODO: What about custom actions?
 
+                    // Apply solution (add custom actions, if any)
+                    for(Action customAction : potentialSolution.customActions) {
+                        List<HassioState> solutionStates = customAction.simulate(newDate, lastStates);
+                        solutionExecution.addActionExecuted(customAction.id, solutionStates);
+
+                        for(HassioState solutionState : solutionStates) {
+                            firstLayer.addState(new CausalNode(solutionState, solutionExecution));
+                        }
+                    }
+
+                    future.addExecutionEvent(solutionExecution);
+
+                    System.out.println("Solution applied, rerun required");
                     return true;
                 }
             }
@@ -201,7 +215,7 @@ public class PredictionEngine {
             future.addFutureState(node.getState());
 
             if(node.getExecutionEvent() != null) {
-                future.addHassioRuleExecutionEventPrediction(node.getExecutionEvent());
+                future.addExecutionEvent(node.getExecutionEvent());
             }
         }
     }
@@ -279,10 +293,10 @@ public class PredictionEngine {
     private List<CausalNode> verifyExplicitRules(Date date, List<HassioChange> newChanges, HashMap<String, HassioState> states, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
         List<CausalNode> result = new ArrayList<>();
 
-        List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(date, newChanges, new HashMap<>());
-        List<HassioRuleExecutionEvent> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
+        List<RuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(date, newChanges, new HashMap<>());
+        List<RuleExecutionEvent> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
 
-        for(HassioRuleExecutionEvent potentialExecutionEvent : conditionTrueEvents) {
+        for(RuleExecutionEvent potentialExecutionEvent : conditionTrueEvents) {
             // Find which actions should be snoozed for this rule
             List<String> ruleSpecificSnoozedActions = new ArrayList<>();
             for(ConflictingAction conflictingAction : snoozedActions) {
@@ -300,13 +314,7 @@ public class PredictionEngine {
 
             // Add the context of the simulated actions as a result in the potentialTriggerEvent
             for(String actionID : proposedActionState.keySet()) {
-                List<HassioContext> resultingContexts = new ArrayList<>();
-
-                for(HassioState proposedState : proposedActionState.get(actionID)) {
-                    resultingContexts.add(proposedState.context);
-                }
-
-                potentialExecutionEvent.addActionExecuted(actionID, resultingContexts);
+                potentialExecutionEvent.addActionExecuted(actionID, proposedActionState.get(actionID));
             }
         }
 

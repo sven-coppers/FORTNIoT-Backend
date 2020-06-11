@@ -1,16 +1,11 @@
 package sven.phd.iot.students.bram.resources;
 
-import com.google.gson.JsonObject;
-import org.json.JSONObject;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
-import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.students.bram.questions.why.WhyQuestion;
 import sven.phd.iot.students.bram.questions.why.WhyResult;
 import sven.phd.iot.students.bram.questions.why_not.CurrentState;
 import sven.phd.iot.students.bram.questions.why_not.WhyNotResult;
@@ -98,7 +93,7 @@ public class WhyNotResource {
         for(Map.Entry<String, Trigger> entry : rules.entrySet()) {
             Action action = entry.getValue().getActionOnDevice(deviceId);
 
-                List<HassioState> states = action.simulate(new HassioRuleExecutionEvent(entry.getValue(), new Date(), null), null);
+                List<HassioState> states = action.simulate(new Date(), null);
                 for(HassioState s:states) {
                     if(s.state.compareTo(state) == 0) {
                         result.add(entry.getValue());

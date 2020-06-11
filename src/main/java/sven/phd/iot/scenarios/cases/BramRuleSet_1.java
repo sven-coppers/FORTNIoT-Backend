@@ -1,6 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
@@ -35,7 +35,7 @@ public class BramRuleSet_1 extends RuleSet {
         cal.add(Calendar.DAY_OF_YEAR, -1);
         cal.setTime(new Date(getTime(19,00)));
 
-        sunSetAndHome.addExecution(new HassioRuleExecutionEvent(sunSetAndHome, cal.getTime(), null));
+        sunSetAndHome.addExecution(new RuleExecutionEvent(sunSetAndHome, cal.getTime(), null));
         rulesManager.addRule(sunSetAndHome);
 
         // When the sun goes above horizon, turn off the table lights

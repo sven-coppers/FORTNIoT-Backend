@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -44,7 +43,7 @@ abstract public class Action {
   //  abstract public void previewHandler(Map<String, HassioState> newState);
    // abstract public void eventHandler(Map<String, HassioState> newState);
 
-    abstract public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates);
+    abstract public List<HassioState> simulate(Date datetime, HashMap<String, HassioState> hassioStates);
 
     /*MATHIAS*/
     public String getActionID() { return id; }

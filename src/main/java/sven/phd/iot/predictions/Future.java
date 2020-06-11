@@ -1,11 +1,12 @@
 package sven.phd.iot.predictions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sven.phd.iot.hassio.updates.ExecutionEvent;
 import sven.phd.iot.students.mathias.ConflictSolver;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class Future {
     @JsonProperty("states") private List<HassioState> futureStates;
-    @JsonProperty("executions") public List<HassioRuleExecutionEvent> futureExecutions;
+    @JsonProperty("executions") public List<ExecutionEvent> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
     @JsonProperty("conflict_solutions") public List<ConflictSolution> fututeConflictSolutions;
     @JsonProperty("last_generated") public Date lastGenerated;
@@ -29,12 +30,12 @@ public class Future {
     /**
      * Get the execution history of this rule
      */
-    public List<HassioRuleExecutionEvent> getExecutionFuture(String ruleID) {
-        List<HassioRuleExecutionEvent> result = new ArrayList<>();
+    public List<ExecutionEvent> getExecutionFuture(String entityID) {
+        List<ExecutionEvent> result = new ArrayList<>();
 
-        for(HassioRuleExecutionEvent ruleExecutionEvent : this.futureExecutions) {
-            if(ruleExecutionEvent.getTrigger().id.equals(ruleID)) {
-                result.add(ruleExecutionEvent);
+        for(ExecutionEvent executionEvent : this.futureExecutions) {
+            if(executionEvent.entity_id.equals(entityID)) {
+                result.add(executionEvent);
             }
         }
 
@@ -45,7 +46,7 @@ public class Future {
      * Allow the prediction engine to add a predicted triggerEvent of this rule
      * @param triggerEvent
      */
-    public void addHassioRuleExecutionEventPrediction(HassioRuleExecutionEvent triggerEvent) {
+    public void addExecutionEvent(ExecutionEvent triggerEvent) {
         this.futureExecutions.add(triggerEvent);
     }
 

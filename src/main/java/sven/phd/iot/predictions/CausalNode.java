@@ -1,16 +1,15 @@
 package sven.phd.iot.predictions;
 
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
-
-import java.util.List;
+import sven.phd.iot.hassio.updates.ExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 
 
 public class CausalNode {
     private HassioState hassioState;
-    private HassioRuleExecutionEvent executionEvent;
+    private ExecutionEvent executionEvent;
 
-    public CausalNode(HassioState hassioState, HassioRuleExecutionEvent executionEvent) {
+    public CausalNode(HassioState hassioState, ExecutionEvent executionEvent) {
         this.hassioState = hassioState;
         this.executionEvent = executionEvent;
     }
@@ -47,7 +46,7 @@ public class CausalNode {
         return this.hassioState;
     }
 
-    public HassioRuleExecutionEvent getExecutionEvent() {
+    public ExecutionEvent getExecutionEvent() {
         return executionEvent;
     }
 }

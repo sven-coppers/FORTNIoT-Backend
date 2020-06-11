@@ -1,12 +1,9 @@
 package sven.phd.iot.students.mathias;
 
-import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.students.mathias.states.Conflict;
 //import sven.phd.iot.hassio.states.HassioConflictingAttribute;
-import sven.phd.iot.students.mathias.states.ConflictingAction;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
@@ -56,7 +53,7 @@ public class FutureConflictDetector {
      * @param trigger, rule that is being compared to the comparingTrigger
      */
     // under construction
-    private void findConflictingActions(List<Conflict> result, HassioRuleExecutionEvent comparingRule, HassioRuleExecutionEvent rule, Trigger comparingTrigger, Trigger trigger) {
+    private void findConflictingActions(List<Conflict> result, RuleExecutionEvent comparingRule, RuleExecutionEvent rule, Trigger comparingTrigger, Trigger trigger) {
       /*  for (Action comparingAction: comparingTrigger.actions) {
             boolean conflictAlreadyExists = false;
             Conflict comparingActionConflictState = containsConflict(result, comparingAction.getDeviceID(), comparingRule.datetime);
@@ -169,15 +166,15 @@ public class FutureConflictDetector {
         }
     }
 
-    private HassioRuleExecutionEvent findFutureRuleExecutionByActionContext(Future future, String contextId, Date datetime) {
-        List<HassioRuleExecutionEvent> futuresRuleExecutions = future.futureExecutions;
-        for (HassioRuleExecutionEvent event: futuresRuleExecutions) {
+    private RuleExecutionEvent findFutureRuleExecutionByActionContext(Future future, String contextId, Date datetime) {
+       /* List<RuleExecutionEvent> futuresRuleExecutions = future.futureExecutions;
+        for (RuleExecutionEvent event: futuresRuleExecutions) {
             if (event.datetime.compareTo(datetime) == 0) {
                 /* TODO MATHIAS:
                     Dit kan waarschijnlijk meer robust, want HassioRuleExecutionEvent now contains a Hashmap: actionID -> List of hassioContexts caused by that action,
                     Groetjes Sven
                  */
-                HashMap<String, List<HassioContext>> actionContexts = event.actionContexts;
+               /* HashMap<String, List<HassioContext>> actionContexts = event.actionContexts;
 
                 for(String actionID : actionContexts.keySet()) {
                     for (HassioContext context: actionContexts.get(actionID)) {
@@ -187,7 +184,7 @@ public class FutureConflictDetector {
                     }
                 }
             }
-        }
+        } */
 
         return null;
     }

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +18,7 @@ abstract public class Action {
     @JsonProperty("id") public String id;
     @JsonProperty("description") public String description;
     @JsonProperty("enabled") public Boolean enabled;
+    @JsonProperty("action_name") public String actionName;
 
     /* Mathias adding action disabling properties
      *  It should be possible to have multiple start and stop times, so a list should be kept
@@ -34,12 +34,13 @@ abstract public class Action {
         this.startingTimesDisable = new ArrayList<>();
         this.stoppingTimesDisable = new ArrayList<>();
         this.enabled = true;
+        this.actionName = this.getClass().getName();
     }
 
   //  abstract public void previewHandler(Map<String, HassioState> newState);
    // abstract public void eventHandler(Map<String, HassioState> newState);
 
-    abstract public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates);
+    abstract public List<HassioState> simulate(Date datetime, HashMap<String, HassioState> hassioStates);
 
     /*MATHIAS*/
     public String getActionID() { return id; }

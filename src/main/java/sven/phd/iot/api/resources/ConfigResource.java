@@ -1,22 +1,15 @@
 package sven.phd.iot.api.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.api.request.ExperimentRequest;
+import sven.phd.iot.api.request.ConnectionRequest;
 import sven.phd.iot.api.request.PredictionsRequest;
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.api.request.ConnectionRequest;
 import sven.phd.iot.predictions.PredictionEngine;
 import sven.phd.iot.scenarios.Exporter;
-import sven.phd.iot.students.bram.resources.DeviceResource;
 
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 @Singleton
 @Path("config/")
@@ -88,6 +81,6 @@ public class ConfigResource {
     @GET
     @Path("export/{id}/")
     public void export(@PathParam("id") String useCase) {
-        Exporter.export(null);
+        //Exporter.export(null);
     }
 }

@@ -5,16 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.ExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 
 import java.util.*;
 
 abstract public class Trigger {
-    @JsonIgnore private List<HassioRuleExecutionEvent> executionHistory;
+    @JsonIgnore private List<RuleExecutionEvent> executionHistory;
     @JsonProperty("actions") public List<Action> actions;
     @JsonProperty("description") public String title;
     @JsonProperty("id") public String id;
@@ -49,13 +49,13 @@ abstract public class Trigger {
         this.title = title;
     }
 
-    public void addExecution(HassioRuleExecutionEvent executionEvent) {
+    public void addExecution(RuleExecutionEvent executionEvent) {
         this.executionHistory.add(executionEvent);
     }
     /**
      * Get the execution history of this rule
      */
-    public List<HassioRuleExecutionEvent> getExecutionHistory() {
+    public List<RuleExecutionEvent> getExecutionHistory() {
         return this.executionHistory;
     }
 
@@ -67,40 +67,14 @@ abstract public class Trigger {
         this.actions.add(action);
     }
 
-    /**
-     * Check when the rule will trigger, based on specified hassioChanges
-     * @param hassioStates the state at that time
-     * @param hassioChange the change that caused this rule to be validated
-     * @return
-     */
-    public HassioRuleExecutionEvent verify(HashMap<String, HassioState> hassioStates, HassioChange hassioChange, boolean enabled) {
-        if(enabled && this.isTriggeredBy(hassioChange)) {
-            // Check if the rule would be triggered by this change (AND WHY)
-            List<HassioContext> triggerContexts = this.verifyCondition(hassioStates);
-
-            if(triggerContexts != null) {
-                // The rule is triggered
-                HassioRuleExecutionEvent newEvent = new HassioRuleExecutionEvent(this, hassioChange.datetime);
-                newEvent.addTriggerContexts(triggerContexts);
-
-                return newEvent;
-            } else {
-                // The rule is not triggered
-            }
-        }
-
-        return null;
-    }
-
-    public void logHassioRuleExecutionEvent(HassioRuleExecutionEvent hassioRuleExecutionEvent) {
-        this.executionHistory.add(hassioRuleExecutionEvent);
+    public void logHassioRuleExecutionEvent(RuleExecutionEvent ruleExecutionEvent) {
+        this.executionHistory.add(ruleExecutionEvent);
     }
 
     /**
      * Check if the rule is interested in being verified after this change (e.g. temp update)
      * @param hassioChange the change that this rule might be interested in
-     * @return true if the rule is interested, false otherwise
-     * SHOULD ONLY BE CALLED BY THE RULE ITSELF
+     * @return true if the rule is triggered by this changed, false otherwise.
      */
 
     public abstract boolean isTriggeredBy(HassioChange hassioChange);
@@ -108,20 +82,20 @@ abstract public class Trigger {
     /**
      * Check if the hassioChange causes this trigger to be triggered
      * @param hassioStates a map with states for each device
-     * @return a list of HassioContexts that trigger the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is triggered by itself
+     * @return a list of HassioContexts that satisfy the condition of the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is satisfied without any states
      */
-    public abstract List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates);
+    public abstract List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates);
 
     /**
      * Run all actions and collect all states that would result from it
      * @return a hashmap with actionID -> list of resulting states from this action
      */
-    public HashMap<String, List<HassioState>> simulate(HassioRuleExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates) {
+    public HashMap<String, List<HassioState>> simulate(ExecutionEvent executionEvent, HashMap<String, HassioState> hassioStates, List<String> snoozedActions) {
         HashMap<String, List<HassioState>> results = new HashMap<>();
 
         for(Action action : this.actions) {
-            if(action.isEnabled(executionEvent.datetime)) {
-                results.put(action.id, action.simulate(executionEvent, hassioStates));
+            if(!snoozedActions.contains(action.id)) {
+                results.put(action.id, action.simulate(executionEvent.datetime, hassioStates));
             }
         }
 

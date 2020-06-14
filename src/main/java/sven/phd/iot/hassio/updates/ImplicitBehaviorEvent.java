@@ -1,7 +1,6 @@
 package sven.phd.iot.hassio.updates;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.RulesManager;
@@ -12,7 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
+public class ImplicitBehaviorEvent extends RuleExecutionEvent {
     @JsonIgnore private List<String> triggerDevicesIDs;
     @JsonIgnore private HashMap<String, List<String>> actionDevicesIDs;
     @JsonIgnore private List<HassioState> actionStates;
@@ -70,18 +69,14 @@ public class ImplicitBehaviorEvent extends HassioRuleExecutionEvent {
 
     public void resolveContextIDs(HashMap<String, HassioState> hassioStates) {
         for(String deviceID: this.triggerDevicesIDs) {
-            this.triggerContexts.add(hassioStates.get(deviceID).context);
+            this.addConditionContext(deviceID, hassioStates.get(deviceID).context);
         }
 
         for(String actionID : this.actionDevicesIDs.keySet()) {
-            List<HassioContext> actionContexts = new ArrayList<>();
-
             for(String deviceID: this.actionDevicesIDs.get(actionID)) {
-                actionContexts.add(hassioStates.get(deviceID).context);
+                this.addActionExecuted(actionID, hassioStates.get(deviceID));
                 this.actionStates.add(hassioStates.get(deviceID));
             }
-
-            this.addActionExecuted(actionID, actionContexts);
         }
     }
 

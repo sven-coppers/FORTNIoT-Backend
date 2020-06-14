@@ -1,18 +1,18 @@
 package sven.phd.iot;
 
 import sven.phd.iot.api.resources.StateResource;
+import sven.phd.iot.hassio.updates.ExecutionEvent;
+import sven.phd.iot.predictions.ConflictSolutionManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.students.mathias.ActionExecutions;
 import sven.phd.iot.students.mathias.ConflictSolver;
-import sven.phd.iot.students.mathias.states.HassioAction;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
-import sven.phd.iot.hassio.states.HassioContext;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
+import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.scenarios.ScenarioManager;
 import sven.phd.iot.study.StudyManager;
 import sven.phd.iot.predictions.Future;
@@ -29,6 +29,7 @@ public class ContextManager {
     private PredictionEngine predictionEngine;
     private ScenarioManager scenarioManager;
     private StudyManager studyManager;
+    private ConflictSolutionManager conflictSolutionManager;
 
     // MATHIAS
     private ActionExecutions actionExecutions;
@@ -39,7 +40,8 @@ public class ContextManager {
 
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
-        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager);
+        this.conflictSolutionManager = new ConflictSolutionManager();
+        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.conflictSolutionManager);
         this.scenarioManager = new ScenarioManager(this);
         this.studyManager = new StudyManager();
 
@@ -47,7 +49,7 @@ public class ContextManager {
     }
 
     /**
-     * Singleton
+     * Singleton, there is only one context
      * @return
      */
     public static ContextManager getInstance() {
@@ -66,7 +68,7 @@ public class ContextManager {
      * Get the past rule executions
      * @return
      */
-    public List<HassioRuleExecutionEvent> getPastRuleExecutions() {
+    public List<RuleExecutionEvent> getPastRuleExecutions() {
         return this.rulesManager.getPastRuleExecutions();
     }
 
@@ -74,7 +76,7 @@ public class ContextManager {
      * Get the past rule executions of a specific rule
      * @return
      */
-    public List<HassioRuleExecutionEvent> getPastRuleExecutions(String id) {
+    public List<RuleExecutionEvent> getPastRuleExecutions(String id) {
         return this.rulesManager.getPastRuleExecutions(id);
     }
 
@@ -82,7 +84,7 @@ public class ContextManager {
      * Get the future rule executions
      * @return
      */
-    public List<HassioRuleExecutionEvent> getFutureRuleExecutions() {
+    public List<ExecutionEvent> getFutureRuleExecutions() {
         return this.predictionEngine.getFuture().futureExecutions;
     }
 
@@ -90,7 +92,7 @@ public class ContextManager {
      * Get the future rule executions of a specific rule
      * @return
      */
-    public List<HassioRuleExecutionEvent> getFutureRuleExecutions(String id) {
+    public List<ExecutionEvent> getFutureRuleExecutions(String id) {
         return this.predictionEngine.getFuture().getExecutionFuture(id);
     }
 
@@ -166,18 +168,21 @@ public class ContextManager {
      */
     private void executeRules(HassioChange hassioChange) {
         HashMap<String, HassioState> hassioStates = this.getHassioStates();
+        List<HassioChange> hassioChanges = new ArrayList<>();
+        hassioChanges.add(hassioChange);
 
-        List<HassioRuleExecutionEvent> triggerEvents = rulesManager.verifyTriggers(hassioStates, hassioChange);
+        List<RuleExecutionEvent> triggerEvents = rulesManager.verifyTriggers(new Date(), hassioChanges, new HashMap<>());
+        List<RuleExecutionEvent> conditionTrueEvents = rulesManager.verifyConditions(hassioStates, triggerEvents);
 
-        for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
-            HashMap<String, List<HassioState>> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, hassioStates);
+        for(RuleExecutionEvent conditionTrueEvent : conditionTrueEvents) {
+            HashMap<String, List<HassioState>> resultingActions = conditionTrueEvent.getTrigger().simulate(conditionTrueEvent, hassioStates, new ArrayList<>());
 
             // Apply changes as result of the rules as the new state
             for(String actionID : resultingActions.keySet()) {
-                triggerEvent.addActionExecuted(actionID, this.hassioDeviceManager.setHassioDeviceStates(resultingActions.get(actionID)));
+                conditionTrueEvent.addActionExecuted(actionID, resultingActions.get(actionID));
             }
 
-            triggerEvent.getTrigger().logHassioRuleExecutionEvent(triggerEvent);
+            conditionTrueEvent.getTrigger().logHassioRuleExecutionEvent(conditionTrueEvent);
         }
     }
 
@@ -229,7 +234,7 @@ public class ContextManager {
      * Get the cached version of the future conflicts
      * @return
      */
-    public List<HassioConflictState> getFutureConflicts() {
+    public List<Conflict> getFutureConflicts() {
         return this.predictionEngine.getFuture().getFutureConflicts();
     }
 
@@ -238,7 +243,7 @@ public class ContextManager {
      * @param id
      * @return
      */
-    public List<HassioConflictState> getFutureConflicts(String id) {
+    public List<Conflict> getFutureConflicts(String id) {
         return this.predictionEngine.getFuture().getFutureConflicts(id);
     }
 
@@ -246,7 +251,7 @@ public class ContextManager {
      * Get the cached version of the future conflict solutions
      * @return
      */
-    public List<HassioConflictSolutionState> getFutureConflictSolutions() {
+    public List<ConflictSolution> getFutureConflictSolutions() {
         return this.predictionEngine.getFuture().getFutureConflictSolutions();
     }
 
@@ -255,13 +260,13 @@ public class ContextManager {
      * @param id
      * @return
      */
-    public List<HassioConflictSolutionState> getFutureConflictSolutions(String id) {
+    public List<ConflictSolution> getFutureConflictSolutions(String id) {
         return this.predictionEngine.getFuture().getFutureConflictSolutions(id);
     }
 
 
-    public List<HassioAction> getAllActionsOnDevice(String id){
-        List<HassioAction> result = new ArrayList<>();
+    public List<Action> getAllActionsOnDevice(String id){
+        List<Action> result = new ArrayList<>();
         HassioDevice device = this.hassioDeviceManager.getDevice(id);
 
         if (device == null) {
@@ -272,7 +277,7 @@ public class ContextManager {
 
     }
 
-    public boolean addConflictSolution(HassioConflictSolutionState solution) {
+    public boolean addConflictSolution(ConflictSolution solution) {
         boolean success = false;
         ConflictSolver solver = ConflictSolver.getInstance();
         if (solver.addSolution(solution)) {
@@ -299,5 +304,9 @@ public class ContextManager {
         Map<String, Action> allActions = rulesManager.getAllActions();
         allActions.putAll(actionExecutions.getAllActions());
         return allActions;
+    }
+
+    public ConflictSolutionManager getConflictSolutionManager() {
+        return this.conflictSolutionManager;
     }
 }

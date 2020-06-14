@@ -25,7 +25,7 @@ public class NeverTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
         return null; // Never
     }
 

@@ -1,12 +1,9 @@
 package sven.phd.iot.students.mathias;
 
-import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.Conflict;
 //import sven.phd.iot.hassio.states.HassioConflictingAttribute;
-import sven.phd.iot.students.mathias.states.HassioConflictingActionState;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
@@ -17,11 +14,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class FutureConflictDetector {
-    private List<HassioConflictState> _futureConflicts;
+    private List<Conflict> _futureConflicts;
 
     public FutureConflictDetector() {}
 
-    public List<HassioConflictState> getFutureConflicts(Future future) {
+    public List<Conflict> getFutureConflicts(Future future) {
         //List<HassioState> futureStates = ContextManager.getInstance().getStateFuture();
         //List<HassioConflictState> result = new ArrayList<>();
 
@@ -56,10 +53,10 @@ public class FutureConflictDetector {
      * @param trigger, rule that is being compared to the comparingTrigger
      */
     // under construction
-    private void findConflictingActions(List<HassioConflictState> result, HassioRuleExecutionEvent comparingRule, HassioRuleExecutionEvent rule, Trigger comparingTrigger, Trigger trigger) {
-        for (Action comparingAction: comparingTrigger.actions) {
+    private void findConflictingActions(List<Conflict> result, RuleExecutionEvent comparingRule, RuleExecutionEvent rule, Trigger comparingTrigger, Trigger trigger) {
+      /*  for (Action comparingAction: comparingTrigger.actions) {
             boolean conflictAlreadyExists = false;
-            HassioConflictState comparingActionConflictState = containsConflict(result, comparingAction.getDeviceID(), comparingRule.datetime);
+            Conflict comparingActionConflictState = containsConflict(result, comparingAction.getDeviceID(), comparingRule.datetime);
             if (comparingActionConflictState != null) {
                 conflictAlreadyExists = true;
             }
@@ -71,7 +68,7 @@ public class FutureConflictDetector {
                     // Else, if result conflict contains both rules => do nothing
                     // Else add rule(s) to result conflict
                     if (!conflictAlreadyExists) {
-                        comparingActionConflictState = new HassioConflictState(comparingAction.getDeviceID(), comparingRule.datetime);
+                        comparingActionConflictState = new Conflict(comparingAction.getDeviceID());
                         result.add(comparingActionConflictState);
                         conflictAlreadyExists = true;
                     }
@@ -83,26 +80,26 @@ public class FutureConflictDetector {
                     }
                 }
             }
-        }
+        } */
     }
 
-    private HassioConflictState containsConflict(List<HassioConflictState> allConflicts, String deviceID, Date datetime) {
-        for (HassioConflictState conflict: allConflicts) {
-            if (conflict.alreadyExist(deviceID,datetime)){
+    private Conflict containsConflict(List<Conflict> allConflicts, String deviceID, Date datetime) {
+     /*   for (Conflict conflict: allConflicts) {
+            if (conflict.alreadyExist(deviceID)){
                 return conflict;
             }
-        }
+        } */
         return null;
     }
 
-    private boolean containsRule(List<HassioConflictState> allConflicts, String deviceID, Date datetime, Trigger rule) {
-        for (HassioConflictState conflict: allConflicts) {
-            if (conflict.alreadyExist(deviceID,datetime)){
+    private boolean containsRule(List<Conflict> allConflicts, String deviceID, Date datetime, Trigger rule) {
+      /*  for (Conflict conflict: allConflicts) {
+            if (conflict.alreadyExist(deviceID)){
                 if (conflict.containsRule(rule.id)){
                     return true;
                 }
             }
-        }
+        } */
         return false;
     }
 
@@ -158,7 +155,7 @@ public class FutureConflictDetector {
                     }
                     // Create new conflict if the result didn't already contain this one
                     if (!conflictAlreadyExists) {
-                        comparingActionConflictState = new HassioConflictState(comparingState.entity_id, comparingState.getLastUpdated());
+                        comparingActionConflictState = new Conflict(comparingState.entity_id);
                         result.add(comparingActionConflictState);
                         conflictAlreadyExists = true;
                     }
@@ -183,7 +180,9 @@ public class FutureConflictDetector {
             }
         }
 
-        return result;
+        return result; */
+
+        return new ArrayList<>();
     }
 
     private Action getActionFromInvolvedRule(HassioRuleExecutionEvent event, String contextId) {
@@ -209,15 +208,15 @@ public class FutureConflictDetector {
         }
     }
 
-    private HassioRuleExecutionEvent findFutureRuleExecutionByActionContext(Future future, String contextId, Date datetime) {
-        List<HassioRuleExecutionEvent> futuresRuleExecutions = future.futureExecutions;
-        for (HassioRuleExecutionEvent event: futuresRuleExecutions) {
+    private RuleExecutionEvent findFutureRuleExecutionByActionContext(Future future, String contextId, Date datetime) {
+       /* List<RuleExecutionEvent> futuresRuleExecutions = future.futureExecutions;
+        for (RuleExecutionEvent event: futuresRuleExecutions) {
             if (event.datetime.compareTo(datetime) == 0) {
                 /* TODO MATHIAS:
                     Dit kan waarschijnlijk meer robust, want HassioRuleExecutionEvent now contains a Hashmap: actionID -> List of hassioContexts caused by that action,
                     Groetjes Sven
                  */
-                HashMap<String, List<HassioContext>> actionContexts = event.actionContexts;
+               /* HashMap<String, List<HassioContext>> actionContexts = event.actionContexts;
 
                 for(String actionID : actionContexts.keySet()) {
                     for (HassioContext context: actionContexts.get(actionID)) {
@@ -227,7 +226,7 @@ public class FutureConflictDetector {
                     }
                 }
             }
-        }
+        } */
 
         return null;
     }

@@ -1,8 +1,7 @@
 package sven.phd.iot.students.bram.questions.why.rule;
 
-import org.json.JSONObject;
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
 
@@ -12,7 +11,7 @@ public class RuleService {
     public static RuleJson getLastRuleByActionDevice(String deviceId) {
 
         System.out.println(deviceId);
-        List<HassioRuleExecutionEvent> events =  ContextManager.getInstance().getPastRuleExecutions();
+        List<RuleExecutionEvent> events =  ContextManager.getInstance().getPastRuleExecutions();
 
         String lastEventId;
         RuleJson result = null;

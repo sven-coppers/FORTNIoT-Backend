@@ -4,10 +4,15 @@ import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.students.mathias.FutureConflictDetector;
+import sven.phd.iot.students.mathias.states.Conflict;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
+import sven.phd.iot.students.mathias.states.ConflictingAction;
+import sven.phd.iot.students.mathias.states.SolutionExecutionEvent;
 
 import java.util.*;
 
@@ -15,15 +20,17 @@ public class PredictionEngine {
     private HassioStateScheduler stateScheduler;
     private RulesManager rulesManager;
     private HassioDeviceManager hassioDeviceManager;
+    private ConflictSolutionManager solutionManager;
     private Future future;
     private Boolean predicting;
     private long tickRate = 5; // minutes
     private long predictionWindow = 1 * 24 * 60; // 1 day in minutes
 
-    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager) {
+    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager, ConflictSolutionManager solutionManager) {
         this.rulesManager = rulesManager;
         this.hassioDeviceManager = hassioDeviceManager;
         this.stateScheduler = hassioDeviceManager.getStateScheduler();
+        this.solutionManager = solutionManager;
         this.future = new Future();
         this.predicting = false;
     }
@@ -98,77 +105,276 @@ public class PredictionEngine {
         return future;
     }
 
+    /**
+     * Simulate a tick, and resolve conflicts if needed
+     * @param newDate
+     * @param lastStates
+     * @param globalQueue
+     * @param future
+     * @param simulatedRulesEnabled
+     */
     private void tick(Date newDate, HashMap<String, HassioState> lastStates, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
-        // Let the devices predict their state, based on the past states (e.g. temperature)
+        List<ConflictingAction> snoozedActions = new ArrayList<>();
+        CausalStack causalStack = new CausalStack();
+        CausalLayer firstLayer = new CausalLayer(); // Never changes, because no rules are executed yet
+        boolean runRequired = true;
+
+        // IMPLICIT Let the devices predict their state, based on the past states (e.g. temperature)
         if(this.isPredicting()) {
-            List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplictStates(newDate, lastStates);
-
-            // Add changes to prediction queue
-            for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
-                for(HassioState newState : behaviorEvent.getActionStates()) {
-                    globalQueue.add(newState);
-                }
-
-                // Add Implicit behavior to the future
-                behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
-                future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
-            }
+            firstLayer.addAll(this.verifyImplicitBehavior(newDate, lastStates));
         }
 
-        // Remove every State from the global queue that has occurred before the new Date
+        // BASELINE: Add states from the global queue (before the current date), which could induce conflicts
         while(!globalQueue.isEmpty() && globalQueue.peek().getLastChanged().getTime() <= newDate.getTime()) {
             HassioState newState = globalQueue.poll();
 
-            // Log the predicted state in the device
-            future.addFutureState(newState);
+            firstLayer.addState(new CausalNode(newState, null));
+        }
 
-            // Only when additional predictions are enabled
-            if(this.isPredicting()) {
-                HassioState lastState = lastStates.get(newState.entity_id);
-                HassioChange newChange = new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged());
-                lastStates.put(newState.entity_id, newState);
+        if(!firstLayer.isEmpty()) {
+            causalStack.addLayer(firstLayer);
+            System.out.println("Tick " + newDate);
 
-                // Pass the stateChange to the set of rules
-                List<HassioRuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(lastStates, newChange, simulatedRulesEnabled);
+            while(runRequired && this.isPredicting()) {
+                causalStack = this.deduceStack(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions);
+                runRequired = this.detectConflicts(newDate, lastStates, causalStack, firstLayer, snoozedActions);
+            }
 
-                for(HassioRuleExecutionEvent triggerEvent : triggerEvents) {
-                    HashMap<String, List<HassioState>> resultingActions = triggerEvent.getTrigger().simulate(triggerEvent, lastStates);
+            this.commitPredictedStates(causalStack, future);
+        }
+    }
 
-                    // Add the context of the simulated actions as a result in the triggerEvent
-                    for(String actionID : resultingActions.keySet()) {
-                        List<HassioContext> resultingContexts = new ArrayList<>();
+    /**
+     *
+     * @param causalStack
+     * @param firstLayer (out-parameter) will be extended with custom actions, based on applicable solutions
+     * @param snoozedActions (out-parameter) will be extended with snoozedActions, based on applicable solutions
+     * @return
+     */
+    private boolean detectConflicts(Date newDate, HashMap<String, HassioState> lastStates, CausalStack causalStack, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
+        if(causalStack.isEmpty()) return false;
 
-                        for(HassioState resultingAction : resultingActions.get(actionID)) {
-                            resultingContexts.add(resultingAction.context);
-                        }
+        System.out.println("Decting conflicts on the causal stack");
+        causalStack.print();
 
-                        triggerEvent.addActionExecuted(actionID, resultingContexts);
-                    }
+        // Group all potential changes by entityID
+        List<CausalNode> potentialChanges = causalStack.flatten();
 
-                    // Add predicted executions to the rule's prediction list
-                    future.addHassioRuleExecutionEventPrediction(triggerEvent);
+        for(int i = 0; i < potentialChanges.size(); ++i) {
+            List<CausalNode> conflictingChanges = new ArrayList<>();
+            String initialEntityID = potentialChanges.get(i).getState().entity_id;
 
-                    // Add the actions to the prediction QUEUEs
-                    for(String actionID : resultingActions.keySet()) {
-                        globalQueue.addAll(resultingActions.get(actionID));
-                    }
+            for (int j = i; j < potentialChanges.size(); ++j) {
+                if (potentialChanges.get(j).getState().entity_id.equals(initialEntityID)) {
+                    conflictingChanges.add(potentialChanges.get(j));
                 }
+            }
 
-                // Pass the stateChange to the implicit rules (e.g. turn heater on/off)
-                List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, lastStates);
+            if (conflictingChanges.size() > 1) {
+                System.out.println("INCONSISTENCY DETECTED FOR " + initialEntityID);
+                Conflict newInconsistency = new Conflict(initialEntityID, conflictingChanges);
+                ConflictSolution potentialSolution = solutionManager.getSolutionForConflict(newInconsistency);
 
-                // Add changes to prediction queue
-                for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
-                    for(HassioState newActionState : behaviorEvent.getActionStates()) {
-                        globalQueue.add(newActionState);
-                    }
-
-                    // Add Implicit behavior to the future
-                    behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
-                    future.addHassioRuleExecutionEventPrediction((HassioRuleExecutionEvent) behaviorEvent);
+                if (potentialSolution == null) {
+                    future.addFutureConflict(newInconsistency);
+                } else {
+                    SolutionExecutionEvent solutionExecution = this.applySolution(newDate, potentialSolution, lastStates, firstLayer, snoozedActions);
+                    future.addExecutionEvent(solutionExecution);
+                    System.out.println("Solution applied, rerun required");
+                    // TODO: A solution should only be applied once?
+                    return true;
                 }
             }
         }
+
+        return false;
+    }
+
+    /**
+     * Apply a solution to the firstLayer
+     * @param newDate
+     * @param potentialSolution
+     * @param lastStates
+     * @param firstLayer
+     * @param snoozedActions
+     * @return
+     */
+    public SolutionExecutionEvent applySolution(Date newDate, ConflictSolution potentialSolution, HashMap<String, HassioState> lastStates, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
+        SolutionExecutionEvent solutionExecution = new SolutionExecutionEvent(potentialSolution.solutionID, newDate);
+
+        // Snooze actions, if any
+        snoozedActions.addAll(potentialSolution.snoozedActions);
+
+        // simulate custom actions, if any
+        for(Action customAction : potentialSolution.customActions) {
+            List<HassioState> solutionStates = customAction.simulate(newDate, lastStates);
+            solutionExecution.addActionExecuted(customAction.id, solutionStates);
+
+            for(HassioState solutionState : solutionStates) {
+                firstLayer.addState(new CausalNode(solutionState, solutionExecution));
+            }
+        }
+
+        return solutionExecution;
+    }
+
+    /**
+     * Commit the predicted states on the causal stack to the future
+     * @param causalStack
+     * @param future
+     */
+    private void commitPredictedStates(CausalStack causalStack, Future future) {
+        List<CausalNode> finalNewChanges = causalStack.flatten();
+
+        for(CausalNode node : finalNewChanges) {
+            future.addFutureState(node.getState());
+
+            if(node.getExecutionEvent() != null) {
+                future.addExecutionEvent(node.getExecutionEvent());
+            }
+        }
+    }
+
+    /**
+     *
+     * @param newDate
+     * @param firstLayer
+     * @param lastStates
+     * @param simulatedRulesEnabled
+     * @param snoozedActions
+     * @return
+     */
+    private CausalStack deduceStack(Date newDate, CausalLayer firstLayer, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
+        System.out.println("Deducing new causal stack");
+        CausalStack causalStack = new CausalStack();
+        causalStack.addLayer(firstLayer);
+        CausalLayer newLayer = firstLayer;
+
+        // Determine future (could contain inconsistencies
+        while (!newLayer.isEmpty()) {
+            newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions);
+
+            if (!newLayer.isEmpty()) {
+                causalStack.addLayer(newLayer);
+            }
+        }
+
+        return causalStack;
+    }
+
+    /**
+     * Determine which new states would occur (in a new layer) based on the new states from the previous layer)
+     * @param newDate
+     * @param causalStack
+     * @param lastStates
+     * @param simulatedRulesEnabled
+     * @param snoozedActions the actions which are snoozed (e.g. by conflict solutions)
+     * @return
+     */
+    private CausalLayer deduceLayer(Date newDate, CausalStack causalStack, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
+        // Build the states for this layer
+        HashMap<String, HassioState> layerSpecificStates = buildLayerSpecificStates(lastStates, causalStack);
+
+        CausalLayer previousLayer = causalStack.getTopLayer();
+        CausalLayer newLayer = new CausalLayer();
+
+        // Build a list of changes in this layer
+        List<HassioChange> newChanges = new ArrayList<>();
+        for(int i = 0; i < previousLayer.getNumStates(); ++i) {
+            CausalNode node = previousLayer.getState(i);
+
+            HassioState newState = node.getState();
+            HassioState lastState = lastStates.get(newState.entity_id);
+
+            newChanges.add(new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged()));
+        }
+
+        // Pass the stateChange to the set of rules and to the implicit behavior
+        newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, layerSpecificStates, simulatedRulesEnabled, snoozedActions));
+        newLayer.addAll(this.verifyImplicitBehavior(newDate, layerSpecificStates));
+
+        return newLayer;
+    }
+
+    /**
+     * Pass the changes to all rules developed by the user
+     * @param date
+     * @param newChanges
+     * @param states
+     * @param simulatedRulesEnabled
+     * @param snoozedActions the actions which are snoozed (e.g. by conflict solutions)
+     * @return
+     */
+    private List<CausalNode> verifyExplicitRules(Date date, List<HassioChange> newChanges, HashMap<String, HassioState> states, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
+        List<CausalNode> result = new ArrayList<>();
+
+        List<RuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(date, newChanges, new HashMap<>());
+        List<RuleExecutionEvent> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
+
+        for(RuleExecutionEvent potentialExecutionEvent : conditionTrueEvents) {
+            // Find which actions should be snoozed for this rule
+            List<String> ruleSpecificSnoozedActions = new ArrayList<>();
+            for(ConflictingAction conflictingAction : snoozedActions) {
+                if(conflictingAction.rule_id == potentialExecutionEvent.getTrigger().id) ruleSpecificSnoozedActions.add(conflictingAction.action_id);
+            }
+
+            HashMap<String, List<HassioState>> proposedActionState = potentialExecutionEvent.getTrigger().simulate(potentialExecutionEvent, states, ruleSpecificSnoozedActions);
+
+            // For every proposed action, add it to the queue
+            for(String actionID : proposedActionState.keySet()) {
+                for(HassioState proposedState : proposedActionState.get(actionID)) {
+                    result.add(new CausalNode(proposedState, potentialExecutionEvent));
+                }
+            }
+
+            // Add the context of the simulated actions as a result in the potentialTriggerEvent
+            for(String actionID : proposedActionState.keySet()) {
+                potentialExecutionEvent.addActionExecuted(actionID, proposedActionState.get(actionID));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Pass the stateChange to the implicit rules (e.g. turn heater on/off)
+     * @param states
+     * @return
+     */
+    private List<CausalNode> verifyImplicitBehavior(Date newDate, HashMap<String, HassioState> states) {
+        List<CausalNode> result = new ArrayList<>();
+
+        List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, states);
+        for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
+            behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
+
+            for(HassioState newActionState : behaviorEvent.getActionStates()) {
+                result.add(new CausalNode(newActionState, behaviorEvent));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Build a hasmap with the last states, updated with all changes that are specific to this branch in the three
+     * @param lastStates
+     * @return
+     */
+    private HashMap<String, HassioState> buildLayerSpecificStates(HashMap<String, HassioState> lastStates, CausalStack causalStack) {
+        HashMap<String, HassioState> branchSpecificStates = new HashMap<>();
+
+        for(String deviceID : lastStates.keySet()) {
+            branchSpecificStates.put(deviceID, lastStates.get(deviceID));
+        }
+
+        for(int i = 0; i < causalStack.getNumLayers(); ++i) {
+            for(CausalNode causalNode : causalStack.getLayer(i).getStates()) {
+                branchSpecificStates.put(causalNode.getState().entity_id, causalNode.getState());
+            }
+        }
+
+        return branchSpecificStates;
     }
 
     public void stopFuturePredictions() {

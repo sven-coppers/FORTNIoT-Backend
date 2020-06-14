@@ -47,7 +47,7 @@
                 <td id="state_sets">
                 </td>
                 <td>
-                    <select id="preset" size="20"></select>
+                    <select id="preset" size="25"></select>
                 </td>
             </tr>
             </tbody>

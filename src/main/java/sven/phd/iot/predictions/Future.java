@@ -1,12 +1,12 @@
 package sven.phd.iot.predictions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sven.phd.iot.hassio.updates.ExecutionEvent;
 import sven.phd.iot.students.mathias.ConflictSolver;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionActionState;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
+import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
+import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,9 +14,9 @@ import java.util.List;
 
 public class Future {
     @JsonProperty("states") private List<HassioState> futureStates;
-    @JsonProperty("executions") public List<HassioRuleExecutionEvent> futureExecutions;
-    @JsonProperty("conflicts") public List<HassioConflictState> futureConflicts;
-    @JsonProperty("conflict_solutions") public List<HassioConflictSolutionState> fututeConflictSolutions;
+    @JsonProperty("executions") public List<ExecutionEvent> futureExecutions;
+    @JsonProperty("conflicts") public List<Conflict> futureConflicts;
+    @JsonProperty("conflict_solutions") public List<ConflictSolution> fututeConflictSolutions;
     @JsonProperty("last_generated") public Date lastGenerated;
 
     public Future() {
@@ -30,12 +30,12 @@ public class Future {
     /**
      * Get the execution history of this rule
      */
-    public List<HassioRuleExecutionEvent> getExecutionFuture(String ruleID) {
-        List<HassioRuleExecutionEvent> result = new ArrayList<>();
+    public List<ExecutionEvent> getExecutionFuture(String entityID) {
+        List<ExecutionEvent> result = new ArrayList<>();
 
-        for(HassioRuleExecutionEvent ruleExecutionEvent : this.futureExecutions) {
-            if(ruleExecutionEvent.getTrigger().id.equals(ruleID)) {
-                result.add(ruleExecutionEvent);
+        for(ExecutionEvent executionEvent : this.futureExecutions) {
+            if(executionEvent.entity_id.equals(entityID)) {
+                result.add(executionEvent);
             }
         }
 
@@ -46,7 +46,7 @@ public class Future {
      * Allow the prediction engine to add a predicted triggerEvent of this rule
      * @param triggerEvent
      */
-    public void addHassioRuleExecutionEventPrediction(HassioRuleExecutionEvent triggerEvent) {
+    public void addExecutionEvent(ExecutionEvent triggerEvent) {
         this.futureExecutions.add(triggerEvent);
     }
 
@@ -85,17 +85,17 @@ public class Future {
     /**
      * Get a cached version of the prediction of the future conflicts
      */
-    public List<HassioConflictState> getFutureConflicts() {
+    public List<Conflict> getFutureConflicts() {
         return this.futureConflicts;
     }
 
     /**
      * Get a cached version of the prediction of the future conflicts for a single device
      */
-    public List<HassioConflictState> getFutureConflicts(String deviceID) {
-        List<HassioConflictState> result = new ArrayList<>();
+    public List<Conflict> getFutureConflicts(String deviceID) {
+        List<Conflict> result = new ArrayList<>();
 
-        for(HassioConflictState hassioConflict : this.futureConflicts) {
+        for(Conflict hassioConflict : this.futureConflicts) {
             if(hassioConflict.entity_id.equals(deviceID)) {
                 result.add(hassioConflict);
             }
@@ -109,7 +109,7 @@ public class Future {
      * TODO: conflicts should be collapsed if id and datetime are the same
      * @param newConflict
      */
-    public void addFutureConflict(HassioConflictState newConflict) {
+    public void addFutureConflict(Conflict newConflict) {
         this.futureConflicts.add(newConflict);
     }
 
@@ -117,22 +117,22 @@ public class Future {
      * Add future conflicts to the list of predictions
      * @param newConflicts
      */
-    public void addFutureConflict(List<HassioConflictState> newConflicts) {this.futureConflicts = newConflicts; }
+    public void addFutureConflict(List<Conflict> newConflicts) {this.futureConflicts = newConflicts; }
 
     /**
      * Get a cached version of the future conflict solutions
      */
-    public List<HassioConflictSolutionState> getFutureConflictSolutions() {
+    public List<ConflictSolution> getFutureConflictSolutions() {
         return this.fututeConflictSolutions;
     }
 
     /**
      * Get a cached version of the future conflict solutions for a single device
      */
-    public List<HassioConflictSolutionState> getFutureConflictSolutions(String deviceID) {
-        List<HassioConflictSolutionState> result = new ArrayList<>();
+    public List<ConflictSolution> getFutureConflictSolutions(String deviceID) {
+        List<ConflictSolution> result = new ArrayList<>();
 
-        for(HassioConflictSolutionState hassioSolution : this.fututeConflictSolutions) {
+        for(ConflictSolution hassioSolution : this.fututeConflictSolutions) {
             if(hassioSolution.entity_id.equals(deviceID)) {
                 result.add(hassioSolution);
             }
@@ -146,7 +146,7 @@ public class Future {
      * // TODO: review when needed
      * @param newConflictSolution
      */
-    public void addFutureConflictSolution(HassioConflictSolutionState newConflictSolution) {
+    public void addFutureConflictSolution(ConflictSolution newConflictSolution) {
         this.fututeConflictSolutions.add(newConflictSolution);
     }
 
@@ -154,5 +154,5 @@ public class Future {
      * Add future conflict solutions to the list
      * @param newConflictSolutions
      */
-    public void addFutureConflictSolutions(List<HassioConflictSolutionState> newConflictSolutions) {this.fututeConflictSolutions = newConflictSolutions; }
+    public void addFutureConflictSolutions(List<ConflictSolution> newConflictSolutions) {this.fututeConflictSolutions = newConflictSolutions; }
 }

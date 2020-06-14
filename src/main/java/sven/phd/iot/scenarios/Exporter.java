@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class Exporter {
-    public static void export(String question) {
+    /*public static void export(String question) {
         ObjectMapper objectMapper = new ObjectMapper();
         ContextManager cm = ContextManager.getInstance();
         PredictionEngine pe = cm.getPredictionEngine();
@@ -63,5 +63,5 @@ public class Exporter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

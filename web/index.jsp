@@ -26,6 +26,9 @@
       <li><span class="method">PUT</span> <a class="uri" href="api/rules/'rule.sun_rise">rules/{id}/</a> Set the state of a rule {enabled: true, available: true}</li>
     </ul>
     <ul>
+      <li><span class="method">GET</span> <a class="uri" href="api/solutions">solutions/</a> Get all solutions</li>
+    </ul>
+    <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/config">config/</a> Get the system configuration</li>
       <li><span class="method">PUT</span> <a class="uri" href="api/config">config/</a> Set the system configuration </li>
       <li><span class="method">GET</span> <a class="uri" href="api/config/predictions">config/predictions/</a> Check if the prediction engine is on</li>

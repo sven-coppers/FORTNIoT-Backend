@@ -1,15 +1,11 @@
 package sven.phd.iot.students.mathias;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.api.request.SimulationRequest;
-import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.students.mathias.request.SolutionRequest;
 import sven.phd.iot.students.mathias.response.HassioSolutionResponse;
-import sven.phd.iot.students.mathias.states.HassioAction;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
+import sven.phd.iot.students.mathias.states.Conflict;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -51,7 +47,7 @@ public class MathiasResource {
     @Path("devices/actions/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioAction> getAllActionsOnDevice(@PathParam("id") String id) {
+    public List<Action> getAllActionsOnDevice(@PathParam("id") String id) {
         return ContextManager.getInstance().getAllActionsOnDevice(id);
     }
 

@@ -2,11 +2,11 @@ package sven.phd.iot.rules.actions;
 
 import sven.phd.iot.hassio.light.HassioLightAttributes;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
 import sven.phd.iot.rules.Action;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class LightOnAction extends Action {
     private Color color;
     private boolean flash;
 
-    public LightOnAction(String description, String deviceIdentifier,  Color color, boolean flash) {
+    public LightOnAction(String description, String deviceIdentifier, Color color, boolean flash) {
         // super("Turn on " + friendlyName + " {color: [" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "], flash: " + flash + "}");
         super(description);
         this.deviceIdentifier = deviceIdentifier;
@@ -28,10 +28,10 @@ public class LightOnAction extends Action {
         this.flash = flash;
     }
 
-    public List<HassioState> simulate(HassioRuleExecutionEvent hassioRuleExecutionEvent, HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> simulate(Date datetime, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
-        if (!isEnabled(hassioRuleExecutionEvent.datetime)) {
+        if (!isEnabled(datetime)) {
             return newStates;
         }
 
@@ -49,7 +49,7 @@ public class LightOnAction extends Action {
 
         attributes.rgb_color = rgb_colors;
 
-        newStates.add(new HassioState(deviceIdentifier, "on", hassioRuleExecutionEvent.datetime, attributes));
+        newStates.add(new HassioState(deviceIdentifier, "on", datetime, attributes));
 
         return newStates;
     }

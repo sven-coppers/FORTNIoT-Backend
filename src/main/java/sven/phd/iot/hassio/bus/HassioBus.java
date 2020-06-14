@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.*;
-import sven.phd.iot.hassio.updates.HassioEvent;
 
 import java.io.IOException;
 import java.util.*;

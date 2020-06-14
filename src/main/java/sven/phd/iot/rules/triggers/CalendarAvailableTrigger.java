@@ -32,12 +32,12 @@ public class CalendarAvailableTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
         HassioState hassioState = hassioStates.get(this.calendarIdentifier);
 
         if(hassioState.state.equals("off")) {
-            List<HassioContext> triggerContexts = new ArrayList<>();
-            triggerContexts.add(hassioState.context);
+            List<HassioState> triggerContexts = new ArrayList<>();
+            triggerContexts.add(hassioState);
             return triggerContexts;
         }
 

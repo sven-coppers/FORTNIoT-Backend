@@ -53,6 +53,8 @@ public class ScenarioManager {
         this.presets.add("uc4_v2");
         this.presets.add("uc4_v3");
         this.presets.add("uc4_v4");
+        this.presets.add("race_condition");
+        this.presets.add("inconsistencies");
 
         this.activeRuleSets = new ArrayList<>();
         this.ruleSets = new HashMap<>();
@@ -70,6 +72,8 @@ public class ScenarioManager {
         this.ruleSets.put("light_simple", new LightSimpleRules());
         this.ruleSets.put("smoke", new SmokeRules());
         this.ruleSets.put("smoke_advanced", new SmokeAdvancedRules());
+        this.ruleSets.put("race_condition", new RaceConditionRules());
+        this.ruleSets.put("inconsistency", new InconsistencyRules());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -87,6 +91,8 @@ public class ScenarioManager {
         this.deviceSets.put("weather", new WeatherDevices());
         this.deviceSets.put("light_simple", new LightSimpleDevices());
         this.deviceSets.put("smoke", new SmokeDevices());
+        this.deviceSets.put("race_condition", new RaceConditionDevices());
+        this.deviceSets.put("inconsistency", new InconsistencyDevices());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -118,6 +124,8 @@ public class ScenarioManager {
         this.stateSets.put("smoke_idle", new SmokeIdleStates());
         this.stateSets.put("smoke_smoke", new SmokeSmokeStates());
         this.stateSets.put("teaser", new TeaserStates());
+        this.stateSets.put("race_condition", new RaceConditionStates());
+        this.stateSets.put("inconsistency", new InconsistencyStates());
 
 
         // MATHIAS SETUP
@@ -213,7 +221,7 @@ public class ScenarioManager {
             this.activeStateSets.add(stateSet);
 
             relativeTime.setTime(startDate);
-            relativeTime.add(Calendar.MINUTE, -240); // Begin 4 uur
+            relativeTime.add(Calendar.MINUTE, -240); // Begin 4 uur eerder
 
             if(this.stateSets.get(stateSet) == null) {
                 System.err.println("state set not found: " + stateSet);
@@ -223,7 +231,6 @@ public class ScenarioManager {
             this.stateSets.get(stateSet).setInitialStates(this.deviceManager, relativeTime.getTime());
 
             relativeTime.setTime(startDate);
-            relativeTime.add(Calendar.MINUTE, 10); // 10 minuten in de toekomst
 
             this.stateSets.get(stateSet).scheduleFutureStates(this.stateScheduler, relativeTime);
         }
@@ -248,7 +255,15 @@ public class ScenarioManager {
         List<String> newRuleSets = new ArrayList();
         List<String> newStateSets = new ArrayList();
 
-        if(preset.contains("tr")) {
+        if(preset.equals("race_condition")) {
+            newDeviceSets.add("race_condition");
+            newStateSets.add("race_condition");
+            newRuleSets.add("race_condition");
+        } else if(preset.equals("inconsistencies")) {
+            newDeviceSets.add("inconsistency");
+            newStateSets.add("inconsistency");
+            newRuleSets.add("inconsistency");
+        } else if(preset.contains("tr")) {
             newDeviceSets.add("light_simple");
             newDeviceSets.add("smoke");
             newDeviceSets.add("sun");
@@ -272,7 +287,7 @@ public class ScenarioManager {
                 newStateSets.add("smoke_smoke");
                 newStateSets.add("sun_day_night_day");
             }
-        }  else if(preset.contains("uc1")) {
+        } else if(preset.contains("uc1")) {
             newRuleSets.add("tv_rules");
             newDeviceSets.add("light_devices");
             newDeviceSets.add("routine_devices");

@@ -42,13 +42,13 @@ public class TemperatureTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
         HassioState hassioWeatherState = hassioStates.get(this.sensorIdentifier);
         float temperature = Float.parseFloat(hassioWeatherState.state);
 
         if(temperature >= min && temperature <= max) {
-            List<HassioContext> triggerContexts = new ArrayList<>();
-            triggerContexts.add(hassioWeatherState.context);
+            List<HassioState> triggerContexts = new ArrayList<>();
+            triggerContexts.add(hassioWeatherState);
             return triggerContexts;
         }
 

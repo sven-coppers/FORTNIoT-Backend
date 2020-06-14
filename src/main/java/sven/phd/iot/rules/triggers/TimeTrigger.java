@@ -31,9 +31,9 @@ public class TimeTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
 
-        List<HassioContext> triggerDates = new ArrayList<>();
+        List<HassioState> triggerDates = new ArrayList<>();
 
         return triggerDates;
     }

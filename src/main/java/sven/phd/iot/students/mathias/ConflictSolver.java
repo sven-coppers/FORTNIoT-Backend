@@ -1,23 +1,14 @@
 package sven.phd.iot.students.mathias;
 
-import sven.phd.iot.ContextManager;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.HassioRuleExecutionEvent;
-import sven.phd.iot.rules.Action;
-import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.rules.actions.LightOffAction;
-import sven.phd.iot.rules.actions.LightOnAction;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionActionState;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
 
-import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConflictSolver {
     private static ConflictSolver conflictSolver = null;
 
-    private List<HassioConflictSolutionState> _conflicSolutions;
+    private List<ConflictSolution> _conflicSolutions;
 
     private ConflictSolver(){
         _conflicSolutions = new ArrayList<>();
@@ -31,7 +22,7 @@ public class ConflictSolver {
         return conflictSolver;
     }
 
-    public List<HassioConflictSolutionState> getConflictSolutions() {
+    public List<ConflictSolution> getConflictSolutions() {
         return _conflicSolutions;
     }
 
@@ -43,32 +34,33 @@ public class ConflictSolver {
 
     }
 
-    public boolean addSolution(HassioConflictSolutionState solution) {
-        boolean success = false;
+    public boolean addSolution(ConflictSolution solution) {
+   /*     boolean success = false;
         for (HassioConflictSolutionActionState action: solution.actions) {
             if (action.type.equals("MUTE RULE")) {
                 String ruleID = action.values.ruleID;
-                Date startTime = action.values.startTime;
-                Date stopTime = action.values.stopTime;
 
                 Trigger rule = ContextManager.getInstance().getRule(ruleID);
-                if (rule != null) {
-                    rule.startingTimesMute.add(startTime);
-                    rule.stoppingTimesMute.add(stopTime);
-                }
+
 
                 success = true;
             } else if (action.type.equals("MUTE ACTION")) {
                 String ruleID = action.values.ruleID;
                 String actionID = action.values.actionID;
-                Date startTime = action.values.startTime;
-                Date stopTime = action.values.stopTime;
 
-                Map<String, Action> allActions = ContextManager.getInstance().getActions();
-                Action actionFromAllActions = allActions.get(actionID);
-                if (actionFromAllActions != null) {
-                    actionFromAllActions.startingTimesDisable.add(startTime);
-                    actionFromAllActions.stoppingTimesDisable.add(stopTime);
+                // TODO rewrite this when there is a list of all actions in the system
+                // At the moment this is rule based
+                if (!ruleID.isEmpty()) {
+                    Trigger rule = ContextManager.getInstance().getRule(ruleID);
+                    if (rule != null) {
+                        List<Action> ruleActions = rule.actions;
+                        for (int i = 0; i < ruleActions.size(); i++) {
+                            Action ruleAction = ruleActions.get(i);
+                            if (ruleAction.id.equals(actionID)) {
+                                System.out.println("Rule: " + rule.id + ", with action (description): " + ruleAction.description + " is muted with time " + ruleAction.startTimeDisable.toString());
+                            }
+                        }
+                    }
                 }
 
                 success = true;
@@ -76,7 +68,6 @@ public class ConflictSolver {
                 System.out.println("Create actions");
 
                 String actionID = action.values.actionID;
-                Date datetime = action.action_time;
                 String description = action.values.description;
                 String entity_id = action.entity_id;
                 HashMap<String, String> attributes = action.values.attributes;
@@ -111,13 +102,13 @@ public class ConflictSolver {
         // Check if a solution already exists
         boolean addedToExistingConflict = false;
         for (HassioConflictSolutionState conflictSolution: _conflicSolutions) {
-            if (conflictSolution.entity_id.equals(solution.entity_id) && conflictSolution.datetime.compareTo(solution.datetime) == 0) {
+            if (conflictSolution.entity_id.equals(solution.entity_id)) == 0) {
                 addedToExistingConflict = true;
 
                 // If solutions already exists, check if actions on same device already exist and change to the new actions
                 // TODO not only remove from list, but also revert previous action
                 for (HassioConflictSolutionActionState myNewAction: solution.actions) {
-                    conflictSolution.actions.removeIf(conflictAction -> myNewAction.entity_id.equals(conflictAction.entity_id) && myNewAction.action_time.compareTo(conflictAction.action_time) == 0);
+                    conflictSolution.actions.removeIf(conflictAction -> myNewAction.entity_id.equals(conflictAction.entity_id));
                 }
                 
                 conflictSolution.actions.addAll(solution.actions);
@@ -127,7 +118,7 @@ public class ConflictSolver {
         if (!addedToExistingConflict) {
             _conflicSolutions.add(solution);
         }
-
-        return success;
+ */
+        return true;
     }
 }

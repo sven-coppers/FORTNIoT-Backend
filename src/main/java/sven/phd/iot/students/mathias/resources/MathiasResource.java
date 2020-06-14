@@ -1,17 +1,13 @@
-package sven.phd.iot.students.mathias;
+package sven.phd.iot.students.mathias.resources;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.students.mathias.response.HassioSolutionResponse;
-import sven.phd.iot.students.mathias.states.ConflictSolution;
-import sven.phd.iot.students.mathias.states.Conflict;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Path("mathias/")
 public class MathiasResource {

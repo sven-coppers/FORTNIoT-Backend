@@ -50,6 +50,13 @@ public class Future {
     }
 
     /**
+     * Get a cached version of the prediction of the future executions
+     */
+    public List<ExecutionEvent> getFutureExecutions() {
+        return this.futureExecutions;
+    }
+
+    /**
      * Get a cached version of the prediction of the future states
      */
     public List<HassioState> getFutureStates() {

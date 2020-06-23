@@ -231,7 +231,8 @@ public class PredictionEngine {
         for(CausalNode node : finalNewChanges) {
             future.addFutureState(node.getState());
 
-            if(node.getExecutionEvent() != null) {
+            // If an executionEvent exists and is not already added to the future, add it to the future
+            if(node.getExecutionEvent() != null && !future.getFutureExecutions().contains(node.getExecutionEvent())) {
                 future.addExecutionEvent(node.getExecutionEvent());
             }
         }

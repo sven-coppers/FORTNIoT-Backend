@@ -1,6 +1,7 @@
 package sven.phd.iot.students.mathias.resources;
 
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
 
@@ -80,5 +81,16 @@ public class MathiasResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Action> getActions() {
         return new ArrayList<>(ContextManager.getInstance().getActions().values());
+    }
+
+    /**
+     * Get the future.
+     * @return Get the actions.
+     */
+    @Path("future/")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Future getFuture() {
+        return ContextManager.getInstance().getPredictionEngine().getFuture();
     }
 }

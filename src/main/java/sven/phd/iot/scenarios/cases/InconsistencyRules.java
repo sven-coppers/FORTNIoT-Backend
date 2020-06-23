@@ -9,13 +9,13 @@ import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
-import sven.phd.iot.students.mathias.ActionsManager;
+import sven.phd.iot.students.mathias.ActionExecutions;
 
 import java.awt.*;
 
 public class InconsistencyRules extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager, ActionsManager actionsManager) {
+    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
         Trigger sunSetTrigger = new StateTrigger("rule.sun_set", "sun.sun", "below_horizon", "sun sets");
         sunSetTrigger.addAction(new StateAction("raise the rolling shutter", InconsistencyDevices.LIVING_BLINDS, "raised"));
         rulesManager.addRule(sunSetTrigger);

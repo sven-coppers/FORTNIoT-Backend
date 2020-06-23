@@ -1,7 +1,7 @@
 package sven.phd.iot.students.mathias.resources;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.students.mathias.states.HassioConflictState;
+import sven.phd.iot.students.mathias.states.Conflict;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -37,7 +37,7 @@ public class ConflictResource {
     @Path("future/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioConflictState> getConflictFuture() {
+    public List<Conflict> getConflictFuture() {
         return ContextManager.getInstance().getFutureConflicts();
     }
 
@@ -49,7 +49,7 @@ public class ConflictResource {
     @Path("future/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioConflictState> getConflictFuture(@PathParam("id") String id) {
+    public List<Conflict> getConflictFuture(@PathParam("id") String id) {
         return ContextManager.getInstance().getFutureConflicts(id);
     }
 }

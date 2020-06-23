@@ -103,18 +103,20 @@ public class FutureConflictDetector {
         return false;
     }
 
-    private boolean containsAction(List<HassioConflictState> allConflicts, String deviceID, Date datetime, Action action) {
+    private boolean containsAction(List<Conflict> allConflicts, String deviceID, Date datetime, Action action) {
+        /*
         for (HassioConflictState conflict: allConflicts) {
             if (conflict.alreadyExist(deviceID,datetime)){
                 if (conflict.containsAction(action.id)){
                     return true;
                 }
             }
-        }
+        }*/
         return false;
     }
 
-    private List<HassioConflictState> findRaceConditionsInStates(Future future){
+    private List<Conflict> findRaceConditionsInStates(Future future){
+        /*
         List<HassioState> futureStates = future.getFutureStates();
         List<HassioConflictState> result = new ArrayList<>();
 
@@ -185,7 +187,8 @@ public class FutureConflictDetector {
         return new ArrayList<>();
     }
 
-    private Action getActionFromInvolvedRule(HassioRuleExecutionEvent event, String contextId) {
+    private Action getActionFromInvolvedRule(RuleExecutionEvent event, String contextId) {
+        /*
         HashMap<String, List<HassioContext>> actionContexts = event.actionContexts;
         for (String actionID: actionContexts.keySet()) {
             for (HassioContext context: actionContexts.get(actionID)) {
@@ -193,19 +196,21 @@ public class FutureConflictDetector {
                     return ContextManager.getInstance().getActionById(actionID);
                 }
             }
-        }
+        }*/
         return null;
     }
 
     // This is not a robust way to get the right action from the rule
     // Depr.
     private String getActionIdFromInvolvedRule(String entityID, Trigger rule) {
+        /*
         Action action = rule.getActionOnDevice(entityID);
         if (action != null) {
             return action.id;
         } else {
             return "";
-        }
+        }*/
+        return null;
     }
 
     private RuleExecutionEvent findFutureRuleExecutionByActionContext(Future future, String contextId, Date datetime) {

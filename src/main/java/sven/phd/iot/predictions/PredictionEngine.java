@@ -2,13 +2,11 @@ package sven.phd.iot.predictions;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.RulesManager;
-import sven.phd.iot.students.mathias.FutureConflictDetector;
 import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.ConflictingAction;
@@ -32,6 +30,7 @@ public class PredictionEngine {
         this.stateScheduler = hassioDeviceManager.getStateScheduler();
         this.solutionManager = solutionManager;
         this.future = new Future();
+        this.future.setFutureConflictSolutions(solutionManager.getSolutions());
         this.predicting = false;
     }
 
@@ -62,6 +61,7 @@ public class PredictionEngine {
      */
     private Future predictFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
         Future future = new Future();
+        future.setFutureConflictSolutions(solutionManager.getSolutions());
 
         // Initialise the queue with changes we already know
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
@@ -99,8 +99,10 @@ public class PredictionEngine {
         System.out.println("Predictions updated: " + future.getFutureStates().size());
 
         // MATHIAS TESTING
+        /*
         FutureConflictDetector detector = new FutureConflictDetector();
         future.addFutureConflict(detector.getFutureConflicts(future));
+         */
 
         return future;
     }
@@ -136,8 +138,8 @@ public class PredictionEngine {
             System.out.println("Tick " + newDate);
 
             while(runRequired && this.isPredicting()) {
-                causalStack = this.deduceStack(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions);
-                runRequired = this.detectConflicts(newDate, lastStates, causalStack, firstLayer, snoozedActions);
+                causalStack = this.deduceStack(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions); // TODO simulatedRulesEnabled is never used!
+                runRequired = this.detectConflicts(newDate, lastStates, causalStack, firstLayer, snoozedActions, future);
             }
 
             this.commitPredictedStates(causalStack, future);
@@ -151,7 +153,7 @@ public class PredictionEngine {
      * @param snoozedActions (out-parameter) will be extended with snoozedActions, based on applicable solutions
      * @return
      */
-    private boolean detectConflicts(Date newDate, HashMap<String, HassioState> lastStates, CausalStack causalStack, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
+    private boolean detectConflicts(Date newDate, HashMap<String, HassioState> lastStates, CausalStack causalStack, CausalLayer firstLayer, List<ConflictingAction> snoozedActions, Future future) {
         if(causalStack.isEmpty()) return false;
 
         System.out.println("Decting conflicts on the causal stack");
@@ -179,7 +181,7 @@ public class PredictionEngine {
                     future.addFutureConflict(newInconsistency);
                 } else {
                     SolutionExecutionEvent solutionExecution = this.applySolution(newDate, potentialSolution, lastStates, firstLayer, snoozedActions);
-                    future.addExecutionEvent(solutionExecution);
+                    //future.addExecutionEvent(solutionExecution);
                     System.out.println("Solution applied, rerun required");
                     // TODO: A solution should only be applied once?
                     return true;
@@ -250,11 +252,12 @@ public class PredictionEngine {
         causalStack.addLayer(firstLayer);
         CausalLayer newLayer = firstLayer;
 
-        // Determine future (could contain inconsistencies
+        // Determine future (could contain inconsistencies and loops)
         while (!newLayer.isEmpty()) {
             newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions);
 
             if (!newLayer.isEmpty()) {
+                // TODO Do loop detection, adapt layer and then add to stack
                 causalStack.addLayer(newLayer);
             }
         }
@@ -315,7 +318,7 @@ public class PredictionEngine {
             // Find which actions should be snoozed for this rule
             List<String> ruleSpecificSnoozedActions = new ArrayList<>();
             for(ConflictingAction conflictingAction : snoozedActions) {
-                if(conflictingAction.rule_id == potentialExecutionEvent.getTrigger().id) ruleSpecificSnoozedActions.add(conflictingAction.action_id);
+                if(conflictingAction.rule_id.equals(potentialExecutionEvent.getTrigger().id)) ruleSpecificSnoozedActions.add(conflictingAction.action_id);
             }
 
             HashMap<String, List<HassioState>> proposedActionState = potentialExecutionEvent.getTrigger().simulate(potentialExecutionEvent, states, ruleSpecificSnoozedActions);

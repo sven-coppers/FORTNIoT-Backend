@@ -137,9 +137,9 @@ public class PredictionEngine {
             causalStack.addLayer(firstLayer);
             System.out.println("Tick " + newDate);
 
-            while(runRequired && this.isPredicting()) {
-                causalStack = this.deduceStack(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions); // TODO simulatedRulesEnabled is never used!
-                runRequired = this.detectConflicts(newDate, lastStates, causalStack, firstLayer, snoozedActions, future);
+            if(this.isPredicting()) {
+                causalStack = this.deduceStack(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions, future);
+                //runRequired = this.detectConflicts(newDate, lastStates, causalStack, firstLayer, snoozedActions, future);
             }
 
             this.commitPredictedStates(causalStack, future);
@@ -181,7 +181,7 @@ public class PredictionEngine {
                     future.addFutureConflict(newInconsistency);
                 } else {
                     SolutionExecutionEvent solutionExecution = this.applySolution(newDate, potentialSolution, lastStates, firstLayer, snoozedActions);
-                    //future.addExecutionEvent(solutionExecution);
+                    //future.addExecutionEvent(solutionExecution); This is not necessary. CommitPredictedStates already adds all the states and executions to the future
                     System.out.println("Solution applied, rerun required");
                     // TODO: A solution should only be applied once?
                     return true;
@@ -193,6 +193,62 @@ public class PredictionEngine {
     }
 
     /**
+     * Detect conflicts and update conflict list
+     * @param causalStack
+     * @param conflicts, this can be updated with new found conflicts
+     * @return true when a conflict is found
+     */
+    private boolean detectConflicts(CausalStack causalStack, List<Conflict> conflicts) {
+        if(causalStack.isEmpty()) return false;
+
+        System.out.println("Detecting conflicts on the causal stack");
+        causalStack.print();
+
+        boolean conflictDetected = false;
+
+        // Group all potential changes by entityID
+        List<CausalNode> potentialChanges = causalStack.flatten();
+
+        for(int i = 0; i < potentialChanges.size(); ++i) {
+            List<CausalNode> conflictingChanges = new ArrayList<>();
+            String initialEntityID = potentialChanges.get(i).getState().entity_id;
+            boolean newConflictFound = false;
+
+            for (int j = i; j < potentialChanges.size(); ++j) {
+                if (potentialChanges.get(j).getState().entity_id.equals(initialEntityID)) {
+                    conflictingChanges.add(potentialChanges.get(j));
+                }
+            }
+
+            if (conflictingChanges.size() > 1) {
+                System.out.println("INCONSISTENCY DETECTED FOR " + initialEntityID);
+                // TODO here we should probably do the loop detection BEFORE adding or creating the conflict!
+                // Does a conflict on this device already exist?
+                Conflict existingConflict = null;
+                for (Conflict conflict : conflicts) {
+                    if (conflict.entity_id.equals(initialEntityID)) {
+                        existingConflict = conflict;
+                        break;
+                    }
+                }
+                // If not, create new conflict and add to list of conflicts
+                if (existingConflict == null) {
+                    conflicts.add(new Conflict(initialEntityID, conflictingChanges));
+                    newConflictFound = true;
+                } else {
+                    newConflictFound = existingConflict.updateConflict(conflictingChanges);
+                }
+            }
+
+            if (!conflictDetected && newConflictFound) {
+                conflictDetected = true;
+            }
+        }
+
+        return conflictDetected;
+    }
+
+    /**
      * Apply a solution to the firstLayer
      * @param newDate
      * @param potentialSolution
@@ -201,7 +257,7 @@ public class PredictionEngine {
      * @param snoozedActions
      * @return
      */
-    public SolutionExecutionEvent applySolution(Date newDate, ConflictSolution potentialSolution, HashMap<String, HassioState> lastStates, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
+    private SolutionExecutionEvent applySolution(Date newDate, ConflictSolution potentialSolution, HashMap<String, HassioState> lastStates, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
         SolutionExecutionEvent solutionExecution = new SolutionExecutionEvent(potentialSolution.solutionID, newDate);
 
         // Snooze actions, if any
@@ -218,6 +274,32 @@ public class PredictionEngine {
         }
 
         return solutionExecution;
+    }
+
+    /**
+     * Find solutions and apply them if possible
+     * @param newDate
+     * @param conflicts
+     * @param lastStates
+     * @param firstLayer
+     * @param snoozedActions
+     */
+    private void applySolution(Date newDate, List<Conflict> conflicts, HashMap<String, HassioState> lastStates, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
+        List<Conflict> removeList = new ArrayList<>();
+        for (Conflict conflict : conflicts) {
+            ConflictSolution potentialSolution = solutionManager.getSolutionForConflict(conflict);
+
+            if (potentialSolution != null) {
+                SolutionExecutionEvent solutionExecution = this.applySolution(newDate, potentialSolution, lastStates, firstLayer, snoozedActions);
+                //future.addExecutionEvent(solutionExecution); This is not necessary. CommitPredictedStates already adds all the states and executions to the future
+                System.out.println("Solution applied, rerun required");
+                removeList.add(conflict);
+                // TODO: A solution should only be applied once?
+            }
+        }
+        for (Conflict conflict : removeList) {
+            conflicts.remove(conflict);
+        }
     }
 
     /**
@@ -239,6 +321,17 @@ public class PredictionEngine {
     }
 
     /**
+     * Commit the conflicts to the future
+     * @param conflicts
+     * @param future
+     */
+    private void commitConflicts(List<Conflict> conflicts, Future future) {
+        for (Conflict conflict : conflicts) {
+            future.addFutureConflict(conflict);
+        }
+    }
+
+    /**
      *
      * @param newDate
      * @param firstLayer
@@ -247,21 +340,37 @@ public class PredictionEngine {
      * @param snoozedActions
      * @return
      */
-    private CausalStack deduceStack(Date newDate, CausalLayer firstLayer, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
+    private CausalStack deduceStack(Date newDate, CausalLayer firstLayer, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions, Future future) {
         System.out.println("Deducing new causal stack");
-        CausalStack causalStack = new CausalStack();
-        causalStack.addLayer(firstLayer);
-        CausalLayer newLayer = firstLayer;
+        CausalStack causalStack = null;
+        List<Conflict> conflicts = new ArrayList<>();
+        boolean runRequired = true;
 
-        // Determine future (could contain inconsistencies and loops)
-        while (!newLayer.isEmpty()) {
-            newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions);
+        while(runRequired) {
+            causalStack = new CausalStack();
+            causalStack.addLayer(firstLayer);
+            CausalLayer newLayer = firstLayer;
+            runRequired = false;
 
-            if (!newLayer.isEmpty()) {
-                // TODO Do loop detection, adapt layer and then add to stack
-                causalStack.addLayer(newLayer);
+            // Determine future (could contain inconsistencies and loops)
+            while (!newLayer.isEmpty() && !runRequired) {
+                newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions, conflicts);
+
+                if (!newLayer.isEmpty()) {
+                    causalStack.addLayer(newLayer);
+
+                    // Detect conflicts (inconsistencies and loops)
+                    runRequired = detectConflicts(causalStack, conflicts);
+                    // If conflicts are found, find solution and apply it. Rerun everything!
+                    if (runRequired) {
+                        applySolution(newDate, conflicts, lastStates, firstLayer, snoozedActions);
+                    }
+                }
             }
         }
+
+        // Add all conflicts to the future
+        commitConflicts(conflicts, future);
 
         return causalStack;
     }
@@ -275,9 +384,9 @@ public class PredictionEngine {
      * @param snoozedActions the actions which are snoozed (e.g. by conflict solutions)
      * @return
      */
-    private CausalLayer deduceLayer(Date newDate, CausalStack causalStack, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
+    private CausalLayer deduceLayer(Date newDate, CausalStack causalStack, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions, List<Conflict> conflicts) {
         // Build the states for this layer
-        HashMap<String, HassioState> layerSpecificStates = buildLayerSpecificStates(lastStates, causalStack);
+        HashMap<String, HassioState> layerSpecificStates = buildLayerSpecificStates(lastStates, causalStack, conflicts);
 
         CausalLayer previousLayer = causalStack.getTopLayer();
         CausalLayer newLayer = new CausalLayer();
@@ -290,7 +399,10 @@ public class PredictionEngine {
             HassioState newState = node.getState();
             HassioState lastState = lastStates.get(newState.entity_id);
 
-            newChanges.add(new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged()));
+            // Take only nodes into account that are not part of a conflict
+            if (!isConflictingNode(node, conflicts)) {
+                newChanges.add(new HassioChange(newState.entity_id, lastState, newState, newState.getLastChanged()));
+            }
         }
 
         // Pass the stateChange to the set of rules and to the implicit behavior
@@ -312,7 +424,7 @@ public class PredictionEngine {
     private List<CausalNode> verifyExplicitRules(Date date, List<HassioChange> newChanges, HashMap<String, HassioState> states, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions) {
         List<CausalNode> result = new ArrayList<>();
 
-        List<RuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(date, newChanges, new HashMap<>());
+        List<RuleExecutionEvent> triggerEvents = this.rulesManager.verifyTriggers(date, newChanges, simulatedRulesEnabled);
         List<RuleExecutionEvent> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
 
         for(RuleExecutionEvent potentialExecutionEvent : conditionTrueEvents) {
@@ -365,7 +477,7 @@ public class PredictionEngine {
      * @param lastStates
      * @return
      */
-    private HashMap<String, HassioState> buildLayerSpecificStates(HashMap<String, HassioState> lastStates, CausalStack causalStack) {
+    private HashMap<String, HassioState> buildLayerSpecificStates(HashMap<String, HassioState> lastStates, CausalStack causalStack, List<Conflict> conflicts) {
         HashMap<String, HassioState> branchSpecificStates = new HashMap<>();
 
         for(String deviceID : lastStates.keySet()) {
@@ -374,11 +486,28 @@ public class PredictionEngine {
 
         for(int i = 0; i < causalStack.getNumLayers(); ++i) {
             for(CausalNode causalNode : causalStack.getLayer(i).getStates()) {
-                branchSpecificStates.put(causalNode.getState().entity_id, causalNode.getState());
+                if (!isConflictingNode(causalNode, conflicts)) {
+                    branchSpecificStates.put(causalNode.getState().entity_id, causalNode.getState());
+                }
             }
         }
 
         return branchSpecificStates;
+    }
+
+    /**
+     * Determines if node is part of a conflict
+     * @param node
+     * @param conflicts
+     * @return true when node is part of a conflict
+     */
+    private boolean isConflictingNode(CausalNode node, List<Conflict> conflicts) {
+        for (Conflict conflict : conflicts) {
+            if (conflict.entity_id.equals(node.getState().entity_id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void stopFuturePredictions() {

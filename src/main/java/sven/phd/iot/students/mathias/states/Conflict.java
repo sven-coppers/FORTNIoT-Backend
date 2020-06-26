@@ -38,4 +38,29 @@ public class Conflict {
     public void addAction(ConflictingAction conflictingActionState) {
         this.conflictingActions.add(conflictingActionState);
     }
+
+    public boolean updateConflict(List<CausalNode> conflictingChanges) {
+        boolean actionAdded = false;
+        for (CausalNode node : conflictingChanges) {
+            if (node.getExecutionEvent() == null) {
+                System.err.println("The conflicting state did not have an execution event for " + node.getState().entity_id + " = " + node.getState().state);
+                continue;
+            }
+
+            String causingAction = node.getExecutionEvent().getResponsibleAction(node.getState().context);
+
+            if (causingAction == null) {
+                // The state is not caused by a rule
+                System.err.println("The conflicting state is not caused by a rule");
+            }
+
+            ConflictingAction action = new ConflictingAction(causingAction, node.getExecutionEvent().entity_id);
+            // Check if action isn't already part of conflict
+            if (!this.conflictingActions.contains(action)) {
+                this.addAction(action);
+                actionAdded = true;
+            }
+        }
+        return actionAdded;
+    }
 }

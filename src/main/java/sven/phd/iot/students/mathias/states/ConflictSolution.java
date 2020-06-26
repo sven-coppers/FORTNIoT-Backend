@@ -73,4 +73,8 @@ public class ConflictSolution {
 
         return true;
     }
+
+    public List<Action> getCustomActions() {
+        return this.customActions;
+    }
 }

@@ -277,14 +277,9 @@ public class ContextManager {
 
     }
 
-    public boolean addConflictSolution(ConflictSolution solution) {
-        boolean success = false;
-        ConflictSolver solver = ConflictSolver.getInstance();
-        if (solver.addSolution(solution)) {
-            this.updateFuturePredictions();
-            success =  true;
-        }
-        return success;
+    public void addConflictSolution(ConflictSolution solution) {
+        conflictSolutionManager.addSolution(solution);
+        this.updateFuturePredictions();
     }
 
     public ActionExecutions getActionExecutions() { return this.actionExecutions; }

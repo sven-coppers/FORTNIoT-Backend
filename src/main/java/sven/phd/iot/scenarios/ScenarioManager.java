@@ -55,6 +55,7 @@ public class ScenarioManager {
         this.presets.add("uc4_v4");
         this.presets.add("race_condition");
         this.presets.add("inconsistencies");
+        this.presets.add("loops");
 
         this.activeRuleSets = new ArrayList<>();
         this.ruleSets = new HashMap<>();
@@ -74,6 +75,7 @@ public class ScenarioManager {
         this.ruleSets.put("smoke_advanced", new SmokeAdvancedRules());
         this.ruleSets.put("race_condition", new RaceConditionRules());
         this.ruleSets.put("inconsistency", new InconsistencyRules());
+        this.ruleSets.put("loops", new LoopyRules());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -93,6 +95,7 @@ public class ScenarioManager {
         this.deviceSets.put("smoke", new SmokeDevices());
         this.deviceSets.put("race_condition", new RaceConditionDevices());
         this.deviceSets.put("inconsistency", new InconsistencyDevices());
+        this.deviceSets.put("loops", new LoopyDevices());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -126,6 +129,7 @@ public class ScenarioManager {
         this.stateSets.put("teaser", new TeaserStates());
         this.stateSets.put("race_condition", new RaceConditionStates());
         this.stateSets.put("inconsistency", new InconsistencyStates());
+        this.stateSets.put("loops", new LoopyStates());
 
 
         // MATHIAS SETUP
@@ -263,6 +267,10 @@ public class ScenarioManager {
             newDeviceSets.add("inconsistency");
             newStateSets.add("inconsistency");
             newRuleSets.add("inconsistency");
+        } else if(preset.equals("loops")) {
+            newDeviceSets.add("loops");
+            newStateSets.add("loops");
+            newRuleSets.add("loops");
         } else if(preset.contains("tr")) {
             newDeviceSets.add("light_simple");
             newDeviceSets.add("smoke");

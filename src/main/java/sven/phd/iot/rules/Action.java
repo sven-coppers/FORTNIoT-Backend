@@ -1,32 +1,49 @@
 package sven.phd.iot.rules;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.rules.actions.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "action_type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = LightOnAction.class, name = "LightOnAction"),
+        @JsonSubTypes.Type(value = LightOffAction.class, name = "LightOffAction"),
+        @JsonSubTypes.Type(value = OutletAction.class, name = "OutletAction"),
+        @JsonSubTypes.Type(value = StartCleaningAction.class, name = "StartCleaningAction"),
+        @JsonSubTypes.Type(value = StateAction.class, name = "StateAction"),
+        @JsonSubTypes.Type(value = ThermostatStateAction.class, name = "ThermostatStateAction")
+})
 abstract public class Action {
     private static int random = 0;
 
     @JsonProperty("id") public String id;
     @JsonProperty("description") public String description;
     @JsonProperty("enabled") public Boolean enabled;
-    @JsonProperty("action_name") public String actionName;
+    @JsonProperty("action_name") public String actionName; // TODO this is unnecessary given the jsonSubTypes
 
-    /* Mathias adding action disabling properties
-     *  It should be possible to have multiple start and stop times, so a list should be kept
-     */
     @JsonProperty("start_time_disable") public List<Date> startingTimesDisable;
 
     @JsonProperty("stop_time_disable") public List<Date> stoppingTimesDisable;
 
+    // For deserialization
+    public Action() {
+        this.startingTimesDisable = new ArrayList<>();
+        this.stoppingTimesDisable = new ArrayList<>();
+    }
 
     public Action(String description) {
         this.id = ("actionId" + random++);
@@ -43,7 +60,7 @@ abstract public class Action {
     abstract public List<HassioState> simulate(Date datetime, HashMap<String, HassioState> hassioStates);
 
     /*MATHIAS*/
-    public String getActionID() { return id; }
+    public String getId() { return id; }
 
     /*MATHIAS*/
     public String getDeviceID() { return ""; };
@@ -69,4 +86,6 @@ abstract public class Action {
     public String toString() {
         return this.description;
     }
+
+    public void generateNewID() {this.id = ("actionId" + random++);};
 }

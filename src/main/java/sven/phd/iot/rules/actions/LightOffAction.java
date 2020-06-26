@@ -1,6 +1,8 @@
 package sven.phd.iot.rules.actions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
+import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Action;
 
@@ -10,7 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 
 public class LightOffAction extends Action {
-    private final String deviceIdentifier;
+    @JsonProperty("deviceID") public String deviceIdentifier;
+
+    // For deserialization
+    public LightOffAction() {
+        enabled = true;
+    }
 
     public LightOffAction(String description, String deviceIdentifier) {
         super(description);

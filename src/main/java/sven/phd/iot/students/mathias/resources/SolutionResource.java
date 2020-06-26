@@ -1,11 +1,13 @@
 package sven.phd.iot.students.mathias.resources;
 
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.rules.Action;
 import sven.phd.iot.students.mathias.response.HassioSolutionResponse;
-import sven.phd.iot.students.mathias.states.HassioConflictSolutionState;
+import sven.phd.iot.students.mathias.states.ConflictSolution;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("mathias/solutions/")
@@ -28,21 +30,25 @@ public class SolutionResource {
         return solutionResource;
     }
 
+    // TODO this should be rewritten so it can cope with Custom Action
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public HassioSolutionResponse setConflictSolution(HassioConflictSolutionState conflictSolutionRequest)  {
-        HassioSolutionResponse response = new HassioSolutionResponse();
-
-        if(ContextManager.getInstance().addConflictSolution(conflictSolutionRequest)) {
-            response.success = true;
-            response.response = "Successfully added solution";
-        } else {
-            response.success = false;
-            response.response = "Something went wrong";
+    public HassioSolutionResponse addConflictSolution(ConflictSolution conflictSolutionRequest)  {
+        // TODO for custom action, generate new actionID
+        for (Action action : conflictSolutionRequest.getCustomActions()) {
+            action.generateNewID();
         }
+        ContextManager.getInstance().addConflictSolution(conflictSolutionRequest);
+
+        HassioSolutionResponse response = new HassioSolutionResponse();
+        response.success = true;
+        response.response = "Successfully added solution";
         return response;
     }
+
+    // TODO ADD removeConflictSolution
+    // TODO ADD updateConflictSolution
 
     /**
      * Get the conflict solutions in the future.
@@ -51,8 +57,8 @@ public class SolutionResource {
     @Path("future/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioConflictSolutionState> getConflictSolutionsFuture() {
-        return ContextManager.getInstance().getFutureConflictSolutions();
+    public List<ConflictSolution> getConflictSolutionsFuture() {
+        return ContextManager.getInstance().getConflictSolutionManager().getSolutions();
     }
 
     /**
@@ -60,10 +66,11 @@ public class SolutionResource {
      * @param id
      * @return Get the conflict solutions in the future.
      */
+    // TODO implement if necessary
     @Path("future/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioConflictSolutionState> getConflictSolutionsFuture(@PathParam("id") String id) {
-        return ContextManager.getInstance().getFutureConflictSolutions(id);
+    public List<ConflictSolution> getConflictSolutionsFuture(@PathParam("id") String id) {
+        return new ArrayList<>(); //ContextManager.getInstance().getFutureConflictSolutions(id);
     }
 }

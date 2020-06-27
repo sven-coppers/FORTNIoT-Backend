@@ -1,11 +1,9 @@
 package sven.phd.iot.predictions;
 
+import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class CausalStack {
     private List<CausalLayer> stack;
@@ -73,5 +71,29 @@ public class CausalStack {
         }
 
         return result;
+    }
+
+    /**
+     * Retrieves the node that is in the highest position in the stack
+     * @param nodes
+     * @return null when no node is found to be solely the highest node
+     */
+    public CausalNode getHighestNode(List<CausalNode> nodes) {
+        CausalNode startingNode = null;
+        for (int i = 0; i < stack.size() && startingNode == null; ++i) {
+            CausalLayer layer = stack.get(i);
+            for (CausalNode node : layer.getStates()) {
+                if (nodes.contains(node)) {
+                    if (startingNode == null) {
+                        startingNode = node;
+                    } else {
+                        // multiple nodes are found in the same layer, so no node is solely the highest
+                        return null;
+                    }
+
+                }
+            }
+        }
+        return startingNode;
     }
 }

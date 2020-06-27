@@ -40,6 +40,15 @@ public class RuleExecutionEvent extends ExecutionEvent {
         this.conditionContexts.get(conditionID).add(context);
     }
 
+    public boolean isInConditionSatisfied(HassioContext context) {
+        for (String key: conditionContexts.keySet()) {
+            if (conditionContexts.get(key).contains(context)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Trigger getTrigger() {
         return this.trigger;
     }

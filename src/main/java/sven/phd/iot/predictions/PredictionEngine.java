@@ -226,7 +226,8 @@ public class PredictionEngine {
                 }
 
                 if (conflictingChanges.size() > 1) {
-                    System.out.println("INCONSISTENCY DETECTED FOR " + initialEntityID);
+                    System.out.println("CONFLICT DETECTED FOR " + initialEntityID);
+                    // Specify conflict as INCONSISTENCY, REDUNDANCY or LOOP
                     // Find existing conflict on this device
                     Conflict existingConflict = null;
                     for (Conflict conflict : conflicts) {
@@ -238,13 +239,18 @@ public class PredictionEngine {
                     // If not, create new conflict and add to list of conflicts
                     if (existingConflict == null) {
                         // A loop can only exist here!!
-                        // Detect loop
+                        // Find REDUNDANCIES
+                        HashMap<CausalNode, List<CausalNode>> redundancyMapping = detectRedundancy(conflictingChanges);
+                        // Find LOOPS and solve them
                         List<CausalNode> loopingNodes = detectLoop(causalStack, conflictingChanges, causalityMapping);
-                        // Add conflict to conflict list
-                        if (loopingNodes.isEmpty()) {
-                            conflicts.add(new Conflict(initialEntityID, conflictingChanges));
+                        if (!loopingNodes.isEmpty()) {
+                            // When loop is found, add conflict and create solution immediately
+                            Conflict conflict = new Conflict("Loop_"+initialEntityID, loopingNodes);
+                            conflicts.add(conflict);
+                            solveLoop(conflict);
                         } else {
-                            conflicts.add(new Conflict("Loop_"+initialEntityID, loopingNodes));
+                            // INCONSISTENCY found
+                            conflicts.add(new Conflict(initialEntityID, conflictingChanges));
                         }
                         newConflictFound = true;
                     } else {
@@ -275,20 +281,21 @@ public class PredictionEngine {
         CausalNode startingNode = causalStack.getHighestNode(conflictingChanges);
         if (startingNode == null)
             return result;
+        else
+            result.add(startingNode);
 
-        return recursiveLoopDetection(startingNode, startingNode, conflictingChanges, causalityMapping, result);
+        return recursiveLoopDetection(startingNode, conflictingChanges, causalityMapping, result);
     }
 
     /**
      * Recursively detect loops
      * @param startNode
-     * @param comparingNode, used to match states with new found nodes in order to detect the loop
      * @param conflictingChanges
      * @param causalityMapping
      * @param result
      * @return empty list if none is found
      */
-    private List<CausalNode> recursiveLoopDetection(CausalNode startNode, CausalNode comparingNode, List<CausalNode> conflictingChanges, HashMap<CausalNode, List<CausalNode>> causalityMapping, List<CausalNode> result) {
+    private List<CausalNode> recursiveLoopDetection(CausalNode startNode, List<CausalNode> conflictingChanges, HashMap<CausalNode, List<CausalNode>> causalityMapping, List<CausalNode> result) {
         List<CausalNode> mapping = causalityMapping.get(startNode);
         if (mapping == null) {
             return new ArrayList<>();
@@ -297,17 +304,29 @@ public class PredictionEngine {
             List<CausalNode> newResult = new ArrayList<>(result);
             newResult.add(node);
             // Check if this is the conflict
-            if (conflictingChanges.contains(node) && !node.equals(comparingNode) && node.getState().isSimilar(comparingNode.getState())) {
+            if (conflictingChanges.contains(node) && !node.equals(result.get(0)) && node.getState().isSimilar(result.get(0).getState())) {
                 System.out.println("LOOP FOUND FOR: " + node.getState().entity_id);
                 return newResult;
             } else {
-                List<CausalNode> recursiveResult = recursiveLoopDetection(node, comparingNode, conflictingChanges, causalityMapping, newResult);
+                List<CausalNode> recursiveResult = recursiveLoopDetection(node, conflictingChanges, causalityMapping, newResult);
                 if (!recursiveResult.isEmpty()) {
                     return recursiveResult;
                 }
             }
         }
         return new ArrayList<>();
+    }
+
+    private void solveLoop(Conflict conflict) {
+        List<ConflictingAction> snoozedActions = new ArrayList<>();
+        snoozedActions.add(conflict.conflictingActions.get(conflict.conflictingActions.size() - 1));
+        List<ConflictingAction> activeActions = conflict.conflictingActions.subList(0, conflict.conflictingActions.size() - 1);
+
+        ConflictSolution solution = new ConflictSolution(conflict.entity_id);
+        solution.conflictingActions = conflict.conflictingActions;
+        solution.snoozedActions = snoozedActions;
+        solution.activeActions = activeActions;
+        solutionManager.addSolution(solution);
     }
 
     /**

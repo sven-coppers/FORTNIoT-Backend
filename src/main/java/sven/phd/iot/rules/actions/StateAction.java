@@ -13,6 +13,9 @@ public class StateAction extends Action {
     @JsonProperty("deviceID") public String deviceIdentifier;
     @JsonProperty("new_state") public String newState;
 
+    public StateAction() {
+    }
+
     public StateAction(String description, String deviceIdentifier, String newState) {
         super(description);
         this.deviceIdentifier = deviceIdentifier;
@@ -25,5 +28,9 @@ public class StateAction extends Action {
         newStates.add(new HassioState(this.deviceIdentifier, newState, datetime, null));
 
         return newStates;
+    }
+
+    public String getDeviceID() {
+        return this.deviceIdentifier;
     }
 }

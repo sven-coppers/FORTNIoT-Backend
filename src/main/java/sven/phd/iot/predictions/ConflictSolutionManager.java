@@ -37,8 +37,32 @@ public class ConflictSolutionManager {
         this.conflictSolutionList.add(conflictSolution);
     }
 
+    public void removeSolution(Conflict conflict) {
+        List<ConflictSolution> removeList = new ArrayList<>();
+        for (ConflictSolution solution : this.conflictSolutionList) {
+            if (solution.matchesConflict(conflict)) {
+                removeList.add(solution);
+            }
+        }
+        for (ConflictSolution remove : removeList) {
+            conflictSolutionList.remove(remove);
+        }
+    }
+
     public List<ConflictSolution> getSolutions() {
         return this.conflictSolutionList;
+    }
+
+    /**
+     * Retrieves all the custom actions from every solution
+     * @return
+     */
+    public List<Action> getSolutionActions() {
+        List<Action> result = new ArrayList<>();
+        for (ConflictSolution solution : conflictSolutionList) {
+            result.addAll(solution.getCustomActions());
+        }
+        return result;
     }
 
     public ConflictSolution getSolutionForConflict(Conflict conflict) {

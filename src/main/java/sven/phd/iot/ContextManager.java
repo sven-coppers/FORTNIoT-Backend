@@ -297,11 +297,20 @@ public class ContextManager {
 
     public Map<String, Action> getActions() {
         Map<String, Action> allActions = rulesManager.getAllActions();
-        allActions.putAll(actionExecutions.getAllActions());
+        conflictSolutionManager.getSolutionActions();
+        //allActions.putAll(actionExecutions.getAllActions());
         return allActions;
     }
 
     public ConflictSolutionManager getConflictSolutionManager() {
         return this.conflictSolutionManager;
+    }
+
+    public void removeConflictSolution(ConflictSolution conflictSolutionRequest) {
+        Conflict conflict = new Conflict();
+        conflict.entity_id = conflictSolutionRequest.entity_id;
+        conflict.conflictingActions = conflictSolutionRequest.conflictingActions;
+        conflictSolutionManager.removeSolution(conflict);
+        this.updateFuturePredictions();
     }
 }

@@ -30,12 +30,10 @@ public class SolutionResource {
         return solutionResource;
     }
 
-    // TODO this should be rewritten so it can cope with Custom Action
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public HassioSolutionResponse addConflictSolution(ConflictSolution conflictSolutionRequest)  {
-        // TODO for custom action, generate new actionID
         for (Action action : conflictSolutionRequest.getCustomActions()) {
             action.generateNewID();
         }
@@ -47,7 +45,18 @@ public class SolutionResource {
         return response;
     }
 
-    // TODO ADD removeConflictSolution
+    @Path("remove/")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public HassioSolutionResponse removeConflictSolution(ConflictSolution conflictSolutionRequest)  {
+        ContextManager.getInstance().removeConflictSolution(conflictSolutionRequest);
+
+        HassioSolutionResponse response = new HassioSolutionResponse();
+        response.success = true;
+        response.response = "Successfully removed solution";
+        return response;
+    }
     // TODO ADD updateConflictSolution
 
     /**

@@ -17,6 +17,8 @@ public class LoopyDevices extends DeviceSet {
     public static final String LIVING_SPOTS                 = "light.living_spots";
     public static final String GARDEN_LIGHTS                = "light.garden";
     public static final String PEOPLE_MATHIAS               = "person.mathias";
+    public static final String PEOPLE_MICHAEL               = "person.michael";
+    public static final String PEOPLE_SARAH                 = "person.sarah";
     public static final String LIVING_BLINDS                = "blinds.living_blinds";
     public static final String ROOMBA_DOWNSTAIRS            = "cleaning.roomba_downstairs";
     public static final String ROOMBA_DOWNSTAIRS_BATTERY    = "sensor.roomba_downstairs_battery";
@@ -27,6 +29,8 @@ public class LoopyDevices extends DeviceSet {
     public void createDevices(ArrayList<HassioDevice> devices) {
         devices.add(new HassioSun());
         devices.add(new HassioPerson(PEOPLE_MATHIAS, "Mathias"));
+        devices.add(new HassioPerson(PEOPLE_MICHAEL, "Michael"));
+        devices.add(new HassioPerson(PEOPLE_SARAH, "Sarah"));
         devices.add(new HassioBlind(LIVING_BLINDS, "Rolling shutter"));
         devices.add(new HassioCleaner(ROOMBA_DOWNSTAIRS, "Roomba downstairs", ROOMBA_DOWNSTAIRS_BATTERY, 1, 4));
         devices.add(new HassioBattery(ROOMBA_DOWNSTAIRS_BATTERY, "Roomba downstairs battery (%)"));

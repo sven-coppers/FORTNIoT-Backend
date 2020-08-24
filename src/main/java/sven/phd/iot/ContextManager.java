@@ -9,6 +9,7 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.students.mathias.ActionExecutions;
 import sven.phd.iot.students.mathias.ConflictSolver;
+import sven.phd.iot.students.mathias.StudyManagerMathias;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
@@ -28,7 +29,8 @@ public class ContextManager {
     private RulesManager rulesManager;
     private PredictionEngine predictionEngine;
     private ScenarioManager scenarioManager;
-    private StudyManager studyManager;
+    //private StudyManager studyManager;
+    private StudyManagerMathias studyManager;
     private ConflictSolutionManager conflictSolutionManager;
 
     // MATHIAS
@@ -43,7 +45,8 @@ public class ContextManager {
         this.conflictSolutionManager = new ConflictSolutionManager();
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.conflictSolutionManager);
         this.scenarioManager = new ScenarioManager(this);
-        this.studyManager = new StudyManager();
+        //this.studyManager = new StudyManager();
+        this.studyManager = new StudyManagerMathias();
 
         // NEVER EVER START PREDICTING WHEN LAUNCHING THIS SHIT
     }

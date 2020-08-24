@@ -15,16 +15,16 @@ import sven.phd.iot.scenarios.StateSet;
 import java.util.Calendar;
 import java.util.Date;
 
-public class LoopyStates extends StateSet {
+public class RedundancyStates2 extends StateSet {
     @Override
     public void setInitialStates(HassioDeviceManager DM, Date startDate) {
-        DM.logState(new HassioState(LoopyDevices.PEOPLE_MICHAEL, "home", startDate, new HassioPersonAttributes()));
-        DM.logState(new HassioState(LoopyDevices.LIVING_BLINDS, "raised", startDate, new HassioBlindAttributes()));
-        DM.logState(new HassioState(LoopyDevices.ROOMBA_DOWNSTAIRS, "off", startDate, new HassioCleanerAttributes()));
-        DM.logState(new HassioState(LoopyDevices.GARDEN_LIGHTS, "off", startDate, new HassioLightAttributes()));
-        DM.logState(new HassioState(LoopyDevices.LIVING_SPOTS, "off", startDate, new HassioLightAttributes()));
-        DM.logState(new HassioState(LoopyDevices.LIVING_TV, "off", startDate, new HassioTVAttributes()));
-        DM.logState(new HassioState(LoopyDevices.FRONT_DOOR, "locked", startDate, new HassioLockAttributes()));
+        DM.logState(new HassioState(RedundancyDevices.PEOPLE_MICHAEL, "away", startDate, new HassioPersonAttributes()));
+        DM.logState(new HassioState(RedundancyDevices.LIVING_BLINDS, "raised", startDate, new HassioBlindAttributes()));
+        DM.logState(new HassioState(RedundancyDevices.ROOMBA_DOWNSTAIRS, "off", startDate, new HassioCleanerAttributes()));
+        DM.logState(new HassioState(RedundancyDevices.GARDEN_LIGHTS, "off", startDate, new HassioLightAttributes()));
+        DM.logState(new HassioState(RedundancyDevices.LIVING_SPOTS, "off", startDate, new HassioLightAttributes()));
+        DM.logState(new HassioState(RedundancyDevices.LIVING_TV, "off", startDate, new HassioTVAttributes()));
+        DM.logState(new HassioState(RedundancyDevices.FRONT_DOOR, "locked", startDate, new HassioLockAttributes()));
 
         Calendar relativeTime = Calendar.getInstance();
         relativeTime.setTime(startDate);
@@ -45,7 +45,7 @@ public class LoopyStates extends StateSet {
 
     @Override
     public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
-        relativeTime.add(Calendar.HOUR, 12);
-        SS.scheduleState(new HassioState(LoopyDevices.PEOPLE_MICHAEL, "home", relativeTime.getTime(), new HassioPersonAttributes()));
+        relativeTime.add(Calendar.MINUTE, 120);
+        SS.scheduleState(new HassioState(RedundancyDevices.PEOPLE_MICHAEL, "home", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 }

@@ -3,7 +3,6 @@ package sven.phd.iot.scenarios.cases;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.rules.actions.LightOffAction;
-import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.rules.actions.StateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
@@ -11,9 +10,7 @@ import sven.phd.iot.scenarios.RuleSet;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
 import sven.phd.iot.students.mathias.ActionExecutions;
 
-import java.awt.*;
-
-public class LoopyRules extends RuleSet {
+public class RedundancyRules2 extends RuleSet {
     @Override
     public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
         /*
@@ -48,5 +45,20 @@ public class LoopyRules extends RuleSet {
         rulesManager.addRule(doorUnlockedTrigger);
 
         addAction(new LightOffAction("turn off garden lights", LoopyDevices.GARDEN_LIGHTS));*/
+        // Rule 1
+        Trigger sunSetTrigger = new StateTrigger("rule.sun_set", "sun.sun", "below_horizon", "sun set");
+        sunSetTrigger.addAction(new StateAction("lower the rolling shutter", RedundancyDevices.LIVING_BLINDS, "lowered"));
+        rulesManager.addRule(sunSetTrigger);
+
+        // Rule 2
+        Trigger tvOnTrigger = new StateTrigger("rule.tv_on", RedundancyDevices.LIVING_TV, "on", "TV on");
+        tvOnTrigger.addAction(new StateAction("lower the rolling shutter", RedundancyDevices.LIVING_BLINDS, "lowered"));
+        tvOnTrigger.addAction(new LightOffAction("turn off living spots", RedundancyDevices.LIVING_SPOTS));
+        rulesManager.addRule(tvOnTrigger);
+
+        // Rule 3
+        Trigger somebodyHome = new PeopleHomeTrigger("", true);
+        somebodyHome.addAction(new StateAction("turn on TV", RedundancyDevices.LIVING_TV, "on"));
+        rulesManager.addRule(somebodyHome);
     }
 }

@@ -56,6 +56,11 @@ public class ScenarioManager {
         this.presets.add("race_condition");
         this.presets.add("inconsistencies");
         this.presets.add("loops");
+        this.presets.add("muc1");
+        this.presets.add("muc2");
+        this.presets.add("muc3");
+        this.presets.add("muc4");
+        this.presets.add("muc5");
 
         this.activeRuleSets = new ArrayList<>();
         this.ruleSets = new HashMap<>();
@@ -75,7 +80,13 @@ public class ScenarioManager {
         this.ruleSets.put("smoke_advanced", new SmokeAdvancedRules());
         this.ruleSets.put("race_condition", new RaceConditionRules());
         this.ruleSets.put("inconsistency", new InconsistencyRules());
+        this.ruleSets.put("inconsistency_uc1", new InconsistencyRules1());
+        this.ruleSets.put("inconsistency_uc2", new InconsistencyRules2());
         this.ruleSets.put("loops", new LoopyRules());
+        this.ruleSets.put("loops_uc1", new LoopyRules1());
+        this.ruleSets.put("redundancy_uc1", new RedundancyRules1());
+        this.ruleSets.put("redundancy_uc2", new RedundancyRules2());
+
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -96,6 +107,7 @@ public class ScenarioManager {
         this.deviceSets.put("race_condition", new RaceConditionDevices());
         this.deviceSets.put("inconsistency", new InconsistencyDevices());
         this.deviceSets.put("loops", new LoopyDevices());
+        this.deviceSets.put("redundancy", new RedundancyDevices());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -129,7 +141,12 @@ public class ScenarioManager {
         this.stateSets.put("teaser", new TeaserStates());
         this.stateSets.put("race_condition", new RaceConditionStates());
         this.stateSets.put("inconsistency", new InconsistencyStates());
+        this.stateSets.put("inconsistency_uc1", new InconsistencyStates1());
+        this.stateSets.put("inconsistency_uc2", new InconsistencyStates2());
         this.stateSets.put("loops", new LoopyStates());
+        this.stateSets.put("loops_uc1", new LoopyStates1());
+        this.stateSets.put("redundancy_uc1", new RedundancyStates1());
+        this.stateSets.put("redundancy_uc2", new RedundancyStates2());
 
 
         // MATHIAS SETUP
@@ -267,10 +284,30 @@ public class ScenarioManager {
             newDeviceSets.add("inconsistency");
             newStateSets.add("inconsistency");
             newRuleSets.add("inconsistency");
+        } else if(preset.equals("muc1")) {
+            newDeviceSets.add("inconsistency");
+            newStateSets.add("inconsistency_uc1");
+            newRuleSets.add("inconsistency_uc1");
+        } else if(preset.equals("muc2")) {
+            newDeviceSets.add("inconsistency");
+            newStateSets.add("inconsistency_uc2");
+            newRuleSets.add("inconsistency_uc2");
         } else if(preset.equals("loops")) {
             newDeviceSets.add("loops");
             newStateSets.add("loops");
             newRuleSets.add("loops");
+        } else if(preset.equals("muc5")) {
+            newDeviceSets.add("loops");
+            newStateSets.add("loops_uc1");
+            newRuleSets.add("loops_uc1");
+        } else if(preset.equals("muc3")) {
+            newDeviceSets.add("redundancy");
+            newStateSets.add("redundancy_uc1");
+            newRuleSets.add("redundancy_uc1");
+        } else if(preset.equals("muc4")) {
+            newDeviceSets.add("redundancy");
+            newStateSets.add("redundancy_uc2");
+            newRuleSets.add("redundancy_uc2");
         } else if(preset.contains("tr")) {
             newDeviceSets.add("light_simple");
             newDeviceSets.add("smoke");

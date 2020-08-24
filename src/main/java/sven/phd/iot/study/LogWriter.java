@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.HashMap;
 
 public class LogWriter {
-    private static String outputFolderName = "G:\\My Drive\\Research\\Intelligibility\\Intelligible_iot\\Studies\\visualization_future\\results\\";
+    private static String outputFolderName = "C:\\Users\\Mathi\\Desktop\\Schoolmappen\\Master_2_Informatica\\MP\\study\\";
 
     public static void write(HashMap<String, String> values) {
         PrintWriter writer;

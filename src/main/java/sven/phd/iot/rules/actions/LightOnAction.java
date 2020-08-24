@@ -1,6 +1,11 @@
 package sven.phd.iot.rules.actions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
+import sven.phd.iot.hassio.states.HassioDateDeserializer;
+import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Action;
 
@@ -11,9 +16,18 @@ import java.util.HashMap;
 import java.util.List;
 
 public class LightOnAction extends Action {
-    private String deviceIdentifier;
-    private Color color;
-    private boolean flash;
+    @JsonProperty("deviceID") public String deviceIdentifier;
+
+    @JsonDeserialize(using = ColorDeserializer.class)
+    @JsonSerialize(using = ColorSerializer.class)
+    @JsonProperty("color") public Color color;
+
+    @JsonProperty("flash") public boolean flash;
+
+    // For deserialization
+    public LightOnAction() {
+        enabled = true;
+    }
 
     public LightOnAction(String description, String deviceIdentifier, Color color, boolean flash) {
         // super("Turn on " + friendlyName + " {color: [" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "], flash: " + flash + "}");
@@ -70,6 +84,29 @@ public class LightOnAction extends Action {
         }
         if (LightOffAction.class == other.getClass()) {
             return this.deviceIdentifier.equals(((LightOffAction) other).getDeviceID());
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isSimilar(Action other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || (this.getClass() != other.getClass() && LightOffAction.class != other.getClass())) {
+            return false;
+        }
+        if (this.getClass() == other.getClass()) {
+            boolean result = true;
+            if (!this.deviceIdentifier.equals(((LightOnAction) other).deviceIdentifier)) {
+                result = false;
+            }
+            int rgb = this.color.getRGB();
+            if (this.color.getRGB() != ((LightOnAction) other).color.getRGB()) {
+                result = false;
+            }
+            return result;
         }
 
         return false;

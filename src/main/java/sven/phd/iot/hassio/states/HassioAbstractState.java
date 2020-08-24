@@ -78,6 +78,20 @@ abstract public class HassioAbstractState implements Comparable<HassioAbstractSt
         this.state = state;
     }
 
+    public boolean isSimilar(HassioAbstractState hassioAbstractState) {
+        boolean result = true;
+        if (!this.entity_id.equals(hassioAbstractState.entity_id))
+            result = false;
+        if (!this.state.equals(hassioAbstractState.state))
+            result = false;
+        if (this.last_updated.compareTo(hassioAbstractState.last_updated) != 0)
+            result = false;
+        if (this.last_changed.compareTo(hassioAbstractState.last_changed) != 0)
+            result = false;
+
+        return result;
+    }
+
     public int compareTo(HassioAbstractState hassioAbstractState) {
         if(hassioAbstractState.last_updated == null || this.last_updated == null) {
             System.out.println();

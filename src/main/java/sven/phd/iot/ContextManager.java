@@ -7,8 +7,9 @@ import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.rules.Action;
-import sven.phd.iot.students.mathias.ActionsManager;
+import sven.phd.iot.students.mathias.ActionExecutions;
 import sven.phd.iot.students.mathias.ConflictSolver;
+import sven.phd.iot.students.mathias.StudyManagerMathias;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
@@ -28,22 +29,24 @@ public class ContextManager {
     private RulesManager rulesManager;
     private PredictionEngine predictionEngine;
     private ScenarioManager scenarioManager;
-    private StudyManager studyManager;
+    //private StudyManager studyManager;
+    private StudyManagerMathias studyManager;
     private ConflictSolutionManager conflictSolutionManager;
 
     // MATHIAS
-    private ActionsManager actionsManager;
+    private ActionExecutions actionExecutions;
 
     private ContextManager() {
         // MATHIAS
-        this.actionsManager = new ActionsManager();
+        this.actionExecutions = new ActionExecutions();
 
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.conflictSolutionManager = new ConflictSolutionManager();
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.conflictSolutionManager);
         this.scenarioManager = new ScenarioManager(this);
-        this.studyManager = new StudyManager();
+        //this.studyManager = new StudyManager();
+        this.studyManager = new StudyManagerMathias();
 
         // NEVER EVER START PREDICTING WHEN LAUNCHING THIS SHIT
     }
@@ -277,27 +280,54 @@ public class ContextManager {
 
     }
 
-    public boolean addConflictSolution(ConflictSolution solution) {
-        boolean success = false;
-        ConflictSolver solver = ConflictSolver.getInstance();
-        if (solver.addSolution(solution)) {
-            this.updateFuturePredictions();
-            success =  true;
-        }
-        return success;
+    public void addConflictSolution(ConflictSolution solution) {
+        conflictSolutionManager.addSolution(solution);
+        this.updateFuturePredictions();
     }
 
-    public ActionsManager getActionsManager() { return this.actionsManager; }
+    public ActionExecutions getActionExecutions() { return this.actionExecutions; }
 
     public Action getActionById(String id) {
-        return this.actionsManager.getAction(id);
+        Map<String, Action> allActions = rulesManager.getAllActions();
+        allActions.putAll(actionExecutions.getAllActions());
+        for (String actionID : allActions.keySet()) {
+            if (actionID.equals(id)) {
+                return allActions.get(actionID);
+            }
+        }
+        return null;
     }
 
     public Map<String, Action> getActions() {
-        return this.actionsManager.getActions();
+        Map<String, Action> allActions = rulesManager.getAllActions();
+        conflictSolutionManager.getSolutionActions();
+        //allActions.putAll(actionExecutions.getAllActions());
+        return allActions;
     }
 
     public ConflictSolutionManager getConflictSolutionManager() {
         return this.conflictSolutionManager;
+    }
+
+    public void removeConflictSolution(ConflictSolution conflictSolutionRequest) {
+        Conflict conflict = new Conflict();
+        conflict.entity_id = conflictSolutionRequest.entity_id;
+        conflict.setConflictingActions(conflictSolutionRequest.getConflictingActions());
+        conflictSolutionManager.removeSolution(conflict);
+        this.updateFuturePredictions();
+    }
+
+    public void updateConflictSolution(ConflictSolution conflictSolutionRequest) {
+        Conflict conflict = new Conflict();
+        conflict.entity_id = conflictSolutionRequest.entity_id;
+        conflict.setConflictingActions(conflictSolutionRequest.getConflictingActions());
+        conflictSolutionManager.removeSolution(conflict);
+        conflictSolutionManager.addSolution(conflictSolutionRequest);
+        this.updateFuturePredictions();
+    }
+
+    public void cleanSolutions() {
+        conflictSolutionManager.cleanSolutions();
+        this.updateFuturePredictions();
     }
 }

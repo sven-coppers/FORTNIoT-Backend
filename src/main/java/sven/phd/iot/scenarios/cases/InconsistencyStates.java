@@ -20,12 +20,14 @@ public class InconsistencyStates extends StateSet {
     @Override
     public void setInitialStates(HassioDeviceManager DM, Date startDate) {
         DM.logState(new HassioState(InconsistencyDevices.PEOPLE_MATHIAS, "home", startDate, new HassioPersonAttributes()));
-        DM.logState(new HassioState(InconsistencyDevices.LIVING_BLINDS, "lowered", startDate, new HassioBlindAttributes()));
+        DM.logState(new HassioState(InconsistencyDevices.PEOPLE_MICHAEL, "home", startDate, new HassioPersonAttributes()));
+        DM.logState(new HassioState(InconsistencyDevices.LIVING_BLINDS, "raised", startDate, new HassioBlindAttributes()));
         DM.logState(new HassioState(InconsistencyDevices.ROOMBA_DOWNSTAIRS, "off", startDate, new HassioCleanerAttributes()));
-        DM.logState(new HassioState(InconsistencyDevices.GARDEN_LIGHTS, "on", startDate, new HassioLightAttributes()));
+        DM.logState(new HassioState(InconsistencyDevices.GARDEN_LIGHTS, "off", startDate, new HassioLightAttributes()));
         DM.logState(new HassioState(InconsistencyDevices.LIVING_SPOTS, "off", startDate, new HassioLightAttributes()));
         DM.logState(new HassioState(InconsistencyDevices.LIVING_TV, "off", startDate, new HassioTVAttributes()));
         DM.logState(new HassioState(InconsistencyDevices.FRONT_DOOR, "locked", startDate, new HassioLockAttributes()));
+
 
         Calendar relativeTime = Calendar.getInstance();
         relativeTime.setTime(startDate);
@@ -47,6 +49,6 @@ public class InconsistencyStates extends StateSet {
     @Override
     public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
         relativeTime.add(Calendar.MINUTE, 120);
-        SS.scheduleState(new HassioState(InconsistencyDevices.PEOPLE_MATHIAS, "away", relativeTime.getTime(), new HassioPersonAttributes()));
+        SS.scheduleState(new HassioState(InconsistencyDevices.PEOPLE_MICHAEL, "home", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 }

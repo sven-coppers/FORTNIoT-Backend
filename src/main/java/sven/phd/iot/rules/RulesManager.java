@@ -178,4 +178,15 @@ public class RulesManager {
     public void addImplicitPrediction(RuleExecutionEvent ruleExecutionEvent) {
        // rules.get(RULE_IMPLICIT_BEHAVIOR).
     }
+
+    public Map<String, Action> getAllActions() {
+        Map<String, Action> result = new HashMap<>();
+        for (Trigger rule: rules.values()) {
+            List<Action> actions = rule.actions;
+            for (Action action: actions) {
+                result.put(action.id, action);
+            }
+        }
+        return result;
+    }
 }

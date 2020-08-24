@@ -65,7 +65,6 @@ public class ConflictSolver {
 
                 success = true;
             } else if (action.type.equals("CREATE ACTION")) {
-                // TODO fill in create action
                 System.out.println("Create actions");
 
                 String actionID = action.values.actionID;
@@ -80,8 +79,7 @@ public class ConflictSolver {
                         LightOnAction lightOnAction = new LightOnAction(description, entity_id, color, true);
                         List<HassioState> lightOnState = lightOnAction.simulate(new HassioRuleExecutionEvent("", datetime), null);
                         if (!lightOnState.isEmpty()) {
-                            ContextManager.getInstance().getActionsManager().addAction(lightOnAction);
-                            ContextManager.getInstance().getActionsManager().addActionExecution(lightOnAction.id, lightOnState.get(0).context.id);
+                            ContextManager.getInstance().getActionExecutions().addActionExecution(lightOnAction, lightOnState.get(0).context.id);
                             ContextManager.getInstance().getHassioDeviceManager().getStateScheduler().scheduleState(lightOnState.get(0));
                         }
                         break;
@@ -89,8 +87,7 @@ public class ConflictSolver {
                         LightOffAction lightOffAction = new LightOffAction(description, entity_id);
                         List<HassioState> lightOffState = lightOffAction.simulate(new HassioRuleExecutionEvent("", datetime), null);
                         if (!lightOffState.isEmpty()) {
-                            ContextManager.getInstance().getActionsManager().addAction(lightOffAction);
-                            ContextManager.getInstance().getActionsManager().addActionExecution(lightOffAction.id, lightOffState.get(0).context.id);
+                            ContextManager.getInstance().getActionExecutions().addActionExecution(lightOffAction, lightOffState.get(0).context.id);
                             ContextManager.getInstance().getHassioDeviceManager().getStateScheduler().scheduleState(lightOffState.get(0));
                         }
                         break;

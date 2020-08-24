@@ -25,13 +25,13 @@ abstract public class Trigger {
     /* Mathias adding mute properties
     *  It should be possible to have multiple start and stop times, so a list should be kept
      */
-    @JsonDeserialize(using = HassioDateDeserializer.class)
-    @JsonSerialize(using = HassioDateSerializer.class)
-    @JsonProperty("start_time_mute") public Date startTimeMute;
+    //@JsonDeserialize(using = HassioDateDeserializer.class)
+    //@JsonSerialize(using = HassioDateSerializer.class)
+    @JsonProperty("start_time_mute") public List<Date> startingTimesMute;
 
-    @JsonDeserialize(using = HassioDateDeserializer.class)
-    @JsonSerialize(using = HassioDateSerializer.class)
-    @JsonProperty("stop_time_mute") public Date stopTimeMute;
+    //@JsonDeserialize(using = HassioDateDeserializer.class)
+    //@JsonSerialize(using = HassioDateSerializer.class)
+    @JsonProperty("stop_time_mute") public List<Date> stoppingTimesMute;
 
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
@@ -41,8 +41,8 @@ abstract public class Trigger {
         this.offset = 0;
         this.enabled = true;
         this.available = true;
-        this.startTimeMute = null;
-        this.stopTimeMute = null;
+        this.startingTimesMute = new ArrayList<>();
+        this.stoppingTimesMute = new ArrayList<>();
     }
 
     public void setTitle(String title) {
@@ -108,13 +108,15 @@ abstract public class Trigger {
 
     /*MATHIAS*/
     public boolean isEnabled(Date currentTime){
-        if (startTimeMute != null && currentTime.compareTo(startTimeMute) >= 0 && enabled) {
-            enabled = false;
+        boolean isEnabled = enabled;
+        for (int i = 0; i < startingTimesMute.size(); i++) {
+            Date startTime = startingTimesMute.get(i);
+            Date stopTime = stoppingTimesMute.get(i);
+            if (currentTime.compareTo(startTime) >= 0 && currentTime.compareTo(stopTime) <= 0) {
+                isEnabled = false;
+            }
         }
-        if (stopTimeMute != null && currentTime.compareTo(stopTimeMute) > 0 && !enabled) {
-            enabled = true;
-        }
-        return enabled;
+        return isEnabled;
     }
 
     @Override

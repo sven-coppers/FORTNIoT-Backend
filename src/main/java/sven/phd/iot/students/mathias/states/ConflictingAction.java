@@ -12,6 +12,11 @@ public class ConflictingAction {
     @JsonProperty("action_id") public String action_id;
     @JsonProperty("rule_id") public String rule_id;
 
+    // For deserialization
+    public ConflictingAction(){
+
+    }
+
     public ConflictingAction(String action_id, String rule_id) {
         this.action_id = action_id;
         this.rule_id = rule_id;

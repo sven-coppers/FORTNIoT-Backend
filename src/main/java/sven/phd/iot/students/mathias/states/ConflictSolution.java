@@ -1,6 +1,8 @@
 package sven.phd.iot.students.mathias.states;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sven.phd.iot.ContextManager;
 import sven.phd.iot.rules.Action;
 
 import java.util.ArrayList;
@@ -42,6 +44,11 @@ public class ConflictSolution {
         }
     }
 
+    public void setConflictingActions(List<ConflictingAction> conflictingActions) {
+        this.conflictingActions = conflictingActions;
+        this.updateSolutionID();
+    }
+
     public void addConflictingAction(ConflictingAction action) {
         this.conflictingActions.add(action);
         this.updateSolutionID();
@@ -57,6 +64,30 @@ public class ConflictSolution {
         } else {
             this.activeActions.add(action);
         }
+    }
+
+    public void setSnoozedActions(List<ConflictingAction> snoozedActions) {
+        this.snoozedActions = snoozedActions;
+    }
+
+    public void setActiveActions(List<ConflictingAction> activeActions) {
+        this.activeActions = activeActions;
+    }
+
+    public void setCustomActions(List<Action> customActions) {
+        this.customActions = customActions;
+    }
+
+    public List<ConflictingAction> getConflictingActions() {
+        return this.conflictingActions;
+    }
+
+    public List<ConflictingAction> getSnoozedActions() {
+        return snoozedActions;
+    }
+
+    public List<ConflictingAction> getActiveActions() {
+        return activeActions;
     }
 
     public boolean isSnoozed(ConflictingAction action) {
@@ -76,5 +107,17 @@ public class ConflictSolution {
 
     public List<Action> getCustomActions() {
         return this.customActions;
+    }
+
+    @JsonIgnore
+    public boolean isRedundancySolution() {
+        Action comparingAction = ContextManager.getInstance().getActionById(conflictingActions.get(0).action_id);
+        for (ConflictingAction conflictingAction : conflictingActions) {
+            Action action = ContextManager.getInstance().getActionById(conflictingAction.action_id);
+            if (!action.equals(comparingAction) && !action.isSimilar(comparingAction)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

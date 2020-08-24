@@ -33,7 +33,7 @@ abstract public class Action {
     @JsonProperty("id") public String id;
     @JsonProperty("description") public String description;
     @JsonProperty("enabled") public Boolean enabled;
-    @JsonProperty("action_name") public String actionName; // TODO this is unnecessary given the jsonSubTypes
+    @JsonProperty("action_name") public String actionName; // TODO this is unnecessary when using the jsonSubTypes
 
     @JsonProperty("start_time_disable") public List<Date> startingTimesDisable;
 
@@ -67,6 +67,9 @@ abstract public class Action {
 
     /*MATHIAS*/
     public boolean onSameDevice(Action other) { return id.equals(other.id); }
+
+    /*MATHIAS*/
+    public boolean isSimilar(Action other) { return other.description.equals(description); }
 
     /*MATHIAS*/
     public boolean isEnabled(Date currentTime) {

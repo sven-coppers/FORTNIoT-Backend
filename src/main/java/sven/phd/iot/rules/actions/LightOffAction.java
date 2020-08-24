@@ -55,4 +55,19 @@ public class LightOffAction extends Action {
 
         return false;
     }
+
+    @Override
+    public boolean isSimilar(Action other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || (this.getClass() != other.getClass() && LightOnAction.class != other.getClass())) {
+            return false;
+        }
+        if (this.getClass() == other.getClass()) {
+            return this.deviceIdentifier.equals(((LightOffAction) other).deviceIdentifier);
+        }
+
+        return false;
+    }
 }

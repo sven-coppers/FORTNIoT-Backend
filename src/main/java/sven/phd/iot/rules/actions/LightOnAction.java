@@ -88,4 +88,27 @@ public class LightOnAction extends Action {
 
         return false;
     }
+
+    @Override
+    public boolean isSimilar(Action other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || (this.getClass() != other.getClass() && LightOffAction.class != other.getClass())) {
+            return false;
+        }
+        if (this.getClass() == other.getClass()) {
+            boolean result = true;
+            if (!this.deviceIdentifier.equals(((LightOnAction) other).deviceIdentifier)) {
+                result = false;
+            }
+            int rgb = this.color.getRGB();
+            if (this.color.getRGB() != ((LightOnAction) other).color.getRGB()) {
+                result = false;
+            }
+            return result;
+        }
+
+        return false;
+    }
 }

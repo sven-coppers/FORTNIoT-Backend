@@ -1,5 +1,6 @@
 package sven.phd.iot.predictions;
 
+import sven.phd.iot.ContextManager;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.scenarios.cases.InconsistencyDevices;
@@ -18,19 +19,26 @@ public class ConflictSolutionManager {
         this.conflictSolutionList = new ArrayList<>();
 
         ConflictSolution testConflictSolution = new ConflictSolution(InconsistencyDevices.LIVING_SPOTS);
-
+/*
         ConflictingAction lichtOffAction = new ConflictingAction("actionId3", "rule.nobody_home_lights");
         ConflictingAction lichtOnAction = new ConflictingAction("actionId5", "rule.blinds_up");
+  */
+        // temporary test
+        ConflictingAction lichtOffAction = new ConflictingAction("actionId3", "rule.nobody_home_lights");
+        ConflictingAction lichtOnAction = new ConflictingAction("actionId1", "rule.sun_set");
+        ConflictingAction lichtOnAction2 = new ConflictingAction("actionId10", "rule.test_trigger_living_spots");
 
         testConflictSolution.addConflictingAction(lichtOffAction);
         testConflictSolution.addConflictingAction(lichtOnAction);
+        testConflictSolution.addConflictingAction(lichtOnAction2);
 
         testConflictSolution.snoozeAction(lichtOffAction, true);
         testConflictSolution.snoozeAction(lichtOnAction, true);
+        testConflictSolution.snoozeAction(lichtOnAction2, true);
 
         testConflictSolution.addSolvingAction(new LightOnAction("Custom solution action", InconsistencyDevices.LIVING_SPOTS, Color.GREEN, true));
 
-        this.addSolution(testConflictSolution);
+        //this.addSolution(testConflictSolution);
     }
 
     public void addSolution(ConflictSolution conflictSolution) {
@@ -73,5 +81,19 @@ public class ConflictSolutionManager {
         }
 
         return null;
+    }
+
+    public void removeRedundancySolutions(){
+        List<ConflictSolution> removeList = new ArrayList<>();
+        for (ConflictSolution solution : conflictSolutionList) {
+            if (solution.isRedundancySolution()) {
+                removeList.add(solution);
+            }
+        }
+        conflictSolutionList.removeAll(removeList);
+    }
+
+    public void cleanSolutions() {
+        conflictSolutionList.clear();
     }
 }

@@ -148,7 +148,6 @@ public class Future {
 
     /**
      * Add a future conflict solution to the list
-     * // TODO: review when needed
      * @param newConflictSolution
      */
     public void addFutureConflictSolution(ConflictSolution newConflictSolution) {

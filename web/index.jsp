@@ -64,6 +64,8 @@
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/solutions/future/light.hue_color_spot_2">mathias/solutions/future/{id}</a> Get the future conflict solutions for the device with {id}, e.g. 'light.hue_color_spot_2'</li>
       <li><span class="method">POST</span> <a class="uri" href="api/mathias/solutions">mathias/solutions</a> Set solution for conflicts</li>
       <li><span class="method">POST</span> <a class="uri" href="api/mathias/solutions/remove">mathias/solutions/remove</a> Remove solution for conflicts</li>
+      <li><span class="method">POST</span> <a class="uri" href="api/mathias/solutions/update">mathias/solutions/update</a> Update solution for conflicts</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/mathias/solutions/clean">mathias/solutions/clean</a> Clean solutions</li>
     </ul>
     </div>
   </body>

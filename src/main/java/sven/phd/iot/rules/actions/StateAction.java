@@ -33,4 +33,19 @@ public class StateAction extends Action {
     public String getDeviceID() {
         return this.deviceIdentifier;
     }
+
+    @Override
+    public boolean isSimilar(Action other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || (this.getClass() != other.getClass() && LightOnAction.class != other.getClass())) {
+            return false;
+        }
+        if (this.getClass() == other.getClass()) {
+            return (this.deviceIdentifier.equals(((StateAction) other).deviceIdentifier) && this.newState.equals(((StateAction) other).newState));
+        }
+
+        return false;
+    }
 }

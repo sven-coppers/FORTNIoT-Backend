@@ -57,7 +57,23 @@ public class SolutionResource {
         response.response = "Successfully removed solution";
         return response;
     }
+
     // TODO ADD updateConflictSolution
+    @Path("update/")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public HassioSolutionResponse updateConflictSolution(ConflictSolution conflictSolutionRequest)  {
+        for (Action action : conflictSolutionRequest.getCustomActions()) {
+            action.generateNewID();
+        }
+        ContextManager.getInstance().updateConflictSolution(conflictSolutionRequest);
+
+        HassioSolutionResponse response = new HassioSolutionResponse();
+        response.success = true;
+        response.response = "Successfully updated solution";
+        return response;
+    }
 
     /**
      * Get the conflict solutions in the future.
@@ -81,5 +97,11 @@ public class SolutionResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<ConflictSolution> getConflictSolutionsFuture(@PathParam("id") String id) {
         return new ArrayList<>(); //ContextManager.getInstance().getFutureConflictSolutions(id);
+    }
+
+    @Path("clean/")
+    @GET
+    public void cleanSolutions() {
+        ContextManager.getInstance().cleanSolutions();
     }
 }

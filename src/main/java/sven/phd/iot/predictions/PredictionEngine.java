@@ -61,7 +61,6 @@ public class PredictionEngine {
      */
     private Future predictFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
         Future future = new Future();
-        future.setFutureConflictSolutions(solutionManager.getSolutions());
 
         // Initialise the queue with changes we already know
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
@@ -97,12 +96,6 @@ public class PredictionEngine {
         }
 
         System.out.println("Predictions updated: " + future.getFutureStates().size());
-
-        // MATHIAS TESTING
-        /*
-        FutureConflictDetector detector = new FutureConflictDetector();
-        future.addFutureConflict(detector.getFutureConflicts(future));
-         */
 
         return future;
     }
@@ -193,12 +186,58 @@ public class PredictionEngine {
     }
 
     /**
+     * Filter the list of inconsistency conflicts given the full causal stack
+     * @param causalStack
+     * @param conflictsMapping
+     */
+    private void filterConflicts(CausalStack causalStack, HashMap<String,  List<Conflict>> conflictsMapping) {
+        if(causalStack.isEmpty()) return;
+
+        System.out.println("Filtering conflicts on the causal stack");
+
+        // Group all potential changes by entityID
+        List<CausalNode> potentialChanges = causalStack.flatten();
+        List<String> alreadyVisited = new ArrayList<>();
+        List<String> conflictingChangesEntities = new ArrayList<>();
+
+        for(int i = 0; i < potentialChanges.size(); ++i) {
+            List<CausalNode> conflictingChanges = new ArrayList<>();
+            String initialEntityID = potentialChanges.get(i).getState().entity_id;
+
+            // Don't visit an entity multiple times
+            if (!alreadyVisited.contains(initialEntityID)) {
+                alreadyVisited.add(initialEntityID);
+
+                for (int j = i; j < potentialChanges.size(); ++j) {
+                    if (potentialChanges.get(j).getState().entity_id.equals(initialEntityID)) {
+                        conflictingChanges.add(potentialChanges.get(j));
+                    }
+                }
+
+                if (conflictingChanges.size() > 1) {
+                    conflictingChangesEntities.add(initialEntityID);
+                }
+            }
+        }
+
+        List<Conflict> removeList = new ArrayList<>();
+        for (Conflict conflict : conflictsMapping.get("INCONSISTENCY")) {
+            if (!conflictingChangesEntities.contains(conflict.entity_id))
+                removeList.add(conflict);
+        }
+        List<Conflict> filteredConflictList = conflictsMapping.get("INCONSISTENCY");
+        filteredConflictList.removeAll(removeList);
+        conflictsMapping.put("INCONSISTENCY", filteredConflictList);
+    }
+
+    /**
      * Detect conflicts and update conflict list
      * @param causalStack
-     * @param conflicts, this can be updated with new found conflicts
+     * @param conflictsMapping, this can be updated with new found conflicts
+     * @param flags, [0] find Loops, [1] find Inconsistencies, [2] find Redundancies
      * @return true when a conflict is found
      */
-    private boolean detectConflicts(CausalStack causalStack, List<Conflict> conflicts, HashMap<CausalNode, List<CausalNode>> causalityMapping) {
+    private boolean detectConflicts(CausalStack causalStack, HashMap<String,  List<Conflict>> conflictsMapping, HashMap<CausalNode, List<CausalNode>> causalityMapping, boolean[] flags) {
         if(causalStack.isEmpty()) return false;
 
         System.out.println("Detecting conflicts on the causal stack");
@@ -228,33 +267,25 @@ public class PredictionEngine {
                 if (conflictingChanges.size() > 1) {
                     System.out.println("CONFLICT DETECTED FOR " + initialEntityID);
                     // Specify conflict as INCONSISTENCY, REDUNDANCY or LOOP
-                    // Find existing conflict on this device
-                    Conflict existingConflict = null;
-                    for (Conflict conflict : conflicts) {
-                        if (conflict.entity_id.equals(initialEntityID)) {
-                            existingConflict = conflict;
-                            break;
-                        }
-                    }
-                    // If not, create new conflict and add to list of conflicts
-                    if (existingConflict == null) {
-                        // A loop can only exist here!!
-                        // Find REDUNDANCIES
-                        HashMap<CausalNode, List<CausalNode>> redundancyMapping = detectRedundancy(conflictingChanges);
-                        // Find LOOPS and solve them
-                        List<CausalNode> loopingNodes = detectLoop(causalStack, conflictingChanges, causalityMapping);
-                        if (!loopingNodes.isEmpty()) {
-                            // When loop is found, add conflict and create solution immediately
-                            Conflict conflict = new Conflict("Loop_"+initialEntityID, loopingNodes);
-                            conflicts.add(conflict);
-                            solveLoop(conflict);
-                        } else {
-                            // INCONSISTENCY found
-                            conflicts.add(new Conflict(initialEntityID, conflictingChanges));
-                        }
+                    // Find LOOPS
+                    List<CausalNode> loopingNodes = detectLoop(causalStack, conflictingChanges, causalityMapping);
+                    if (!loopingNodes.isEmpty() && flags[0]) {
+                        // LOOP found
+                        resolveLoop(initialEntityID, loopingNodes, conflictsMapping);
                         newConflictFound = true;
                     } else {
-                        newConflictFound = existingConflict.updateConflict(conflictingChanges);
+                        if (flags[1]) {
+                            // INCONSISTENCY found
+                            newConflictFound = resolveInconsistency(initialEntityID, conflictingChanges, conflictsMapping);
+                        }
+                        if (flags[2]) {
+                            // Find REDUNDANCIES
+                            HashMap<CausalNode, List<CausalNode>> redundancyMapping = detectRedundancy(conflictingChanges);
+                            if (!redundancyMapping.isEmpty()) {
+                                // REDUNDANCIES found
+                                newConflictFound = resolveRedundancy(initialEntityID, redundancyMapping, conflictsMapping);
+                            }
+                        }
                     }
                 }
 
@@ -317,16 +348,130 @@ public class PredictionEngine {
         return new ArrayList<>();
     }
 
-    private void solveLoop(Conflict conflict) {
+    private void resolveLoop(String initialEntityID, List<CausalNode> loopingNodes, HashMap<String,  List<Conflict>> conflictsMapping) {
+        System.out.println("LOOP DETECTED FOR " + initialEntityID);
+        // LOOP found, add conflict and create solution immediately
+        Conflict conflict = new Conflict(initialEntityID, loopingNodes);
+        List<Conflict> loopingConflicts = conflictsMapping.get("LOOP");
+        loopingConflicts.add(conflict);
+        conflictsMapping.put("LOOP", loopingConflicts);
+        solveLoopConflict(conflict);
+    }
+
+    private void solveLoopConflict(Conflict conflict) {
+        // Snooze last in loop
         List<ConflictingAction> snoozedActions = new ArrayList<>();
-        snoozedActions.add(conflict.conflictingActions.get(conflict.conflictingActions.size() - 1));
-        List<ConflictingAction> activeActions = conflict.conflictingActions.subList(0, conflict.conflictingActions.size() - 1);
+        snoozedActions.add(conflict.getConflictingActions().get(conflict.getConflictingActions().size() - 1));
+        // Actively select the first in loop
+        List<ConflictingAction> activeActions = new ArrayList<>();
+        activeActions.addAll(conflict.getConflictingActions().subList(0, conflict.getConflictingActions().size()-1));
 
         ConflictSolution solution = new ConflictSolution(conflict.entity_id);
-        solution.conflictingActions = conflict.conflictingActions;
-        solution.snoozedActions = snoozedActions;
-        solution.activeActions = activeActions;
+        solution.setConflictingActions(conflict.getConflictingActions());
+        solution.setSnoozedActions(snoozedActions);
+        solution.setActiveActions(activeActions);
         solutionManager.addSolution(solution);
+    }
+
+    private HashMap<CausalNode, List<CausalNode>> detectRedundancy(List<CausalNode> conflictingChanges) {
+        HashMap<CausalNode, List<CausalNode>> redundancyMapping = new HashMap<>();
+        for (int i = 0; i < conflictingChanges.size(); ++i) {
+            CausalNode comparingNode = conflictingChanges.get(i);
+            List<CausalNode> redundancies = new ArrayList<>();
+            for (int j = i+1; j < conflictingChanges.size(); ++j) {
+                CausalNode node = conflictingChanges.get(j);
+                if (!node.equals(comparingNode) && node.getState().isSimilar(comparingNode.getState())) {
+                    if (!redundancies.contains(node)) {
+                        redundancies.add(node);
+                    }
+                }
+            }
+            if (!redundancies.isEmpty()) {
+                redundancyMapping.put(comparingNode, redundancies);
+            }
+        }
+        return redundancyMapping;
+    }
+
+    private boolean resolveRedundancy(String initialEntityID, HashMap<CausalNode, List<CausalNode>> redundancyMapping, HashMap<String,  List<Conflict>> conflictsMapping) {
+        boolean newConflictFound = false;
+        System.out.println("REDUNDANCY DETECTED FOR " + initialEntityID);
+        // REDUNDANCIES found, for every redundancy: find existing conflict, add conflict and create solution immediately
+        for (CausalNode key : redundancyMapping.keySet()) {
+            List<CausalNode> redundancyList = new ArrayList<>();
+            redundancyList.add(key);
+            redundancyList.addAll(redundancyMapping.get(key));
+            boolean temp = false;
+
+            // Because redundancies are not solved immediately, there are existing redundancy conflicts
+            // Find existing conflict
+            Conflict existingRedundancy = null;
+            for (Conflict redundancyConflict :  conflictsMapping.get("REDUNDANCY")) {
+                if (redundancyConflict.containsSameActions(redundancyList)) {
+                    existingRedundancy = redundancyConflict;
+                    break;
+                }
+            }
+            // Add conflict
+            if (existingRedundancy != null) {
+                temp = existingRedundancy.updateConflict(redundancyList);
+            } else {
+                Conflict newRedundancy = new Conflict(initialEntityID, redundancyList);
+                List<Conflict> redundancyConflicts = conflictsMapping.get("REDUNDANCY");
+                redundancyConflicts.add(newRedundancy);
+                conflictsMapping.put("REDUNDANCY", redundancyConflicts);
+                newConflictFound = true;
+            }
+
+            if (temp) {
+                newConflictFound = true;
+            }
+        }
+        return newConflictFound;
+    }
+
+    private void solveRedundancyConflict(Conflict conflict) {
+        List<ConflictingAction> activeActions = new ArrayList<>();
+        activeActions.add(conflict.getConflictingActions().get(0));
+        List<ConflictingAction> snoozedActions = conflict.getConflictingActions().subList(1, conflict.getConflictingActions().size());
+
+        ConflictSolution solution = new ConflictSolution(conflict.entity_id);
+        solution.setConflictingActions(conflict.getConflictingActions());
+        solution.setSnoozedActions(snoozedActions);
+        solution.setActiveActions(activeActions);
+        solutionManager.addSolution(solution);
+    }
+
+    /**
+     * Resolve inconsistency conflicts
+     * @param initialEntityID
+     * @param conflictingChanges
+     * @param conflictsMapping
+     * @return true when new conflict is resolved
+     */
+    private boolean resolveInconsistency(String initialEntityID, List<CausalNode> conflictingChanges, HashMap<String,  List<Conflict>> conflictsMapping) {
+        boolean newConflictFound = false;
+        System.out.println("INCONSISTENCY DETECTED FOR " + initialEntityID);
+        // INCONSISTENCY found, find existing conflict and add conflict
+        // Find existing conflict
+        Conflict existingInconsistency = null;
+        for (Conflict inconsistencyConflict :  conflictsMapping.get("INCONSISTENCY")) {
+            if (inconsistencyConflict.entity_id.equals(initialEntityID)) {
+                existingInconsistency = inconsistencyConflict;
+                break;
+            }
+        }
+        // Add conflict
+        if (existingInconsistency != null) {
+            newConflictFound = existingInconsistency.updateConflict(conflictingChanges);
+        } else {
+            List<Conflict> inconsistencyConflicts = conflictsMapping.get("INCONSISTENCY");
+            inconsistencyConflicts.add(new Conflict(initialEntityID, conflictingChanges));
+            conflictsMapping.put("INCONSISTENCY", inconsistencyConflicts);
+            newConflictFound = true;
+        }
+
+        return newConflictFound;
     }
 
     /**
@@ -360,26 +505,41 @@ public class PredictionEngine {
     /**
      * Find solutions and apply them if possible
      * @param newDate
-     * @param conflicts
+     * @param conflictsMapping
      * @param lastStates
      * @param firstLayer
      * @param snoozedActions
+     * @param future
      */
-    private void applySolution(Date newDate, List<Conflict> conflicts, HashMap<String, HassioState> lastStates, CausalLayer firstLayer, List<ConflictingAction> snoozedActions) {
+    private void applySolution(Date newDate, HashMap<String, List<Conflict>> conflictsMapping, HashMap<String, HassioState> lastStates, CausalLayer firstLayer, List<ConflictingAction> snoozedActions, Future future, boolean[] flags) {
         List<Conflict> removeList = new ArrayList<>();
+        List<Conflict> conflicts = new ArrayList<>();
+        for (List<Conflict> values : conflictsMapping.values())
+            conflicts.addAll(values);
+
+        // Find solution for conflicts and apply them
         for (Conflict conflict : conflicts) {
-            ConflictSolution potentialSolution = solutionManager.getSolutionForConflict(conflict);
+            ConflictSolution potentialSolution = null;
+            if ((flags[0] && conflict.isLoop()) || (flags[2] && conflict.isRedundancy()) || flags[1]) {
+                potentialSolution = solutionManager.getSolutionForConflict(conflict);
+            }
 
             if (potentialSolution != null) {
                 SolutionExecutionEvent solutionExecution = this.applySolution(newDate, potentialSolution, lastStates, firstLayer, snoozedActions);
                 //future.addExecutionEvent(solutionExecution); This is not necessary. CommitPredictedStates already adds all the states and executions to the future
+                if (!future.getFutureConflictSolutions().contains(potentialSolution))
+                    future.addFutureConflictSolution(potentialSolution);
                 System.out.println("Solution applied, rerun required");
                 removeList.add(conflict);
                 // TODO: A solution should only be applied once?
             }
         }
-        for (Conflict conflict : removeList) {
-            conflicts.remove(conflict);
+
+        // Remove solved conflicts
+        for (String key : conflictsMapping.keySet()) {
+            List<Conflict> conflictList = conflictsMapping.get(key);
+            conflictList.removeAll(removeList);
+            conflictsMapping.put(key, conflictList);
         }
     }
 
@@ -424,9 +584,15 @@ public class PredictionEngine {
     private CausalStack deduceStack(Date newDate, CausalLayer firstLayer, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions, Future future) {
         System.out.println("Deducing new causal stack");
         CausalStack causalStack = null;
-        List<Conflict> conflicts = new ArrayList<>();
+        HashMap<String, List<Conflict>> conflictsMapping = new HashMap<String,  List<Conflict>>();
         HashMap<CausalNode, List<CausalNode>> causalityMapping = new HashMap<>();
         boolean runRequired = true;
+        boolean lastRun = true;
+        boolean[] flags = {true, true, false};
+
+        conflictsMapping.put("INCONSISTENCY", new ArrayList<>());
+        conflictsMapping.put("REDUNDANCY", new ArrayList<>());
+        conflictsMapping.put("LOOP", new ArrayList<>());
 
         while(runRequired) {
             causalStack = new CausalStack();
@@ -437,22 +603,46 @@ public class PredictionEngine {
 
             // Determine future (could contain inconsistencies and loops)
             while (!newLayer.isEmpty() && !runRequired) {
+                List<Conflict> conflicts = new ArrayList<>();
+                for (List<Conflict> values : conflictsMapping.values())
+                    conflicts.addAll(values);
+
                 newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions, conflicts, causalityMapping);
 
                 if (!newLayer.isEmpty()) {
                     causalStack.addLayer(newLayer);
 
                     // Detect conflicts (inconsistencies and loops)
-                    runRequired = detectConflicts(causalStack, conflicts, causalityMapping);
+                    runRequired = detectConflicts(causalStack, conflictsMapping, causalityMapping, flags);
                     // If conflicts are found, find solution and apply it. Rerun everything!
                     if (runRequired) {
-                        applySolution(newDate, conflicts, lastStates, firstLayer, snoozedActions);
+                        applySolution(newDate, conflictsMapping, lastStates, firstLayer, snoozedActions, future, flags);
                     }
+                } else if (lastRun){
+                    // Resolve all redundancy conflicts, apply solution and rerun
+                    flags = new boolean[]{false, false, true};
+                    // Detect conflicts (redundancies)
+                    runRequired = detectConflicts(causalStack, conflictsMapping, causalityMapping, flags);
+                    // If conflicts are found, find solution and apply it. Rerun everything!
+                    if (runRequired) {
+                        for (Conflict conflict : conflictsMapping.get("REDUNDANCY")) {
+                            solveRedundancyConflict(conflict);
+                        }
+                        applySolution(newDate, conflictsMapping, lastStates, firstLayer, snoozedActions, future, flags);
+                    }
+
+                    // Filter all conflicts, making sure that only true conflicts remain
+                    filterConflicts(causalStack, conflictsMapping);
+
+                    lastRun = false;
                 }
             }
         }
 
         // Add all conflicts to the future
+        List<Conflict> conflicts = new ArrayList<>();
+        for (List<Conflict> values : conflictsMapping.values())
+            conflicts.addAll(values);
         commitConflicts(conflicts, future);
 
         return causalStack;

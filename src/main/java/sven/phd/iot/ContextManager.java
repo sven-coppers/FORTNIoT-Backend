@@ -309,8 +309,22 @@ public class ContextManager {
     public void removeConflictSolution(ConflictSolution conflictSolutionRequest) {
         Conflict conflict = new Conflict();
         conflict.entity_id = conflictSolutionRequest.entity_id;
-        conflict.conflictingActions = conflictSolutionRequest.conflictingActions;
+        conflict.setConflictingActions(conflictSolutionRequest.getConflictingActions());
         conflictSolutionManager.removeSolution(conflict);
+        this.updateFuturePredictions();
+    }
+
+    public void updateConflictSolution(ConflictSolution conflictSolutionRequest) {
+        Conflict conflict = new Conflict();
+        conflict.entity_id = conflictSolutionRequest.entity_id;
+        conflict.setConflictingActions(conflictSolutionRequest.getConflictingActions());
+        conflictSolutionManager.removeSolution(conflict);
+        conflictSolutionManager.addSolution(conflictSolutionRequest);
+        this.updateFuturePredictions();
+    }
+
+    public void cleanSolutions() {
+        conflictSolutionManager.cleanSolutions();
         this.updateFuturePredictions();
     }
 }

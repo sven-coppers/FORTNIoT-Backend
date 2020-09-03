@@ -56,7 +56,7 @@ public class ScenarioManager {
         this.ruleSets.put("loops_uc1", new LoopyRules1());
         this.ruleSets.put("redundancy_uc1", new RedundancyRules1());
         this.ruleSets.put("redundancy_uc2", new RedundancyRules2());
-
+        this.ruleSets.put("bedroom_temperature_rules_conflict", new BedroomTempRulesConflict());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -78,6 +78,7 @@ public class ScenarioManager {
         this.deviceSets.put("inconsistency", new InconsistencyDevices());
         this.deviceSets.put("loops", new LoopyDevices());
         this.deviceSets.put("redundancy", new RedundancyDevices());
+        this.deviceSets.put("bedroom_temperature", new BedroomTempDevices());
 
         this.activeStateSets = new ArrayList<>();
         this.stateSets = new HashMap<>();
@@ -91,6 +92,7 @@ public class ScenarioManager {
         this.stateSets.put("routine_weekend", new RoutineWeekendStates());
         this.stateSets.put("routine_weekend_late", new RoutineWeekendLateStates());
         this.stateSets.put("routine_home", new RoutineHomeStates());
+        this.stateSets.put("routine_sleeping", new RoutineSleepingStates());
         this.stateSets.put("shower_temperature", new ShowerTempStates());
         this.stateSets.put("sun_day_night_day", new VirtualSunStates());
         this.stateSets.put("sun_night_day_night", new VirtualSunStatesNight());
@@ -118,7 +120,7 @@ public class ScenarioManager {
         this.stateSets.put("loops_uc1", new LoopyStates1());
         this.stateSets.put("redundancy_uc1", new RedundancyStates1());
         this.stateSets.put("redundancy_uc2", new RedundancyStates2());
-
+        this.stateSets.put("bedroom_temperature_summer", new BedroomTempStatesSummer());
 
         // MATHIAS SETUP
         this.activeRuleSets.add("light_rules");
@@ -129,7 +131,6 @@ public class ScenarioManager {
         this.activeStateSets.add("light_simple");
         this.activeStateSets.add("sun_day_night_day");
         this.activeStateSets.add("sun_night_day_night");
-
 
         this.presets = new HashMap<>();
         //                              Preset(List<String> newDeviceSets, List<String> newStateSets, List<String> newRuleSets, List<String> conflictVerifiers)
@@ -156,7 +157,7 @@ public class ScenarioManager {
         this.presets.put("race_condition", new Preset(Arrays.asList("race_condition"), Arrays.asList("race_condition"), Arrays.asList("race_condition"), Arrays.asList()));
         this.presets.put("race_condition_2_min", new Preset(Arrays.asList("race_condition"), Arrays.asList("race_condition_2_min"), Arrays.asList("race_condition"), Arrays.asList()));
         this.presets.put("inconsistencies", new Preset(Arrays.asList("inconsistency"), Arrays.asList("inconsistency"), Arrays.asList("inconsistency"), Arrays.asList()));
-        this.presets.put("loops", new Preset(Arrays.asList("loops"), Arrays.asList("loops"), Arrays.asList("loops"), Arrays.asList()));
+        this.presets.put("loops", new Preset(Arrays.asList("loops"), Arrays.asList("loops"), Arrays.asList("loops"), Arrays.asList("")));
         this.presets.put("muc1", new Preset(Arrays.asList("inconsistency"), Arrays.asList("inconsistency_uc1"), Arrays.asList("inconsistency_uc1"), Arrays.asList()));
         this.presets.put("muc2", new Preset(Arrays.asList("inconsistency"), Arrays.asList("inconsistency_uc2"), Arrays.asList("inconsistency_uc2"), Arrays.asList()));
         this.presets.put("muc3", new Preset(Arrays.asList("redundancy"), Arrays.asList("redundancy_uc1"), Arrays.asList("redundancy_uc1"), Arrays.asList()));
@@ -166,6 +167,8 @@ public class ScenarioManager {
         this.presets.put("cleaning_v2", new Preset(Arrays.asList("cleaning_devices", "routine_devices"), Arrays.asList("cleaning_idle", "routine_workday"), Arrays.asList("cleaning_start", "cleaning_stop"), Arrays.asList()));
         this.presets.put("cleaning_v3", new Preset(Arrays.asList("cleaning_devices", "routine_devices"), Arrays.asList("cleaning_ongoing", "routine_workday"), Arrays.asList("cleaning_start", "cleaning_stop"), Arrays.asList()));
         this.presets.put("cleaning_v4", new Preset(Arrays.asList("cleaning_devices", "routine_devices"), Arrays.asList("cleaning_idle", "routine_weekend"), Arrays.asList("cleaning_start", "cleaning_stop"), Arrays.asList()));
+        this.presets.put("all_conflicts", new Preset(Arrays.asList("light_simple", "smoke", "sun"), Arrays.asList("light_simple", "smoke_idle", "sun_day_night_day"), Arrays.asList("light_simple", "smoke"), Arrays.asList("loops", "inconsistencies", "redundancies")));
+        this.presets.put("conflict_temp", new Preset(Arrays.asList("bedroom_temperature", "routine_devices"), Arrays.asList("bedroom_temperature_summer", "routine_sleeping"), Arrays.asList("bedroom_temperature_rules_conflict"), Arrays.asList("udc_bedroom_temperature")));
     }
 
     public List<String> getRuleSet() {
@@ -190,8 +193,8 @@ public class ScenarioManager {
     }
 
     public void setDeviceSet(List<String> deviceSets) {
-        System.out.print("Device set: ");
-        this.printStringList(deviceSets);
+       // System.out.print("Device set: ");
+      //  this.printStringList(deviceSets);
 
         this.activeDeviceSets.clear();
 
@@ -218,8 +221,8 @@ public class ScenarioManager {
     }
 
     public void setRuleSet(List<String> ruleSets) {
-        System.out.print("Rule sets: ");
-        this.printStringList(ruleSets);
+      //  System.out.print("Rule sets: ");
+     //   this.printStringList(ruleSets);
         
         this.activeRuleSets.clear();
 
@@ -243,8 +246,8 @@ public class ScenarioManager {
         this.stateScheduler.clearScheduledStates();
         this.activeStateSets.clear();
 
-        System.out.print("State sets: ");
-        this.printStringList(stateSets);
+       // System.out.print("State sets: ");
+    //    this.printStringList(stateSets);
         Calendar relativeTime = Calendar.getInstance();
         Date startDate = new Date();
 
@@ -296,7 +299,7 @@ public class ScenarioManager {
     }
 
     private void setConflictVerifiers(List<String> conflictVerifiers) {
-        System.err.println("TODO: Implement conflict verifiers");
+        ContextManager.getInstance().getConflictVerificationManager().setActiveVerifiers(conflictVerifiers);
     }
 
     public List<String> getPresets() {

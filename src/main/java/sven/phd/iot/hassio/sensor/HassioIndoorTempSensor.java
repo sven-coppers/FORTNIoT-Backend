@@ -32,9 +32,6 @@ public class HassioIndoorTempSensor extends HassioSensor {
 
         HassioState thermostatState = hassioStates.get(this.thermostatID);
 
-        if(thermostatState == null) return result;
-
-        double targetTemp = Double.parseDouble(thermostatState.state);
         Date oldDate = hassioStates.get(this.entityID).getLastChanged();
         Long deltaTimeInMilliseconds = newDate.getTime() - oldDate.getTime();
         double deltaTimeInHours = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0 * 60.0);
@@ -64,12 +61,18 @@ public class HassioIndoorTempSensor extends HassioSensor {
             }
         }
 
-        if(allEco && targetTemp < currentTemp && variationRate < 0.0) {
-            newTemp = Math.max(newTemp + variationRate * deltaTimeInHours, targetTemp);
-        } else if(allEco && targetTemp > currentTemp && variationRate > 0.0) {
-            newTemp = Math.min(newTemp + variationRate * deltaTimeInHours, targetTemp);
+        if(thermostatState == null) {
+            newTemp = newTemp + variationRate * deltaTimeInHours;
         } else {
-            //newTemp += variationRate * deltaTimeInHours;
+            double targetTemp = Double.parseDouble(thermostatState.state);
+
+            if(allEco && targetTemp < currentTemp && variationRate < 0.0) {
+                newTemp = Math.max(newTemp + variationRate * deltaTimeInHours, targetTemp);
+            } else if(allEco && targetTemp > currentTemp && variationRate > 0.0) {
+                newTemp = Math.min(newTemp + variationRate * deltaTimeInHours, targetTemp);
+            } else {
+                //newTemp += variationRate * deltaTimeInHours;
+            }
         }
 
         // Give the new state the old date, because it might be changed by another device as well

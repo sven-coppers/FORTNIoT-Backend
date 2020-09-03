@@ -82,6 +82,7 @@ function applyUseCase() {
         rule_set: [],
         device_set: [],
         state_set: [],
+        active_conflict_verifiers: [],
         preset: null
     };
 
@@ -103,6 +104,12 @@ function applyUseCase() {
         }
     });
 
+    $.each($("#conflict_verifier_sets input"), function () {
+        if($(this).prop('checked')) {
+            useCase.active_conflict_verifiers.push($(this).attr("id").replace("conflict_verifier_", ""));
+        }
+    });
+
     applyUseCaseSettings(useCase);
 }
 
@@ -111,6 +118,7 @@ function applyPreset() {
         rule_set: [],
         device_set: [],
         state_set: [],
+        active_conflict_verifiers: [],
         preset: $("select#preset").children("option:selected").val()
     };
 
@@ -304,6 +312,7 @@ function refreshUseCases() {
         $("#rule_sets").empty();
         $("#device_sets").empty();
         $("#state_sets").empty();
+        $("#conflict_verifier_sets").empty();
         $("select#preset").empty();
 
         // Populate
@@ -319,6 +328,10 @@ function refreshUseCases() {
             $("#state_sets").append('<div class="checkbox_option"><input type="checkbox" id="state_set_' + stateSetOption + '" value="state_set_' + stateSetOption + '"><label for="state_set_' + stateSetOption + '">' + stateSetOption + '</label></div>');
         }
 
+        for(let conflictVerifierOption of data["conflict_verify_options"].sort()) {
+            $("#conflict_verifier_sets").append('<div class="checkbox_option"><input type="checkbox" id="conflict_verifier_' + conflictVerifierOption + '" value="conflict_verifier_' + conflictVerifierOption + '"><label for="conflict_verifier_' + conflictVerifierOption + '">' + conflictVerifierOption + '</label></div>');
+        }
+
         for(let presetOption of data["preset_options"].sort()) {
             $("select#preset").append('<option>' + presetOption + '</option>');
         }
@@ -327,6 +340,7 @@ function refreshUseCases() {
         selectRules(data["rule_set"]);
         selectDevices(data["device_set"]);
         selectStates(data["state_set"]);
+        selectConflictVerifiers(data["active_conflict_verifiers"]);
         document.getElementById("preset").value = data["preset"];
     });
 }
@@ -348,7 +362,11 @@ function selectStates(states) {
         $('#state_set_' + stateSetSelection).prop('checked', true);
     }
 }
-
+function selectConflictVerifiers(conflictVerifiers) {
+    for(let conflictVerifier of conflictVerifiers) {
+        $('#conflict_verifier_' + conflictVerifier).prop('checked', true);
+    }
+}
 
 function setRuleProperties(HTMLID, enabled, available) {
     $("#" + HTMLID + "_enabled").prop('checked', enabled);

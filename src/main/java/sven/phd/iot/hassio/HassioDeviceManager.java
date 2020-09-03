@@ -269,7 +269,7 @@ public class HassioDeviceManager implements EventListener {
      * Ask which states change based on the new context to the devices themselves
      * @return
      */
-    public List<ImplicitBehaviorEvent> predictImplictStates(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+    public List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> lastHassioStates) {
         HashMap<String, HassioState> newHassioStates = new HashMap<>();
 
         // Make a copy
@@ -280,9 +280,9 @@ public class HassioDeviceManager implements EventListener {
         List<ImplicitBehaviorEvent> results = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
-                if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-                results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates));
+            results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates));
         }
 
         results = mergeDuplicates(results);

@@ -1,6 +1,7 @@
 package sven.phd.iot;
 
 import sven.phd.iot.api.resources.StateResource;
+import sven.phd.iot.conflicts.ConflictVerificationManager;
 import sven.phd.iot.hassio.updates.ExecutionEvent;
 import sven.phd.iot.predictions.ConflictSolutionManager;
 import sven.phd.iot.hassio.HassioDevice;
@@ -32,6 +33,7 @@ public class ContextManager {
     //private StudyManager studyManager;
     private StudyManagerMathias studyManager;
     private ConflictSolutionManager conflictSolutionManager;
+    private ConflictVerificationManager conflictVerificationManager;
 
     // MATHIAS
     private ActionExecutions actionExecutions;
@@ -43,6 +45,7 @@ public class ContextManager {
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.conflictSolutionManager = new ConflictSolutionManager();
+        this.conflictVerificationManager = new ConflictVerificationManager();
         this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.conflictSolutionManager);
         this.scenarioManager = new ScenarioManager(this);
         //this.studyManager = new StudyManager();
@@ -329,5 +332,9 @@ public class ContextManager {
     public void cleanSolutions() {
         conflictSolutionManager.cleanSolutions();
         this.updateFuturePredictions();
+    }
+
+    public ConflictVerificationManager getConflictVerificationManager() {
+        return conflictVerificationManager;
     }
 }

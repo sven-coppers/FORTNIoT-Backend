@@ -752,6 +752,8 @@ public class PredictionEngine {
         List<CausalNode> result = new ArrayList<>();
 
         List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, states);
+        behaviorEvents.addAll(hassioDeviceManager.predictImplicitStates(newDate, states));
+
         for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
             behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
 

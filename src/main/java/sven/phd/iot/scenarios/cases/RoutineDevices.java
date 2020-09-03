@@ -15,8 +15,8 @@ public class RoutineDevices extends DeviceSet {
 
     @Override
     public void createDevices(ArrayList<HassioDevice> devices) {
-        devices.add(new HassioPerson(PEOPLE_DAD, "Daddy"));
-        devices.add(new HassioPerson(PEOPLE_MOM, "Mommy"));
+        devices.add(new HassioPerson(PEOPLE_DAD, "Father"));
+        devices.add(new HassioPerson(PEOPLE_MOM, "Mother"));
      //   devices.add(new HassioSensor(PEOPLE_HOME_COUNTER, "Family members home"));
         devices.add(new HassioRoutine(ROUTINE, "Routine"));
     }

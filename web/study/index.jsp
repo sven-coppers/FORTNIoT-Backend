@@ -50,7 +50,7 @@
                 <td id="conflict_verifier_sets">
                 </td>
                 <td>
-                    <select id="preset" size="25"></select>
+                    <select id="preset" size="40"></select>
                 </td>
             </tr>
             </tbody>

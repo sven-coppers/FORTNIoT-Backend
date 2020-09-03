@@ -25,7 +25,7 @@ public class StudyResource {
         useCaseRequest.deviceSet = scenarioManager.getDeviceSet();
         useCaseRequest.ruleSet = scenarioManager.getRuleSet();
         useCaseRequest.stateSet = scenarioManager.getStateSet();
-        useCaseRequest.preset = scenarioManager.getPreset();
+        useCaseRequest.preset = scenarioManager.getActivePreset();
 
         useCaseRequest.deviceSetOptions = scenarioManager.getDeviceSetOptions();
         useCaseRequest.ruleSetOptions = scenarioManager.getRuleSetOptions();
@@ -46,7 +46,7 @@ public class StudyResource {
         scenarioManager.setStateSet(useCaseRequest.stateSet);
 
         if(useCaseRequest.preset != null) {
-            scenarioManager.setPreset(useCaseRequest.preset);
+            scenarioManager.setActivePreset(useCaseRequest.preset);
         }
 
         ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();

@@ -1,7 +1,6 @@
 package sven.phd.iot.study;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.scenarios.Exporter;
 
 import java.util.*;
 
@@ -121,7 +120,7 @@ public class StudyManager {
                     lastStart = new Date();
 
                     if(this.tasks.get(i + 1).preset != null) {
-                        ContextManager.getInstance().getScenarioManager().setPreset(this.tasks.get(i + 1).preset);
+                        ContextManager.getInstance().getScenarioManager().setActivePreset(this.tasks.get(i + 1).preset);
                         ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();
                         //Exporter.export(this.getQuestion(this.tasks.get(i + 1).taskID));
                     }

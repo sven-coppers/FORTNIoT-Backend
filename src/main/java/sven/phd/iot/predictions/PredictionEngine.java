@@ -764,7 +764,7 @@ public class PredictionEngine {
     }
 
     /**
-     * Build a hasmap with the last states, updated with all changes that are specific to this branch in the three
+     * Build a hashmap with the last states, updated with all changes that are specific to this branch in the three
      * @param lastStates
      * @return
      */

@@ -129,7 +129,7 @@ public class StudyManagerMathias extends StudyManager {
                     lastStart = new Date();
 
                     if(this.tasks.get(i + 1).preset != null) {
-                        ContextManager.getInstance().getScenarioManager().setPreset(this.tasks.get(i + 1).preset);
+                        ContextManager.getInstance().getScenarioManager().setActivePreset(this.tasks.get(i + 1).preset);
                         ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();
                         //Exporter.export(this.getQuestion(this.tasks.get(i + 1).taskID));
                     }

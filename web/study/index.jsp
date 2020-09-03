@@ -35,6 +35,7 @@
                 <td>Rules</td>
                 <td>Devices</td>
                 <td>States</td>
+                <td>Conflict Verifiers</td>
                 <td>Preset</td>
             </tr>
             </thead>
@@ -45,6 +46,8 @@
                 <td id="device_sets">
                 </td>
                 <td id="state_sets">
+                </td>
+                <td id="conflict_verifier_sets">
                 </td>
                 <td>
                     <select id="preset" size="25"></select>

@@ -18,12 +18,12 @@ public class ScenarioManager {
     private HashMap<String, DeviceSet> deviceSets;
     private HashMap<String, RuleSet> ruleSets;
     private HashMap<String, StateSet> stateSets;
-    private String preset;
+    private HashMap<String, Preset> presets;
 
     private List<String> activeDeviceSets;
     private List<String> activeRuleSets;
     private List<String> activeStateSets;
-    private List<String> presets;
+    private String activePreset;
 
     public ScenarioManager(ContextManager contextManager) {
         System.out.println("StudyManager - Initiating...");
@@ -31,36 +31,6 @@ public class ScenarioManager {
         this.deviceManager = contextManager.getHassioDeviceManager();
         this.stateScheduler = deviceManager.getStateScheduler();
         this.rulesManager = contextManager.getRulesManager();
-
-        this.presets = new ArrayList<>();
-        this.presets.add("tr_v1");
-        this.presets.add("tr_v2");
-        this.presets.add("tr_v3");
-        this.presets.add("tr_v4");
-        this.presets.add("uc1_v1");
-        this.presets.add("uc1_v2");
-        this.presets.add("uc1_v3");
-        this.presets.add("uc1_v4");
-        this.presets.add("uc2_v1");
-        this.presets.add("uc2_v2");
-        this.presets.add("uc2_v3");
-        this.presets.add("uc2_v4");
-        this.presets.add("uc3_v1");
-        this.presets.add("uc3_v2");
-        this.presets.add("uc3_v3");
-        this.presets.add("uc3_v4");
-        this.presets.add("uc4_v1");
-        this.presets.add("uc4_v2");
-        this.presets.add("uc4_v3");
-        this.presets.add("uc4_v4");
-        this.presets.add("race_condition");
-        this.presets.add("inconsistencies");
-        this.presets.add("loops");
-        this.presets.add("muc1");
-        this.presets.add("muc2");
-        this.presets.add("muc3");
-        this.presets.add("muc4");
-        this.presets.add("muc5");
 
         this.activeRuleSets = new ArrayList<>();
         this.ruleSets = new HashMap<>();
@@ -140,6 +110,7 @@ public class ScenarioManager {
         this.stateSets.put("smoke_smoke", new SmokeSmokeStates());
         this.stateSets.put("teaser", new TeaserStates());
         this.stateSets.put("race_condition", new RaceConditionStates());
+        this.stateSets.put("race_condition_2_min", new RaceConditionStatesDelayed());
         this.stateSets.put("inconsistency", new InconsistencyStates());
         this.stateSets.put("inconsistency_uc1", new InconsistencyStates1());
         this.stateSets.put("inconsistency_uc2", new InconsistencyStates2());
@@ -159,6 +130,42 @@ public class ScenarioManager {
         this.activeStateSets.add("sun_day_night_day");
         this.activeStateSets.add("sun_night_day_night");
 
+
+        this.presets = new HashMap<>();
+        //                              Preset(List<String> newDeviceSets, List<String> newStateSets, List<String> newRuleSets, List<String> conflictVerifiers)
+        this.presets.put("tr_v1", new Preset(Arrays.asList("light_simple", "smoke", "sun"), Arrays.asList("light_simple", "smoke_idle", "sun_day_night_day"), Arrays.asList("light_simple", "smoke"), Arrays.asList()));
+        this.presets.put("tr_v2", new Preset(Arrays.asList("light_simple", "smoke", "sun"), Arrays.asList("light_simple", "smoke_smoke", "sun_night_day_night"), Arrays.asList("light_simple", "smoke"), Arrays.asList()));
+        this.presets.put("tr_v3", new Preset(Arrays.asList("light_simple", "smoke", "sun"), Arrays.asList("light_simple", "smoke_idle", "sun_night_day_night"), Arrays.asList("light_simple", "smoke"), Arrays.asList()));
+        this.presets.put("tr_v4", new Preset(Arrays.asList("light_simple", "smoke", "sun"), Arrays.asList("light_simple", "smoke_smoke", "sun_day_night_day"), Arrays.asList("light_simple", "smoke"), Arrays.asList()));
+        this.presets.put("uc1_v1", new Preset(Arrays.asList("light_devices", "routine_devices", "tv_devices"), Arrays.asList("light_off", "routine_workday", "tv_news"), Arrays.asList("tv_rules"), Arrays.asList()));
+        this.presets.put("uc1_v2", new Preset(Arrays.asList("light_devices", "routine_devices", "tv_devices"), Arrays.asList("light_off", "routine_workday", "tv_sports"), Arrays.asList("tv_rules"), Arrays.asList()));
+        this.presets.put("uc1_v3", new Preset(Arrays.asList("light_devices", "routine_devices", "tv_devices"), Arrays.asList("light_on", "routine_home", "tv_news"), Arrays.asList("tv_rules"), Arrays.asList()));
+        this.presets.put("uc1_v4", new Preset(Arrays.asList("light_devices", "routine_devices", "tv_devices"), Arrays.asList("light_on", "routine_weekend", "tv_sports_late"), Arrays.asList("tv_rules"), Arrays.asList()));
+        this.presets.put("uc2_v1", new Preset(Arrays.asList("living_temperature", "routine_devices"), Arrays.asList("living_temperature_off", "routine_workday"), Arrays.asList("living_temperature"), Arrays.asList()));
+        this.presets.put("uc2_v2", new Preset(Arrays.asList("living_temperature", "routine_devices"), Arrays.asList("living_temperature_off", "routine_workday"), Arrays.asList("living_temperature"), Arrays.asList()));
+        this.presets.put("uc2_v3", new Preset(Arrays.asList("living_temperature", "routine_devices"), Arrays.asList("living_temperature_on", "routine_weekend"), Arrays.asList("living_temperature"), Arrays.asList()));
+        this.presets.put("uc2_v4", new Preset(Arrays.asList("living_temperature", "routine_devices"), Arrays.asList("living_temperature_on", "routine_weekend"), Arrays.asList("living_temperature"), Arrays.asList()));
+        this.presets.put("uc3_v1", new Preset(Arrays.asList("blind_devices", "light_devices", "routine_devices", "sun", "weather"), Arrays.asList("blind_states", "light_off", "sun_day_night_day", "weather_clear_states", "routine_home"), Arrays.asList("blind_rules", "light_rules"), Arrays.asList()));
+        this.presets.put("uc3_v2", new Preset(Arrays.asList("blind_devices", "light_devices", "routine_devices", "sun", "weather"), Arrays.asList("blind_states", "light_off", "sun_night_day_night", "weather_windy_states", "routine_home"), Arrays.asList("blind_rules", "light_rules"), Arrays.asList()));
+        this.presets.put("uc3_v3", new Preset(Arrays.asList("blind_devices", "light_devices", "routine_devices", "sun", "weather"), Arrays.asList("blind_states", "light_on", "sun_day_night_day", "weather_clear_states", "routine_home"), Arrays.asList("blind_rules", "light_rules"), Arrays.asList()));
+        this.presets.put("uc3_v4", new Preset(Arrays.asList("blind_devices", "light_devices", "routine_devices", "sun", "weather"), Arrays.asList("blind_states", "light_off", "sun_night_day_night", "weather_windy_states", "routine_home"), Arrays.asList("blind_rules", "light_rules"), Arrays.asList()));
+        this.presets.put("uc4_v1", new Preset(Arrays.asList("smoke", "routine_devices", "security_devices"), Arrays.asList("routine_workday", "security_states", "smoke_idle"), Arrays.asList("security_rules", "smoke_advanced"), Arrays.asList()));
+        this.presets.put("uc4_v2", new Preset(Arrays.asList("smoke", "routine_devices", "security_devices"), Arrays.asList("routine_home", "security_states", "smoke_smoke"), Arrays.asList("security_rules", "smoke_advanced"), Arrays.asList()));
+        this.presets.put("uc4_v3", new Preset(Arrays.asList("smoke", "routine_devices", "security_devices"), Arrays.asList("routine_workday", "security_states", "smoke_idle"), Arrays.asList("security_rules", "smoke_advanced"), Arrays.asList()));
+        this.presets.put("uc4_v4", new Preset(Arrays.asList("smoke", "routine_devices", "security_devices"), Arrays.asList("routine_weekend_late", "security_states", "smoke_idle"), Arrays.asList("security_rules", "smoke_advanced"), Arrays.asList()));
+        this.presets.put("race_condition", new Preset(Arrays.asList("race_condition"), Arrays.asList("race_condition"), Arrays.asList("race_condition"), Arrays.asList()));
+        this.presets.put("race_condition_2_min", new Preset(Arrays.asList("race_condition"), Arrays.asList("race_condition_2_min"), Arrays.asList("race_condition"), Arrays.asList()));
+        this.presets.put("inconsistencies", new Preset(Arrays.asList("inconsistency"), Arrays.asList("inconsistency"), Arrays.asList("inconsistency"), Arrays.asList()));
+        this.presets.put("loops", new Preset(Arrays.asList("loops"), Arrays.asList("loops"), Arrays.asList("loops"), Arrays.asList()));
+        this.presets.put("muc1", new Preset(Arrays.asList("inconsistency"), Arrays.asList("inconsistency_uc1"), Arrays.asList("inconsistency_uc1"), Arrays.asList()));
+        this.presets.put("muc2", new Preset(Arrays.asList("inconsistency"), Arrays.asList("inconsistency_uc2"), Arrays.asList("inconsistency_uc2"), Arrays.asList()));
+        this.presets.put("muc3", new Preset(Arrays.asList("redundancy"), Arrays.asList("redundancy_uc1"), Arrays.asList("redundancy_uc1"), Arrays.asList()));
+        this.presets.put("muc4", new Preset(Arrays.asList("redundancy"), Arrays.asList("redundancy_uc2"), Arrays.asList("redundancy_uc2"), Arrays.asList()));
+        this.presets.put("muc5", new Preset(Arrays.asList("loops"), Arrays.asList("loops_uc1"), Arrays.asList("loops_uc1"), Arrays.asList()));
+        this.presets.put("cleaning_v1", new Preset(Arrays.asList("cleaning_devices", "routine_devices"), Arrays.asList("cleaning_ongoing", "routine_workday"), Arrays.asList("cleaning_start", "cleaning_stop"), Arrays.asList()));
+        this.presets.put("cleaning_v2", new Preset(Arrays.asList("cleaning_devices", "routine_devices"), Arrays.asList("cleaning_idle", "routine_workday"), Arrays.asList("cleaning_start", "cleaning_stop"), Arrays.asList()));
+        this.presets.put("cleaning_v3", new Preset(Arrays.asList("cleaning_devices", "routine_devices"), Arrays.asList("cleaning_ongoing", "routine_workday"), Arrays.asList("cleaning_start", "cleaning_stop"), Arrays.asList()));
+        this.presets.put("cleaning_v4", new Preset(Arrays.asList("cleaning_devices", "routine_devices"), Arrays.asList("cleaning_idle", "routine_weekend"), Arrays.asList("cleaning_start", "cleaning_stop"), Arrays.asList()));
     }
 
     public List<String> getRuleSet() {
@@ -171,7 +178,10 @@ public class ScenarioManager {
         return this.activeStateSets;
     }
 
-    public List<String> getRuleSetOptions() { return new ArrayList<>(this.ruleSets.keySet()); }
+    public List<String> getRuleSetOptions() {
+        return new ArrayList<>(this.ruleSets.keySet());
+    }
+
     public List<String> getDeviceSetOptions() {
         return new ArrayList<>(this.deviceSets.keySet());
     }
@@ -270,201 +280,30 @@ public class ScenarioManager {
         System.out.println();
     }
 
-    public void setPreset(String preset) {
-        this.preset = preset;
-        List<String> newDeviceSets = new ArrayList();
-        List<String> newRuleSets = new ArrayList();
-        List<String> newStateSets = new ArrayList();
+    public void setActivePreset(String activePreset) {
+        if(this.presets.containsKey(activePreset)) {
+            this.activePreset = activePreset;
+            Preset preset = this.presets.get(activePreset);
 
-        if(preset.equals("race_condition")) {
-            newDeviceSets.add("race_condition");
-            newStateSets.add("race_condition");
-            newRuleSets.add("race_condition");
-        } else if(preset.equals("inconsistencies")) {
-            newDeviceSets.add("inconsistency");
-            newStateSets.add("inconsistency");
-            newRuleSets.add("inconsistency");
-        } else if(preset.equals("muc1")) {
-            newDeviceSets.add("inconsistency");
-            newStateSets.add("inconsistency_uc1");
-            newRuleSets.add("inconsistency_uc1");
-        } else if(preset.equals("muc2")) {
-            newDeviceSets.add("inconsistency");
-            newStateSets.add("inconsistency_uc2");
-            newRuleSets.add("inconsistency_uc2");
-        } else if(preset.equals("loops")) {
-            newDeviceSets.add("loops");
-            newStateSets.add("loops");
-            newRuleSets.add("loops");
-        } else if(preset.equals("muc5")) {
-            newDeviceSets.add("loops");
-            newStateSets.add("loops_uc1");
-            newRuleSets.add("loops_uc1");
-        } else if(preset.equals("muc3")) {
-            newDeviceSets.add("redundancy");
-            newStateSets.add("redundancy_uc1");
-            newRuleSets.add("redundancy_uc1");
-        } else if(preset.equals("muc4")) {
-            newDeviceSets.add("redundancy");
-            newStateSets.add("redundancy_uc2");
-            newRuleSets.add("redundancy_uc2");
-        } else if(preset.contains("tr")) {
-            newDeviceSets.add("light_simple");
-            newDeviceSets.add("smoke");
-            newDeviceSets.add("sun");
-
-            newRuleSets.add("light_simple");
-            newRuleSets.add("smoke");
-            if (preset.contains("v1")) {
-                newStateSets.add("light_simple");
-                newStateSets.add("smoke_idle");
-                newStateSets.add("sun_day_night_day");
-            } else if (preset.contains("v2")) {
-                newStateSets.add("light_simple");
-                newStateSets.add("smoke_smoke");
-                newStateSets.add("sun_night_day_night");
-            } else if (preset.contains("v3")) {
-                newStateSets.add("light_simple");
-                newStateSets.add("smoke_idle");
-                newStateSets.add("sun_night_day_night");
-            } else if (preset.contains("v4")) {
-                newStateSets.add("light_simple");
-                newStateSets.add("smoke_smoke");
-                newStateSets.add("sun_day_night_day");
-            }
-        } else if(preset.contains("uc1")) {
-            newRuleSets.add("tv_rules");
-            newDeviceSets.add("light_devices");
-            newDeviceSets.add("routine_devices");
-            newDeviceSets.add("tv_devices");
-
-            if(preset.contains("v1")) {
-                newStateSets.add("light_off");
-                newStateSets.add("routine_workday");
-                newStateSets.add("tv_news");
-            } else if(preset.contains("v2")) {
-                newStateSets.add("light_off");
-                newStateSets.add("routine_workday");
-                newStateSets.add("tv_sports");
-            } else if(preset.contains("v3")) {
-                newStateSets.add("light_on");
-                newStateSets.add("routine_home");
-                newStateSets.add("tv_movies");
-            } else if(preset.contains("v4")) {
-                newStateSets.add("light_on");
-                newStateSets.add("routine_weekend");
-                newStateSets.add("tv_sports_late");
-            }
-        }  else if(preset.contains("uc2")) {
-            newRuleSets.add("living_temperature");
-            newDeviceSets.add("living_temperature");
-            newDeviceSets.add("routine_devices");
-
-            if(preset.contains("v1")) {
-                newStateSets.add("living_temperature_off");
-                newStateSets.add("routine_workday");
-            } else if(preset.contains("v2")) {
-                newStateSets.add("living_temperature_off");
-                newStateSets.add("routine_workday");
-            } else if(preset.contains("v3")) {
-                newStateSets.add("living_temperature_on");
-                newStateSets.add("routine_weekend");
-            } else if(preset.contains("v4")) {
-                newStateSets.add("living_temperature_on");
-                newStateSets.add("routine_weekend");
-            }
-        }  else if(preset.contains("uc3")) {
-            newRuleSets.add("blind_rules");
-            newRuleSets.add("light_rules");
-            newDeviceSets.add("blind_devices");
-            newDeviceSets.add("light_devices");
-            newDeviceSets.add("routine_devices");
-            newDeviceSets.add("sun");
-            newDeviceSets.add("weather");
-
-            if(preset.contains("v1")) {
-                newStateSets.add("blind_states");
-                newStateSets.add("light_off");
-                newStateSets.add("sun_day_night_day");
-                newStateSets.add("weather_clear_states");
-                newStateSets.add("routine_home");
-            } else if(preset.contains("v2")) {
-                newStateSets.add("blind_states");
-                newStateSets.add("light_off");
-                newStateSets.add("sun_night_day_night");
-                newStateSets.add("weather_windy_states");
-                newStateSets.add("routine_home");
-            } else if(preset.contains("v3")) {
-                newStateSets.add("blind_states");
-                newStateSets.add("light_on");
-                newStateSets.add("sun_day_night_day");
-                newStateSets.add("weather_clear_states");
-                newStateSets.add("routine_home");
-            } else if(preset.contains("v4")) {
-                newStateSets.add("blind_states");
-                newStateSets.add("light_off");
-                newStateSets.add("sun_night_day_night");
-                newStateSets.add("weather_windy_states");
-                newStateSets.add("routine_home");
-            }
-        }  else if(preset.contains("uc4")) {
-            newRuleSets.add("security_rules");
-            newRuleSets.add("smoke_advanced");
-            newDeviceSets.add("routine_devices");
-            newDeviceSets.add("security_devices");
-            newDeviceSets.add("smoke");
-
-            if(preset.contains("v1")) {
-                newStateSets.add("routine_workday");
-                newStateSets.add("security_states");
-                newStateSets.add("smoke_idle");
-            } else if(preset.contains("v2")) {
-                newStateSets.add("routine_home");
-                newStateSets.add("security_states");
-                newStateSets.add("smoke_smoke");
-            } else if(preset.contains("v3")) {
-                newStateSets.add("routine_workday");
-                newStateSets.add("security_states");
-                newStateSets.add("smoke_idle");
-            } else if(preset.contains("v4")) {
-                newStateSets.add("routine_weekend_late");
-                newStateSets.add("security_states");
-                newStateSets.add("smoke_idle");
-            }
-        } else if(preset.contains("cleaning")) {
-            newRuleSets.add("cleaning_start");
-            newRuleSets.add("cleaning_stop");
-            newDeviceSets.add("cleaning_devices");
-            newDeviceSets.add("routine_devices");
-
-            if(preset.contains("v1")) {
-                newStateSets.add("cleaning_ongoing");
-                newStateSets.add("routine_workday");
-            } else if(preset.contains("v2")) {
-                newStateSets.add("cleaning_idle");
-                newStateSets.add("routine_workday");
-            } else if(preset.contains("v3")) {
-                newStateSets.add("cleaning_ongoing");
-                newStateSets.add("routine_workday");
-            } else if(preset.contains("v4")) {
-                newStateSets.add("cleaning_idle");
-                newStateSets.add("routine_weekend");
-            }
+            setDeviceSet(preset.getNewDeviceSets());
+            setRuleSet(preset.getNewRuleSets());
+            setStateSet(preset.getNewStateSets());
+            setConflictVerifiers(preset.getConflictVerifiers());
         } else {
-            System.err.println("unknwon preset: " + preset);
-            this.preset = null;
+            System.err.println("unknwon preset: " + activePreset);
+            this.activePreset = null;
         }
+    }
 
-        setDeviceSet(newDeviceSets);
-        setRuleSet(newRuleSets);
-        setStateSet(newStateSets);
+    private void setConflictVerifiers(List<String> conflictVerifiers) {
+        System.err.println("TODO: Implement conflict verifiers");
     }
 
     public List<String> getPresets() {
-        return this.presets;
+        return new ArrayList<>(this.presets.keySet());
     }
 
-    public String getPreset() {
-        return this.preset;
+    public String getActivePreset() {
+        return this.activePreset;
     }
 }

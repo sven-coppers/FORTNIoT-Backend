@@ -319,7 +319,7 @@ function refreshUseCases() {
             $("#state_sets").append('<div class="checkbox_option"><input type="checkbox" id="state_set_' + stateSetOption + '" value="state_set_' + stateSetOption + '"><label for="state_set_' + stateSetOption + '">' + stateSetOption + '</label></div>');
         }
 
-        for(let presetOption of data["preset_options"]) {
+        for(let presetOption of data["preset_options"].sort()) {
             $("select#preset").append('<option>' + presetOption + '</option>');
         }
 

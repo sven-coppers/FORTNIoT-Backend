@@ -5,7 +5,6 @@ import sven.phd.iot.api.request.ConnectionRequest;
 import sven.phd.iot.api.request.PredictionsRequest;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.predictions.PredictionEngine;
-import sven.phd.iot.scenarios.Exporter;
 
 import javax.inject.Singleton;
 import javax.ws.rs.*;
@@ -44,7 +43,7 @@ public class ConfigResource {
         config.predictions = engine.isPredicting();
         config.tickRate = engine.getTickRate();
         config.window = engine.getPredictionWindow();
-        config.useCase = ContextManager.getInstance().getScenarioManager().getPreset();
+        config.useCase = ContextManager.getInstance().getScenarioManager().getActivePreset();
 
         return config;
     }

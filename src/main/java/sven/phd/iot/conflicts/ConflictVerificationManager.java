@@ -2,10 +2,12 @@ package sven.phd.iot.conflicts;
 
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.predictions.CausalStack;
+import sven.phd.iot.scenarios.cases.BedroomTempDevices;
 import sven.phd.iot.scenarios.cases.LivingTempDevices;
 import sven.phd.iot.students.mathias.states.Conflict;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,7 +20,7 @@ public class ConflictVerificationManager {
         this.conflictVerifiers.put("redundancies", new RedundancyVerifier());
         this.conflictVerifiers.put("loops", new LoopVerifier());
         this.conflictVerifiers.put("inconsistencies", new InconsistencyVerifier());
-        this.conflictVerifiers.put("udc_bedroom_temperature", new TemperatureConflictVerifier(LivingTempDevices.LIVING_TEMPERATURE));
+        this.conflictVerifiers.put("udc_bedroom_temperature", new TemperatureConflictVerifier(BedroomTempDevices.BEDROOM_TEMPERATURE, Arrays.asList(BedroomTempDevices.BEDROOM_HEATING), Arrays.asList(BedroomTempDevices.BEDROOM_AIRCO)));
     }
 
     /**

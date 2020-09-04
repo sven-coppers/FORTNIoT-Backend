@@ -42,7 +42,7 @@ public class CausalStack {
         return this.stack.get(this.stack.size() - 1);
     }
 
-    public boolean hasChange(String entity_id) {
+    public CausalNode getChange(String entity_id) {
         Iterator<CausalLayer> stackIterator = stack.iterator();
 
         while(stackIterator.hasNext()) {
@@ -50,12 +50,12 @@ public class CausalStack {
 
             for(int i = 0; i < layer.getNumStates(); ++i) {
                 if(layer.getCausalNode(i).getState().entity_id.equals(entity_id)) {
-                    return true;
+                    return layer.getCausalNode(i);
                 }
             }
         }
 
-        return false;
+        return null;
     }
 
     public List<CausalNode> flatten() {

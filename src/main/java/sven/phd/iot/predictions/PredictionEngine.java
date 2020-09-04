@@ -541,6 +541,7 @@ public class PredictionEngine {
         conflictsMapping.put("INCONSISTENCY", new ArrayList<>());
         conflictsMapping.put("REDUNDANCY", new ArrayList<>());
         conflictsMapping.put("LOOP", new ArrayList<>());
+        List<Conflict> remainingConflicts = new ArrayList<>();
 
         while(runRequired) {
             causalStack = new CausalStack();
@@ -562,6 +563,14 @@ public class PredictionEngine {
 
                     // Detect conflicts (inconsistencies and loops)
                     runRequired = detectConflicts(causalStack, conflictsMapping, causalityMapping, flags);
+
+                    List<Conflict> otherConflicts = this.conflictVerificationManager.verifyConflicts(lastStates, causalStack);
+
+                    if(!otherConflicts.isEmpty()) {
+                        System.out.println("Extra conflicts found: " + otherConflicts.size());
+                        remainingConflicts.addAll(otherConflicts);
+                    }
+
                     // If conflicts are found, find solution and apply it. Rerun everything!
                     if (runRequired) {
                         applySolution(newDate, conflictsMapping, lastStates, firstLayer, snoozedActions, future, flags);
@@ -588,12 +597,11 @@ public class PredictionEngine {
         }
 
         // Add all conflicts to the future
-        List<Conflict> conflicts = new ArrayList<>();
         for (List<Conflict> values : conflictsMapping.values()) {
-            conflicts.addAll(values);
+            remainingConflicts.addAll(values);
         }
 
-        future.addFutureConflicts(conflicts);
+        future.addFutureConflicts(remainingConflicts);
 
         return causalStack;
     }

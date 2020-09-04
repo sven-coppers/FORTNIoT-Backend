@@ -1,4 +1,5 @@
 package sven.phd.iot.predictions;
+import sven.phd.iot.conflicts.ConflictVerificationManager;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.change.HassioChange;
@@ -19,16 +20,18 @@ public class PredictionEngine {
     private RulesManager rulesManager;
     private HassioDeviceManager hassioDeviceManager;
     private ConflictSolutionManager solutionManager;
+    private ConflictVerificationManager conflictVerificationManager;
     private Future future;
     private Boolean predicting;
     private long tickRate = 5; // minutes
     private long predictionWindow = 1 * 24 * 60; // 1 day in minutes
 
-    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager, ConflictSolutionManager solutionManager) {
+    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager hassioDeviceManager, ConflictSolutionManager solutionManager, ConflictVerificationManager conflictVerificationManager) {
         this.rulesManager = rulesManager;
         this.hassioDeviceManager = hassioDeviceManager;
         this.stateScheduler = hassioDeviceManager.getStateScheduler();
         this.solutionManager = solutionManager;
+        this.conflictVerificationManager = conflictVerificationManager;
         this.future = new Future();
         this.future.setFutureConflictSolutions(solutionManager.getSolutions());
         this.predicting = false;
@@ -71,11 +74,11 @@ public class PredictionEngine {
         queue.addAll(stateScheduler.getScheduledStates());
 
         Date lastFrameDate = new Date(); // Prediction start
-        Date predictionEnd = new Date(new Date().getTime() + getPredictionWindow() * 60l * 1000l); // Convert prediction window from minutes to milliseconds
+        Date predictionEnd = new Date(new Date().getTime() + getPredictionWindow() * 60L * 1000L); // Convert prediction window from minutes to milliseconds
 
         // Predict the first day with high precision
         while(lastFrameDate.getTime() < predictionEnd.getTime()) {
-            Date nextTickDate = new Date(lastFrameDate.getTime() + (getTickRate() * 60l * 1000l)); // Convert tickrate from minutes to milliseconds
+            Date nextTickDate = new Date(lastFrameDate.getTime() + (getTickRate() * 60L * 1000L)); // Convert tickRate from minutes to milliseconds
 
             // If there is an element in the queue that will happen before the tick
             if(!queue.isEmpty() && queue.peek().getLastChanged().getTime() < nextTickDate.getTime()) {
@@ -138,52 +141,6 @@ public class PredictionEngine {
 
             this.commitPredictedStates(causalStack, future);
         }
-    }
-
-    /**
-     *
-     * @param causalStack
-     * @param firstLayer (out-parameter) will be extended with custom actions, based on applicable solutions
-     * @param snoozedActions (out-parameter) will be extended with snoozedActions, based on applicable solutions
-     * @return
-     */
-    private boolean detectConflicts(Date newDate, HashMap<String, HassioState> lastStates, CausalStack causalStack, CausalLayer firstLayer, List<ConflictingAction> snoozedActions, Future future) {
-        if(causalStack.isEmpty()) return false;
-
-        System.out.println("Decting conflicts on the causal stack");
-        causalStack.print();
-
-        // Group all potential changes by entityID
-        List<CausalNode> potentialChanges = causalStack.flatten();
-
-        for(int i = 0; i < potentialChanges.size(); ++i) {
-            List<CausalNode> conflictingChanges = new ArrayList<>();
-            String initialEntityID = potentialChanges.get(i).getState().entity_id;
-
-            for (int j = i; j < potentialChanges.size(); ++j) {
-                if (potentialChanges.get(j).getState().entity_id.equals(initialEntityID)) {
-                    conflictingChanges.add(potentialChanges.get(j));
-                }
-            }
-
-            if (conflictingChanges.size() > 1) {
-                System.out.println("INCONSISTENCY DETECTED FOR " + initialEntityID);
-                Conflict newInconsistency = new Conflict(initialEntityID, conflictingChanges);
-                ConflictSolution potentialSolution = solutionManager.getSolutionForConflict(newInconsistency);
-
-                if (potentialSolution == null) {
-                    future.addFutureConflict(newInconsistency);
-                } else {
-                    SolutionExecutionEvent solutionExecution = this.applySolution(newDate, potentialSolution, lastStates, firstLayer, snoozedActions);
-                    //future.addExecutionEvent(solutionExecution); This is not necessary. CommitPredictedStates already adds all the states and executions to the future
-                    System.out.println("Solution applied, rerun required");
-                    // TODO: A solution should only be applied once?
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -563,17 +520,6 @@ public class PredictionEngine {
     }
 
     /**
-     * Commit the conflicts to the future
-     * @param conflicts
-     * @param future
-     */
-    private void commitConflicts(List<Conflict> conflicts, Future future) {
-        for (Conflict conflict : conflicts) {
-            future.addFutureConflict(conflict);
-        }
-    }
-
-    /**
      *
      * @param newDate
      * @param firstLayer
@@ -585,12 +531,13 @@ public class PredictionEngine {
     private CausalStack deduceStack(Date newDate, CausalLayer firstLayer, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions, Future future) {
         System.out.println("Deducing new causal stack");
         CausalStack causalStack = null;
-        HashMap<String, List<Conflict>> conflictsMapping = new HashMap<String,  List<Conflict>>();
+
         HashMap<CausalNode, List<CausalNode>> causalityMapping = new HashMap<>();
         boolean runRequired = true;
         boolean lastRun = true;
         boolean[] flags = {true, true, false};
 
+        HashMap<String, List<Conflict>> conflictsMapping = new HashMap<>();
         conflictsMapping.put("INCONSISTENCY", new ArrayList<>());
         conflictsMapping.put("REDUNDANCY", new ArrayList<>());
         conflictsMapping.put("LOOP", new ArrayList<>());
@@ -642,9 +589,11 @@ public class PredictionEngine {
 
         // Add all conflicts to the future
         List<Conflict> conflicts = new ArrayList<>();
-        for (List<Conflict> values : conflictsMapping.values())
+        for (List<Conflict> values : conflictsMapping.values()) {
             conflicts.addAll(values);
-        commitConflicts(conflicts, future);
+        }
+
+        future.addFutureConflicts(conflicts);
 
         return causalStack;
     }
@@ -745,7 +694,7 @@ public class PredictionEngine {
     }
 
     /**
-     * Pass the stateChange to the implicit rules (e.g. update temperatur)
+     * Give devices a chance to updates themselves (e.g. update temperature)
      * @param states
      * @return
      */

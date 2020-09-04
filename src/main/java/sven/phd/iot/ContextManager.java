@@ -46,7 +46,7 @@ public class ContextManager {
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.conflictSolutionManager = new ConflictSolutionManager();
         this.conflictVerificationManager = new ConflictVerificationManager();
-        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.conflictSolutionManager);
+        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.conflictSolutionManager, this.conflictVerificationManager);
         this.scenarioManager = new ScenarioManager(this);
         //this.studyManager = new StudyManager();
         this.studyManager = new StudyManagerMathias();

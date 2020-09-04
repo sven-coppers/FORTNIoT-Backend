@@ -1,6 +1,9 @@
 package sven.phd.iot.conflicts;
 
+import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.predictions.CausalStack;
 import sven.phd.iot.scenarios.cases.LivingTempDevices;
+import sven.phd.iot.students.mathias.states.Conflict;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +20,25 @@ public class ConflictVerificationManager {
         this.conflictVerifiers.put("inconsistencies", new InconsistencyVerifier());
         this.conflictVerifiers.put("udc_bedroom_temperature", new TemperatureConflictVerifier(LivingTempDevices.LIVING_TEMPERATURE));
     }
+
+    /**
+     * Check if the hassioChange causes this trigger to be triggered
+     * @param previousStates a map with states for each device
+     * @param causalStack the causalStack of the current tick
+     * @return a list Conflicts that may be caused
+     */
+    public List<Conflict> verifyConflicts(HashMap<String, HassioState> previousStates, CausalStack causalStack) {
+        List<Conflict> conflicts = new ArrayList<>();
+
+        for(String verifierID : this.conflictVerifiers.keySet()) {
+            if(this.conflictVerifiers.get(verifierID).isEnabled()) { // Maybe also ask if it is interested?
+                conflicts.addAll(this.conflictVerifiers.get(verifierID).verifyConflicts(previousStates, causalStack));
+            }
+        }
+
+        return conflicts;
+    }
+
 
     public void disableAllVerifiers() {
         for(String verifierID : this.conflictVerifiers.keySet()) {

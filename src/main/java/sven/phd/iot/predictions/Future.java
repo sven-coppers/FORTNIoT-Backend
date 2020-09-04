@@ -122,7 +122,7 @@ public class Future {
      * Add future conflicts to the list of predictions
      * @param newConflicts
      */
-    public void addFutureConflict(List<Conflict> newConflicts) {this.futureConflicts = newConflicts; }
+    public void addFutureConflicts(List<Conflict> newConflicts) {this.futureConflicts.addAll(newConflicts); }
 
     /**
      * Get a cached version of the future conflict solutions

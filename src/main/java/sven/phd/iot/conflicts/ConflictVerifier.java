@@ -2,6 +2,8 @@ package sven.phd.iot.conflicts;
 
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.predictions.CausalStack;
+import sven.phd.iot.students.mathias.states.Conflict;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,10 +23,11 @@ abstract public class ConflictVerifier {
 
     /**
      * Check if the hassioChange causes this trigger to be triggered
-     * @param hassioStates a map with states for each device
-     * @return a list of HassioContexts that satisfy the condition of the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is satisfied without any states
+     * @param previousStates a map with states for each device
+     * @param causalStack the causalStack of the current tick
+     * @return a list Conflicts that may be caused
      */
-    public abstract List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates);
+    public abstract List<Conflict> verifyConflicts(HashMap<String, HassioState> previousStates, CausalStack causalStack);
 
     public ConflictVerifier() {
         this.enabled = true;

@@ -24,7 +24,7 @@ public class RoutineSleepingStates extends StateSet {
         SS.scheduleState(new HassioState(RoutineDevices.ROUTINE, "morning", relativeTime.getTime(), new HassioRoutineAttributes()));
         relativeTime.add(Calendar.MINUTE, 120);
         SS.scheduleState(new HassioState(RoutineDevices.ROUTINE, "working from home", relativeTime.getTime(), new HassioRoutineAttributes()));
-        relativeTime.add(Calendar.MINUTE, 80 * 60);
+        relativeTime.add(Calendar.MINUTE, 8 * 60);
         SS.scheduleState(new HassioState(RoutineDevices.ROUTINE, "evening", relativeTime.getTime(), new HassioRoutineAttributes()));
         relativeTime.add(Calendar.MINUTE, 270);
         SS.scheduleState(new HassioState(RoutineDevices.ROUTINE, "sleeping", relativeTime.getTime(), new HassioRoutineAttributes()));

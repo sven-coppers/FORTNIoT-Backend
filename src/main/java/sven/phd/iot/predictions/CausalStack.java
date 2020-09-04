@@ -1,8 +1,5 @@
 package sven.phd.iot.predictions;
 
-import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.hassio.states.HassioState;
-
 import java.util.*;
 
 public class CausalStack {
@@ -52,7 +49,7 @@ public class CausalStack {
             CausalLayer layer = stackIterator.next();
 
             for(int i = 0; i < layer.getNumStates(); ++i) {
-                if(layer.getState(i).getState().entity_id.equals(entity_id)) {
+                if(layer.getCausalNode(i).getState().entity_id.equals(entity_id)) {
                     return true;
                 }
             }
@@ -67,7 +64,7 @@ public class CausalStack {
 
         while(stackIterator.hasNext()) {
             CausalLayer layer = stackIterator.next();
-            result.addAll(layer.getStates());
+            result.addAll(layer.getCausalNodes());
         }
 
         return result;
@@ -82,7 +79,7 @@ public class CausalStack {
         CausalNode startingNode = null;
         for (int i = 0; i < stack.size() && startingNode == null; ++i) {
             CausalLayer layer = stack.get(i);
-            for (CausalNode node : layer.getStates()) {
+            for (CausalNode node : layer.getCausalNodes()) {
                 if (nodes.contains(node)) {
                     if (startingNode == null) {
                         startingNode = node;

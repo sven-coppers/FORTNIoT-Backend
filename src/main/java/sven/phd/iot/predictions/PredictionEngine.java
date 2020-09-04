@@ -116,14 +116,15 @@ public class PredictionEngine {
 
         // IMPLICIT Let the devices predict their state, based on the past states (e.g. temperature)
         if(this.isPredicting()) {
-            firstLayer.addAll(this.verifyImplicitBehavior(newDate, lastStates));
+            firstLayer.addAll(this.verifyImplicitStates(newDate, lastStates));
+            firstLayer.addAll(this.verifyImplicitRules(newDate, lastStates));
         }
 
         // BASELINE: Add states from the global queue (before the current date), which could induce conflicts
         while(!globalQueue.isEmpty() && globalQueue.peek().getLastChanged().getTime() <= newDate.getTime()) {
             HassioState newState = globalQueue.poll();
 
-            firstLayer.addState(new CausalNode(newState, null));
+            firstLayer.addCausalNode(new CausalNode(newState, null));
         }
 
         if(!firstLayer.isEmpty()) {
@@ -495,7 +496,7 @@ public class PredictionEngine {
             solutionExecution.addActionExecuted(customAction.id, solutionStates);
 
             for(HassioState solutionState : solutionStates) {
-                firstLayer.addState(new CausalNode(solutionState, solutionExecution));
+                firstLayer.addCausalNode(new CausalNode(solutionState, solutionExecution));
             }
         }
 
@@ -669,7 +670,7 @@ public class PredictionEngine {
         // Build a list of changes in this layer
         List<HassioChange> newChanges = new ArrayList<>();
         for(int i = 0; i < previousLayer.getNumStates(); ++i) {
-            CausalNode node = previousLayer.getState(i);
+            CausalNode node = previousLayer.getCausalNode(i);
             causalityMapping.put(node, new ArrayList<>());
 
             HassioState newState = node.getState();
@@ -683,7 +684,7 @@ public class PredictionEngine {
 
         // Pass the stateChange to the set of rules and to the implicit behavior
         newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, layerSpecificStates, simulatedRulesEnabled, snoozedActions, causalityMapping));
-        newLayer.addAll(this.verifyImplicitBehavior(newDate, layerSpecificStates));
+        newLayer.addAll(this.verifyImplicitRules(newDate, layerSpecificStates));
 
         return newLayer;
     }
@@ -744,15 +745,35 @@ public class PredictionEngine {
     }
 
     /**
+     * Pass the stateChange to the implicit rules (e.g. update temperatur)
+     * @param states
+     * @return
+     */
+    private List<CausalNode> verifyImplicitStates(Date newDate, HashMap<String, HassioState> states) {
+        List<CausalNode> result = new ArrayList<>();
+
+        List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitStates(newDate, states);
+
+        for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
+            behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
+
+            for(HassioState newActionState : behaviorEvent.getActionStates()) {
+                result.add(new CausalNode(newActionState, behaviorEvent));
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Pass the stateChange to the implicit rules (e.g. turn heater on/off)
      * @param states
      * @return
      */
-    private List<CausalNode> verifyImplicitBehavior(Date newDate, HashMap<String, HassioState> states) {
+    private List<CausalNode> verifyImplicitRules(Date newDate, HashMap<String, HassioState> states) {
         List<CausalNode> result = new ArrayList<>();
 
         List<ImplicitBehaviorEvent> behaviorEvents = hassioDeviceManager.predictImplicitRules(newDate, states);
-        behaviorEvents.addAll(hassioDeviceManager.predictImplicitStates(newDate, states));
 
         for(ImplicitBehaviorEvent behaviorEvent : behaviorEvents) {
             behaviorEvent.setTrigger(this.rulesManager.getRuleById(this.rulesManager.RULE_IMPLICIT_BEHAVIOR));
@@ -778,7 +799,7 @@ public class PredictionEngine {
         }
 
         for(int i = 0; i < causalStack.getNumLayers(); ++i) {
-            for(CausalNode causalNode : causalStack.getLayer(i).getStates()) {
+            for(CausalNode causalNode : causalStack.getLayer(i).getCausalNodes()) {
                 if (!isConflictingNode(causalNode, conflicts)) {
                     branchSpecificStates.put(causalNode.getState().entity_id, causalNode.getState());
                 }

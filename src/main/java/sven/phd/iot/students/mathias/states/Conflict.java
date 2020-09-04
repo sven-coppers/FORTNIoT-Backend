@@ -90,11 +90,15 @@ public class Conflict {
     public boolean isLoop() {
         List<String> devices = new ArrayList<>();
         for (ConflictingAction conflictAction : conflictingActions) {
-            String deviceID = ContextManager.getInstance().getActionById(conflictAction.action_id).getDeviceID();
-            if (devices.isEmpty()) {
-                devices.add(deviceID);
-            } else if (!devices.contains(deviceID)) {
-                return true;
+            Action actionType = ContextManager.getInstance().getActionById(conflictAction.action_id);
+
+            if(actionType != null) {
+                String deviceID = actionType.getDeviceID();
+                if (devices.isEmpty()) {
+                    devices.add(deviceID);
+                } else if (!devices.contains(deviceID)) {
+                    return true;
+                }
             }
         }
         return false;

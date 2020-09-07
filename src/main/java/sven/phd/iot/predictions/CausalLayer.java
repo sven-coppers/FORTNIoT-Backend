@@ -1,13 +1,25 @@
 package sven.phd.iot.predictions;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import sven.phd.iot.hassio.states.HassioDateDeserializer;
+import sven.phd.iot.hassio.states.HassioDateSerializer;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class CausalLayer {
-    private List<CausalNode> causalNodes;
+    @JsonProperty("causal_nodes") private List<CausalNode> causalNodes;
 
-    public CausalLayer() {
+    @JsonDeserialize(using = HassioDateDeserializer.class)
+    @JsonSerialize(using = HassioDateSerializer.class)
+    @JsonProperty("causal_layer_date") public Date layerDate;
+
+    public CausalLayer(Date layerDate) {
         this.causalNodes = new ArrayList<>();
+        this.layerDate = layerDate;
     }
 
     public void addCausalNode(CausalNode state) {
@@ -35,8 +47,12 @@ public class CausalLayer {
     }
 
     public void print() {
+        System.out.print(layerDate + ": ");
+
         for(CausalNode deviceState : causalNodes) {
             System.out.print(deviceState.getState().entity_id + " = " + deviceState.getState().state + ", ");
         }
+
+        System.out.println();
     }
 }

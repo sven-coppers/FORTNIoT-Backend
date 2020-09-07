@@ -61,7 +61,6 @@ public class PredictionEngine {
     /**
      * Predict the future states and event of each HassioDevice and each rule
      * @post: Each HassioDevice and Each Rule will have a cached version of the outcome
-     * TODO: This engine is still sensitive to loops and race conditions
      */
     private Future predictFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
         Future future = new Future();
@@ -115,7 +114,7 @@ public class PredictionEngine {
     private void tick(Date newDate, HashMap<String, HassioState> lastStates, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
         List<ConflictingAction> snoozedActions = new ArrayList<>();
         CausalStack causalStack = new CausalStack();
-        CausalLayer firstLayer = new CausalLayer(); // Never changes, because no rules are executed yet
+        CausalLayer firstLayer = new CausalLayer(newDate); // Never changes, because no rules are executed yet
         boolean runRequired = true;
 
         // IMPLICIT Let the devices predict their state, based on the past states (e.g. temperature)
@@ -133,10 +132,9 @@ public class PredictionEngine {
 
         if(!firstLayer.isEmpty()) {
             causalStack.addLayer(firstLayer);
-            System.out.println("Tick " + newDate);
 
             if(this.isPredicting()) {
-                causalStack = this.deduceStack(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions, future);
+                causalStack = this.deduceTick(newDate, firstLayer, lastStates, simulatedRulesEnabled, snoozedActions, future);
                 //runRequired = this.detectConflicts(newDate, lastStates, causalStack, firstLayer, snoozedActions, future);
             }
 
@@ -152,7 +150,7 @@ public class PredictionEngine {
     private void filterConflicts(CausalStack causalStack, HashMap<String,  List<Conflict>> conflictsMapping) {
         if(causalStack.isEmpty()) return;
 
-        System.out.println("Filtering conflicts on the causal stack");
+        // System.out.println("Filtering conflicts on the causal stack");
 
         // Group all potential changes by entityID
         List<CausalNode> potentialChanges = causalStack.flatten();
@@ -199,8 +197,8 @@ public class PredictionEngine {
     private boolean detectConflicts(CausalStack causalStack, HashMap<String,  List<Conflict>> conflictsMapping, HashMap<CausalNode, List<CausalNode>> causalityMapping, boolean[] flags) {
         if(causalStack.isEmpty()) return false;
 
-        System.out.println("Detecting conflicts on the causal stack");
-        causalStack.print();
+        //System.out.println("Detecting conflicts on the causal stack");
+        //causalStack.print();
 
         boolean conflictDetected = false;
 
@@ -508,10 +506,14 @@ public class PredictionEngine {
      * @param future
      */
     private void commitPredictedStates(CausalStack causalStack, Future future) {
+        for(CausalLayer causalLayer : causalStack.getLayers()) {
+            future.addCausalLayer(causalLayer);
+        }
+
         List<CausalNode> finalNewChanges = causalStack.flatten();
 
         for(CausalNode node : finalNewChanges) {
-            future.addFutureState(node.getState());
+         //   future.addFutureState(node.getState());
 
             // If an executionEvent exists and is not already added to the future, add it to the future
             if(node.getExecutionEvent() != null && !future.getFutureExecutions().contains(node.getExecutionEvent())) {
@@ -529,8 +531,7 @@ public class PredictionEngine {
      * @param snoozedActions
      * @return
      */
-    private CausalStack deduceStack(Date newDate, CausalLayer firstLayer, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions, Future future) {
-        System.out.println("Deducing new causal stack");
+    private CausalStack deduceTick(Date newDate, CausalLayer firstLayer, HashMap<String, HassioState> lastStates, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions, Future future) {
         CausalStack causalStack = null;
 
         HashMap<CausalNode, List<CausalNode>> causalityMapping = new HashMap<>();
@@ -623,7 +624,7 @@ public class PredictionEngine {
         HashMap<String, HassioState> layerSpecificStates = buildLayerSpecificStates(lastStates, causalStack, conflicts);
 
         CausalLayer previousLayer = causalStack.getTopLayer();
-        CausalLayer newLayer = new CausalLayer();
+        CausalLayer newLayer = new CausalLayer(newDate);
 
         // Build a list of changes in this layer
         List<HassioChange> newChanges = new ArrayList<>();

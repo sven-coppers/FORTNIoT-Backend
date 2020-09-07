@@ -12,14 +12,18 @@ import java.util.Date;
 import java.util.List;
 
 public class Future {
-    @JsonProperty("states") private List<HassioState> futureStates;
+   // @JsonProperty("states") private List<HassioState> futureStates;
+    @JsonProperty("states_causal_stack") private CausalStack causalStack;
+
     @JsonProperty("executions") public List<ExecutionEvent> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
     @JsonProperty("conflict_solutions") public List<ConflictSolution> futureConflictSolutions;
     @JsonProperty("last_generated") public Date lastGenerated;
 
+
     public Future() {
-        this.futureStates = new ArrayList<>();
+       // this.futureStates = new ArrayList<>();
+        this.causalStack = new CausalStack();
         this.futureExecutions = new ArrayList<>();
         this.futureConflicts = new ArrayList<>();
         this.futureConflictSolutions = new ArrayList<>();
@@ -49,6 +53,15 @@ public class Future {
         this.futureExecutions.add(triggerEvent);
     }
 
+    /** Add another layer to the future
+     *
+     * @param layer
+     */
+    public void addCausalLayer(CausalLayer layer) {
+        this.causalStack.addLayer(layer);
+        layer.print();
+    }
+
     /**
      * Get a cached version of the prediction of the future executions
      */
@@ -60,7 +73,7 @@ public class Future {
      * Get a cached version of the prediction of the future states
      */
     public List<HassioState> getFutureStates() {
-        return this.futureStates;
+        return this.causalStack.flattenChanges();
     }
 
     /**
@@ -69,7 +82,7 @@ public class Future {
     public List<HassioState> getFutureStates(String deviceID) {
         List<HassioState> result = new ArrayList<>();
 
-        for(HassioState hassioState : this.futureStates) {
+        for(HassioState hassioState : this.getFutureStates()) {
             if(hassioState.entity_id.equals(deviceID)) {
                 result.add(hassioState);
             }
@@ -82,9 +95,9 @@ public class Future {
      * Add a future state to the list of predictions
      * @param newState
      */
-    public void addFutureState(HassioState newState) {
+   /* public void addFutureState(HassioState newState) {
         this.futureStates.add(newState);
-    }
+    } */
 
 
 

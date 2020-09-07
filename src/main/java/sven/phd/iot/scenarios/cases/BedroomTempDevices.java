@@ -25,7 +25,7 @@ public class BedroomTempDevices extends DeviceSet {
 
         devices.add(new HassioIndoorTempSensor(BEDROOM_TEMPERATURE, "Bedroom temperature", heaterIDs, coolerIDs, BEDROOM_THERMOSTAT, -0.1));
       //  devices.add(new HassioThermostat(BEDROOM_THERMOSTAT, "Bedroom target temperature"));
-        devices.add(new HassioHeater(BEDROOM_HEATING, "Bedroom heater", 1.5, 0.5, BEDROOM_THERMOSTAT, BEDROOM_TEMPERATURE));
+        devices.add(new HassioHeater(BEDROOM_HEATING, "Bedroom heater", 2.0, 0.5, BEDROOM_THERMOSTAT, BEDROOM_TEMPERATURE));
         devices.add(new HassioCooler(BEDROOM_AIRCO, "Bedroom air conditioning", -1.0, 0.0, BEDROOM_THERMOSTAT, BEDROOM_TEMPERATURE));
     }
 }

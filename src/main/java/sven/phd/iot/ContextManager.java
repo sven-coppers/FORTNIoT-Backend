@@ -336,4 +336,8 @@ public class ContextManager {
     public ConflictVerificationManager getConflictVerificationManager() {
         return conflictVerificationManager;
     }
+
+    public Future getFuture() {
+        return this.predictionEngine.getFuture();
+    }
 }

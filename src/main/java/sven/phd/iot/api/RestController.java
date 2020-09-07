@@ -33,6 +33,7 @@ public class RestController extends ResourceConfig {
         resources.add(ConfigResource.class);
         resources.add(StudyResource.class);
         resources.add(SolutionResource.class);
+        resources.add(FutureResource.class);
 
         // Resources Mathias
         resources.add(MathiasResource.class);

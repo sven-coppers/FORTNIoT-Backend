@@ -36,9 +36,11 @@
       <li><span class="method">GET</span> <a class="uri" href="api/study/case">study/case/</a> Get the current use case of the study</li>
       <li><span class="method">PUT</span> <a class="uri" href="api/study/case/">study/case/</a> Set the current use case of the study</li>
     </ul>
+    <ul>
+      <li><span class="method">GET</span> <a class="uri" href="api/future">future/</a> Get ALL information about the future</li>
+    </ul>
     <p>Do you want to perform the <a class="button" href="study/">study</a>?</p>
   </div>
-
   <div class="block">
     <h1>Endpoints Bram</h1>
     <ul>

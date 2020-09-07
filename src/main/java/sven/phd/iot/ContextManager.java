@@ -3,13 +3,12 @@ package sven.phd.iot;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.conflicts.ConflictVerificationManager;
 import sven.phd.iot.hassio.updates.ExecutionEvent;
-import sven.phd.iot.predictions.ConflictSolutionManager;
+import sven.phd.iot.conflicts.ConflictSolutionManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.students.mathias.ActionExecutions;
-import sven.phd.iot.students.mathias.ConflictSolver;
 import sven.phd.iot.students.mathias.StudyManagerMathias;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.Conflict;
@@ -314,7 +313,7 @@ public class ContextManager {
 
     public void removeConflictSolution(ConflictSolution conflictSolutionRequest) {
         Conflict conflict = new Conflict();
-        conflict.entity_id = conflictSolutionRequest.entity_id;
+        conflict.conflictingEntities.add(conflictSolutionRequest.entity_id);
         conflict.setConflictingActions(conflictSolutionRequest.getConflictingActions());
         conflictSolutionManager.removeSolution(conflict);
         this.updateFuturePredictions();
@@ -322,7 +321,7 @@ public class ContextManager {
 
     public void updateConflictSolution(ConflictSolution conflictSolutionRequest) {
         Conflict conflict = new Conflict();
-        conflict.entity_id = conflictSolutionRequest.entity_id;
+        conflict.conflictingEntities.add(conflictSolutionRequest.entity_id);
         conflict.setConflictingActions(conflictSolutionRequest.getConflictingActions());
         conflictSolutionManager.removeSolution(conflict);
         conflictSolutionManager.addSolution(conflictSolutionRequest);

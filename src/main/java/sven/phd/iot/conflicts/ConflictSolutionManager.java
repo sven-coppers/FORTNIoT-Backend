@@ -1,4 +1,4 @@
-package sven.phd.iot.predictions;
+package sven.phd.iot.conflicts;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.rules.Action;

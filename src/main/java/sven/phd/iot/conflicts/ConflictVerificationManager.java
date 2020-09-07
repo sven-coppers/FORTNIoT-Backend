@@ -3,13 +3,9 @@ package sven.phd.iot.conflicts;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.predictions.CausalStack;
 import sven.phd.iot.scenarios.cases.BedroomTempDevices;
-import sven.phd.iot.scenarios.cases.LivingTempDevices;
 import sven.phd.iot.students.mathias.states.Conflict;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class ConflictVerificationManager {
     private HashMap<String, ConflictVerifier> conflictVerifiers;
@@ -29,12 +25,12 @@ public class ConflictVerificationManager {
      * @param causalStack the causalStack of the current tick
      * @return a list Conflicts that may be caused
      */
-    public List<Conflict> verifyConflicts(HashMap<String, HassioState> previousStates, CausalStack causalStack) {
+    public List<Conflict> verifyConflicts(Date simulationTime, HashMap<String, HassioState> previousStates, CausalStack causalStack) {
         List<Conflict> conflicts = new ArrayList<>();
 
         for(String verifierID : this.conflictVerifiers.keySet()) {
             if(this.conflictVerifiers.get(verifierID).isEnabled()) { // Maybe also ask if it is interested?
-                conflicts.addAll(this.conflictVerifiers.get(verifierID).verifyConflicts(previousStates, causalStack));
+                conflicts.addAll(this.conflictVerifiers.get(verifierID).verifyConflicts(simulationTime, previousStates, causalStack));
             }
         }
 

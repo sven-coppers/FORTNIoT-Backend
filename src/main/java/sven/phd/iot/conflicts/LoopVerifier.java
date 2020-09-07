@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.predictions.CausalStack;
 import sven.phd.iot.students.mathias.states.Conflict;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class LoopVerifier extends ConflictVerifier {
     }
 
     @Override
-    public List<Conflict> verifyConflicts(HashMap<String, HassioState> hassioStates, CausalStack causalStack) {
+    public List<Conflict> verifyConflicts(Date simulationTime, HashMap<String, HassioState> hassioStates, CausalStack causalStack) {
         return null;
     }
 }

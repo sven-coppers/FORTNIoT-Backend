@@ -1,4 +1,5 @@
 package sven.phd.iot.predictions;
+import sven.phd.iot.conflicts.ConflictSolutionManager;
 import sven.phd.iot.conflicts.ConflictVerificationManager;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.HassioStateScheduler;
@@ -180,7 +181,7 @@ public class PredictionEngine {
 
         List<Conflict> removeList = new ArrayList<>();
         for (Conflict conflict : conflictsMapping.get("INCONSISTENCY")) {
-            if (!conflictingChangesEntities.contains(conflict.entity_id))
+            if (!conflictingChangesEntities.contains(conflict.conflictingEntities.get(0)))
                 removeList.add(conflict);
         }
         List<Conflict> filteredConflictList = conflictsMapping.get("INCONSISTENCY");
@@ -309,7 +310,7 @@ public class PredictionEngine {
     private void resolveLoop(String initialEntityID, List<CausalNode> loopingNodes, HashMap<String,  List<Conflict>> conflictsMapping) {
         System.out.println("LOOP DETECTED FOR " + initialEntityID);
         // LOOP found, add conflict and create solution immediately
-        Conflict conflict = new Conflict(initialEntityID, loopingNodes);
+        Conflict conflict = new Conflict(Arrays.asList(initialEntityID), loopingNodes);
         List<Conflict> loopingConflicts = conflictsMapping.get("LOOP");
         loopingConflicts.add(conflict);
         conflictsMapping.put("LOOP", loopingConflicts);
@@ -324,7 +325,7 @@ public class PredictionEngine {
         List<ConflictingAction> activeActions = new ArrayList<>();
         activeActions.addAll(conflict.getConflictingActions().subList(0, conflict.getConflictingActions().size()-1));
 
-        ConflictSolution solution = new ConflictSolution(conflict.entity_id);
+        ConflictSolution solution = new ConflictSolution(conflict.conflictingEntities.get(0));
         solution.setConflictingActions(conflict.getConflictingActions());
         solution.setSnoozedActions(snoozedActions);
         solution.setActiveActions(activeActions);
@@ -374,7 +375,7 @@ public class PredictionEngine {
             if (existingRedundancy != null) {
                 temp = existingRedundancy.updateConflict(redundancyList);
             } else {
-                Conflict newRedundancy = new Conflict(initialEntityID, redundancyList);
+                Conflict newRedundancy = new Conflict(Arrays.asList(initialEntityID), redundancyList);
                 List<Conflict> redundancyConflicts = conflictsMapping.get("REDUNDANCY");
                 redundancyConflicts.add(newRedundancy);
                 conflictsMapping.put("REDUNDANCY", redundancyConflicts);
@@ -393,7 +394,7 @@ public class PredictionEngine {
         activeActions.add(conflict.getConflictingActions().get(0));
         List<ConflictingAction> snoozedActions = conflict.getConflictingActions().subList(1, conflict.getConflictingActions().size());
 
-        ConflictSolution solution = new ConflictSolution(conflict.entity_id);
+        ConflictSolution solution = new ConflictSolution(conflict.conflictingEntities.get(0));
         solution.setConflictingActions(conflict.getConflictingActions());
         solution.setSnoozedActions(snoozedActions);
         solution.setActiveActions(activeActions);
@@ -414,7 +415,7 @@ public class PredictionEngine {
         // Find existing conflict
         Conflict existingInconsistency = null;
         for (Conflict inconsistencyConflict :  conflictsMapping.get("INCONSISTENCY")) {
-            if (inconsistencyConflict.entity_id.equals(initialEntityID)) {
+            if (inconsistencyConflict.conflictingEntities.contains(initialEntityID)) {
                 existingInconsistency = inconsistencyConflict;
                 break;
             }
@@ -424,7 +425,7 @@ public class PredictionEngine {
             newConflictFound = existingInconsistency.updateConflict(conflictingChanges);
         } else {
             List<Conflict> inconsistencyConflicts = conflictsMapping.get("INCONSISTENCY");
-            inconsistencyConflicts.add(new Conflict(initialEntityID, conflictingChanges));
+            inconsistencyConflicts.add(new Conflict(Arrays.asList(initialEntityID), conflictingChanges));
             conflictsMapping.put("INCONSISTENCY", inconsistencyConflicts);
             newConflictFound = true;
         }
@@ -564,7 +565,7 @@ public class PredictionEngine {
                     // Detect conflicts (inconsistencies and loops)
                     runRequired = detectConflicts(causalStack, conflictsMapping, causalityMapping, flags);
 
-                    List<Conflict> otherConflicts = this.conflictVerificationManager.verifyConflicts(lastStates, causalStack);
+                    List<Conflict> otherConflicts = this.conflictVerificationManager.verifyConflicts(newDate, lastStates, causalStack);
 
                     if(!otherConflicts.isEmpty()) {
                         System.out.println("Extra conflicts found: " + otherConflicts.size());
@@ -774,7 +775,7 @@ public class PredictionEngine {
      */
     private boolean isConflictingNode(CausalNode node, List<Conflict> conflicts) {
         for (Conflict conflict : conflicts) {
-            if (conflict.entity_id.equals(node.getState().entity_id) || conflict.entity_id.equals("Loop_"+node.getState().entity_id)) {
+            if (conflict.conflictingEntities.contains(node.getState().entity_id) || conflict.conflictingEntities.contains("Loop_"+node.getState().entity_id)) {
                 return true;
             }
         }

@@ -6,6 +6,7 @@ import sven.phd.iot.predictions.CausalStack;
 import sven.phd.iot.students.mathias.states.Conflict;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,8 +28,11 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
     }
 
     @Override
-    public List<Conflict> verifyConflicts(HashMap<String, HassioState> hassioStates, CausalStack causalStack) {
+    public List<Conflict> verifyConflicts(Date simulationTime, HashMap<String, HassioState> hassioStates, CausalStack causalStack) {
         List<Conflict> conflicts = new ArrayList<>();
+        List<String> conflictingEntities = new ArrayList<>();
+        Date conflictTime = null;
+
         int numHeatersOn = 0;
         int numCoolersOn = 0;
 
@@ -46,6 +50,7 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
 
             if(heaterState != null && heaterState.state.equals("heating")) {
                 numHeatersOn++;
+                conflictingEntities.add(heaterState.entity_id);
             }
         }
 
@@ -63,12 +68,13 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
 
             if (coolerState != null && coolerState.state.equals("cooling")) {
                 numCoolersOn++;
+                conflictingEntities.add(coolerState.entity_id);
             }
         }
 
         // If there is at least one heater and at least one cooler turned on at the same time, throw conflict
         if(numCoolersOn > 0 && numHeatersOn > 0) {
-            conflicts.add(new Conflict(tempSensorID, new ArrayList<>())); // TODO: A conflict can be between multiple entities, not only one!
+            conflicts.add(new Conflict("user_defined_conflict_bedroom_temperature", simulationTime, conflictingEntities, new ArrayList<>())); // TODO: A conflict can be between multiple entities, not only one!
             // The cause of a conflicting state can be unknown
         }
 

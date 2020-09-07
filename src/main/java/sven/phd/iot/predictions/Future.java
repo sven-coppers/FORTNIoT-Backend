@@ -102,7 +102,7 @@ public class Future {
         List<Conflict> result = new ArrayList<>();
 
         for(Conflict hassioConflict : this.futureConflicts) {
-            if(hassioConflict.entity_id.equals(deviceID)) {
+            if(hassioConflict.conflictingEntities.contains(deviceID)) {
                 result.add(hassioConflict);
             }
         }

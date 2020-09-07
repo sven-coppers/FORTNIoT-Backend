@@ -11,6 +11,6 @@ public class LightSimpleDevices extends DeviceSet {
 
     @Override
     public void createDevices(ArrayList<HassioDevice> devices) {
-        devices.add(new HassioLight(LIVING_SPOTS, "Living spots"));
+        devices.add(new HassioLight(LIVING_SPOTS, "Living room spots"));
     }
 }

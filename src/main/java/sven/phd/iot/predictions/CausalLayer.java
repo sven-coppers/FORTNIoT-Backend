@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
+import sven.phd.iot.students.mathias.states.Conflict;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,9 +18,12 @@ public class CausalLayer {
     @JsonSerialize(using = HassioDateSerializer.class)
     @JsonProperty("causal_layer_date") public Date layerDate;
 
+    @JsonProperty("conflicts") private List<Conflict> conflicts;
+
     public CausalLayer(Date layerDate) {
         this.causalNodes = new ArrayList<>();
         this.layerDate = layerDate;
+        this.conflicts = new ArrayList<>();
     }
 
     public void addCausalNode(CausalNode state) {
@@ -54,5 +58,9 @@ public class CausalLayer {
         }
 
         System.out.println();
+
+        for(Conflict conflict : this.conflicts) {
+            System.out.println("\t" + conflict);
+        }
     }
 }

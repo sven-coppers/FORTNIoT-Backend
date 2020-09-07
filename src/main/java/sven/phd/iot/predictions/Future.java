@@ -31,7 +31,7 @@ public class Future {
     }
 
     /**
-     * Get the execution history of this rule
+     * Get the future executions of this rule
      */
     public List<ExecutionEvent> getExecutionFuture(String entityID) {
         List<ExecutionEvent> result = new ArrayList<>();

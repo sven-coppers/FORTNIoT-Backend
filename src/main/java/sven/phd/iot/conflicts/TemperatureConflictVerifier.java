@@ -31,7 +31,6 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
     public List<Conflict> verifyConflicts(Date simulationTime, HashMap<String, HassioState> hassioStates, CausalStack causalStack) {
         List<Conflict> conflicts = new ArrayList<>();
         List<String> conflictingEntities = new ArrayList<>();
-        Date conflictTime = null;
 
         int numHeatersOn = 0;
         int numCoolersOn = 0;
@@ -74,7 +73,7 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
 
         // If there is at least one heater and at least one cooler turned on at the same time, throw conflict
         if(numCoolersOn > 0 && numHeatersOn > 0) {
-            conflicts.add(new Conflict("user_defined_conflict_bedroom_temperature", simulationTime, conflictingEntities, new ArrayList<>())); // TODO: A conflict can be between multiple entities, not only one!
+            conflicts.add(new Conflict("user_defined_conflict_bedroom_temperature", simulationTime, conflictingEntities, new ArrayList<>()));
             // The cause of a conflicting state can be unknown
         }
 

@@ -63,4 +63,8 @@ public class CausalLayer {
             System.out.println("\t" + conflict);
         }
     }
+
+    public void addConflicts(List<Conflict> conflicts) {
+        this.conflicts.addAll(conflicts);
+    }
 }

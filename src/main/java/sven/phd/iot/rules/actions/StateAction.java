@@ -1,6 +1,7 @@
 package sven.phd.iot.rules.actions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Action;
 
@@ -12,6 +13,7 @@ import java.util.List;
 public class StateAction extends Action {
     @JsonProperty("deviceID") public String deviceIdentifier;
     @JsonProperty("new_state") public String newState;
+    @JsonProperty("new_state_attributes") public HassioAttributes newStateAttributes;
 
     public StateAction() {
     }
@@ -20,12 +22,20 @@ public class StateAction extends Action {
         super(description);
         this.deviceIdentifier = deviceIdentifier;
         this.newState = newState;
+        this.newStateAttributes = null;
+    }
+
+    public StateAction(String description, String deviceIdentifier, String newState, HassioAttributes newStateAttributes) {
+        super(description);
+        this.deviceIdentifier = deviceIdentifier;
+        this.newState = newState;
+        this.newStateAttributes = newStateAttributes;
     }
 
     public List<HassioState> simulate(Date datetime, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
-        newStates.add(new HassioState(this.deviceIdentifier, newState, datetime, null));
+        newStates.add(new HassioState(this.deviceIdentifier, newState, datetime, this.newStateAttributes));
 
         return newStates;
     }

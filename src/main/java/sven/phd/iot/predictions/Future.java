@@ -7,27 +7,48 @@ import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class Future {
    // @JsonProperty("states") private List<HassioState> futureStates;
-    @JsonProperty("states_causal_stack") private CausalStack causalStack;
+   // @JsonProperty("states_causal_stack") private CausalStack causalStack;
+
+    /** For convenience in conflict detection algorithms, the first state of every entity is the CURRENT state */
+    @JsonProperty("states_causal_map") private HashMap<String, Stack<CausalNode>> causalNodeListMap;
 
     @JsonProperty("executions") public List<ExecutionEvent> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
     @JsonProperty("conflict_solutions") public List<ConflictSolution> futureConflictSolutions;
     @JsonProperty("last_generated") public Date lastGenerated;
 
-
+    /**
+     * Default constructor
+     */
     public Future() {
-       // this.futureStates = new ArrayList<>();
-        this.causalStack = new CausalStack();
+        new Future(new HashMap<>());
+    }
+
+    /**
+     * Constructor when an initial set of states is known
+     * @param initialStates
+     */
+    public Future(HashMap<String, HassioState> initialStates) {
+      //  this.causalStack = new CausalStack();
         this.futureExecutions = new ArrayList<>();
         this.futureConflicts = new ArrayList<>();
         this.futureConflictSolutions = new ArrayList<>();
         this.lastGenerated = new Date();
+
+        this.initCausalNodeListMap(initialStates);
+    }
+
+    private void initCausalNodeListMap(HashMap<String, HassioState> initialStates) {
+        this.causalNodeListMap = new HashMap<>();
+
+        for(String entityID : initialStates.keySet()) {
+            causalNodeListMap.put(entityID, new Stack<>());
+            causalNodeListMap.get(entityID).add(new CausalNode(initialStates.get(entityID), null));
+        }
     }
 
     /**
@@ -53,14 +74,28 @@ public class Future {
         this.futureExecutions.add(triggerEvent);
     }
 
+    /**
+     * Remove part of the future by popping future stack until revertTime is reached
+     * @param revertTime the moment that should be reverted to
+     */
+    public void revertTo(Date revertTime) {
+        int numStatesReverted = 0;
+        int numRuleExecutionsReverted = 0;
+        int numConflictsReverted = 0;
+        int numSolutionsReverted = 0;
+
+        // TODO: Actually revert stuff
+        System.out.println("/tBacktracking: " + numStatesReverted + " states reverted, " + numRuleExecutionsReverted + " rule executions reverted, " + numConflictsReverted + " conflicts reverted" + numSolutionsReverted + " solutions reverted");
+    }
+
     /** Add another layer to the future
      *
      * @param layer
      */
-    public void addCausalLayer(CausalLayer layer) {
+   /* public void addCausalLayer(CausalLayer layer) {
         this.causalStack.addLayer(layer);
         layer.print();
-    }
+    } */
 
     /**
      * Get a cached version of the prediction of the future executions
@@ -70,21 +105,31 @@ public class Future {
     }
 
     /**
-     * Get a cached version of the prediction of the future states
+     * Get a sorted list (from old to new) of ALL future states
+     * The first state for each entity is the current state, and should be filtered out
      */
     public List<HassioState> getFutureStates() {
-        return this.causalStack.flattenChanges();
+        PriorityQueue<HassioState> queue = new PriorityQueue<>();
+
+        for(String entityID : this.causalNodeListMap.keySet()) {
+            for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) {
+                queue.add(this.causalNodeListMap.get(entityID).get(i).getState());
+            }
+        }
+
+        return new ArrayList<>(queue);
     }
 
     /**
-     * Get a cached version of the prediction of the future states for a single device
+     * Get a sorted list (from old to new) of the future states for a single entity
+     * The first state for each entity is the current state, and should be filtered out
      */
-    public List<HassioState> getFutureStates(String deviceID) {
+    public List<HassioState> getFutureStates(String entityID) {
         List<HassioState> result = new ArrayList<>();
 
-        for(HassioState hassioState : this.getFutureStates()) {
-            if(hassioState.entity_id.equals(deviceID)) {
-                result.add(hassioState);
+        if(this.causalNodeListMap.containsKey(entityID)) {
+            for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) {
+                result.add(this.causalNodeListMap.get(entityID).get(i).getState());
             }
         }
 
@@ -92,14 +137,14 @@ public class Future {
     }
 
     /**
-     * Add a future state to the list of predictions
-     * @param newState
+     * Add a list of future changes THAT will happen at the same time to the list of predictions
+     * @param newNodes the list of future changes
      */
-   /* public void addFutureState(HassioState newState) {
-        this.futureStates.add(newState);
-    } */
-
-
+    public void addFutureStates(List<CausalNode> newNodes) {
+        for(CausalNode causalNode : newNodes) {
+            this.causalNodeListMap.get(causalNode.getState().entity_id).push(causalNode);
+        }
+    }
 
     /**
      * Get a cached version of the prediction of the future conflicts
@@ -172,4 +217,18 @@ public class Future {
      * @param newConflictSolutions
      */
     public void setFutureConflictSolutions(List<ConflictSolution> newConflictSolutions) {this.futureConflictSolutions = newConflictSolutions; }
+
+    /**
+     * For each entity, get the most up-to-date prediction
+     * @return
+     */
+    public HashMap<String, CausalNode> getLastStates() {
+        HashMap<String, CausalNode> lastStates = new HashMap<>();
+
+        for(String entityID: this.causalNodeListMap.keySet()) {
+            lastStates.put(entityID, this.causalNodeListMap.get(entityID).peek());
+        }
+
+        return lastStates;
+    }
 }

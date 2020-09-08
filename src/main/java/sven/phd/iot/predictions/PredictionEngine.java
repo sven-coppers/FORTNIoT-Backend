@@ -7,12 +7,9 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
-import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.students.mathias.states.Conflict;
-import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.ConflictingAction;
-import sven.phd.iot.students.mathias.states.SolutionExecutionEvent;
 
 import java.util.*;
 
@@ -63,12 +60,11 @@ public class PredictionEngine {
      * @post: Each HassioDevice and Each Rule will have a cached version of the outcome
      */
     private Future predictFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
-        Future future = new Future();
-
         // Initialise the queue with changes we already know
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
 
         HashMap<String, HassioState> lastStates = hassioDeviceManager.getCurrentStates();
+        Future future = new Future(lastStates);
         queue.addAll(hassioDeviceManager.predictFutureStates());
         queue.addAll(simulatedStates);
         queue.addAll(stateScheduler.getScheduledStates());
@@ -155,12 +151,7 @@ public class PredictionEngine {
         HashMap<CausalNode, List<CausalNode>> causalityMapping = new HashMap<>();
         boolean runRequired = true;
         boolean lastRun = true;
-        boolean[] flags = {true, true, false};
 
-        HashMap<String, List<Conflict>> conflictsMapping = new HashMap<>();
-        conflictsMapping.put("INCONSISTENCY", new ArrayList<>());
-        conflictsMapping.put("REDUNDANCY", new ArrayList<>());
-        conflictsMapping.put("LOOP", new ArrayList<>());
         List<Conflict> remainingConflicts = new ArrayList<>();
 
         while(runRequired) {
@@ -173,18 +164,21 @@ public class PredictionEngine {
             // Determine future (could contain inconsistencies and loops)
             while (!newLayer.isEmpty() && !runRequired) {
                 List<Conflict> conflicts = new ArrayList<>();
-                for (List<Conflict> values : conflictsMapping.values())
-                    conflicts.addAll(values);
+        //        for (List<Conflict> values : conflictsMapping.values())
+          //          conflicts.addAll(values);
 
                 newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions, conflicts, causalityMapping);
 
                 if (!newLayer.isEmpty()) {
+                    List<Conflict> otherConflicts = this.conflictVerificationManager.verifyConflicts(newDate, future, newLayer.getCausalNodes());
+                    newLayer.addConflicts(otherConflicts);
+
                     causalStack.addLayer(newLayer);
 
                     // Detect conflicts (inconsistencies and loops)
                 // TODO:   runRequired = detectConflicts(causalStack, conflictsMapping, causalityMapping, flags);
 
-                    List<Conflict> otherConflicts = this.conflictVerificationManager.verifyConflicts(newDate, lastStates, causalStack);
+
 
                     if(!otherConflicts.isEmpty()) {
                         System.out.println("Extra conflicts found: " + otherConflicts.size());
@@ -197,19 +191,19 @@ public class PredictionEngine {
                     }
                 } else if (lastRun){
                     // Resolve all redundancy conflicts, apply solution and rerun
-                    flags = new boolean[]{false, false, true};
+
                     // Detect conflicts (redundancies)
                     // TODO:  runRequired = detectConflicts(causalStack, conflictsMapping, causalityMapping, flags);
                     // If conflicts are found, find solution and apply it. Rerun everything!
                     if (runRequired) {
-                        for (Conflict conflict : conflictsMapping.get("REDUNDANCY")) {
+                 //       for (Conflict conflict : conflictsMapping.get("REDUNDANCY")) {
                             // TODO:        solveRedundancyConflict(conflict);
-                        }
+               //         }
                         // TODO:   applySolution(newDate, conflictsMapping, lastStates, firstLayer, snoozedActions, future, flags);
                     }
 
                     // Filter all conflicts, making sure that only true conflicts remain
-                    filterConflicts(causalStack, conflictsMapping);
+               //     filterConflicts(causalStack, conflictsMapping);
 
                     lastRun = false;
                 }
@@ -217,9 +211,9 @@ public class PredictionEngine {
         }
 
         // Add all conflicts to the future
-        for (List<Conflict> values : conflictsMapping.values()) {
-            remainingConflicts.addAll(values);
-        }
+     //   for (List<Conflict> values : conflictsMapping.values()) {
+     //       remainingConflicts.addAll(values);
+    //    }
 
         future.addFutureConflicts(remainingConflicts);
 
@@ -728,7 +722,19 @@ public class PredictionEngine {
      */
     private void commitPredictedStates(CausalStack causalStack, Future future, HashMap<String, HassioState> lastStates) {
         for(CausalLayer causalLayer : causalStack.getLayers()) {
-            future.addCausalLayer(causalLayer);
+            List<CausalNode> newNodes = causalLayer.getCausalNodes();
+
+            if(newNodes.isEmpty()) return;
+
+            System.out.print(newNodes.get(0).getState().getLastChanged() + ": ");
+
+            for(CausalNode causalNode : newNodes) {
+                System.out.print(causalNode.getState().entity_id + " = " + causalNode.getState().state + ", ");
+            }
+
+            System.out.println();
+
+            future.addFutureStates(newNodes);
         }
 
         List<CausalNode> finalNewChanges = causalStack.flatten();
@@ -743,8 +749,7 @@ public class PredictionEngine {
             }
         }
     }
-
-
+    
     /**
      * Build a hashmap with the last states, updated with all changes that are specific to this branch in the three
      * @param lastStates

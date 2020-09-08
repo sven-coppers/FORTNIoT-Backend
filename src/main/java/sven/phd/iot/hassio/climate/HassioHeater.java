@@ -2,7 +2,6 @@ package sven.phd.iot.hassio.climate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
@@ -52,7 +51,7 @@ public class HassioHeater extends HassioTemperatureModifier {
 
         // Adjust heater state if needed
         if(heaterState.state.equals("heating") && currentTemp > targetTemp) {
-            hassioStates.put(this.entityID, new HassioState(this.entityID, "eco", heaterState.getLastChanged(), null));
+            hassioStates.put(this.entityID, new HassioState(this.entityID, "eco", heaterState.getLastChanged(), new HassioHeaterAttributes()));
 
             ImplicitBehaviorEvent newHeaterState = new ImplicitBehaviorEvent(this.stopHeatingRule, newDate);
             newHeaterState.addActionDeviceID(this.entityID);
@@ -60,7 +59,7 @@ public class HassioHeater extends HassioTemperatureModifier {
             newHeaterState.addTriggerDeviceID(this.tempSensorID);
             result.add(newHeaterState);
         } else if(heaterState.state.equals("eco") && currentTemp < targetTemp) {
-            hassioStates.put(this.entityID, new HassioState(this.entityID, "heating", heaterState.getLastChanged(), new HassioHeaterAttributes(this.onRate)));
+            hassioStates.put(this.entityID, new HassioState(this.entityID, "heating", heaterState.getLastChanged(), new HassioHeaterAttributes()));
 
             ImplicitBehaviorEvent newHeaterState = new ImplicitBehaviorEvent(this.startHeatingRule, newDate);
             newHeaterState.addActionDeviceID(this.entityID);
@@ -70,5 +69,13 @@ public class HassioHeater extends HassioTemperatureModifier {
         }
 
         return result;
+    }
+
+    public double getOnRate() {
+        return onRate;
+    }
+
+    public double getEcoRate() {
+        return ecoRate;
     }
 }

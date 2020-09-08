@@ -15,10 +15,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
@@ -103,7 +100,7 @@ abstract public class HassioDevice {
      * This function is called ONCE at the beginning of every 'frame' in the simulation
      * @return
      */
-    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates, Map<String, HassioDevice> hassioDeviceMap) {
         return new ArrayList<>(); // Most devices do not change on other devices
     }
 

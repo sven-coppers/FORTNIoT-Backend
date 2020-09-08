@@ -281,7 +281,7 @@ public class HassioDeviceManager implements EventListener {
         for(String entityID : hassioDeviceMap.keySet()) {
             if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-            results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates));
+            results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates, this.hassioDeviceMap));
         }
 
         results = mergeDuplicates(results);

@@ -1,7 +1,10 @@
 package sven.phd.iot.conflicts;
 
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.predictions.CausalLayer;
+import sven.phd.iot.predictions.CausalNode;
 import sven.phd.iot.predictions.CausalStack;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.scenarios.cases.BedroomTempDevices;
 import sven.phd.iot.students.mathias.states.Conflict;
 
@@ -21,16 +24,20 @@ public class ConflictVerificationManager {
 
     /**
      * Check if the hassioChange causes this trigger to be triggered
-     * @param previousStates a map with states for each device
-     * @param causalStack the causalStack of the current tick
+     *
+     * @param future
      * @return a list Conflicts that may be caused
      */
-    public List<Conflict> verifyConflicts(Date simulationTime, HashMap<String, HassioState> previousStates, CausalStack causalStack) {
+    public List<Conflict> verifyConflicts(Date simulationTime, Future future, List<CausalNode> newCausalNodes) {
         List<Conflict> conflicts = new ArrayList<>();
 
         for(String verifierID : this.conflictVerifiers.keySet()) {
             if(this.conflictVerifiers.get(verifierID).isEnabled()) { // Maybe also ask if it is interested?
-                conflicts.addAll(this.conflictVerifiers.get(verifierID).verifyConflicts(simulationTime, previousStates, causalStack));
+                for(CausalNode newNode : newCausalNodes) {
+                    if(this.conflictVerifiers.get(verifierID).isInterestedIn(newNode)) {
+                        conflicts.addAll(this.conflictVerifiers.get(verifierID).verifyConflicts(simulationTime, future, newNode));
+                    }
+                }
             }
         }
 

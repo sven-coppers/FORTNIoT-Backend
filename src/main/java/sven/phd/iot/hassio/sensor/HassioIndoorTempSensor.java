@@ -1,21 +1,21 @@
 package sven.phd.iot.hassio.sensor;
 
+import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.climate.HassioCooler;
 import sven.phd.iot.hassio.climate.HassioCoolerAttributes;
+import sven.phd.iot.hassio.climate.HassioHeater;
 import sven.phd.iot.hassio.climate.HassioHeaterAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class HassioIndoorTempSensor extends HassioSensor {
     private List<String> heaterIDs;
     private List<String> coolerIDs;
     private String thermostatID;
 
-    private double variationRate = -0.5; // Degrees per hour
+    private double variationRate; // Degrees per hour
 
     public HassioIndoorTempSensor(String entityID, String friendlyName, List<String> heaterIDs, List<String> coolerIDs, String thermostatID, double variationRate) {
         super(entityID, friendlyName);
@@ -27,7 +27,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
     }
 
     @Override
-    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates, Map<String, HassioDevice> hassioDeviceMap) {
         List<ImplicitBehaviorEvent> result = new ArrayList<>();
 
         HassioState thermostatState = hassioStates.get(this.thermostatID);
@@ -43,9 +43,11 @@ public class HassioIndoorTempSensor extends HassioSensor {
 
         for(String heaterID : heaterIDs) {
             HassioState heaterState = hassioStates.get(heaterID);
+            HassioHeater heater = ((HassioHeater) hassioDeviceMap.get(heaterID));
 
-            if(heaterState != null && heaterState.state.equals("heating")) {
-                newTemp += ((HassioHeaterAttributes) heaterState.attributes).heatingRate * deltaTimeInHours;
+            if(heaterState != null && heater != null && heaterState.state.equals("heating")) {
+
+                newTemp += heater.getOnRate() * deltaTimeInHours;
                 newStateEvent.addTriggerDeviceID(heaterID);
                 allEco = false;
             }
@@ -53,9 +55,10 @@ public class HassioIndoorTempSensor extends HassioSensor {
 
         for(String coolerID : coolerIDs) {
             HassioState coolerState = hassioStates.get(coolerIDs);
+            HassioCooler cooler = ((HassioCooler) hassioDeviceMap.get(coolerID));
 
-            if(coolerState != null && coolerState.state.equals("cooling")) {
-                newTemp += ((HassioCoolerAttributes) coolerState.attributes).coolingRate * deltaTimeInHours;
+            if(coolerState != null && coolerID != null && coolerState.state.equals("cooling")) {
+                newTemp += cooler.getOnRate() * deltaTimeInHours;
                 newStateEvent.addTriggerDeviceID(coolerID);
                 allEco = false;
             }

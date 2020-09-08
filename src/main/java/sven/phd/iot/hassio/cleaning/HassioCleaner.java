@@ -3,17 +3,12 @@ package sven.phd.iot.hassio.cleaning;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
-import sven.phd.iot.hassio.sensor.HassioBattery;
-import sven.phd.iot.hassio.sensor.HassioBatteryAttributes;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class HassioCleaner extends HassioDevice {
     private String batteryID;
@@ -37,7 +32,7 @@ public class HassioCleaner extends HassioDevice {
      * This function is called ONCE at the beginning of every 'frame' in the simulation
      * @return
      */
-    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates, Map<String, HassioDevice> hassioDeviceMap) {
         ArrayList<ImplicitBehaviorEvent> result = new ArrayList<>();
 
         HassioState roombaState = hassioStates.get(this.entityID);

@@ -1,12 +1,10 @@
 package sven.phd.iot.conflicts;
 
-import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.predictions.CausalStack;
+import sven.phd.iot.predictions.CausalNode;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.students.mathias.states.Conflict;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 abstract public class ConflictVerifier {
@@ -16,21 +14,24 @@ abstract public class ConflictVerifier {
 
     /**
      * Check if the rule is interested in being verified after this change (e.g. temp update)
-     * @param hassioChange the change that this rule might be interested in
+     *
+     * @param causalNode
      * @return true if the rule is triggered by this changed, false otherwise.
      */
 
-    public abstract boolean isTriggeredBy(HassioChange hassioChange);
+    public boolean isInterestedIn(CausalNode causalNode) {
+        return true;
+    }
 
     /**
      * Check if the hassioChange causes this trigger to be triggered
      *
      * @param simulationTime
-     * @param previousStates a map with states for each device
-     * @param causalStack the causalStack of the current tick
+     * @param future
+     * @param newCausalNode
      * @return a list Conflicts that may be caused
      */
-    public abstract List<Conflict> verifyConflicts(Date simulationTime, HashMap<String, HassioState> previousStates, CausalStack causalStack);
+    public abstract List<Conflict> verifyConflicts(Date simulationTime, Future future, CausalNode newCausalNode);
 
     public ConflictVerifier() {
         this.enabled = true;

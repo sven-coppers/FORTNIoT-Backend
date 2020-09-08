@@ -109,15 +109,27 @@ public class Future {
      * The first state for each entity is the current state, and should be filtered out
      */
     public List<HassioState> getFutureStates() {
+        List<HassioState> result = new ArrayList<>();
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
 
+        // Insert all states in an ordered queue, which will automatically sort all states regardless of their entity
         for(String entityID : this.causalNodeListMap.keySet()) {
             for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) {
                 queue.add(this.causalNodeListMap.get(entityID).get(i).getState());
+                    System.out.println("\t" + this.causalNodeListMap.get(entityID).get(i).getState().getLastUpdated() + " " + this.causalNodeListMap.get(entityID).get(i).getState().state);
             }
         }
 
-        return new ArrayList<>(queue);
+        // Use an iterator to maintain the sorted order after the conversion to an arraylist
+
+        System.out.println("Now for the queue");
+        while (!queue.isEmpty()) {
+            HassioState state = queue.poll();
+            System.out.println("\tQueue:" + state.getLastUpdated() + " " + state.state);
+            result.add(state);
+        }
+
+        return result;
     }
 
     /**

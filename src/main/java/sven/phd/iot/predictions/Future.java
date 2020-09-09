@@ -10,12 +10,8 @@ import sven.phd.iot.hassio.states.HassioState;
 import java.util.*;
 
 public class Future {
-   // @JsonProperty("states") private List<HassioState> futureStates;
-   // @JsonProperty("states_causal_stack") private CausalStack causalStack;
-
     /** For convenience in conflict detection algorithms, the first state of every entity is the CURRENT state */
     @JsonProperty("states_causal_map") private HashMap<String, Stack<CausalNode>> causalNodeListMap;
-
     @JsonProperty("executions") public List<ExecutionEvent> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
     @JsonProperty("conflict_solutions") public List<ConflictSolution> futureConflictSolutions;
@@ -33,7 +29,6 @@ public class Future {
      * @param initialStates
      */
     public Future(HashMap<String, HassioState> initialStates) {
-      //  this.causalStack = new CausalStack();
         this.futureExecutions = new ArrayList<>();
         this.futureConflicts = new ArrayList<>();
         this.futureConflictSolutions = new ArrayList<>();
@@ -42,6 +37,11 @@ public class Future {
         this.initCausalNodeListMap(initialStates);
     }
 
+    /**
+     * Set the initial state for each device as the first state. This is useful for conflict detection algorithms.
+     * The first state is not exported as part of the future.
+     * @param initialStates
+     */
     private void initCausalNodeListMap(HashMap<String, HassioState> initialStates) {
         this.causalNodeListMap = new HashMap<>();
 
@@ -114,18 +114,16 @@ public class Future {
 
         // Insert all states in an ordered queue, which will automatically sort all states regardless of their entity
         for(String entityID : this.causalNodeListMap.keySet()) {
-            for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) {
+            for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) { // Skip the first item!
                 queue.add(this.causalNodeListMap.get(entityID).get(i).getState());
-                    System.out.println("\t" + this.causalNodeListMap.get(entityID).get(i).getState().getLastUpdated() + " " + this.causalNodeListMap.get(entityID).get(i).getState().state);
+                //System.out.println("\t" + this.causalNodeListMap.get(entityID).get(i).getState().getLastUpdated() + " " + this.causalNodeListMap.get(entityID).get(i).getState().state);
             }
         }
 
-        // Use an iterator to maintain the sorted order after the conversion to an arraylist
-
-        System.out.println("Now for the queue");
+        // maintain the sorted order after the conversion to an arraylist
         while (!queue.isEmpty()) {
             HassioState state = queue.poll();
-            System.out.println("\tQueue:" + state.getLastUpdated() + " " + state.state);
+            //System.out.println("\tQueue:" + state.getLastUpdated() + " " + state.state);
             result.add(state);
         }
 
@@ -140,7 +138,7 @@ public class Future {
         List<HassioState> result = new ArrayList<>();
 
         if(this.causalNodeListMap.containsKey(entityID)) {
-            for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) {
+            for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) { // Skip the first item!
                 result.add(this.causalNodeListMap.get(entityID).get(i).getState());
             }
         }

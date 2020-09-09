@@ -170,11 +170,12 @@ public class PredictionEngine {
                 newLayer = deduceLayer(newDate, causalStack, lastStates, simulatedRulesEnabled, snoozedActions, conflicts, causalityMapping);
 
                 if (!newLayer.isEmpty()) {
+                    future.addFutureStates(newLayer.getCausalNodes());
                     List<Conflict> otherConflicts = this.conflictVerificationManager.verifyConflicts(newDate, future, newLayer.getCausalNodes());
                     newLayer.addConflicts(otherConflicts);
 
-                    causalStack.addLayer(newLayer);
 
+                    causalStack.addLayer(newLayer); // First add to the future, then deduce conflicts
                     // Detect conflicts (inconsistencies and loops)
                 // TODO:   runRequired = detectConflicts(causalStack, conflictsMapping, causalityMapping, flags);
 
@@ -749,7 +750,7 @@ public class PredictionEngine {
             }
         }
     }
-    
+
     /**
      * Build a hashmap with the last states, updated with all changes that are specific to this branch in the three
      * @param lastStates

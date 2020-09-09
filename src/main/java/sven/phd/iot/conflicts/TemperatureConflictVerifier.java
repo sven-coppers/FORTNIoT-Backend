@@ -24,7 +24,9 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
 
     @Override
     public boolean isInterestedIn(CausalNode causalNode) {
-        return causalNode.getHassioState().entity_id.equals(tempSensorID);
+        String changedEntity = causalNode.getHassioState().entity_id;
+
+        return this.heaterIDs.contains(changedEntity) || this.coolerIDs.contains(changedEntity);
     }
 
     @Override

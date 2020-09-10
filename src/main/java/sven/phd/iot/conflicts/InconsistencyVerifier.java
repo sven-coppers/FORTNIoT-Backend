@@ -1,6 +1,6 @@
 package sven.phd.iot.conflicts;
 
-import sven.phd.iot.predictions.CausalNode;
+import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.students.mathias.states.Conflict;
 
@@ -10,7 +10,7 @@ import java.util.List;
 
 public class InconsistencyVerifier extends ConflictVerifier {
     @Override
-    public List<Conflict> verifyConflicts(Date simulationTime, Future future, CausalNode newCausalNode) {
+    public List<Conflict> verifyConflicts(Date simulationTime, Future future, HassioState hassioState) {
         List<Conflict> conflicts = new ArrayList<>();
 
         // Do the check for every node in the new layer

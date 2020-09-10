@@ -1,11 +1,11 @@
 package sven.phd.iot.hassio.states;
 
-import sven.phd.iot.students.mathias.states.Conflict;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 public class HassioState extends HassioAbstractState {
     public HassioAttributes attributes;
+    @JsonProperty("caused_by_event") private String executionEvent;
 
     public HassioState(String entityID, String state, Date date, HassioAttributes attributes) {
         super(new HassioContext(entityID, date), entityID, date, date, state);
@@ -25,7 +25,15 @@ public class HassioState extends HassioAbstractState {
         this.attributes = hassioState.attributes;
     }
 
-    public Conflict compareAttributes(HassioState state) {
+    public String getExecutionEvent() {
+        return executionEvent;
+    }
+
+    public void setExecutionEvent(String executionEvent) {
+        this.executionEvent = executionEvent;
+    }
+
+   /* public Conflict compareAttributes(HassioState state) {
         /*
         if(this.state != state.state) {
             HassioConflictState conflict = new HassioConflictState(this.entity_id, this.type, this.datetime);
@@ -33,7 +41,7 @@ public class HassioState extends HassioAbstractState {
             conflict.conflicts.add(attr);
             return conflict;
         }
-*/
+
         return null;
-    }
+    }*/
 }

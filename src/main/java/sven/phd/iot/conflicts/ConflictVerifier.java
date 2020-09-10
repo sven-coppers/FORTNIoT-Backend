@@ -1,6 +1,6 @@
 package sven.phd.iot.conflicts;
 
-import sven.phd.iot.predictions.CausalNode;
+import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.students.mathias.states.Conflict;
 
@@ -15,11 +15,11 @@ abstract public class ConflictVerifier {
     /**
      * Check if the rule is interested in being verified after this change (e.g. temp update)
      *
-     * @param causalNode
+     * @param hassioState
      * @return true if the rule is triggered by this changed, false otherwise.
      */
 
-    public boolean isInterestedIn(CausalNode causalNode) {
+    public boolean isInterestedIn(HassioState hassioState) {
         return true;
     }
 
@@ -28,10 +28,10 @@ abstract public class ConflictVerifier {
      *
      * @param simulationTime
      * @param future
-     * @param newCausalNode
+     * @param hassioState
      * @return a list Conflicts that may be caused
      */
-    public abstract List<Conflict> verifyConflicts(Date simulationTime, Future future, CausalNode newCausalNode);
+    public abstract List<Conflict> verifyConflicts(Date simulationTime, Future future, HassioState hassioState);
 
     public ConflictVerifier() {
         this.enabled = true;

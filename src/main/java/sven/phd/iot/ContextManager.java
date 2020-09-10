@@ -90,7 +90,7 @@ public class ContextManager {
      * @return
      */
     public List<ExecutionEvent> getFutureRuleExecutions() {
-        return this.predictionEngine.getFuture().futureExecutions;
+        return this.predictionEngine.getFuture().getFutureExecutions();
     }
 
     /**

@@ -1,7 +1,6 @@
 package sven.phd.iot.conflicts;
 
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.predictions.CausalNode;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.students.mathias.states.Conflict;
 
@@ -23,24 +22,24 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
     }
 
     @Override
-    public boolean isInterestedIn(CausalNode causalNode) {
-        String changedEntity = causalNode.getHassioState().entity_id;
+    public boolean isInterestedIn(HassioState hassioState) {
+        String changedEntity = hassioState.entity_id;
 
         return this.heaterIDs.contains(changedEntity) || this.coolerIDs.contains(changedEntity);
     }
 
     @Override
-    public List<Conflict> verifyConflicts(Date simulationTime, Future future, CausalNode newCausalNode) {
+    public List<Conflict> verifyConflicts(Date simulationTime, Future future, HassioState hassioState) {
         List<Conflict> conflicts = new ArrayList<>();
         List<String> conflictingEntities = new ArrayList<>();
-        HashMap<String, CausalNode> lastStates = future.getLastStates();
+        HashMap<String, HassioState> lastStates = future.getLastStates();
 
         int numHeatersOn = 0;
         int numCoolersOn = 0;
 
         // Count the number of heaters  turned on
         for(String heaterID : this.heaterIDs) {
-            HassioState heaterState = lastStates.get(heaterID).getState();
+            HassioState heaterState = lastStates.get(heaterID);
 
             if(heaterState != null && heaterState.state.equals("heating")) {
                 numHeatersOn++;
@@ -50,7 +49,7 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
 
         // Count the number of heaters  turned on
         for(String coolerID : this.coolerIDs) {
-            HassioState coolerState = lastStates.get(coolerID).getState();
+            HassioState coolerState = lastStates.get(coolerID);
 
             if (coolerState != null && coolerState.state.equals("cooling")) {
                 numCoolersOn++;
@@ -60,7 +59,7 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
 
         // If there is at least one heater and at least one cooler turned on at the same time, throw conflict
         if(numCoolersOn > 0 && numHeatersOn > 0) {
-            conflicts.add(new Conflict("user_defined_conflict_bedroom_temperature", simulationTime, conflictingEntities, new ArrayList<>()));
+            conflicts.add(new Conflict("user_defined_conflict_bedroom_temperature", simulationTime, conflictingEntities, new ArrayList<HassioState>()));
             // The cause of a conflicting state can be unknown (if it was not set by FORTNIoT)
         }
 

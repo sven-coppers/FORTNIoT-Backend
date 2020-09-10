@@ -10,7 +10,7 @@ import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
-import sven.phd.iot.predictions.CausalNode;
+import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Action;
 
 import java.util.ArrayList;
@@ -30,47 +30,48 @@ public class Conflict {
         // Default constructor
     }
 
-    public Conflict(String conflictType, Date date, List<String> conflictingEntities, List<CausalNode> conflictingChanges) {
+    public Conflict(String conflictType, Date date, List<String> conflictingEntities, List<HassioState> conflictingChanges) {
         this.conflictType = conflictType;
         this.conflictTime = date;
         this.conflictingEntities = conflictingEntities;
         this.conflictingActions = new ArrayList<>();
 
-        for (CausalNode node : conflictingChanges) {
+        for (HassioState node : conflictingChanges) {
             if (node.getExecutionEvent() == null) {
-                System.err.println("The conflicting state did not have an execution event for " + node.getState().entity_id + " = " + node.getState().state);
+                System.err.println("The conflicting state did not have an execution event for " + node.entity_id + " = " + node.state);
                 continue;
             }
 
-            String causingAction = node.getExecutionEvent().getResponsibleAction(node.getState().context);
+            // TODO: FIX
+            /*String causingAction = node.getExecutionEvent().getResponsibleAction(node.context);
 
             if (causingAction == null) {
                 // The state is not caused by a rule
                 System.err.println("The conflicting state is not caused by a rule");
             }
 
-            this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id));
+            this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id)); */
         }
     }
 
-    public Conflict(List<String> conflictingEntities, List<CausalNode> conflictingChanges) {
+    public Conflict(List<String> conflictingEntities, List<HassioState> conflictingChanges) {
         this.conflictingEntities = conflictingEntities;
         this.conflictingActions = new ArrayList<>();
 
-        for (CausalNode node : conflictingChanges) {
+        for (HassioState node : conflictingChanges) {
             if (node.getExecutionEvent() == null) {
-                System.err.println("The conflicting state did not have an execution event for " + node.getState().entity_id + " = " + node.getState().state);
+                System.err.println("The conflicting state did not have an execution event for " + node.entity_id + " = " + node.state);
                 continue;
             }
 
-            String causingAction = node.getExecutionEvent().getResponsibleAction(node.getState().context);
+            // TODO: FIX
+            /*String causingAction = node.getExecutionEvent().getResponsibleAction(node.context);
 
             if (causingAction == null) {
                 // The state is not caused by a rule
                 System.err.println("The conflicting state is not caused by a rule");
             }
-
-            this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id));
+this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id)); */
         }
     }
 
@@ -86,15 +87,16 @@ public class Conflict {
         this.conflictingActions = conflictingActions;
     }
 
-    public boolean updateConflict(List<CausalNode> conflictingChanges) {
+    public boolean updateConflict(List<HassioState> conflictingChanges) {
         boolean actionAdded = false;
-        for (CausalNode node : conflictingChanges) {
+        for (HassioState node : conflictingChanges) {
             if (node.getExecutionEvent() == null) {
-                System.err.println("The conflicting state did not have an execution event for " + node.getState().entity_id + " = " + node.getState().state);
+                System.err.println("The conflicting state did not have an execution event for " + node.entity_id + " = " + node.state);
                 continue;
             }
 
-            String causingAction = node.getExecutionEvent().getResponsibleAction(node.getState().context);
+            // TODO: FIX
+            /* String causingAction = node.getExecutionEvent().getResponsibleAction(node.context);
 
             if (causingAction == null) {
                 // The state is not caused by a rule
@@ -106,19 +108,21 @@ public class Conflict {
             if (!this.conflictingActions.contains(action)) {
                 this.addAction(action);
                 actionAdded = true;
-            }
+            } */
         }
         return actionAdded;
     }
 
-    public boolean containsSameActions(List<CausalNode> conflictingChanges) {
-        for (CausalNode conflictChange : conflictingChanges) {
+    public boolean containsSameActions(List<HassioState> conflictingChanges) {
+        for (HassioState conflictChange : conflictingChanges) {
             for (ConflictingAction conflictingAction : conflictingActions) {
-                if (conflictChange.getExecutionEvent().actionContexts.containsKey(conflictingAction.action_id)) {
+                // TODO FIX
+              //  if (conflictChange.getExecutionEvent().actionContexts.containsKey(conflictingAction.action_id)) {
                     return true;
-                }
+              //  }
             }
         }
+
         return false;
     }
 

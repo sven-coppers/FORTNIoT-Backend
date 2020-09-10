@@ -1,5 +1,6 @@
 package sven.phd.iot.predictions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.updates.ExecutionEvent;
 import sven.phd.iot.students.mathias.ConflictSolver;
@@ -11,8 +12,8 @@ import java.util.*;
 
 public class Future {
     /** For convenience in conflict detection algorithms, the first state of every entity is the CURRENT state */
-    @JsonProperty("states_causal_map") private HashMap<String, Stack<CausalNode>> causalNodeListMap;
-    @JsonProperty("executions") public List<ExecutionEvent> futureExecutions;
+    @JsonProperty("states_causal_map") private HashMap<String, Stack<HassioState>> causalNodeListMap;
+    @JsonProperty("executions") public Stack<ExecutionEvent> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
     @JsonProperty("conflict_solutions") public List<ConflictSolution> futureConflictSolutions;
     @JsonProperty("last_generated") public Date lastGenerated;
@@ -29,7 +30,7 @@ public class Future {
      * @param initialStates
      */
     public Future(HashMap<String, HassioState> initialStates) {
-        this.futureExecutions = new ArrayList<>();
+        this.futureExecutions = new Stack<>();
         this.futureConflicts = new ArrayList<>();
         this.futureConflictSolutions = new ArrayList<>();
         this.lastGenerated = new Date();
@@ -47,7 +48,7 @@ public class Future {
 
         for(String entityID : initialStates.keySet()) {
             causalNodeListMap.put(entityID, new Stack<>());
-            causalNodeListMap.get(entityID).add(new CausalNode(initialStates.get(entityID), null));
+            causalNodeListMap.get(entityID).add(initialStates.get(entityID));
         }
     }
 
@@ -101,7 +102,11 @@ public class Future {
      * Get a cached version of the prediction of the future executions
      */
     public List<ExecutionEvent> getFutureExecutions() {
-        return this.futureExecutions;
+        List<ExecutionEvent> ruleExecutions = new ArrayList<>();
+
+        return ruleExecutions;
+
+       // return this.futureExecutions;
     }
 
     /**
@@ -115,7 +120,7 @@ public class Future {
         // Insert all states in an ordered queue, which will automatically sort all states regardless of their entity
         for(String entityID : this.causalNodeListMap.keySet()) {
             for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) { // Skip the first item!
-                queue.add(this.causalNodeListMap.get(entityID).get(i).getState());
+                queue.add(this.causalNodeListMap.get(entityID).get(i));
                 //System.out.println("\t" + this.causalNodeListMap.get(entityID).get(i).getState().getLastUpdated() + " " + this.causalNodeListMap.get(entityID).get(i).getState().state);
             }
         }
@@ -139,7 +144,7 @@ public class Future {
 
         if(this.causalNodeListMap.containsKey(entityID)) {
             for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) { // Skip the first item!
-                result.add(this.causalNodeListMap.get(entityID).get(i).getState());
+                result.add(this.causalNodeListMap.get(entityID).get(i));
             }
         }
 
@@ -150,9 +155,9 @@ public class Future {
      * Add a list of future changes THAT will happen at the same time to the list of predictions
      * @param newNodes the list of future changes
      */
-    public void addFutureStates(List<CausalNode> newNodes) {
-        for(CausalNode causalNode : newNodes) {
-            this.causalNodeListMap.get(causalNode.getState().entity_id).push(causalNode);
+    public void addFutureStates(List<HassioState> newNodes) {
+        for(HassioState hassioState : newNodes) {
+            this.causalNodeListMap.get(hassioState.entity_id).push(hassioState);
         }
     }
 
@@ -232,13 +237,42 @@ public class Future {
      * For each entity, get the most up-to-date prediction
      * @return
      */
-    public HashMap<String, CausalNode> getLastStates() {
-        HashMap<String, CausalNode> lastStates = new HashMap<>();
+    @JsonIgnore
+    public HashMap<String, HassioState> getLastStates() {
+        HashMap<String, HassioState> lastStates = new HashMap<>();
 
         for(String entityID: this.causalNodeListMap.keySet()) {
             lastStates.put(entityID, this.causalNodeListMap.get(entityID).peek());
         }
 
         return lastStates;
+    }
+
+    /**
+     * Get the number of deduced predictions (states WITH an execution event)
+     * @return
+     */
+    public int getNumDeducedPredictions() {
+        int result = 0;
+
+        for(HassioState state : this.getFutureStates()) {
+            if(state.getExecutionEvent() != null) result++;
+        }
+
+        return result;
+    }
+
+    /**
+     * Get the number of self-sustaining predictions (states WITHOUT an execution event)
+     * @return
+     */
+    public int getNumSelfSustainingPredictions() {
+        int result = 0;
+
+        for(HassioState state : this.getFutureStates()) {
+            if(state.getExecutionEvent() == null) result++;
+        }
+
+        return result;
     }
 }

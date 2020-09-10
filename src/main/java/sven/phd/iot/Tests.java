@@ -1,15 +1,7 @@
 package sven.phd.iot;
 
-import sven.phd.iot.hassio.light.HassioLightAttributes;
-import sven.phd.iot.hassio.person.HassioPersonAttributes;
-import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.sun.HassioSunAttributes;
-import sven.phd.iot.hassio.tv.HassioTVAttributes;
-import sven.phd.iot.predictions.CausalNode;
 import sven.phd.iot.hassio.states.HassioAbstractState;
-import sven.phd.iot.scenarios.cases.InconsistencyDevices;
 
-import java.util.Date;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -29,6 +21,8 @@ public class Tests {
      //   queue.add(new HassioCalendarState("3000", "bus", new Date(3000), "test", "test"));
 
         printQueue(queue);
+
+        tests();
     }
 
     private static void printQueue(Queue<HassioAbstractState> queue) {
@@ -47,7 +41,7 @@ public class Tests {
         }
     }
 
-    private void tests() {
+    private static void tests() {
         //List<HassioState> hassioStateList = new ArrayList<HassioState>();
         // hassioStateList.add(new HassioSunState());
 

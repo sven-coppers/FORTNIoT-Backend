@@ -7,6 +7,7 @@ import org.glassfish.jersey.media.sse.EventListener;
 import org.glassfish.jersey.media.sse.EventSource;
 import org.glassfish.jersey.media.sse.InboundEvent;
 import org.glassfish.jersey.media.sse.SseFeature;
+import org.junit.Rule;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.bus.HassioBus;
@@ -26,7 +27,8 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.states.HassioStateRaw;
 import sven.phd.iot.hassio.sun.HassioSun;
 import sven.phd.iot.hassio.tracker.HassioDeviceTracker;
-import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.predictions.Future;
+import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.hassio.weather.HassioWeather;
 import sven.phd.iot.students.bram.questions.why.user.UserService;
 
@@ -229,7 +231,45 @@ public class HassioDeviceManager implements EventListener {
         return contexts;
     }
 
-    public List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+    /**
+     * NEW: Give devices a chance to predict RuleExecutions
+     * @param newDate
+     * @param future
+     * @return
+     */
+    public List<RuleExecution> predictImplicitRules(Date newDate, Future future){
+        HashMap<String, HassioState> hassioStates = future.getLastStates();
+        List<RuleExecution> results = new ArrayList<>();
+
+        for(String entityID : hassioDeviceMap.keySet()) {
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
+
+            results.addAll(hassioDeviceMap.get(entityID).predictImplicitRuleTriggers(newDate, hassioStates));
+        }
+
+        return results;
+    }
+
+    /**
+     * NEW: Ask devices to simulate their implicit rules
+     * @param newDate
+     * @return
+     */
+    public List<HassioState> simulateImplicitRuleActions(Date newDate, Future future, List<RuleExecution> ruleExecutions) {
+        HashMap<String, HassioState> hassioStates = future.getLastStates();
+        List<HassioState> results = new ArrayList<>();
+
+        for(RuleExecution ruleExecution : ruleExecutions) {
+            results.addAll(hassioDeviceMap.get(ruleExecution.ruleID).simulateImplicitRuleActions(newDate, hassioStates));
+
+            future.addExecutionEvent(ruleExecution);
+        }
+
+        return results;
+    }
+
+
+ /*   public List<RuleExecution> predictImplicitRules(Date newDate, HashMap<String, HassioState> lastHassioStates) {
         HashMap<String, HassioState> newHassioStates = new HashMap<>();
 
         // Make a copy
@@ -237,7 +277,7 @@ public class HassioDeviceManager implements EventListener {
             newHassioStates.put(entityID, lastHassioStates.get(entityID));
         }
 
-        List<ImplicitBehaviorEvent> results = new ArrayList<>();
+        List<RuleExecution> results = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
             if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
@@ -245,10 +285,10 @@ public class HassioDeviceManager implements EventListener {
             results.addAll(hassioDeviceMap.get(entityID).predictImplicitRules(newDate, newHassioStates));
         }
 
-        results = mergeDuplicates(results);
+     /*   results = mergeDuplicates(results);
 
         // Process the change events
-        for(ImplicitBehaviorEvent changeEvent : results) {
+        for(RuleExecution changeEvent : results) {
             // Finally update the last_changed field
             for(String actionID : changeEvent.getActionDeviceIDs().keySet()) {
                 for(String changedDevice : changeEvent.getActionDeviceIDs().get(actionID)) {
@@ -262,13 +302,13 @@ public class HassioDeviceManager implements EventListener {
         }
 
         return results;
-    }
+    }*/
 
     /**
      * Ask which states change based on the new context to the devices themselves
      * @return
      */
-    public List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> lastHassioStates) {
+   /* public List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> lastHassioStates) {
         HashMap<String, HassioState> newHassioStates = new HashMap<>();
 
         // Make a copy
@@ -276,18 +316,18 @@ public class HassioDeviceManager implements EventListener {
             newHassioStates.put(entityID, lastHassioStates.get(entityID));
         }
 
-        List<ImplicitBehaviorEvent> results = new ArrayList<>();
+        List<RuleExecution> results = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
             if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-            results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates, this.hassioDeviceMap));
+            results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates));
         }
 
-        results = mergeDuplicates(results);
+   /*     results = mergeDuplicates(results);
 
         // Process the change events
-        for(ImplicitBehaviorEvent changeEvent : results) {
+        for(RuleExecution changeEvent : results) {
             // Finally update the last_changed field
             for(String actionID : changeEvent.getActionDeviceIDs().keySet()) {
                 for(String changedDevice : changeEvent.getActionDeviceIDs().get(actionID)) {
@@ -301,15 +341,15 @@ public class HassioDeviceManager implements EventListener {
         }
 
         return results;
-    }
+    } */
 
-    private List<ImplicitBehaviorEvent> mergeDuplicates(List<ImplicitBehaviorEvent> events) {
-        List<ImplicitBehaviorEvent> result = new ArrayList<>();
+   /* private List<RuleExecution> mergeDuplicates(List<RuleExecution> events) {
+        List<RuleExecution> result = new ArrayList<>();
 
-        for(ImplicitBehaviorEvent consideringEvent : events) {
-            ImplicitBehaviorEvent foundUniqueEvent = null;
+        for(RuleExecution consideringEvent : events) {
+            RuleExecution foundUniqueEvent = null;
 
-            for(ImplicitBehaviorEvent uniqueEvent: result) {
+            for(RuleExecution uniqueEvent: result) {
                 for(String actionID : consideringEvent.getActionDeviceIDs().keySet()) {
                     for(String consideringEventAction : consideringEvent.getActionDeviceIDs().get(actionID)) {
                         if(uniqueEvent.getActionDeviceIDs().get(actionID).contains(consideringEventAction)) {
@@ -342,7 +382,7 @@ public class HassioDeviceManager implements EventListener {
         }
 
         return result;
-    }
+    } */
 
     /**
      * Called everytime HASSIO sends an event

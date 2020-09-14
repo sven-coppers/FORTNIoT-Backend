@@ -1,12 +1,12 @@
 package sven.phd.iot.hassio.sensor;
 
+import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.climate.HassioCooler;
-import sven.phd.iot.hassio.climate.HassioCoolerAttributes;
 import sven.phd.iot.hassio.climate.HassioHeater;
-import sven.phd.iot.hassio.climate.HassioHeaterAttributes;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.rules.ActionExecution;
+import sven.phd.iot.rules.RuleExecution;
 
 import java.util.*;
 
@@ -14,6 +14,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
     private List<String> heaterIDs;
     private List<String> coolerIDs;
     private String thermostatID;
+    private Map<String, HassioDevice> hassioDeviceMap;
 
     private double variationRate; // Degrees per hour
 
@@ -24,31 +25,33 @@ public class HassioIndoorTempSensor extends HassioSensor {
         this.thermostatID = thermostatID;
 
         this.variationRate = variationRate;
+        this.hassioDeviceMap = ContextManager.getInstance().getHassioDeviceManager().getDevices();
     }
 
     @Override
-    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates, Map<String, HassioDevice> hassioDeviceMap) {
-        List<ImplicitBehaviorEvent> result = new ArrayList<>();
+    protected List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
+        List<RuleExecution> result = new ArrayList<>();
 
         HassioState thermostatState = hassioStates.get(this.thermostatID);
+        HassioState thermometerState = hassioStates.get(this.entityID);
 
         Date oldDate = hassioStates.get(this.entityID).getLastChanged();
         Long deltaTimeInMilliseconds = newDate.getTime() - oldDate.getTime();
         double deltaTimeInHours = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0 * 60.0);
-        double currentTemp = Double.parseDouble((hassioStates.get(this.entityID).state));
+        double currentTemp = Double.parseDouble(thermometerState.state);
         double newTemp = currentTemp;
         boolean allEco = true;
 
-        ImplicitBehaviorEvent newStateEvent = new ImplicitBehaviorEvent(newDate);
+        RuleExecution newStateEvent = new RuleExecution(newDate);
+        newStateEvent.addTriggerContext(thermometerState.context);
 
         for(String heaterID : heaterIDs) {
             HassioState heaterState = hassioStates.get(heaterID);
             HassioHeater heater = ((HassioHeater) hassioDeviceMap.get(heaterID));
 
             if(heaterState != null && heater != null && heaterState.state.equals("heating")) {
-
                 newTemp += heater.getOnRate() * deltaTimeInHours;
-                newStateEvent.addTriggerDeviceID(heaterID);
+                newStateEvent.addConditionContext(heaterState.context);
                 allEco = false;
             }
         }
@@ -59,7 +62,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
 
             if(coolerState != null && coolerID != null && coolerState.state.equals("cooling")) {
                 newTemp += cooler.getOnRate() * deltaTimeInHours;
-                newStateEvent.addTriggerDeviceID(coolerID);
+                newStateEvent.addConditionContext(coolerState.context);
                 allEco = false;
             }
         }
@@ -80,8 +83,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
 
         // Give the new state the old date, because it might be changed by another device as well
         hassioStates.put(this.entityID, new HassioState(this.entityID, "" + newTemp, oldDate, new HassioSensorAttributes("temperature", "°C")));
-        newStateEvent.addActionDeviceID(this.entityID);
-        newStateEvent.addTriggerDeviceID(this.entityID);
+        newStateEvent.addActionExecution(new ActionExecution(this.entityID, hassioStates.get(entityID).context));
         result.add(newStateEvent);
 
         return result;

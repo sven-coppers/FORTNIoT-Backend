@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.rules.ActionExecution;
+import sven.phd.iot.rules.RuleExecution;
 
 import java.io.IOException;
 import java.util.*;
@@ -32,8 +33,8 @@ public class HassioCleaner extends HassioDevice {
      * This function is called ONCE at the beginning of every 'frame' in the simulation
      * @return
      */
-    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates, Map<String, HassioDevice> hassioDeviceMap) {
-        ArrayList<ImplicitBehaviorEvent> result = new ArrayList<>();
+    protected List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
+        ArrayList<RuleExecution> result = new ArrayList<>();
 
         HassioState roombaState = hassioStates.get(this.entityID);
         HassioState batteryState = hassioStates.get(this.batteryID);
@@ -44,22 +45,22 @@ public class HassioCleaner extends HassioDevice {
         Long deltaTimeInMilliseconds = newDate.getTime() - batteryState.getLastChanged().getTime();
         double deltaTimeInMinutes = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0);
         double newBatteryState = oldBatteryState;
-        ImplicitBehaviorEvent event = new ImplicitBehaviorEvent(newDate);
-        event.addActionDeviceID(this.batteryID);
+        RuleExecution event = new RuleExecution(newDate);
 
         if(roombaState.state.equals("cleaning")) {
             newBatteryState -= (deltaTimeInMinutes / depletionMinutesPerProcent);
-            event.addTriggerDeviceID(this.entityID);
+            event.addTriggerContext(roombaState.context);
         } else if(roombaState.state.equals("docked")) {
             newBatteryState = Math.min(100.0, newBatteryState + (deltaTimeInMinutes / chargingMinutesPerProcent));
 
-            event.addTriggerDeviceID(this.batteryID);
+            event.addTriggerContext(batteryState.context);
             if(newBatteryState != 100.0) {
-                event.addTriggerDeviceID(this.entityID);
+                event.addTriggerContext(roombaState.context);
             }
         }
 
         hassioStates.put(this.batteryID, new HassioState(this.batteryID, "" + newBatteryState, batteryState.getLastChanged(), null));
+        event.addActionExecution(new ActionExecution("battery_update", hassioStates.get(this.batteryID).context));
 
         result.add(event);
         return result;

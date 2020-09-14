@@ -3,10 +3,10 @@ package sven.phd.iot.students.mathias.states;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.rules.Action;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class ConflictSolution {
@@ -95,12 +95,13 @@ public class ConflictSolution {
     }
 
     public boolean matchesConflict(Conflict conflict) {
-        if(conflict.conflictingActions.size() != this.conflictingActions.size()) return false;
+        // TODO: Fix
+      /*  if(conflict.conflictingActions.size() != this.conflictingActions.size()) return false;
 
         // Check if all actions in the conflict match our conflicting actions
         for(ConflictingAction conflictingAction : conflict.conflictingActions) {
             if(!this.conflictingActions.contains(conflictingAction)) return false;
-        }
+        } */
 
         return true;
     }

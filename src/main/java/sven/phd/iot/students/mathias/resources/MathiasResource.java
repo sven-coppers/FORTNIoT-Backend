@@ -82,15 +82,4 @@ public class MathiasResource {
     public List<Action> getActions() {
         return new ArrayList<>(ContextManager.getInstance().getActions().values());
     }
-
-    /**
-     * Get the future.
-     * @return Get the actions.
-     */
-    @Path("future/")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Future getFuture() {
-        return ContextManager.getInstance().getPredictionEngine().getFuture();
-    }
 }

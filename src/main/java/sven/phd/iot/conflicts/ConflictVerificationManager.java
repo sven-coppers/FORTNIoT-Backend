@@ -3,7 +3,6 @@ package sven.phd.iot.conflicts;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.scenarios.cases.BedroomTempDevices;
-import sven.phd.iot.students.mathias.states.Conflict;
 
 import java.util.*;
 
@@ -23,18 +22,21 @@ public class ConflictVerificationManager {
      * Check if the hassioChange causes this trigger to be triggered
      *
      * @param future
-     * @param newStates
+     * @param newState
      * @return a list Conflicts that may be caused
      */
-    public List<Conflict> verifyConflicts(Date simulationTime, Future future, List<HassioState> newStates) {
+    public List<Conflict> verifyConflicts(Date simulationTime, Future future, HassioState newState) {
         List<Conflict> conflicts = new ArrayList<>();
 
         for(String verifierID : this.conflictVerifiers.keySet()) {
-            if(this.conflictVerifiers.get(verifierID).isEnabled()) { // Maybe also ask if it is interested?
-                for(HassioState newState : newStates) {
-                    if(this.conflictVerifiers.get(verifierID).isInterestedIn(newState)) {
-                        conflicts.addAll(this.conflictVerifiers.get(verifierID).verifyConflicts(simulationTime, future, newState));
-                    }
+            ConflictVerifier verifier = this.conflictVerifiers.get(verifierID);
+
+            if(verifier.isInterestedIn(newState) && verifier.isEnabled()) {
+                List<Conflict> newConflicts = this.conflictVerifiers.get(verifierID).verifyConflicts(simulationTime, future, newState);
+
+                for(Conflict newConflict : newConflicts) {
+                    newConflict.print();
+                    conflicts.add(newConflict);
                 }
             }
         }

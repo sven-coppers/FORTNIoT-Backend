@@ -1,6 +1,7 @@
 package sven.phd.iot.students.mathias.resources;
 
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.students.mathias.response.HassioSolutionResponse;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
@@ -50,7 +51,18 @@ public class SolutionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public HassioSolutionResponse removeConflictSolution(ConflictSolution conflictSolutionRequest)  {
-        ContextManager.getInstance().removeConflictSolution(conflictSolutionRequest);
+        // TODO: Fix
+
+      /*  Conflict conflict = new Conflict();
+        conflict.conflictingEntities.add(conflictSolutionRequest.entity_id);
+        conflict.setConflictingActions(conflictSolutionRequest.getConflictingActions());
+        conflictSolutionManager.removeSolution(conflict);
+        this.updateFuturePredictions();
+
+
+
+
+        ContextManager.getInstance().getConflictSolutionManager().removeSolution(conflictSolutionRequest); */
 
         HassioSolutionResponse response = new HassioSolutionResponse();
         response.success = true;
@@ -67,7 +79,10 @@ public class SolutionResource {
         for (Action action : conflictSolutionRequest.getCustomActions()) {
             action.generateNewID();
         }
-        ContextManager.getInstance().updateConflictSolution(conflictSolutionRequest);
+
+        // TODO: FIX
+     //   ContextManager.getInstance().updateConflictSolution(conflictSolutionRequest);
+
 
         HassioSolutionResponse response = new HassioSolutionResponse();
         response.success = true;

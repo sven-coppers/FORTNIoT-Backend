@@ -1,10 +1,8 @@
 package sven.phd.iot.conflicts;
 
-import sven.phd.iot.ContextManager;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.scenarios.cases.InconsistencyDevices;
-import sven.phd.iot.students.mathias.states.Conflict;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.students.mathias.states.ConflictingAction;
 

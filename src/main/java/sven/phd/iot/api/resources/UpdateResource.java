@@ -5,8 +5,6 @@ import org.glassfish.jersey.media.sse.OutboundEvent;
 import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
 import org.glassfish.jersey.server.ChunkedOutput;
-import sven.phd.iot.ContextManager;
-import sven.phd.iot.hassio.updates.HassioUpdate;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -42,11 +40,11 @@ public class UpdateResource {
      * Get all updates (events and state changes), from the past, present, and future
      * @return past, present and future updates (events and state changes)
      */
-    @GET
+   /* @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<HassioUpdate> getUpdates() {
         return new ArrayList<>(); // ContextManager.getInstance().getAllUpdates(); // NO LONGER SUPPORTED
-    }
+    } */
 
     /**
      * Get the new SSE change stream channel.
@@ -87,12 +85,12 @@ public class UpdateResource {
      * Broadcast a message to this channel
      * @param hassioUpdate
      */
-    public void broadcastUpdate(HassioUpdate hassioUpdate) {
+   /* public void broadcastUpdate(HassioUpdate hassioUpdate) {
         final OutboundEvent event = new OutboundEvent.Builder()
                 .mediaType(MediaType.APPLICATION_JSON_TYPE)
                 .data(HassioUpdate.class, hassioUpdate)
                 .build();
 
         updateBroadcaster.broadcast(event);
-    }
+    } */
 }

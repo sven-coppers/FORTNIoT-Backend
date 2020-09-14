@@ -1,7 +1,7 @@
 package sven.phd.iot.students.mathias.resources;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.students.mathias.states.Conflict;
+import sven.phd.iot.conflicts.Conflict;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

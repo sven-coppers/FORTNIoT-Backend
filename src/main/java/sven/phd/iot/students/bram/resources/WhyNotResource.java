@@ -3,7 +3,6 @@ package sven.phd.iot.students.bram.resources;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.hassio.updates.RuleExecutionEvent;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.students.bram.questions.why.WhyResult;

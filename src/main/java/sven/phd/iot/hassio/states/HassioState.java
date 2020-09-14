@@ -1,11 +1,10 @@
 package sven.phd.iot.hassio.states;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 
 public class HassioState extends HassioAbstractState {
     public HassioAttributes attributes;
-    @JsonProperty("caused_by_event") private String executionEvent;
+  //  @JsonProperty("caused_by_action_execution") private String actionExecutionEvent;
 
     public HassioState(String entityID, String state, Date date, HassioAttributes attributes) {
         super(new HassioContext(entityID, date), entityID, date, date, state);
@@ -25,13 +24,13 @@ public class HassioState extends HassioAbstractState {
         this.attributes = hassioState.attributes;
     }
 
-    public String getExecutionEvent() {
-        return executionEvent;
+  /*  public String getActionExecutionEvent() {
+        return actionExecutionEvent;
     }
 
-    public void setExecutionEvent(String executionEvent) {
-        this.executionEvent = executionEvent;
-    }
+    public void setActionExecutionEvent(String executionEvent) {
+        this.actionExecutionEvent = executionEvent;
+    } */
 
    /* public Conflict compareAttributes(HassioState state) {
         /*

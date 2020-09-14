@@ -2,18 +2,18 @@ package sven.phd.iot.predictions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sven.phd.iot.hassio.updates.ExecutionEvent;
-import sven.phd.iot.students.mathias.ConflictSolver;
+import sven.phd.iot.rules.ActionExecution;
+import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
-import sven.phd.iot.students.mathias.states.Conflict;
+import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
 
 import java.util.*;
 
 public class Future {
     /** For convenience in conflict detection algorithms, the first state of every entity is the CURRENT state */
-    @JsonProperty("states_causal_map") private HashMap<String, Stack<HassioState>> causalNodeListMap;
-    @JsonProperty("executions") public Stack<ExecutionEvent> futureExecutions;
+    @JsonProperty("states_causal_map") private HashMap<String, Stack<HassioState>> entityStateStackMap;
+    @JsonProperty("executions") public Stack<RuleExecution> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
     @JsonProperty("conflict_solutions") public List<ConflictSolution> futureConflictSolutions;
     @JsonProperty("last_generated") public Date lastGenerated;
@@ -44,23 +44,23 @@ public class Future {
      * @param initialStates
      */
     private void initCausalNodeListMap(HashMap<String, HassioState> initialStates) {
-        this.causalNodeListMap = new HashMap<>();
+        this.entityStateStackMap = new HashMap<>();
 
         for(String entityID : initialStates.keySet()) {
-            causalNodeListMap.put(entityID, new Stack<>());
-            causalNodeListMap.get(entityID).add(initialStates.get(entityID));
+            entityStateStackMap.put(entityID, new Stack<>());
+            entityStateStackMap.get(entityID).add(initialStates.get(entityID));
         }
     }
 
     /**
      * Get the future executions of this rule
      */
-    public List<ExecutionEvent> getExecutionFuture(String entityID) {
-        List<ExecutionEvent> result = new ArrayList<>();
+    public List<RuleExecution> getExecutionFuture(String entityID) {
+        List<RuleExecution> result = new ArrayList<>();
 
-        for(ExecutionEvent executionEvent : this.futureExecutions) {
-            if(executionEvent.entity_id.equals(entityID)) {
-                result.add(executionEvent);
+        for(RuleExecution ruleExecution : this.futureExecutions) {
+            if(ruleExecution.ruleID.equals(entityID)) {
+                result.add(ruleExecution);
             }
         }
 
@@ -71,7 +71,7 @@ public class Future {
      * Allow the prediction engine to add a predicted triggerEvent of this rule
      * @param triggerEvent
      */
-    public void addExecutionEvent(ExecutionEvent triggerEvent) {
+    public void addExecutionEvent(RuleExecution triggerEvent) {
         this.futureExecutions.add(triggerEvent);
     }
 
@@ -101,12 +101,27 @@ public class Future {
     /**
      * Get a cached version of the prediction of the future executions
      */
-    public List<ExecutionEvent> getFutureExecutions() {
-        List<ExecutionEvent> ruleExecutions = new ArrayList<>();
+    public List<RuleExecution> getFutureExecutions() {
+        List<RuleExecution> ruleExecutions = new ArrayList<>();
 
         return ruleExecutions;
 
        // return this.futureExecutions;
+    }
+
+    /**
+     * Get the execution event with this executionID
+     * @param executionID
+     * @return
+     */
+    public RuleExecution getExecution(String executionID) {
+        for(RuleExecution event : this.futureExecutions) {
+            if(event.ruleID.equals(executionID)) {
+                return event;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -118,9 +133,9 @@ public class Future {
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
 
         // Insert all states in an ordered queue, which will automatically sort all states regardless of their entity
-        for(String entityID : this.causalNodeListMap.keySet()) {
-            for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) { // Skip the first item!
-                queue.add(this.causalNodeListMap.get(entityID).get(i));
+        for(String entityID : this.entityStateStackMap.keySet()) {
+            for(int i = 1; i < this.entityStateStackMap.get(entityID).size(); ++i) { // Skip the first item!
+                queue.add(this.entityStateStackMap.get(entityID).get(i));
                 //System.out.println("\t" + this.causalNodeListMap.get(entityID).get(i).getState().getLastUpdated() + " " + this.causalNodeListMap.get(entityID).get(i).getState().state);
             }
         }
@@ -142,9 +157,9 @@ public class Future {
     public List<HassioState> getFutureStates(String entityID) {
         List<HassioState> result = new ArrayList<>();
 
-        if(this.causalNodeListMap.containsKey(entityID)) {
-            for(int i = 1; i < this.causalNodeListMap.get(entityID).size(); ++i) { // Skip the first item!
-                result.add(this.causalNodeListMap.get(entityID).get(i));
+        if(this.entityStateStackMap.containsKey(entityID)) {
+            for(int i = 1; i < this.entityStateStackMap.get(entityID).size(); ++i) { // Skip the first item!
+                result.add(this.entityStateStackMap.get(entityID).get(i));
             }
         }
 
@@ -152,12 +167,29 @@ public class Future {
     }
 
     /**
-     * Add a list of future changes THAT will happen at the same time to the list of predictions
-     * @param newNodes the list of future changes
+     * Get the second last state for an entity, useful when creating hassioChanges where
+     * @param entityID
+     * @return
      */
-    public void addFutureStates(List<HassioState> newNodes) {
-        for(HassioState hassioState : newNodes) {
-            this.causalNodeListMap.get(hassioState.entity_id).push(hassioState);
+    public HassioState getSecondLastState(String entityID) {
+        if(this.entityStateStackMap.containsKey(entityID)) {
+            Stack<HassioState> stateStack = this.entityStateStackMap.get(entityID);
+
+            return stateStack.get(stateStack.size() - 2);
+        }
+
+        return null;
+    }
+
+    /**
+     * Add a list of future changes THAT will happen at the same time to the list of predictions
+     * @param newState the new state future changes
+     */
+    public void addFutureState(HassioState newState) {
+        if(this.entityStateStackMap.containsKey(newState.entity_id)) {
+            this.entityStateStackMap.get(newState.entity_id).push(newState);
+        } else {
+            System.err.println("Could not add state = " + newState.state + " to entity " + newState.entity_id + " because the entity could not be found");
         }
     }
 
@@ -175,8 +207,10 @@ public class Future {
         List<Conflict> result = new ArrayList<>();
 
         for(Conflict hassioConflict : this.futureConflicts) {
-            if(hassioConflict.conflictingEntities.contains(deviceID)) {
-                result.add(hassioConflict);
+            for(HassioState conflictingState : hassioConflict.getConflictingStates()) {
+                if(conflictingState.entity_id.equals(deviceID)) {
+                    result.add(hassioConflict);
+                }
             }
         }
 
@@ -241,8 +275,8 @@ public class Future {
     public HashMap<String, HassioState> getLastStates() {
         HashMap<String, HassioState> lastStates = new HashMap<>();
 
-        for(String entityID: this.causalNodeListMap.keySet()) {
-            lastStates.put(entityID, this.causalNodeListMap.get(entityID).peek());
+        for(String entityID: this.entityStateStackMap.keySet()) {
+            lastStates.put(entityID, this.entityStateStackMap.get(entityID).peek());
         }
 
         return lastStates;
@@ -255,8 +289,10 @@ public class Future {
     public int getNumDeducedPredictions() {
         int result = 0;
 
-        for(HassioState state : this.getFutureStates()) {
-            if(state.getExecutionEvent() != null) result++;
+        for(RuleExecution ruleExecution : this.futureExecutions) {
+            for(ActionExecution actionExecution : ruleExecution.getActionExecutions()) {
+                result += actionExecution.resultingContexts.size();
+            }
         }
 
         return result;
@@ -267,12 +303,14 @@ public class Future {
      * @return
      */
     public int getNumSelfSustainingPredictions() {
-        int result = 0;
+        return this.getFutureStates().size() - this.getNumDeducedPredictions();
+    }
 
-        for(HassioState state : this.getFutureStates()) {
-            if(state.getExecutionEvent() == null) result++;
+    public Stack<HassioState> getEntityStateStack(String entity_id) {
+        if(this.entityStateStackMap.containsKey(entity_id)) {
+            return entityStateStackMap.get(entity_id);
         }
 
-        return result;
+        return null;
     }
 }

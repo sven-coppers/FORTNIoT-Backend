@@ -1,26 +1,20 @@
-package sven.phd.iot.students.mathias.states;
+package sven.phd.iot.conflicts;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import sven.phd.iot.ContextManager;
-import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioDateDeserializer;
 import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.rules.Action;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class Conflict {
+    @JsonProperty("conflicting_states") public List<HassioState> conflictingStates;
+
     @JsonProperty("conflict_type") public String conflictType;
-    @JsonProperty("conflicting_entities") public List<String> conflictingEntities;
-    @JsonProperty("conflicting_actions") public List<ConflictingAction> conflictingActions;
 
     @JsonDeserialize(using = HassioDateDeserializer.class)
     @JsonSerialize(using = HassioDateSerializer.class)
@@ -28,11 +22,22 @@ public class Conflict {
 
     public Conflict() {
         // Default constructor
+        this.conflictingStates = new ArrayList<>();
     }
 
-    public Conflict(String conflictType, Date date, List<String> conflictingEntities, List<HassioState> conflictingChanges) {
+    public Conflict(String conflictType, Date date) {
+        this.conflictingStates = new ArrayList<>();
         this.conflictType = conflictType;
         this.conflictTime = date;
+    }
+
+    public Conflict(String conflictType, Date date, List<HassioState> conflictingStates) {
+        this.conflictingStates = conflictingStates;
+        this.conflictType = conflictType;
+        this.conflictTime = date;
+    }
+
+    /*public Conflict(List<String> conflictingEntities, List<HassioState> conflictingChanges) {
         this.conflictingEntities = conflictingEntities;
         this.conflictingActions = new ArrayList<>();
 
@@ -49,45 +54,23 @@ public class Conflict {
                 // The state is not caused by a rule
                 System.err.println("The conflicting state is not caused by a rule");
             }
-
-            this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id)); */
+this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id));
         }
+    }*/
+
+    public void addConflictState(HassioState hassioState) {
+        this.conflictingStates.add(hassioState);
     }
 
-    public Conflict(List<String> conflictingEntities, List<HassioState> conflictingChanges) {
-        this.conflictingEntities = conflictingEntities;
-        this.conflictingActions = new ArrayList<>();
-
-        for (HassioState node : conflictingChanges) {
-            if (node.getExecutionEvent() == null) {
-                System.err.println("The conflicting state did not have an execution event for " + node.entity_id + " = " + node.state);
-                continue;
-            }
-
-            // TODO: FIX
-            /*String causingAction = node.getExecutionEvent().getResponsibleAction(node.context);
-
-            if (causingAction == null) {
-                // The state is not caused by a rule
-                System.err.println("The conflicting state is not caused by a rule");
-            }
-this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id)); */
-        }
+    public List<HassioState> getConflictingStates() {
+        return conflictingStates;
     }
 
-    public void addAction(ConflictingAction conflictingActionState) {
-        this.conflictingActions.add(conflictingActionState);
+    public void addConflictingStates(List<HassioState> conflictingStates) {
+        this.conflictingStates.addAll(conflictingStates);
     }
 
-    public List<ConflictingAction> getConflictingActions() {
-        return conflictingActions;
-    }
-
-    public void setConflictingActions(List<ConflictingAction> conflictingActions) {
-        this.conflictingActions = conflictingActions;
-    }
-
-    public boolean updateConflict(List<HassioState> conflictingChanges) {
+  /*  public boolean updateConflict(List<HassioState> conflictingChanges) {
         boolean actionAdded = false;
         for (HassioState node : conflictingChanges) {
             if (node.getExecutionEvent() == null) {
@@ -108,12 +91,12 @@ this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().ent
             if (!this.conflictingActions.contains(action)) {
                 this.addAction(action);
                 actionAdded = true;
-            } */
+            }
         }
         return actionAdded;
-    }
+    } */
 
-    public boolean containsSameActions(List<HassioState> conflictingChanges) {
+  /*  public boolean containsSameActions(List<HassioState> conflictingChanges) {
         for (HassioState conflictChange : conflictingChanges) {
             for (ConflictingAction conflictingAction : conflictingActions) {
                 // TODO FIX
@@ -124,9 +107,9 @@ this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().ent
         }
 
         return false;
-    }
+    } */
 
-    @JsonIgnore
+  /*  @JsonIgnore
     public boolean isLoop() {
         List<String> devices = new ArrayList<>();
         for (ConflictingAction conflictAction : conflictingActions) {
@@ -142,9 +125,9 @@ this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().ent
             }
         }
         return false;
-    }
+    } */
 
-    @JsonIgnore
+    /*@JsonIgnore
     public boolean isRedundancy() {
         for (int i = 0, j = 1; j < conflictingActions.size(); ++i, ++j) {
             if (!ContextManager.getInstance().getActionById(conflictingActions.get(i).action_id).isSimilar(ContextManager.getInstance().getActionById(conflictingActions.get(j).action_id))) {
@@ -152,5 +135,15 @@ this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().ent
             }
         }
         return true;
+    } */
+
+    public void print() {
+        System.out.print("\t" + this.conflictType + ": ");
+
+        for(HassioState state : this.conflictingStates) {
+            System.out.print(state.entity_id + " = " + state.state + ", ");
+        }
+
+        System.out.println();
     }
 }

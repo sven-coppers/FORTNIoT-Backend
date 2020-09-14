@@ -2,11 +2,12 @@ package sven.phd.iot.hassio;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Rule;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.*;
-import sven.phd.iot.hassio.updates.ImplicitBehaviorEvent;
+import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.rules.Action;
 
 import javax.ws.rs.client.*;
@@ -96,11 +97,31 @@ abstract public class HassioDevice {
     }
 
     /**
+     * NEW: Give devices a chance to predict RuleExecutions
+     * @param newDate
+     * @param hassioStates
+     * @return
+     */
+    protected List<RuleExecution> predictImplicitRuleTriggers(Date newDate, HashMap<String, HassioState> hassioStates){
+        return new ArrayList<>(); // Most devices do not change on other devices
+    }
+
+    /**
+     * NEW: Ask devices to simulate their implicit rules
+     * @param newDate
+     * @param hassioStates
+     * @return
+     */
+    protected List<HassioState> simulateImplicitRuleActions(Date newDate, HashMap<String, HassioState> hassioStates) {
+        return new ArrayList<>(); // Most devices do not change on other devices
+    }
+
+    /**
      * Let the device predict its own future state, based on the last state of all devices in the previous frame (e.g. update temperature)...
      * This function is called ONCE at the beginning of every 'frame' in the simulation
      * @return
      */
-    protected List<ImplicitBehaviorEvent> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates, Map<String, HassioDevice> hassioDeviceMap) {
+    protected List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
         return new ArrayList<>(); // Most devices do not change on other devices
     }
 
@@ -109,7 +130,7 @@ abstract public class HassioDevice {
      * This function is called for EVERY new state that is processed in a 'frame' in the simulation
      * @return
      */
-    protected List<ImplicitBehaviorEvent> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<RuleExecution> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
         return new ArrayList<>(); // Most devices do not change on other devices
     }
 

@@ -1,16 +1,14 @@
 package sven.phd.iot.students.mathias;
 
-import sven.phd.iot.hassio.states.HassioContext;
-import sven.phd.iot.students.mathias.states.Conflict;
-//import sven.phd.iot.hassio.states.HassioConflictingAttribute;
-import sven.phd.iot.hassio.updates.RuleExecutionEvent;
+import sven.phd.iot.conflicts.Conflict;
+//import sven.phd.iot.hassio.states.HassioConflictingAttribute
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.Action;
+import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.rules.Trigger;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 public class FutureConflictDetector {
@@ -53,7 +51,7 @@ public class FutureConflictDetector {
      * @param trigger, rule that is being compared to the comparingTrigger
      */
     // under construction
-    private void findConflictingActions(List<Conflict> result, RuleExecutionEvent comparingRule, RuleExecutionEvent rule, Trigger comparingTrigger, Trigger trigger) {
+    private void findConflictingActions(List<Conflict> result, RuleExecution comparingRule, RuleExecution rule, Trigger comparingTrigger, Trigger trigger) {
       /*  for (Action comparingAction: comparingTrigger.actions) {
             boolean conflictAlreadyExists = false;
             Conflict comparingActionConflictState = containsConflict(result, comparingAction.getDeviceID(), comparingRule.datetime);
@@ -187,7 +185,7 @@ public class FutureConflictDetector {
         return new ArrayList<>();
     }
 
-    private Action getActionFromInvolvedRule(RuleExecutionEvent event, String contextId) {
+    private Action getActionFromInvolvedRule(RuleExecution event, String contextId) {
         /*
         HashMap<String, List<HassioContext>> actionContexts = event.actionContexts;
         for (String actionID: actionContexts.keySet()) {
@@ -213,7 +211,7 @@ public class FutureConflictDetector {
         return null;
     }
 
-    private RuleExecutionEvent findFutureRuleExecutionByActionContext(Future future, String contextId, Date datetime) {
+    private RuleExecution findFutureRuleExecutionByActionContext(Future future, String contextId, Date datetime) {
        /* List<RuleExecutionEvent> futuresRuleExecutions = future.futureExecutions;
         for (RuleExecutionEvent event: futuresRuleExecutions) {
             if (event.datetime.compareTo(datetime) == 0) {

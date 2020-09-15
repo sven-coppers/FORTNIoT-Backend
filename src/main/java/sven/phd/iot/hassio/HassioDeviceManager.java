@@ -7,7 +7,6 @@ import org.glassfish.jersey.media.sse.EventListener;
 import org.glassfish.jersey.media.sse.EventSource;
 import org.glassfish.jersey.media.sse.InboundEvent;
 import org.glassfish.jersey.media.sse.SseFeature;
-import org.junit.Rule;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.bus.HassioBus;
@@ -52,7 +51,7 @@ public class HassioDeviceManager implements EventListener {
     public HassioDeviceManager(ContextManager contextManager) {
         System.out.println("HassioDeviceManager - Initiating...");
 
-        this.hassioDeviceMap = new HashMap<String, HassioDevice>();
+        this.hassioDeviceMap = new HashMap<>();
         this.eventSource = null;
         this.HASSIO_URL = null;
 
@@ -232,157 +231,39 @@ public class HassioDeviceManager implements EventListener {
     }
 
     /**
-     * NEW: Give devices a chance to predict RuleExecutions
+     * NEW: Give devices a chance to predict WHEN RuleExecutions will happen (e.g. turn heater on/off)...
      * @param newDate
      * @param future
      * @return
      */
-    public List<RuleExecution> predictImplicitRules(Date newDate, Future future){
-        HashMap<String, HassioState> hassioStates = future.getLastStates();
-        List<RuleExecution> results = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
-
-            results.addAll(hassioDeviceMap.get(entityID).predictImplicitRuleTriggers(newDate, hassioStates));
-        }
-
-        return results;
-    }
-
-    /**
-     * NEW: Ask devices to simulate their implicit rules
-     * @param newDate
-     * @return
-     */
-    public List<HassioState> simulateImplicitRuleActions(Date newDate, Future future, List<RuleExecution> ruleExecutions) {
-        HashMap<String, HassioState> hassioStates = future.getLastStates();
+    public List<HassioState> predictLayerFutureStates(Date newDate, Future future){
         List<HassioState> results = new ArrayList<>();
 
-        for(RuleExecution ruleExecution : ruleExecutions) {
-            results.addAll(hassioDeviceMap.get(ruleExecution.ruleID).simulateImplicitRuleActions(newDate, hassioStates));
+        for(String entityID : hassioDeviceMap.keySet()) {
+            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-            future.addExecutionEvent(ruleExecution);
+            results.addAll(hassioDeviceMap.get(entityID).predictLayerFutureStates(newDate, future));
         }
 
         return results;
     }
 
-
- /*   public List<RuleExecution> predictImplicitRules(Date newDate, HashMap<String, HassioState> lastHassioStates) {
-        HashMap<String, HassioState> newHassioStates = new HashMap<>();
-
-        // Make a copy
-        for(String entityID : lastHassioStates.keySet()) {
-            newHassioStates.put(entityID, lastHassioStates.get(entityID));
-        }
-
-        List<RuleExecution> results = new ArrayList<>();
-
-        for(String entityID : hassioDeviceMap.keySet()) {
-            if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
-
-            results.addAll(hassioDeviceMap.get(entityID).predictImplicitRules(newDate, newHassioStates));
-        }
-
-     /*   results = mergeDuplicates(results);
-
-        // Process the change events
-        for(RuleExecution changeEvent : results) {
-            // Finally update the last_changed field
-            for(String actionID : changeEvent.getActionDeviceIDs().keySet()) {
-                for(String changedDevice : changeEvent.getActionDeviceIDs().get(actionID)) {
-                    newHassioStates.get(changedDevice).setLastChanged(newDate);
-                    newHassioStates.get(changedDevice).setLastUpdated(newDate);
-                }
-            }
-
-            // Resolve
-            changeEvent.resolveContextIDs(newHassioStates);
-        }
-
-        return results;
-    }*/
-
     /**
-     * Ask which states change based on the new context to the devices themselves
+     * NEW: predict WHEN the state will change, based on current the state of all devices in the current frame (e.g. update temperature)...
+     * This function is called only once per frame per device
      * @return
      */
-   /* public List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> lastHassioStates) {
-        HashMap<String, HassioState> newHassioStates = new HashMap<>();
-
-        // Make a copy
-        for(String entityID : lastHassioStates.keySet()) {
-            newHassioStates.put(entityID, lastHassioStates.get(entityID));
-        }
-
-        List<RuleExecution> results = new ArrayList<>();
+    public List<HassioState> predictTickFutureStates(Date newDate, Future future) {
+        List<HassioState> results = new ArrayList<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
             if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-            results.addAll(hassioDeviceMap.get(entityID).predictImplicitStates(newDate, newHassioStates));
-        }
-
-   /*     results = mergeDuplicates(results);
-
-        // Process the change events
-        for(RuleExecution changeEvent : results) {
-            // Finally update the last_changed field
-            for(String actionID : changeEvent.getActionDeviceIDs().keySet()) {
-                for(String changedDevice : changeEvent.getActionDeviceIDs().get(actionID)) {
-                    newHassioStates.get(changedDevice).setLastChanged(newDate);
-                    newHassioStates.get(changedDevice).setLastUpdated(newDate);
-                }
-            }
-
-            // Resolve
-            changeEvent.resolveContextIDs(newHassioStates);
+            results.addAll(hassioDeviceMap.get(entityID).predictTickFutureStates(newDate, future));
         }
 
         return results;
-    } */
-
-   /* private List<RuleExecution> mergeDuplicates(List<RuleExecution> events) {
-        List<RuleExecution> result = new ArrayList<>();
-
-        for(RuleExecution consideringEvent : events) {
-            RuleExecution foundUniqueEvent = null;
-
-            for(RuleExecution uniqueEvent: result) {
-                for(String actionID : consideringEvent.getActionDeviceIDs().keySet()) {
-                    for(String consideringEventAction : consideringEvent.getActionDeviceIDs().get(actionID)) {
-                        if(uniqueEvent.getActionDeviceIDs().get(actionID).contains(consideringEventAction)) {
-                            foundUniqueEvent = uniqueEvent;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if(foundUniqueEvent != null) {
-                // Add all other triggers from the considering event to the unique event
-                for(String actionID : consideringEvent.getActionDeviceIDs().keySet()) {
-                    for (String consideringEventAction : consideringEvent.getActionDeviceIDs().get(actionID)) {
-                        if (!foundUniqueEvent.getActionDeviceIDs().get(actionID).contains(consideringEventAction)) {
-                            foundUniqueEvent.addActionDeviceID(consideringEventAction);
-                        }
-                    }
-                }
-
-                // Add all other actions from the considering event to the unique event
-                for(String consideringEventTrigger : consideringEvent.getTriggerDeviceIDs()) {
-                    if(!foundUniqueEvent.getTriggerDeviceIDs().contains(consideringEventTrigger)) {
-                        foundUniqueEvent.addTriggerDeviceID(consideringEventTrigger);
-                    }
-                }
-            } else {
-                result.add(consideringEvent);
-            }
-        }
-
-        return result;
-    } */
+    }
 
     /**
      * Called everytime HASSIO sends an event
@@ -527,6 +408,7 @@ public class HassioDeviceManager implements EventListener {
 
     /**
      * Predict future states, based on the devices internal knowledge
+     * This function is called ONCE EVERY SIMULATION, AT THE VERY BEGINNING
      * @return
      */
     public List<HassioState> predictFutureStates() {
@@ -535,7 +417,7 @@ public class HassioDeviceManager implements EventListener {
         for(String entityID : hassioDeviceMap.keySet()) {
             if(!hassioDeviceMap.get(entityID).isEnabled()) continue;
 
-            hassioStates.addAll(hassioDeviceMap.get(entityID).predictFutureStates());
+            hassioStates.addAll(hassioDeviceMap.get(entityID).predictInitialFutureStates());
         }
 
         Collections.sort(hassioStates);

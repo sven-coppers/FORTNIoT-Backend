@@ -2,11 +2,11 @@ package sven.phd.iot.hassio;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Rule;
 import sven.phd.iot.BearerToken;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.*;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.rules.Action;
 
@@ -89,48 +89,32 @@ abstract public class HassioDevice {
 
     /**
      * Let the device predict its own future states (without external influences)
-     * This function is called once for every simulation
+     * This function is called ONCE EVERY SIMULATION, AT THE VERY BEGINNING
      * @return
      */
-    protected List<HassioState> predictFutureStates() {
+    protected List<HassioState> predictInitialFutureStates() {
         return new ArrayList<>();
     }
 
     /**
-     * NEW: Give devices a chance to predict RuleExecutions
+     * NEW: predict WHEN the state will change, based on current the state of all devices in the current frame (e.g. update temperature)...
+     * This function is called only ONCE EVERY FRAME
+     * @return
+     * @post when the function is complete, the RuleExecutions are added to the future
+     */
+    protected List<HassioState> predictTickFutureStates(Date newDate, Future future) {
+        return new ArrayList<>(); // Most devices do not change on other devices
+    }
+
+    /**
+     * NEW: Give devices a chance to predict RuleExecutions (e.g. turn heater on/off) ...
+     * This function is called ONCE EVERY LAYER
      * @param newDate
-     * @param hassioStates
+     * @param future
      * @return
+     * @post when the function is complete, the RuleExecutions are added to the future
      */
-    protected List<RuleExecution> predictImplicitRuleTriggers(Date newDate, HashMap<String, HassioState> hassioStates){
-        return new ArrayList<>(); // Most devices do not change on other devices
-    }
-
-    /**
-     * NEW: Ask devices to simulate their implicit rules
-     * @param newDate
-     * @param hassioStates
-     * @return
-     */
-    protected List<HassioState> simulateImplicitRuleActions(Date newDate, HashMap<String, HassioState> hassioStates) {
-        return new ArrayList<>(); // Most devices do not change on other devices
-    }
-
-    /**
-     * Let the device predict its own future state, based on the last state of all devices in the previous frame (e.g. update temperature)...
-     * This function is called ONCE at the beginning of every 'frame' in the simulation
-     * @return
-     */
-    protected List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
-        return new ArrayList<>(); // Most devices do not change on other devices
-    }
-
-    /**
-     * Let the device predict its own future state, based on current the state of all devices in the current frame (e.g. turn heater on/off)...
-     * This function is called for EVERY new state that is processed in a 'frame' in the simulation
-     * @return
-     */
-    protected List<RuleExecution> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
+    protected List<HassioState> predictLayerFutureStates(Date newDate, Future future){
         return new ArrayList<>(); // Most devices do not change on other devices
     }
 

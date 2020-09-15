@@ -29,16 +29,11 @@ public class WeatherChangeTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         HassioState hassioWeatherState = hassioStates.get("weather.dark_sky");
-        List<HassioState> triggerContexts = new ArrayList<>();
-        triggerContexts.add(hassioWeatherState);
+        List<HassioContext> triggerContexts = new ArrayList<>();
+        triggerContexts.add(hassioWeatherState.context);
         return triggerContexts;
     }
-    @Override
-    public List<String> getTriggeringEntities() {
-        List<String> result = new ArrayList<>();
-        result.add("weather.dark_sky");
-        return result;
-    }
+
 }

@@ -2,11 +2,11 @@ package sven.phd.iot.students.bram.resources;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
 import sven.phd.iot.students.bram.questions.why.WhyResult;
-import sven.phd.iot.students.bram.questions.why_not.CurrentState;
 import sven.phd.iot.students.bram.questions.why_not.WhyNotResult;
 import sven.phd.iot.students.bram.questions.why_not.WhyNotRule;
 
@@ -51,12 +51,12 @@ public class WhyNotResource {
     public Boolean isTriggered(Trigger t) {
         ContextManager cm = ContextManager.getInstance();
         HashMap<String, HassioState> states = cm.getHassioDeviceManager().getCurrentStates();
-        List<HassioState> triggerStates = t.verifyCondition(states);
+        List<HassioContext> triggerStates = t.verifyCondition(states);
         return triggerStates != null && triggerStates.size() > 0;
     }
 
     private List<WhyNotRule> transform(List<Trigger> rules) {
-        List<WhyNotRule> result = new ArrayList<>();
+  /*      List<WhyNotRule> result = new ArrayList<>();
         for(Trigger t:rules) {
             WhyNotRule r = new WhyNotRule();
             r.ruleId = t.id;
@@ -83,7 +83,11 @@ public class WhyNotResource {
 
             result.add(r);
         }
-        return result;
+        return result; *.
+
+   */
+
+        return new ArrayList<>();
     }
     private List<Trigger> getRulesByDeviceAndResult(String deviceId, String state) {
         ContextManager contextManager = ContextManager.getInstance();

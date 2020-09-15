@@ -3,6 +3,7 @@ package sven.phd.iot.rules;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.change.HassioChange;
+import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.hassio.states.HassioState;
 
 import java.util.*;
@@ -16,17 +17,6 @@ abstract public class Trigger {
     @JsonProperty("enabled") public boolean enabled; // Is the rule enabled. When the rule is disabled, it cannot be triggered
     @JsonProperty("available") public boolean available; // True if the rule should be accessible through the UI
 
-    /* Mathias adding mute properties
-    *  It should be possible to have multiple start and stop times, so a list should be kept
-     */
-    //@JsonDeserialize(using = HassioDateDeserializer.class)
-    //@JsonSerialize(using = HassioDateSerializer.class)
-    @JsonProperty("start_time_mute") public List<Date> startingTimesMute;
-
-    //@JsonDeserialize(using = HassioDateDeserializer.class)
-    //@JsonSerialize(using = HassioDateSerializer.class)
-    @JsonProperty("stop_time_mute") public List<Date> stoppingTimesMute;
-
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
         this.actions = new ArrayList<>();
@@ -35,8 +25,6 @@ abstract public class Trigger {
         this.offset = 0;
         this.enabled = true;
         this.available = true;
-        this.startingTimesMute = new ArrayList<>();
-        this.stoppingTimesMute = new ArrayList<>();
     }
 
     public void setTitle(String title) {
@@ -68,6 +56,7 @@ abstract public class Trigger {
 
     /**
      * Check if the rule is interested in being verified after this change (e.g. temp update)
+     *
      * @param hassioChange the change that this rule might be interested in
      * @return true if the rule is triggered by this changed, false otherwise.
      */
@@ -76,10 +65,11 @@ abstract public class Trigger {
 
     /**
      * Check if the hassioChange causes this trigger to be triggered
+     *
      * @param hassioStates a map with states for each device
      * @return a list of HassioContexts that satisfy the condition of the rule, returns null when the rule it NOT triggered, returns an empty list when the rule is satisfied without any states
      */
-    public abstract List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates);
+    public abstract List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates);
 
     /**
      * Run all actions and collect all states that would result from it
@@ -101,18 +91,7 @@ abstract public class Trigger {
         this.enabled = enabled;
     }
 
-    /*MATHIAS*/
-    public boolean isEnabled(Date currentTime){
-        boolean isEnabled = enabled;
-        for (int i = 0; i < startingTimesMute.size(); i++) {
-            Date startTime = startingTimesMute.get(i);
-            Date stopTime = stoppingTimesMute.get(i);
-            if (currentTime.compareTo(startTime) >= 0 && currentTime.compareTo(stopTime) <= 0) {
-                isEnabled = false;
-            }
-        }
-        return isEnabled;
-    }
+    public boolean isEnabled() { return this.enabled; }
 
     @Override
     public String toString() {
@@ -141,7 +120,6 @@ abstract public class Trigger {
         return this.title;
     }
 
-    public abstract List<String> getTriggeringEntities();
 
     public Action getActionOnDevice(String deviceId) {
         for(Action action: actions) {

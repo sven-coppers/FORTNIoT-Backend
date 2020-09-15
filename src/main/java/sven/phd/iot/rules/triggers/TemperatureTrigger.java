@@ -42,43 +42,16 @@ public class TemperatureTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         HassioState hassioWeatherState = hassioStates.get(this.sensorIdentifier);
         float temperature = Float.parseFloat(hassioWeatherState.state);
 
         if(temperature >= min && temperature <= max) {
-            List<HassioState> triggerContexts = new ArrayList<>();
-            triggerContexts.add(hassioWeatherState);
+            List<HassioContext> triggerContexts = new ArrayList<>();
+            triggerContexts.add(hassioWeatherState.context);
             return triggerContexts;
         }
 
         return null;
-
-
-
-        // TODO: Create a new date instance, with the same day, but at 9:00
-        // TODO: Create a new date instance, with the same day, but at 17:00
-
-        // TODO: Check if the date is between 9:00 and 17:00
-
-        // IDEE: Counterpart regels maken: What to do when the rule is no longer satisfied? (Doe licht terug uit?)
-        // NIET DOEN, WANT ALS ER EEN ANDERE REGEL DAARNA DE LAMPEN TERUG WIL AAN DOEN (RACE CONDITIONS?) --> Simulatie wordt verschrikkelijk
-
-     //   Calendar cal = Calendar.getInstance(); // creates calendar
-     //   cal.setTime(hassioChange.triggerTime); // sets calendar time/date
-     //   cal.add(Calendar.HOUR_OF_DAY, 1); // adds one hour
-
-        //    befor
-     //   cal.getTime(); // returns new date object, one hour in the future
-
-        // boolean afterNine = .getHours()
-
-     //   return LocalTime.now().isAfter( LocalTime.parse( "09:00" ) ) && oldState.attributes.temperature > min && oldState.attributes.temperature < max;
-    }
-    @Override
-    public List<String> getTriggeringEntities() {
-        List<String> result = new ArrayList<>();
-        result.add(sensorIdentifier);
-        return result;
     }
 }

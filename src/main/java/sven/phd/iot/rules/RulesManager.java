@@ -19,9 +19,6 @@ public class RulesManager {
 
         // Implicit behavior needs to be collected, but should remain hidden
        addRule(new NeverTrigger(RULE_IMPLICIT_BEHAVIOR, "'Hacky' rule that represents implicit behavior from other devices"));
-
-        //Load Bram's rules
-        //this.rules.putAll(BramRulesManager.getRules());
     }
 
     /**
@@ -34,30 +31,19 @@ public class RulesManager {
     public List<RuleExecution> verifyTriggers(Date date, List<HassioChange> hassioChanges, HashMap<String, Boolean> simulatedRulesEnabled) {
         List<RuleExecution> triggerEvents = new ArrayList<>();
 
-        HashMap<String, List<HassioContext>> ruleContextTriggerMap = new HashMap<>();
-
         // Find all unique rules that will be triggered
         for(HassioChange hassioChange : hassioChanges) {
             for(String triggerName : this.rules.keySet()) {
-                boolean enabled = this.rules.get(triggerName).isEnabled(date);
+                boolean enabled = this.rules.get(triggerName).isEnabled();
 
                 if(simulatedRulesEnabled.containsKey(triggerName)) {
                     enabled = simulatedRulesEnabled.get(triggerName);
                 }
 
                 if(enabled && this.rules.get(triggerName).isTriggeredBy(hassioChange)) {
-                    if(!ruleContextTriggerMap.containsKey(triggerName)) {
-                        ruleContextTriggerMap.put(triggerName, new ArrayList<>());
-                    }
-
-                    ruleContextTriggerMap.get(triggerName).add(hassioChange.hassioChangeData.newState.context);
+                    triggerEvents.add(new RuleExecution(date, triggerName, hassioChange.hassioChangeData.newState.context));
                 }
             }
-        }
-
-        // Create trigger events for each unique rule
-        for(String ruleName : ruleContextTriggerMap.keySet()) {
-            triggerEvents.add(new RuleExecution(date, ruleName, ruleContextTriggerMap.get(ruleName)));
         }
 
         return triggerEvents;
@@ -74,14 +60,11 @@ public class RulesManager {
 
         for(RuleExecution triggerEvent : triggerEvents) {
             Trigger rule = this.getRuleById(triggerEvent.ruleID);
-            List<HassioState> conditionStates = rule.verifyCondition(states);
+            List<HassioContext> conditionSatisfyingContexts = rule.verifyCondition(states);
 
             // If the condition was not false
-            if(conditionStates != null) {
-                for(HassioState conditionState : conditionStates) {
-                    triggerEvent.addConditionContext(conditionState.context);
-                }
-
+            if(conditionSatisfyingContexts != null) {
+                triggerEvent.addConditionContexts(conditionSatisfyingContexts);
                 filteredTriggerEvents.add(triggerEvent);
             }
         }

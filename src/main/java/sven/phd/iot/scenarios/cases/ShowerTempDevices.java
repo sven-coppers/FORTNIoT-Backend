@@ -26,7 +26,7 @@ public class ShowerTempDevices extends DeviceSet {
 
         devices.add(new HassioIndoorTempSensor(SHOWER_TEMPERATURE, "Shower room temperature", heaterIDs, coolerIDs, SHOWER_THERMOSTAT, -2.0));
         devices.add(new HassioThermostat(SHOWER_THERMOSTAT, "Shower room target temperature"));
-        devices.add(new HassioHeater(SHOWER_HEATER, "Shower room heater fan", 8.0, 2.0, SHOWER_THERMOSTAT, SHOWER_TEMPERATURE));
-        devices.add(new HassioCooler(SHOWER_VENTILATION, "Shower room ventilation", -1.0, 0.0, SHOWER_THERMOSTAT, SHOWER_TEMPERATURE));
+        devices.add(new HassioHeater(SHOWER_HEATER, "Shower room heater fan", 8.0, 2.0, SHOWER_THERMOSTAT, SHOWER_TEMPERATURE, true, true));
+        devices.add(new HassioCooler(SHOWER_VENTILATION, "Shower room ventilation", -1.0, 0.0, SHOWER_THERMOSTAT, SHOWER_TEMPERATURE, true, true));
     }
 }

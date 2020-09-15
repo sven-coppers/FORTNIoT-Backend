@@ -3,7 +3,6 @@ package sven.phd.iot.scenarios.cases;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.climate.HassioCooler;
 import sven.phd.iot.hassio.climate.HassioHeater;
-import sven.phd.iot.hassio.climate.HassioThermostat;
 import sven.phd.iot.hassio.sensor.HassioIndoorTempSensor;
 import sven.phd.iot.scenarios.DeviceSet;
 
@@ -25,7 +24,7 @@ public class BedroomTempDevices extends DeviceSet {
 
         devices.add(new HassioIndoorTempSensor(BEDROOM_TEMPERATURE, "Bedroom temperature", heaterIDs, coolerIDs, BEDROOM_THERMOSTAT, -0.1));
       //  devices.add(new HassioThermostat(BEDROOM_THERMOSTAT, "Bedroom target temperature"));
-        devices.add(new HassioHeater(BEDROOM_HEATING, "Bedroom heater", 0.2, 0.5, BEDROOM_THERMOSTAT, BEDROOM_TEMPERATURE));
-        devices.add(new HassioCooler(BEDROOM_AIRCO, "Bedroom air conditioning", -0.3, 0.0, BEDROOM_THERMOSTAT, BEDROOM_TEMPERATURE));
+        devices.add(new HassioHeater(BEDROOM_HEATING, "Bedroom heater", 0.2, 0.5, BEDROOM_THERMOSTAT, BEDROOM_TEMPERATURE, true, true));
+        devices.add(new HassioCooler(BEDROOM_AIRCO, "Bedroom air conditioning", -0.3, 0.0, BEDROOM_THERMOSTAT, BEDROOM_TEMPERATURE, true, true));
     }
 }

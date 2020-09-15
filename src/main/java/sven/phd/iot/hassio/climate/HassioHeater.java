@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.ActionExecution;
 import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.rules.RulesManager;
@@ -14,23 +15,16 @@ import java.util.*;
 public class HassioHeater extends HassioTemperatureModifier {
     private final double onRate;
     private final double ecoRate;
+    private final boolean autoOn;
+    private final boolean autoOff;
 
-    private String startHeatingRule = RulesManager.RULE_IMPLICIT_BEHAVIOR;
-    private String stopHeatingRule = RulesManager.RULE_IMPLICIT_BEHAVIOR;
 
-    public HassioHeater(String entityID, String friendlyName, double onRate, double ecoRate, String thermostatID, String tempSensorID) {
+    public HassioHeater(String entityID, String friendlyName, double onRate, double ecoRate, String thermostatID, String tempSensorID, boolean autoOn, boolean autoOff) {
         super(entityID, friendlyName, thermostatID, tempSensorID);
         this.onRate = onRate;
         this.ecoRate = ecoRate;
-    }
-
-    public HassioHeater(String entityID, String friendlyName, double onRate, double ecoRate, String thermostatID, String tempSensorID, String livingTargetHigher, String livingTargetReached) {
-        super(entityID, friendlyName, thermostatID, tempSensorID);
-        this.onRate = onRate;
-        this.ecoRate = ecoRate;
-
-        this.startHeatingRule = livingTargetHigher;
-        this.stopHeatingRule = livingTargetReached;
+        this.autoOn = autoOn;
+        this.autoOff = autoOff;
     }
 
     @Override
@@ -39,37 +33,41 @@ public class HassioHeater extends HassioTemperatureModifier {
     }
 
     @Override
-    protected List<RuleExecution> predictImplicitRules(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<RuleExecution> result = new ArrayList<>();
-        HassioState thermostatState = hassioStates.get(this.thermostatID);
-        HassioState temperatureState = hassioStates.get(this.tempSensorID);
-        HassioState heaterState = hassioStates.get(this.entityID);
+    protected List<HassioState> predictTickFutureStates(Date newDate, Future future) {
+        List<HassioState> resultingStates = new ArrayList<>();
+        HashMap<String, HassioState> lastStates = future.getLastStates();
 
-        if(thermostatState == null || temperatureState == null || heaterState == null) return result;
+        HassioState thermostatState = lastStates.get(this.thermostatID);
+        HassioState temperatureState = lastStates.get(this.tempSensorID);
+        HassioState heaterState = lastStates.get(this.entityID);
+
+        if(thermostatState == null || temperatureState == null || heaterState == null) return resultingStates;
 
         double targetTemp = Double.parseDouble(thermostatState.state);
         double currentTemp = Double.parseDouble(temperatureState.state);
 
         // Adjust heater state if needed
-        if(heaterState.state.equals("heating") && currentTemp > targetTemp) {
-            hassioStates.put(this.entityID, new HassioState(this.entityID, "eco", heaterState.getLastChanged(), new HassioHeaterAttributes()));
+        if(autoOff && heaterState.state.equals("heating") && currentTemp > targetTemp) {
+            HassioState newHeaterState = new HassioState(this.entityID, "eco", heaterState.getLastChanged(), new HassioHeaterAttributes());
+            resultingStates.add(newHeaterState);
 
-            RuleExecution newBehavior = new RuleExecution(newDate);
-            newBehavior.addActionExecution(new ActionExecution("stop_heating", hassioStates.get(this.entityID).context));
-            newBehavior.addTriggerContext(thermostatState.context);
-            newBehavior.addTriggerContext(temperatureState.context);
-            result.add(newBehavior);
-        } else if(heaterState.state.equals("eco") && currentTemp < targetTemp) {
-            hassioStates.put(this.entityID, new HassioState(this.entityID, "heating", heaterState.getLastChanged(), new HassioHeaterAttributes()));
+            RuleExecution newBehavior = new RuleExecution(newDate, this.entityID + "_stop_heating", temperatureState.context);
+            newBehavior.addActionExecution(new ActionExecution("stop_heating", newHeaterState.context));
+            newBehavior.addConditionContext(thermostatState.context);
+            newBehavior.addConditionContext(temperatureState.context);
+            future.addExecutionEvent(newBehavior);
+        } else if(autoOn && heaterState.state.equals("eco") && currentTemp < targetTemp) {
+            HassioState newHeaterState = new HassioState(this.entityID, "heating", heaterState.getLastChanged(), new HassioHeaterAttributes());
+            resultingStates.add(newHeaterState);
 
-            RuleExecution newBehavior = new RuleExecution(newDate);
-            newBehavior.addActionExecution(new ActionExecution("start_heating", hassioStates.get(this.entityID).context));
-            newBehavior.addTriggerContext(thermostatState.context);
-            newBehavior.addTriggerContext(temperatureState.context);
-            result.add(newBehavior);
+            RuleExecution newBehavior = new RuleExecution(newDate, this.entityID + "_start_heating", temperatureState.context);
+            newBehavior.addActionExecution(new ActionExecution("start_heating", newHeaterState.context));
+            newBehavior.addConditionContext(thermostatState.context);
+            newBehavior.addConditionContext(temperatureState.context);
+            future.addExecutionEvent(newBehavior);
         }
 
-        return result;
+        return resultingStates;
     }
 
     public double getOnRate() {

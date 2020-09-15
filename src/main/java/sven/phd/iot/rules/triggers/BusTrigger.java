@@ -19,7 +19,7 @@ public class BusTrigger extends Trigger {
         return hassioChange.entity_id.equals("sensor.agoralaan_diepenbeek");
     }
 
-    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStateHashMap) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStateHashMap) {
         HassioState busState = hassioStateHashMap.get("sensor.agoralaan_diepenbeek");
 
         if(busState == null) return null;
@@ -27,17 +27,12 @@ public class BusTrigger extends Trigger {
         //HassioWeatherState oldState = (HassioWeatherState) busChange.hassioChangeData.oldState;
         //HassioWeatherState newState = (HassioWeatherState) busChange.hassioChangeData.newState;
 
-        List<HassioState> result = new ArrayList<>();
+        List<HassioContext> result = new ArrayList<>();
 
-        result.add(busState);
+        result.add(busState.context);
 
         return result;
     }
 
-    @Override
-    public List<String> getTriggeringEntities() {
-        List<String> result = new ArrayList<>();
-        result.add("sensor.agoralaan_diepenbeek");
-        return result;
-    }
+
 }

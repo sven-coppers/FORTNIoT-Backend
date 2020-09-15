@@ -6,7 +6,6 @@ import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.models.Event;
 import sven.phd.iot.rules.Trigger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,13 +50,8 @@ public class EventTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         return null;
     }
-    @Override
-    public List<String> getTriggeringEntities() {
-        List<String> result = new ArrayList<>();
-        result.add(identifier);
-        return result;
-    }
+
 }

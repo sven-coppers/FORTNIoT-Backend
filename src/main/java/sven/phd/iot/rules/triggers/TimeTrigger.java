@@ -31,16 +31,11 @@ public class TimeTrigger extends Trigger {
     }
 
     @Override
-    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
 
-        List<HassioState> triggerDates = new ArrayList<>();
+        List<HassioContext> triggerDates = new ArrayList<>();
 
         return triggerDates;
     }
-    @Override
-    public List<String> getTriggeringEntities() {
-        List<String> result = new ArrayList<>();
-        result.add("time");
-        return result;
-    }
+
 }

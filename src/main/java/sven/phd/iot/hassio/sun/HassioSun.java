@@ -20,7 +20,7 @@ public class HassioSun extends HassioDevice {
     }
 
     @Override
-    public List<HassioState> predictFutureStates() {
+    public List<HassioState> predictInitialFutureStates() {
         List<HassioState> result = new ArrayList<>();
 
         HassioState state = this.getLastState();

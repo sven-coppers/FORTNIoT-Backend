@@ -45,7 +45,7 @@ public class LightOnAction extends Action {
     public List<HassioState> simulate(Date datetime, HashMap<String, HassioState> hassioStates) {
         List<HassioState> newStates = new ArrayList<>();
 
-        if (!isEnabled(datetime)) {
+        if (!isEnabled()) {
             return newStates;
         }
 
@@ -69,25 +69,6 @@ public class LightOnAction extends Action {
     }
 
     public String getDeviceID() { return this.deviceIdentifier; }
-
-
-    @Override
-    public boolean onSameDevice(Action other) {
-        if (this == other) {
-            return true;
-        }
-        if (other == null || (this.getClass() != other.getClass() && LightOffAction.class != other.getClass())) {
-            return false;
-        }
-        if (this.getClass() == other.getClass()) {
-            return this.deviceIdentifier.equals(((LightOnAction) other).deviceIdentifier);
-        }
-        if (LightOffAction.class == other.getClass()) {
-            return this.deviceIdentifier.equals(((LightOffAction) other).getDeviceID());
-        }
-
-        return false;
-    }
 
     @Override
     public boolean isSimilar(Action other) {

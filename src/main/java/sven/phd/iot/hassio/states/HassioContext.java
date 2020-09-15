@@ -20,7 +20,7 @@ public class HassioContext {
     }
 
     public HassioContext(String entity_id, Date date) {
-        this.id = ("id" + random++);
+        this.id = ("context_id_" + random++);
 
      //   this.id = "" + (entity_id + date.toString()).hashCode();
         this.parent_id = null;

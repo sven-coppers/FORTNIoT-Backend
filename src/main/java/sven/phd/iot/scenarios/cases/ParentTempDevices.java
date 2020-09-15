@@ -25,7 +25,7 @@ public class ParentTempDevices extends DeviceSet {
 
         devices.add(new HassioIndoorTempSensor(BEDROOM_MASTER_TEMPERATURE, "Master bedroom temperature", heaterIDs, coolerIDs, BEDROOM_MASTER_THERMOSTAT, -1.0));
         devices.add(new HassioThermostat(BEDROOM_MASTER_THERMOSTAT, "Master bedroom target temperature"));
-        devices.add(new HassioHeater(BEDROOM_MASTER_RADIATOR, "Master bedroom radiator", 3.0, 1.0, BEDROOM_MASTER_THERMOSTAT, BEDROOM_MASTER_TEMPERATURE));
-        devices.add(new HassioCooler(BEDROOM_MASTER_AIRCO, "Master Bedroom air conditioning", -3.0, 0.0, BEDROOM_MASTER_THERMOSTAT, BEDROOM_MASTER_TEMPERATURE));
+        devices.add(new HassioHeater(BEDROOM_MASTER_RADIATOR, "Master bedroom radiator", 3.0, 1.0, BEDROOM_MASTER_THERMOSTAT, BEDROOM_MASTER_TEMPERATURE, true, true));
+        devices.add(new HassioCooler(BEDROOM_MASTER_AIRCO, "Master Bedroom air conditioning", -3.0, 0.0, BEDROOM_MASTER_THERMOSTAT, BEDROOM_MASTER_TEMPERATURE, true, true));
     }
 }

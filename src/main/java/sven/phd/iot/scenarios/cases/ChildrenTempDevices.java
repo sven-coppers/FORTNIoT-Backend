@@ -28,8 +28,8 @@ public class ChildrenTempDevices extends DeviceSet {
 
         devices.add(new HassioIndoorTempSensor(BEDROOM_CHILDREN_TEMPERATURE, "Children's bedroom temperature", heaterIDs, coolerIDs, BEDROOM_CHILDREN_THERMOSTAT, -1.0));
         devices.add(new HassioThermostat(BEDROOM_CHILDREN_THERMOSTAT, "Children's bedroom target temperature"));
-        devices.add(new HassioHeater(BEDROOM_CHILDREN_RADIATOR, "Children's bedroom radiator", 4.0, 1.0, BEDROOM_CHILDREN_THERMOSTAT, BEDROOM_CHILDREN_TEMPERATURE));
-        devices.add(new HassioCooler(BEDROOM_CHILDREN_AIRCO, "Children's bedroom air conditioning", -3.0, 0.0, BEDROOM_CHILDREN_THERMOSTAT, BEDROOM_CHILDREN_TEMPERATURE));
+        devices.add(new HassioHeater(BEDROOM_CHILDREN_RADIATOR, "Children's bedroom radiator", 4.0, 1.0, BEDROOM_CHILDREN_THERMOSTAT, BEDROOM_CHILDREN_TEMPERATURE, true, true));
+        devices.add(new HassioCooler(BEDROOM_CHILDREN_AIRCO, "Children's bedroom air conditioning", -3.0, 0.0, BEDROOM_CHILDREN_THERMOSTAT, BEDROOM_CHILDREN_TEMPERATURE, true, true));
         devices.add(new HassioBinarySensor(BEDROOM_CHILDREN_MOTION, "Children's bedroom motion sensor"));
     }
 }

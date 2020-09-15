@@ -5,6 +5,7 @@ import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.climate.HassioCooler;
 import sven.phd.iot.hassio.climate.HassioHeater;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.ActionExecution;
 import sven.phd.iot.rules.RuleExecution;
 
@@ -29,8 +30,9 @@ public class HassioIndoorTempSensor extends HassioSensor {
     }
 
     @Override
-    protected List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<RuleExecution> result = new ArrayList<>();
+    protected List<HassioState> predictTickFutureStates(Date newDate, Future future) {
+        List<HassioState> resultingStates = new ArrayList<>();
+        HashMap<String, HassioState> hassioStates = future.getLastStates();
 
         HassioState thermostatState = hassioStates.get(this.thermostatID);
         HassioState thermometerState = hassioStates.get(this.entityID);
@@ -42,8 +44,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
         double newTemp = currentTemp;
         boolean allEco = true;
 
-        RuleExecution newStateEvent = new RuleExecution(newDate);
-        newStateEvent.addTriggerContext(thermometerState.context);
+        RuleExecution tempUpdateEvent = new RuleExecution(newDate, this.entityID + "_update_temp", thermometerState.context);
 
         for(String heaterID : heaterIDs) {
             HassioState heaterState = hassioStates.get(heaterID);
@@ -51,7 +52,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
 
             if(heaterState != null && heater != null && heaterState.state.equals("heating")) {
                 newTemp += heater.getOnRate() * deltaTimeInHours;
-                newStateEvent.addConditionContext(heaterState.context);
+                tempUpdateEvent.addConditionContext(heaterState.context);
                 allEco = false;
             }
         }
@@ -62,7 +63,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
 
             if(coolerState != null && coolerID != null && coolerState.state.equals("cooling")) {
                 newTemp += cooler.getOnRate() * deltaTimeInHours;
-                newStateEvent.addConditionContext(coolerState.context);
+                tempUpdateEvent.addConditionContext(coolerState.context);
                 allEco = false;
             }
         }
@@ -81,11 +82,14 @@ public class HassioIndoorTempSensor extends HassioSensor {
             }
         }
 
-        // Give the new state the old date, because it might be changed by another device as well
-        hassioStates.put(this.entityID, new HassioState(this.entityID, "" + newTemp, oldDate, new HassioSensorAttributes("temperature", "°C")));
-        newStateEvent.addActionExecution(new ActionExecution(this.entityID, hassioStates.get(entityID).context));
-        result.add(newStateEvent);
+        // Add state to result
+        HassioState newTempState = new HassioState(this.entityID, "" + newTemp, oldDate, new HassioSensorAttributes("temperature", "°C"));
+        resultingStates.add(newTempState);
 
-        return result;
+        // Add event to future
+        tempUpdateEvent.addActionExecution(new ActionExecution("update_temp", newTempState.context));
+        future.addExecutionEvent(tempUpdateEvent);
+
+        return resultingStates;
     }
 }

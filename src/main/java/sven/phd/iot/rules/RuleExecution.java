@@ -20,21 +20,17 @@ public class RuleExecution implements Comparable<RuleExecution> {
     @JsonSerialize(using = HassioDateSerializer.class)
     @JsonProperty("datetime") public Date datetime;
 
-    @JsonProperty("trigger_context") public List<HassioContext> triggerContexts;
+    @JsonProperty("trigger_context") public HassioContext triggerContext;
     @JsonProperty("condition_satisfying_contexts") public List<HassioContext> conditionContexts; // HashMap "ConditionID" => List of contexts (condition satisfying states)
     @JsonProperty("action_executions") public List<ActionExecution> actionExecutions;
 
-    public RuleExecution(Date datetime) {
-        this(datetime, RulesManager.RULE_IMPLICIT_BEHAVIOR, new ArrayList<>());
-    }
-
-    public RuleExecution(Date datetime, String ruleID, List<HassioContext> triggerContexts) {
+    public RuleExecution(Date datetime, String ruleID, HassioContext triggerContext) {
         this.ruleID = ruleID;
         this.datetime = datetime;
-        this.triggerContexts = triggerContexts;
+        this.triggerContext = triggerContext;
         this.conditionContexts = new ArrayList<>();
         this.actionExecutions = new ArrayList<>();
-        this.execution_id = "rule_execution_" + identifier++;
+        this.execution_id = "rule_execution_id_" + identifier++;
         //this.execution_id = UUID.randomUUID().toString();
     }
 
@@ -76,18 +72,16 @@ public class RuleExecution implements Comparable<RuleExecution> {
         }
     } */
 
-
-
-    public void addTriggerContext(HassioContext context) {
-        this.triggerContexts.add(context);
-    }
-
     public List<ActionExecution> getActionExecutions() {
         return this.actionExecutions;
     }
 
     public void addConditionContext(HassioContext context) {
         this.conditionContexts.add(context);
+    }
+
+    public void addConditionContexts(List<HassioContext> conditionSatisfyingContexts) {
+        this.conditionContexts.addAll(conditionSatisfyingContexts);
     }
 
     public boolean isInConditionSatisfied(HassioContext context) {

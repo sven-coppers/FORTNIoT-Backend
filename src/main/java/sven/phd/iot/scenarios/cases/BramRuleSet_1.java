@@ -36,7 +36,7 @@ public class BramRuleSet_1 extends RuleSet {
         cal.add(Calendar.DAY_OF_YEAR, -1);
         cal.setTime(new Date(getTime(19,00)));
 
-        sunSetAndHome.addExecution(new RuleExecution(cal.getTime(), sunSetAndHome.id, new ArrayList<>()));
+        sunSetAndHome.addExecution(new RuleExecution(cal.getTime(), sunSetAndHome.id, null));
         rulesManager.addRule(sunSetAndHome);
 
         // When the sun goes above horizon, turn off the table lights

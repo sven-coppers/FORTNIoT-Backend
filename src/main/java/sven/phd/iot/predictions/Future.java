@@ -89,24 +89,11 @@ public class Future {
         System.out.println("/tBacktracking: " + numStatesReverted + " states reverted, " + numRuleExecutionsReverted + " rule executions reverted, " + numConflictsReverted + " conflicts reverted" + numSolutionsReverted + " solutions reverted");
     }
 
-    /** Add another layer to the future
-     *
-     * @param layer
-     */
-   /* public void addCausalLayer(CausalLayer layer) {
-        this.causalStack.addLayer(layer);
-        layer.print();
-    } */
-
     /**
      * Get a cached version of the prediction of the future executions
      */
     public List<RuleExecution> getFutureExecutions() {
-        List<RuleExecution> ruleExecutions = new ArrayList<>();
-
-        return ruleExecutions;
-
-       // return this.futureExecutions;
+        return this.futureExecutions;
     }
 
     /**
@@ -286,6 +273,7 @@ public class Future {
      * Get the number of deduced predictions (states WITH an execution event)
      * @return
      */
+    @JsonIgnore
     public int getNumDeducedPredictions() {
         int result = 0;
 
@@ -302,6 +290,7 @@ public class Future {
      * Get the number of self-sustaining predictions (states WITHOUT an execution event)
      * @return
      */
+    @JsonIgnore
     public int getNumSelfSustainingPredictions() {
         return this.getFutureStates().size() - this.getNumDeducedPredictions();
     }
@@ -312,5 +301,9 @@ public class Future {
         }
 
         return null;
+    }
+
+    public void addExecutionEvents(List<RuleExecution> ruleExecutions) {
+        this.futureExecutions.addAll(ruleExecutions);
     }
 }

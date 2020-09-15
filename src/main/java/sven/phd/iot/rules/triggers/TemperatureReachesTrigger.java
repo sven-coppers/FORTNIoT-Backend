@@ -10,21 +10,73 @@ import java.util.HashMap;
 import java.util.List;
 
 public class TemperatureReachesTrigger extends Trigger {
-    private int targetTemp;
+    private float targetTemp;
     private boolean decreasing;
     private String sensorIdentifier;
+    private String targetTempIdentifier;
 
-    public TemperatureReachesTrigger(String ruleIdentifier, String sensorIdentifier, int targetTemp, boolean decreasing) {
+    /**
+     * Choose the target temp now
+     * @param ruleIdentifier
+     * @param sensorIdentifier
+     * @param targetTemp
+     * @param decreasing
+     */
+    public TemperatureReachesTrigger(String ruleIdentifier, String sensorIdentifier, float targetTemp, boolean decreasing) {
         super(ruleIdentifier, (decreasing? "temperature drops below " : "temperature reaches ")  + targetTemp + "°C");
 
         this.targetTemp = targetTemp;
         this.decreasing = decreasing;
         this.sensorIdentifier = sensorIdentifier;
+        this.targetTempIdentifier = null;
+    }
+
+    /**
+     * Use an external sensor to determine the target temp
+     * @param ruleIdentifier
+     * @param sensorIdentifier
+     * @param targetTempIdentifier
+     * @param decreasing
+     */
+    public TemperatureReachesTrigger(String ruleIdentifier, String sensorIdentifier, String targetTempIdentifier, boolean decreasing) {
+        super(ruleIdentifier, (decreasing? "temperature too low " : "target temperature reached ") + "°C");
+
+        this.decreasing = decreasing;
+        this.sensorIdentifier = sensorIdentifier;
+        this.targetTempIdentifier = targetTempIdentifier;
     }
 
     @Override
     public boolean isTriggeredBy(HassioChange hassioChange) {
-        if(hassioChange.entity_id.equals(this.sensorIdentifier)) {
+        if(hassioChange.entity_id.equals(this.sensorIdentifier)) return true;
+        if(targetTempIdentifier != null && hassioChange.entity_id.equals(targetTempIdentifier)) return true;
+
+        return false;
+    }
+
+    @Override
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+        List<HassioContext> conditionSatisfyingContexts = new ArrayList<>();
+
+        if(this.targetTempIdentifier != null && hassioStates.get(targetTempIdentifier) != null) {
+            this.targetTemp = Float.parseFloat(hassioStates.get(targetTempIdentifier).state);
+            conditionSatisfyingContexts.add(hassioStates.get(targetTempIdentifier).context);
+        }
+
+        if(this.sensorIdentifier != null && hassioStates.get(sensorIdentifier) != null) {
+            float currentTemp = Float.parseFloat(hassioStates.get(sensorIdentifier).state);
+            conditionSatisfyingContexts.add(hassioStates.get(sensorIdentifier).context);
+
+            if((decreasing && currentTemp <= targetTemp) || (!decreasing && currentTemp >= targetTemp)){
+                return conditionSatisfyingContexts;
+            }
+        }
+
+        return null;
+    }
+}
+
+       /* if(hassioChange.entity_id.equals(this.sensorIdentifier)) {
             float oldTemp = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
             float newTemp = Float.parseFloat(hassioChange.hassioChangeData.newState.state);
 
@@ -39,28 +91,4 @@ public class TemperatureReachesTrigger extends Trigger {
             }
 
             return false;
-        }
-
-        return false;
-    }
-
-    @Override
-    public List<HassioState> verifyCondition(HashMap<String, HassioState> hassioStates) {
-        HassioState hassioState = hassioStates.get(this.sensorIdentifier);
-        float temperature = Float.parseFloat(hassioState.state);
-
-        if((decreasing && temperature <= targetTemp) || (!decreasing && temperature >= targetTemp)){
-            List<HassioState> triggerContexts = new ArrayList<>();
-            triggerContexts.add(hassioState);
-            return triggerContexts;
-        }
-
-        return null;
-    }
-    @Override
-    public List<String> getTriggeringEntities() {
-        List<String> result = new ArrayList<>();
-        result.add(sensorIdentifier);
-        return result;
-    }
-}
+        } */

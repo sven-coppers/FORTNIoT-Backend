@@ -35,21 +35,14 @@ abstract public class Action {
     @JsonProperty("enabled") public Boolean enabled;
     @JsonProperty("action_name") public String actionName; // TODO this is unnecessary when using the jsonSubTypes
 
-    @JsonProperty("start_time_disable") public List<Date> startingTimesDisable;
-
-    @JsonProperty("stop_time_disable") public List<Date> stoppingTimesDisable;
 
     // For deserialization
     public Action() {
-        this.startingTimesDisable = new ArrayList<>();
-        this.stoppingTimesDisable = new ArrayList<>();
     }
 
     public Action(String description) {
         this.id = ("actionId" + random++);
         this.description = description;
-        this.startingTimesDisable = new ArrayList<>();
-        this.stoppingTimesDisable = new ArrayList<>();
         this.enabled = true;
         this.actionName = this.getClass().getName();
     }
@@ -66,24 +59,12 @@ abstract public class Action {
     public String getDeviceID() { return ""; };
 
     /*MATHIAS*/
-    public boolean onSameDevice(Action other) { return id.equals(other.id); }
-
-    /*MATHIAS*/
     public boolean isSimilar(Action other) { return other.description.equals(description); }
 
-    /*MATHIAS*/
-    public boolean isEnabled(Date currentTime) {
-        boolean enabled = this.enabled;
-
-        for (int i = 0; i < stoppingTimesDisable.size(); i++) {
-            Date startTime = startingTimesDisable.get(i);
-            Date stopTime = stoppingTimesDisable.get(i);
-            if (currentTime.compareTo(startTime) >= 0 && currentTime.compareTo(stopTime) <= 0) {
-                enabled = false;
-            }
-        }
-        return enabled;
+    public boolean isEnabled() {
+        return this.enabled;
     }
+
 
     @Override
     public String toString() {

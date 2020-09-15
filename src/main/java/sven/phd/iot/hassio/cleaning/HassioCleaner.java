@@ -3,8 +3,10 @@ package sven.phd.iot.hassio.cleaning;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.hassio.HassioDevice;
+import sven.phd.iot.hassio.sensor.HassioBatteryAttributes;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.ActionExecution;
 import sven.phd.iot.rules.RuleExecution;
 
@@ -13,14 +15,14 @@ import java.util.*;
 
 public class HassioCleaner extends HassioDevice {
     private String batteryID;
-    private int depletionMinutesPerProcent;
-    private int chargingMinutesPerProcent;
+    private final int depletionMinutesPerPercent;
+    private final int chargingMinutesPerPercent;
 
-    public HassioCleaner(String entityID, String friendlyName, String batteryID, int depletionMinutesPerProcent, int chargingMinutesPerProcent) {
+    public HassioCleaner(String entityID, String friendlyName, String batteryID, int depletionMinutesPerPercent, int chargingMinutesPerPercent) {
         super(entityID, friendlyName);
         this.batteryID = batteryID;
-        this.depletionMinutesPerProcent = depletionMinutesPerProcent;
-        this.chargingMinutesPerProcent = chargingMinutesPerProcent;
+        this.depletionMinutesPerPercent = depletionMinutesPerPercent;
+        this.chargingMinutesPerPercent = chargingMinutesPerPercent;
     }
 
     @Override
@@ -33,36 +35,41 @@ public class HassioCleaner extends HassioDevice {
      * This function is called ONCE at the beginning of every 'frame' in the simulation
      * @return
      */
-    protected List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
-        ArrayList<RuleExecution> result = new ArrayList<>();
+    protected List<HassioState> predictTickFutureStates(Date newDate, Future future) {
+        ArrayList<HassioState> newStates = new ArrayList<>();
+        HashMap<String, HassioState> hassioStates = future.getLastStates();
 
         HassioState roombaState = hassioStates.get(this.entityID);
         HassioState batteryState = hassioStates.get(this.batteryID);
 
-        if(batteryState == null || roombaState == null) return result;
+        if(batteryState == null || roombaState == null) return newStates;
 
-        double oldBatteryState = Double.parseDouble(batteryState.state);
+        double oldBatteryValue = Double.parseDouble(batteryState.state);
         Long deltaTimeInMilliseconds = newDate.getTime() - batteryState.getLastChanged().getTime();
         double deltaTimeInMinutes = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0);
-        double newBatteryState = oldBatteryState;
-        RuleExecution event = new RuleExecution(newDate);
+        double newBatteryValue = oldBatteryValue;
+        RuleExecution event = new RuleExecution(newDate, this.entityID + "_update_battery", batteryState.context);
 
         if(roombaState.state.equals("cleaning")) {
-            newBatteryState -= (deltaTimeInMinutes / depletionMinutesPerProcent);
-            event.addTriggerContext(roombaState.context);
+            newBatteryValue -= (deltaTimeInMinutes / depletionMinutesPerPercent);
+            event.addConditionContext(roombaState.context);
         } else if(roombaState.state.equals("docked")) {
-            newBatteryState = Math.min(100.0, newBatteryState + (deltaTimeInMinutes / chargingMinutesPerProcent));
+            newBatteryValue = Math.min(100.0, newBatteryValue + (deltaTimeInMinutes / chargingMinutesPerPercent));
+            event.addConditionContext(batteryState.context);
 
-            event.addTriggerContext(batteryState.context);
-            if(newBatteryState != 100.0) {
-                event.addTriggerContext(roombaState.context);
+            if(newBatteryValue != 100.0) {
+                event.addConditionContext(roombaState.context);
             }
         }
 
-        hassioStates.put(this.batteryID, new HassioState(this.batteryID, "" + newBatteryState, batteryState.getLastChanged(), null));
-        event.addActionExecution(new ActionExecution("battery_update", hassioStates.get(this.batteryID).context));
+        // Add state to return list
+        HassioState newBatteryState = new HassioState(this.batteryID, "" + newBatteryValue, batteryState.getLastChanged(), new HassioBatteryAttributes());
+        newStates.add(newBatteryState);
 
-        result.add(event);
-        return result;
+        // Add event to future
+        event.addActionExecution(new ActionExecution("battery_update", hassioStates.get(this.batteryID).context));
+        future.addExecutionEvent(event);
+
+        return newStates;
     }
 }

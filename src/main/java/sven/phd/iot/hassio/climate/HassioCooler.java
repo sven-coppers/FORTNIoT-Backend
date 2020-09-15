@@ -2,22 +2,30 @@ package sven.phd.iot.hassio.climate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Rule;
 import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
 import sven.phd.iot.hassio.states.HassioAttributes;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.predictions.Future;
 import sven.phd.iot.rules.ActionExecution;
 import sven.phd.iot.rules.RuleExecution;
+import sven.phd.iot.rules.RulesManager;
+
 import java.io.IOException;
 import java.util.*;
 
 public class HassioCooler extends HassioTemperatureModifier {
     private final double onRate;
     private final double ecoRate;
+    private final boolean autoOn;
+    private final boolean autoOff;
 
-    public HassioCooler(String entityID, String friendlyName, double onRate, double ecoRate, String thermostatID, String tempSensorID) {
+    public HassioCooler(String entityID, String friendlyName, double onRate, double ecoRate, String thermostatID, String tempSensorID, boolean autoOn, boolean autoOff) {
         super(entityID, friendlyName, thermostatID, tempSensorID);
         this.onRate = onRate;
         this.ecoRate = ecoRate;
+        this.autoOn = autoOn;
+        this.autoOff = autoOff;
     }
 
     @Override
@@ -26,61 +34,41 @@ public class HassioCooler extends HassioTemperatureModifier {
     }
 
     @Override
-    protected List<RuleExecution> predictImplicitStates(Date newDate, HashMap<String, HassioState> hassioStates) {
-        List<RuleExecution> result = new ArrayList<>();
-        HassioState thermostatState = hassioStates.get(this.thermostatID);
-        HassioState temperatureState = hassioStates.get(this.tempSensorID);
-        HassioState heaterState = hassioStates.get(this.entityID);
+    protected List<HassioState> predictTickFutureStates(Date newDate, Future future) {
+        List<HassioState> resultingStates = new ArrayList<>();
+        HashMap<String, HassioState> lastStates = future.getLastStates();
 
-        if(thermostatState == null || temperatureState == null || heaterState == null) return result;
+        HassioState thermostatState = lastStates.get(this.thermostatID);
+        HassioState temperatureState = lastStates.get(this.tempSensorID);
+        HassioState coolerState = lastStates.get(this.entityID);
+
+        if(thermostatState == null || temperatureState == null || coolerState == null) return resultingStates;
 
         double targetTemp = Double.parseDouble(thermostatState.state);
         double currentTemp = Double.parseDouble(temperatureState.state);
-        Long deltaTimeInMilliseconds = newDate.getTime() - temperatureState.getLastChanged().getTime();
-        double deltaTimeInHours = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0 * 60.0);
 
-        // Give the new state the old date, because it might be changed by another device as well
+        // Adjust heater state if needed
+        if(autoOff && coolerState.state.equals("cooling") && currentTemp < targetTemp) {
+            HassioState newCoolerState = new HassioState(this.entityID, "eco", coolerState.getLastChanged(), new HassioHeaterAttributes());
+            resultingStates.add(newCoolerState);
 
-        // Adjust Temp
-        if(heaterState.state.equals("on")) {
-            double newTemp = currentTemp + deltaTimeInHours * onRate;
-            hassioStates.put(this.tempSensorID, new HassioState(this.tempSensorID, "" + newTemp, temperatureState.getLastChanged(), new HassioSensorAttributes("temperature", "°C")));
-            result.add(new RuleExecution(newDate));
+            RuleExecution newBehavior = new RuleExecution(newDate,this.entityID + "_stop_cooling", temperatureState.context);
+            newBehavior.addActionExecution(new ActionExecution("stop_cooling", newCoolerState.context));
+            newBehavior.addConditionContext(thermostatState.context);
+            newBehavior.addConditionContext(temperatureState.context);
+            future.addExecutionEvent(newBehavior);
+        } else if(autoOn && coolerState.state.equals("cooling") && currentTemp > targetTemp) {
+            HassioState newCoolerState = new HassioState(this.entityID, "cooling", coolerState.getLastChanged(), new HassioHeaterAttributes());
+            resultingStates.add(newCoolerState);
 
-            // Stop heating?
-            if(currentTemp < targetTemp) {
-                hassioStates.put(this.entityID, new HassioState(this.entityID, "eco", heaterState.getLastChanged(), new HassioHeaterAttributes()));
-                result.add(new RuleExecution(newDate));
-
-                RuleExecution newBehavior = new RuleExecution( newDate);
-                newBehavior.addActionExecution(new ActionExecution("stop_cooling", hassioStates.get(this.entityID).context));
-                newBehavior.addTriggerContext(thermostatState.context);
-                newBehavior.addTriggerContext(temperatureState.context);
-                result.add(newBehavior);
-            }
-        } else if(heaterState.state.equals("eco")) {
-            if(currentTemp > targetTemp) {
-                // Do nothing
-            } else {
-                double newTemp = currentTemp + deltaTimeInHours * ecoRate;
-                hassioStates.put(this.tempSensorID, new HassioState(this.tempSensorID, "" + newTemp, temperatureState.getLastChanged(), new HassioSensorAttributes("temperature", "°C")));
-                result.add(new RuleExecution(newDate));
-
-                // Start heating again?
-                if(currentTemp > targetTemp + 1.0) {
-                    hassioStates.put(this.entityID, new HassioState(this.entityID, "on", heaterState.getLastChanged(), new HassioHeaterAttributes()));
-                    result.add(new RuleExecution(newDate));
-
-                    RuleExecution newBehavior = new RuleExecution(newDate);
-                    newBehavior.addActionExecution(new ActionExecution("start_cooling", hassioStates.get(this.entityID).context));
-                    newBehavior.addTriggerContext(thermostatState.context);
-                    newBehavior.addTriggerContext(temperatureState.context);
-                    result.add(newBehavior);
-                }
-            }
+            RuleExecution newBehavior = new RuleExecution(newDate, this.entityID + "_start_cooling", temperatureState.context);
+            newBehavior.addActionExecution(new ActionExecution("start_cooling", newCoolerState.context));
+            newBehavior.addConditionContext(thermostatState.context);
+            newBehavior.addConditionContext(temperatureState.context);
+            future.addExecutionEvent(newBehavior);
         }
 
-        return result;
+        return resultingStates;
     }
 
     public double getOnRate() {

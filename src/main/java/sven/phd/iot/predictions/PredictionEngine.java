@@ -213,7 +213,7 @@ public class PredictionEngine {
 
         HashMap<String, HassioState> states = future.getLastStates();
 
-        List<RuleExecution> triggerEvents = this.rulesManager.verifyTriggers(date, newChanges, simulatedRulesEnabled);
+        List<RuleExecution> triggerEvents = this.rulesManager.verifyTriggers(date, states, newChanges, simulatedRulesEnabled);
         List<RuleExecution> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
 
         for(RuleExecution ruleExecution : conditionTrueEvents) {

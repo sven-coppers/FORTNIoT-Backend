@@ -83,7 +83,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
         }
 
         // Add state to result
-        HassioState newTempState = new HassioState(this.entityID, "" + newTemp, oldDate, new HassioSensorAttributes("temperature", "°C"));
+        HassioState newTempState = new HassioState(this.entityID, "" + newTemp, newDate, new HassioSensorAttributes("temperature", "°C"));
         resultingStates.add(newTempState);
 
         // Add event to future

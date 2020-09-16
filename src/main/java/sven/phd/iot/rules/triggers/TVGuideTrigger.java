@@ -24,7 +24,7 @@ public class TVGuideTrigger extends Trigger {
     }
 
     @Override
-    public boolean isTriggeredBy(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
         return hassioChange.entity_id.equals(guideID);
     }
 

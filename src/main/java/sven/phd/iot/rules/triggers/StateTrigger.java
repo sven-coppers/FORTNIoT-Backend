@@ -21,7 +21,7 @@ public class StateTrigger extends Trigger {
     }
 
     @Override
-    public boolean isTriggeredBy(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
         if(hassioChange.entity_id.equals(entityID)) {
             String oldState = hassioChange.hassioChangeData.oldState.state;
             String newState = hassioChange.hassioChangeData.newState.state;

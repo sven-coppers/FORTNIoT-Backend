@@ -23,7 +23,7 @@ public class TemperatureTrigger extends Trigger {
     }
 
     @Override
-    public boolean isTriggeredBy(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
         if(hassioChange.entity_id.equals(this.sensorIdentifier)) {
             float oldTemp = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
             float newTemp = Float.parseFloat(hassioChange.hassioChangeData.newState.state);

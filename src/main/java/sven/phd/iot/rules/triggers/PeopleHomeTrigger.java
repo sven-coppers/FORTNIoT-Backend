@@ -19,7 +19,7 @@ public class PeopleHomeTrigger extends Trigger {
     }
 
     @Override
-    public boolean isTriggeredBy(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
         if(hassioChange.entity_id.contains("person.")) {
             return true;
         }

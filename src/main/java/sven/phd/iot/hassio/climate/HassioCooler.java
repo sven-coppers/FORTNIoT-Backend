@@ -57,7 +57,7 @@ public class HassioCooler extends HassioTemperatureModifier {
             newBehavior.addConditionContext(thermostatState.context);
             newBehavior.addConditionContext(temperatureState.context);
             future.addExecutionEvent(newBehavior);
-        } else if(autoOn && coolerState.state.equals("cooling") && currentTemp > targetTemp) {
+        } else if(autoOn && coolerState.state.equals("eco") && currentTemp > targetTemp) {
             HassioState newCoolerState = new HassioState(this.entityID, "cooling", coolerState.getLastChanged(), new HassioHeaterAttributes());
             resultingStates.add(newCoolerState);
 

@@ -57,11 +57,13 @@ abstract public class Trigger {
     /**
      * Check if the rule is interested in being verified after this change (e.g. temp update)
      *
+     *
+     * @param hassioStates the states off all devices before the change is applied
      * @param hassioChange the change that this rule might be interested in
      * @return true if the rule is triggered by this changed, false otherwise.
      */
 
-    public abstract boolean isTriggeredBy(HassioChange hassioChange);
+    public abstract boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange);
 
     /**
      * Check if the hassioChange causes this trigger to be triggered

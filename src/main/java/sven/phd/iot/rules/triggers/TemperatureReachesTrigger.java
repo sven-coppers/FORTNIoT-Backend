@@ -47,9 +47,28 @@ public class TemperatureReachesTrigger extends Trigger {
     }
 
     @Override
-    public boolean isTriggeredBy(HassioChange hassioChange) {
-        if(hassioChange.entity_id.equals(this.sensorIdentifier)) return true;
-        if(targetTempIdentifier != null && hassioChange.entity_id.equals(targetTempIdentifier)) return true;
+    public boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
+        if(hassioChange.entity_id.equals(this.sensorIdentifier)) {
+            float oldTemp = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
+            float newTemp = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
+            float targetTemp = this.targetTemp;
+
+            if(targetTempIdentifier != null && hassioStates.get(targetTempIdentifier) != null) {
+                targetTemp = Float.parseFloat(hassioStates.get(targetTempIdentifier).state);
+            }
+
+            if(decreasing && oldTemp > targetTemp && newTemp < targetTemp) return true;
+            if(!decreasing && oldTemp < targetTemp && newTemp > targetTemp) return true;
+        }
+
+        if(targetTempIdentifier != null && hassioChange.entity_id.equals(targetTempIdentifier)) {
+            float oldTarget = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
+            float newTarget = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
+            float temp = Float.parseFloat(hassioStates.get(targetTempIdentifier).state);
+
+            if(decreasing && temp > oldTarget && temp < newTarget) return true;
+            if(!decreasing && temp < oldTarget && temp > newTarget) return true;
+        }
 
         return false;
     }

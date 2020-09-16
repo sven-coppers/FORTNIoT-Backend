@@ -47,9 +47,9 @@ public class ANDTrigger extends Trigger {
     }
 
     @Override
-    public boolean isTriggeredBy(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
         for(Trigger trigger: this.triggers) {
-            if(trigger.isTriggeredBy(hassioChange)) {
+            if(trigger.isTriggeredBy(hassioStates, hassioChange)) {
                 return true;
             }
         }

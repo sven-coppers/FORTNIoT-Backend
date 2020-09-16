@@ -24,11 +24,12 @@ public class RulesManager {
     /**
      * Rules could be triggered by multiple triggers in the same "tick"
      * @param date
+     * @param hassioStates
      * @param hassioChanges
      * @param simulatedRulesEnabled
      * @return
      */
-    public List<RuleExecution> verifyTriggers(Date date, List<HassioChange> hassioChanges, HashMap<String, Boolean> simulatedRulesEnabled) {
+    public List<RuleExecution> verifyTriggers(Date date, HashMap<String, HassioState> hassioStates, List<HassioChange> hassioChanges, HashMap<String, Boolean> simulatedRulesEnabled) {
         List<RuleExecution> triggerEvents = new ArrayList<>();
 
         // Find all unique rules that will be triggered
@@ -40,7 +41,7 @@ public class RulesManager {
                     enabled = simulatedRulesEnabled.get(triggerName);
                 }
 
-                if(enabled && this.rules.get(triggerName).isTriggeredBy(hassioChange)) {
+                if(enabled && this.rules.get(triggerName).isTriggeredBy(hassioStates, hassioChange)) {
                     triggerEvents.add(new RuleExecution(date, triggerName, hassioChange.hassioChangeData.newState.context));
                 }
             }

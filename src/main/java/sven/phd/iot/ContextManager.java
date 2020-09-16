@@ -172,7 +172,7 @@ public class ContextManager {
         List<HassioChange> hassioChanges = new ArrayList<>();
         hassioChanges.add(hassioChange);
 
-        List<RuleExecution> triggerEvents = rulesManager.verifyTriggers(new Date(), hassioChanges, new HashMap<>());
+        List<RuleExecution> triggerEvents = rulesManager.verifyTriggers(new Date(), hassioStates, hassioChanges, new HashMap<>());
         List<RuleExecution> conditionTrueEvents = rulesManager.verifyConditions(hassioStates, triggerEvents);
 
         for(RuleExecution conditionTrueEvent : conditionTrueEvents) {

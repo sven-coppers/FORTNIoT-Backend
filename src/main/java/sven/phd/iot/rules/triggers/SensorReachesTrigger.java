@@ -23,7 +23,7 @@ public class SensorReachesTrigger extends Trigger {
     }
 
     @Override
-    public boolean isTriggeredBy(HassioChange hassioChange) {
+    public boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
         if(hassioChange.entity_id.equals(this.sensorIdentifier)) {
             float oldValue = Float.parseFloat(hassioChange.hassioChangeData.oldState.state);
             float newValue = Float.parseFloat(hassioChange.hassioChangeData.newState.state);

@@ -1,5 +1,7 @@
 package sven.phd.iot.hassio;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sven.phd.iot.BearerToken;
@@ -7,7 +9,6 @@ import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.hassio.services.HassioService;
 import sven.phd.iot.hassio.states.*;
 import sven.phd.iot.predictions.Future;
-import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.rules.Action;
 
 import javax.ws.rs.client.*;
@@ -20,10 +21,12 @@ import java.util.*;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
-    protected String entityID;
-    protected String friendlyName;
-    private boolean enabled;
-    private boolean available;
+    @JsonProperty("entity_id") protected String entityID;
+    @JsonProperty("friendly_name") protected String friendlyName;
+    @JsonProperty("enabled") private boolean enabled;
+    @JsonProperty("available") private boolean available;
+    @JsonProperty("change_cooldown") private long changeCoolDown; // in milliseconds
+    @JsonProperty("redundancy_bad") private boolean redundancyBad; //
 
     public HassioDevice(String entityID, String friendlyName) {
         this.hassioStateHistory = new ArrayList<>();
@@ -31,6 +34,8 @@ abstract public class HassioDevice {
         this.friendlyName = friendlyName;
         this.setEnabled(true);
         this.setAvailable(true);
+        this.setChangeCoolDown(5 * 60 * 1000); //
+        this.setRedundancyBad(true);
     }
 
     /**
@@ -54,6 +59,7 @@ abstract public class HassioDevice {
      * Get the last known state of this device
      * @return
      */
+    @JsonIgnore
     public HassioState getLastState() {
         if(this.hassioStateHistory.size() == 0) {
             return null;
@@ -83,6 +89,7 @@ abstract public class HassioDevice {
      * Get the whole state history of this device
      * @return
      */
+    @JsonIgnore
     public List<HassioState> getPastStates() {
         return this.hassioStateHistory;
     }
@@ -205,7 +212,24 @@ abstract public class HassioDevice {
         this.available = available;
     }
 
+    @JsonIgnore
     public List<Action> getAllActions(){
         return new ArrayList<>();
+    }
+
+    public long getChangeCoolDown() {
+        return changeCoolDown;
+    }
+
+    public void setChangeCoolDown(long changeCoolDown) {
+        this.changeCoolDown = changeCoolDown;
+    }
+
+    public boolean isRedundancyBad() {
+        return redundancyBad;
+    }
+
+    public void setRedundancyBad(boolean redundancyBad) {
+        this.redundancyBad = redundancyBad;
     }
 }

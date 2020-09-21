@@ -1,4 +1,4 @@
-package sven.phd.iot.students.mathias.resources;
+package sven.phd.iot.api.resources;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.conflicts.Conflict;
@@ -10,24 +10,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Path("mathias/conflicts/")
+@Path("conflicts/")
 public class ConflictResource {
     private static ConflictResource conflictResource;
 
     public ConflictResource() {
         conflictResource = this;
-    }
-
-    /**
-     * Singleton
-     * @return the single instance of this class
-     */
-    public static ConflictResource getInstance() {
-        if (conflictResource == null) {
-            conflictResource = new ConflictResource();
-        }
-
-        return conflictResource;
     }
 
     /**

@@ -1,7 +1,6 @@
 package sven.phd.iot.students.mathias.resources;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.students.mathias.response.HassioSolutionResponse;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
@@ -12,23 +11,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Path("mathias/solutions/")
-public class SolutionResource {
-    private static SolutionResource solutionResource;
+public class MathiasSolutionResource {
+    private static MathiasSolutionResource mathiasSolutionResource;
 
-    public SolutionResource() {
-        solutionResource = this;
+    public MathiasSolutionResource() {
+        mathiasSolutionResource = this;
     }
 
     /**
      * Singleton
      * @return the single instance of this class
      */
-    public static SolutionResource getInstance() {
-        if (solutionResource == null) {
-            solutionResource = new SolutionResource();
+    public static MathiasSolutionResource getInstance() {
+        if (mathiasSolutionResource == null) {
+            mathiasSolutionResource = new MathiasSolutionResource();
         }
 
-        return solutionResource;
+        return mathiasSolutionResource;
     }
 
     @POST

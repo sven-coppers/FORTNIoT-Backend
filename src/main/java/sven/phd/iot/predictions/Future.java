@@ -2,6 +2,7 @@ package sven.phd.iot.predictions;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.rules.ActionExecution;
 import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
@@ -19,13 +20,6 @@ public class Future {
     @JsonProperty("last_generated") public Date lastGenerated;
 
     /**
-     * Default constructor
-     */
-    public Future() {
-        new Future(new HashMap<>());
-    }
-
-    /**
      * Constructor when an initial set of states is known
      * @param initialStates
      */
@@ -34,6 +28,7 @@ public class Future {
         this.futureConflicts = new ArrayList<>();
         this.futureConflictSolutions = new ArrayList<>();
         this.lastGenerated = new Date();
+        this.entityStateStackMap = new HashMap<>();
 
         this.initCausalNodeListMap(initialStates);
     }
@@ -118,6 +113,8 @@ public class Future {
     public List<HassioState> getFutureStates() {
         List<HassioState> result = new ArrayList<>();
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
+
+        if(this.entityStateStackMap.isEmpty()) return result;
 
         // Insert all states in an ordered queue, which will automatically sort all states regardless of their entity
         for(String entityID : this.entityStateStackMap.keySet()) {
@@ -305,5 +302,19 @@ public class Future {
 
     public void addExecutionEvents(List<RuleExecution> ruleExecutions) {
         this.futureExecutions.addAll(ruleExecutions);
+    }
+
+    public RuleExecution getExecutionByContext(HassioContext context) {
+        for(RuleExecution ruleExecution : this.futureExecutions) {
+            for(ActionExecution actionExecution : ruleExecution.actionExecutions) {
+                for(HassioContext haystackContext : actionExecution.resultingContexts) {
+                    if(context.id.equals(haystackContext.id)) {
+                        return ruleExecution;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,12 +21,8 @@ import java.util.Map;
 public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getDevices( @QueryParam("search") String search ) {
-        if(search == null) {
-            return getAllDevices();
-        } else {
-            return getDeviceByName(search);
-        }
+    public HashMap<String, HassioDevice> getDevices() {
+        return ContextManager.getInstance().getHassioDeviceManager().getDevices();
     }
 
     /**

@@ -1,5 +1,7 @@
 package sven.phd.iot.conflicts;
 
+import sven.phd.iot.ContextManager;
+import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.predictions.Future;
 
@@ -12,16 +14,22 @@ public class InconsistencyVerifier extends ConflictVerifier {
         List<Conflict> conflicts = new ArrayList<>();
 
         Stack<HassioState> entityStateStack = future.getEntityStateStack(newstate.entity_id);
+        HassioDevice device = ContextManager.getInstance().getHassioDeviceManager().getDevice(newstate.entity_id);
 
         Conflict conflict = new Conflict("Inconsistency", simulationTime);
         conflict.addConflictState(newstate);
 
         for(int i = entityStateStack.size() - 1; i >= 0; --i) {
-            HassioState state = entityStateStack.get(i);
+            HassioState pastState = entityStateStack.get(i);
 
-            //TODO: Take into account time window
-            if(newstate.getLastChanged().equals(state.getLastChanged()) && !newstate.state.equals(state.state)) {
-                conflict.addConflictState(state);
+            // If we are to far back in the past
+            if(newstate.getLastChanged().getTime() - device.getChangeCoolDown() > pastState.getLastChanged().getTime()) {
+                break;
+            }
+
+            // If pastState is too recent and changed
+            if(!newstate.state.equals(pastState.state)) {
+                conflict.addConflictState(pastState);
             }
         }
 

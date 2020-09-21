@@ -33,7 +33,7 @@ public class PredictionEngine {
         this.stateScheduler = deviceManager.getStateScheduler();
         this.solutionManager = solutionManager;
         this.conflictVerificationManager = conflictVerificationManager;
-        this.future = new Future();
+        this.future = new Future(new HashMap<>());
         this.future.setFutureConflictSolutions(solutionManager.getSolutions());
         this.predicting = false;
     }

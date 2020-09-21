@@ -41,7 +41,7 @@ import java.util.*;
 
 public class HassioDeviceManager implements EventListener {
     private String HASSIO_URL;
-    private Map<String, HassioDevice> hassioDeviceMap;
+    private HashMap<String, HassioDevice> hassioDeviceMap;
     private ContextManager contextManager;
     private Client client;
     private WebTarget target;
@@ -438,7 +438,7 @@ public class HassioDeviceManager implements EventListener {
      * Get the hassio devices
      * @return the hassio devices
      */
-    public Map<String, HassioDevice> getDevices() {
+    public HashMap<String, HassioDevice> getDevices() {
         return this.hassioDeviceMap;
     }
 

@@ -52,7 +52,7 @@ public class HassioCooler extends HassioTemperatureModifier {
             HassioState newCoolerState = new HassioState(this.entityID, "eco", coolerState.getLastChanged(), new HassioHeaterAttributes());
             resultingStates.add(newCoolerState);
 
-            RuleExecution newBehavior = new RuleExecution(newDate,this.entityID + "_stop_cooling", temperatureState.context);
+            RuleExecution newBehavior = new RuleExecution(newDate,this.entityID + "_stop_cooling", temperatureState.entity_id, temperatureState.context);
             newBehavior.addActionExecution(new ActionExecution(newDate, "stop_cooling", newCoolerState.context));
             newBehavior.addConditionContext(thermostatState.context);
             newBehavior.addConditionContext(temperatureState.context);
@@ -61,7 +61,7 @@ public class HassioCooler extends HassioTemperatureModifier {
             HassioState newCoolerState = new HassioState(this.entityID, "cooling", coolerState.getLastChanged(), new HassioHeaterAttributes());
             resultingStates.add(newCoolerState);
 
-            RuleExecution newBehavior = new RuleExecution(newDate, this.entityID + "_start_cooling", temperatureState.context);
+            RuleExecution newBehavior = new RuleExecution(newDate, this.entityID + "_start_cooling", temperatureState.entity_id, temperatureState.context);
             newBehavior.addActionExecution(new ActionExecution(newDate, "start_cooling", newCoolerState.context));
             newBehavior.addConditionContext(thermostatState.context);
             newBehavior.addConditionContext(temperatureState.context);

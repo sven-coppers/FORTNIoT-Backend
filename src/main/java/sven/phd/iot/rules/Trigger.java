@@ -10,7 +10,7 @@ import java.util.*;
 
 abstract public class Trigger {
     @JsonIgnore private List<RuleExecution> executionHistory;
-    @JsonProperty("actions") public List<Action> actions;
+    @JsonProperty("actions") public HashMap<String, Action> actions;
     @JsonProperty("description") public String title;
     @JsonProperty("id") public String id;
     private long offset;
@@ -19,7 +19,7 @@ abstract public class Trigger {
 
     public Trigger(String id, String title) {
         this.executionHistory = new ArrayList<>();
-        this.actions = new ArrayList<>();
+        this.actions = new HashMap<>();
         this.title = title;
         this.id = id;
         this.offset = 0;
@@ -47,7 +47,7 @@ abstract public class Trigger {
      * @param action
      */
     public void addAction(Action action) {
-        this.actions.add(action);
+        this.actions.put(action.id, action);
     }
 
     public void logHassioRuleExecutionEvent(RuleExecution ruleExecutionEvent) {
@@ -80,13 +80,19 @@ abstract public class Trigger {
     public HashMap<String, List<HassioState>> simulate(RuleExecution ruleExecution, HashMap<String, HassioState> hassioStates, List<String> snoozedActions) {
         HashMap<String, List<HassioState>> results = new HashMap<>();
 
-        for(Action action : this.actions) {
+        for(String actionID : this.actions.keySet()) {
+            Action action = this.actions.get(actionID);
+
             if(!snoozedActions.contains(action.id)) {
                 results.put(action.id, action.simulate(ruleExecution.datetime, hassioStates));
             }
         }
 
         return results;
+    }
+
+    public List<HassioState> simulateAction(RuleExecution ruleExecution, String actionID, HashMap<String, HassioState> hassioStates) {
+        return this.actions.get(actionID).simulate(ruleExecution.datetime, hassioStates);
     }
 
     public void setEnabled(boolean enabled) {
@@ -107,7 +113,9 @@ abstract public class Trigger {
 
         result += "\t" + this.title + "\n";
 
-        for(Action action : actions) {
+        for(String actionName : actions.keySet()) {
+            Action action = actions.get(actionName);
+
             result += "\t\t-> " + action.toString() + "\n";
         }
 
@@ -122,13 +130,5 @@ abstract public class Trigger {
         return this.title;
     }
 
-
-    public Action getActionOnDevice(String deviceId) {
-        for(Action action: actions) {
-            if(action.getDeviceID().equals(deviceId)) {
-                return action;
-            }
-        }
-        return null;
-    }
+    public HashMap<String, Action> getActions() { return this.actions; }
 }

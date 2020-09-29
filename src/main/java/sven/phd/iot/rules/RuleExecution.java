@@ -21,12 +21,14 @@ public class RuleExecution implements Comparable<RuleExecution> {
     @JsonProperty("datetime") public Date datetime;
 
     @JsonProperty("trigger_context") public HassioContext triggerContext;
+    @JsonProperty("trigger_entity") public String triggerEntity;
     @JsonProperty("condition_satisfying_contexts") public List<HassioContext> conditionContexts; // HashMap "ConditionID" => List of contexts (condition satisfying states)
     @JsonProperty("action_executions") public List<ActionExecution> actionExecutions;
 
-    public RuleExecution(Date datetime, String ruleID, HassioContext triggerContext) {
+    public RuleExecution(Date datetime, String ruleID, String triggerEntity, HassioContext triggerContext) {
         this.ruleID = ruleID;
         this.datetime = datetime;
+        this.triggerEntity = triggerEntity;
         this.triggerContext = triggerContext;
         this.conditionContexts = new ArrayList<>();
         this.actionExecutions = new ArrayList<>();

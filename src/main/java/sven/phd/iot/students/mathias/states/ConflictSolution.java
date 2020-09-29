@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.conflicts.Conflict;
+import sven.phd.iot.overrides.SnoozedAction;
 import sven.phd.iot.rules.Action;
 
 import java.util.ArrayList;
@@ -111,13 +112,13 @@ public class ConflictSolution {
 
     @JsonIgnore
     public boolean isRedundancySolution() {
-        Action comparingAction = ContextManager.getInstance().getActionById(snoozedActions.get(0).actionID);
+     /*   Action comparingAction = ContextManager.getInstance().getActionById(snoozedActions.get(0).actionID);
         for (SnoozedAction snoozedAction : this.snoozedActions) {
             Action action = ContextManager.getInstance().getActionById(snoozedAction.actionID);
             if (!action.equals(comparingAction) && !action.isSimilar(comparingAction)) {
                 return false;
             }
-        }
+        } */
         return true;
     }
 }

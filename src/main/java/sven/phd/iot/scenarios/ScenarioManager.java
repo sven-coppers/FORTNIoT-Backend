@@ -1,7 +1,7 @@
 package sven.phd.iot.scenarios;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.conflicts.OverridesManager;
+import sven.phd.iot.overrides.OverridesManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.rules.RulesManager;

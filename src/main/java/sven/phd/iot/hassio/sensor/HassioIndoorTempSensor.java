@@ -44,7 +44,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
         double newTemp = currentTemp;
         boolean allEco = true;
 
-        RuleExecution tempUpdateEvent = new RuleExecution(newDate, this.entityID + "_update_temp", thermometerState.context);
+        RuleExecution tempUpdateEvent = new RuleExecution(newDate, this.entityID + "_update_temp", thermometerState.entity_id, thermometerState.context);
 
         for(String heaterID : heaterIDs) {
             HassioState heaterState = hassioStates.get(heaterID);

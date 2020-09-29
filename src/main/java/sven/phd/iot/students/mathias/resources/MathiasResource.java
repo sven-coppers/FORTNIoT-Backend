@@ -52,10 +52,10 @@ public class MathiasResource {
      * @param id
      * @return Get the action.
      */
-    @Path("actions/{id}")
+  /*  @Path("actions/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Action getAction(@PathParam("id") String id) {
         return ContextManager.getInstance().getActionById(id);
-    }
+    }*/
 }

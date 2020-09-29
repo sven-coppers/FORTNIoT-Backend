@@ -1,21 +1,13 @@
 package sven.phd.iot.rules;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import sven.phd.iot.hassio.states.HassioDateDeserializer;
-import sven.phd.iot.hassio.states.HassioDateSerializer;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.rules.actions.*;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-@JsonTypeInfo(
+/* @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "action_type")
@@ -26,7 +18,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = StartCleaningAction.class, name = "StartCleaningAction"),
         @JsonSubTypes.Type(value = StateAction.class, name = "StateAction"),
         @JsonSubTypes.Type(value = ThermostatStateAction.class, name = "ThermostatStateAction")
-})
+}) */
 abstract public class Action {
     private static int random = 0;
 

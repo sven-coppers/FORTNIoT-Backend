@@ -93,8 +93,8 @@ public class WhyNotResource {
         ContextManager contextManager = ContextManager.getInstance();
         Map<String, Trigger> rules = contextManager.getRules();
         List<Trigger> result = new ArrayList<Trigger>();
-        for(Map.Entry<String, Trigger> entry : rules.entrySet()) {
-            Action action = entry.getValue().getActionOnDevice(deviceId);
+     /*   for(Map.Entry<String, Trigger> entry : rules.entrySet()) {
+          //  Action action = entry.getValue().getActionOnDevice(deviceId);
 
                 List<HassioState> states = action.simulate(new Date(), null);
                 for(HassioState s:states) {
@@ -103,7 +103,7 @@ public class WhyNotResource {
                     }
                 }
 
-        }
+        } */
         return result;
     }
     private WhyResult getCurrentReason(String id) {

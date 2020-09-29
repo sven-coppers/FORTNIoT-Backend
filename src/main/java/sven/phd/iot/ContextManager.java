@@ -2,8 +2,10 @@ package sven.phd.iot;
 
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.conflicts.ConflictVerificationManager;
+import sven.phd.iot.overrides.SnoozedAction;
+import sven.phd.iot.predictions.PredictionInput;
 import sven.phd.iot.rules.*;
-import sven.phd.iot.conflicts.OverridesManager;
+import sven.phd.iot.overrides.OverridesManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
@@ -33,7 +35,7 @@ public class ContextManager {
         this.hassioDeviceManager = new HassioDeviceManager(this);
         this.overridesManager = new OverridesManager(this);
         this.conflictVerificationManager = new ConflictVerificationManager();
-        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.overridesManager, this.conflictVerificationManager);
+        this.predictionEngine = new PredictionEngine(this);
         this.scenarioManager = new ScenarioManager(this);
         //this.studyManager = new StudyManager();
         this.studyManager = new StudyManagerMathias();
@@ -208,10 +210,6 @@ public class ContextManager {
         ContextManager.getInstance().updateFuturePredictions();
     }
 
-    public Future simulateAlternativeFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
-        return this.predictionEngine.whatIf(simulatedRulesEnabled, simulatedStates);
-    }
-
     public ScenarioManager getScenarioManager() {
         return scenarioManager;
     }
@@ -255,7 +253,7 @@ public class ContextManager {
 
     }
 
-    public Action getActionById(String id) {
+/*    public Action getActionById(String id) {
         Map<String, Action> allActions = rulesManager.getAllActions();
        // allActions.putAll(actionExecutions.getAllActions());
         for (String actionID : allActions.keySet()) {
@@ -264,7 +262,7 @@ public class ContextManager {
             }
         }
         return null;
-    }
+    } */
 
     public ConflictVerificationManager getConflictVerificationManager() {
         return conflictVerificationManager;
@@ -272,5 +270,15 @@ public class ContextManager {
 
     public Future getFuture() {
         return this.predictionEngine.getFuture();
+    }
+
+    public PredictionInput gatherPredictionInput() {
+        PredictionInput predictionInput = new PredictionInput();
+
+        predictionInput.setHassioStates(this.overridesManager.customStates);
+        predictionInput.setSnoozedActions(this.overridesManager.getSnoozedActions());
+        predictionInput.setEnabledRules(this.rulesManager.getAllRulesEnabled());
+
+        return predictionInput;
     }
 }

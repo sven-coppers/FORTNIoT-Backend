@@ -25,13 +25,13 @@ public class RuleDescriptionResource {
         System.out.println(rule);
 
         RuleJson result = new RuleJson();
-        result.rule_id = ruleId;
+       /* result.rule_id = ruleId;
         result.trigger = rule.getTitle();
 
         
 
         Action action = rule.getActionOnDevice(deviceId);
-        result.action = action.description;
+        result.action = action.description; */
 
         return result;
     }

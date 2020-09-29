@@ -19,6 +19,7 @@ public class ActionExecution {
     @JsonProperty("action_execution_id") private String actionExecutionID;
     @JsonProperty("action_id") private String actionID;
     @JsonProperty("resulting_contexts") public List<HassioContext> resultingContexts;
+    @JsonProperty("snoozed") public boolean snoozed;
 
 
     @JsonDeserialize(using = HassioDateDeserializer.class)
@@ -29,12 +30,18 @@ public class ActionExecution {
         // Default constructor for deserialization
     }
 
+    public ActionExecution(Date datetime, String actionID, boolean snoozed) {
+        this(datetime, actionID, new ArrayList<>());
+        this.snoozed = snoozed;
+    }
+
     public ActionExecution(Date datetime, String actionID, HassioContext resultingContext) {
         this(datetime, actionID, new ArrayList<>());
         this.resultingContexts.add(resultingContext);
     }
 
     public ActionExecution(Date datetime, String actionID, List<HassioState> resultingStates) {
+        this.snoozed = false;
         this.datetime = datetime;
         this.setActionID(actionID);
         this.resultingContexts = new ArrayList<>();

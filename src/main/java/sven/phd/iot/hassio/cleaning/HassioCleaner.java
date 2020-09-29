@@ -48,7 +48,7 @@ public class HassioCleaner extends HassioDevice {
         Long deltaTimeInMilliseconds = newDate.getTime() - batteryState.getLastChanged().getTime();
         double deltaTimeInMinutes = ((double) deltaTimeInMilliseconds) / (1000.0 * 60.0);
         double newBatteryValue = oldBatteryValue;
-        RuleExecution event = new RuleExecution(newDate, this.entityID + "_update_battery", batteryState.context);
+        RuleExecution event = new RuleExecution(newDate, this.entityID + "_update_battery", batteryState.entity_id, batteryState.context);
 
         if(roombaState.state.equals("cleaning")) {
             newBatteryValue -= (deltaTimeInMinutes / depletionMinutesPerPercent);

@@ -41,7 +41,9 @@ public class SimulationResource {
             HashMap<String, Boolean> rules = makeEnabledRulesList();
             System.out.println("Made rules list");
 
-            return ContextManager.getInstance().simulateAlternativeFuture(rules, stateList);
+           // return ContextManager.getInstance().simulateAlternativeFuture(rules, stateList);
+
+            return null;
 
     }
     private HashMap<String, Boolean> makeEnabledRulesList() {
@@ -65,39 +67,6 @@ public class SimulationResource {
             }
         }
         return states;
-    }
-
-    private HassioState jsonToState(JSONObject obj) {
-       /* String lastChanged = obj.get("last_updated").toString();
-        System.out.println(obj);
-        String lastChanged = obj.get("last_updated").toString();
-
-        obj.remove("last_changed");
-        obj.remove("datetime");
-        obj.remove("last_updated");
-
-        System.out.println(lastChanged);
-
-        try {
-            HassioStateRaw stateRaw = new ObjectMapper().readValue(obj.toString(), HassioStateRaw.class);
-
-            Date time  = parse(lastChanged);
-            stateRaw.setLast_updated(time);
-            ContextManager c = ContextManager.getInstance();
-            Map<String, HassioState> states = c.getHassioStates();
-
-            for (String key : states.keySet()) {
-                if (key.compareTo(stateRaw.entity_id) == 0) {
-                    HassioState state = states.get(key).processRawState(stateRaw);
-                    state.datetime = time;
-                    state.last_changed = time;
-                    return state;
-                }
-            }
-        } catch (Exception e) {
-            System.err.println(e);
-        } */
-        return null;
     }
 
     public static Date parse( String input ) throws java.text.ParseException {

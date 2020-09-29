@@ -1,10 +1,8 @@
 package sven.phd.iot.api.resources;
 
 import sven.phd.iot.ContextManager;
-import sven.phd.iot.api.request.SimulationRequest;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.predictions.Future;
-import sven.phd.iot.students.mathias.states.SnoozedAction;
+import sven.phd.iot.overrides.SnoozedAction;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -12,6 +10,24 @@ import java.util.List;
 
 @Path("overrides/")
 public class OverrideResource {
+    private static OverrideResource overrideResource;
+
+    public OverrideResource() {
+        overrideResource = this;
+    }
+
+    /**
+     * Singleton
+     * @return the single instance of this class
+     */
+    public static OverrideResource getInstance() {
+        if (overrideResource == null) {
+            overrideResource = new OverrideResource();
+        }
+
+        return overrideResource;
+    }
+
     /**
      * Get snoozed actions
      * @return Get all snoozed actions

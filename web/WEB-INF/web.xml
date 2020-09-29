@@ -15,10 +15,6 @@
             </param-value>
         </init-param>
         <init-param>
-            <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <init-param>
             <param-name>javax.ws.rs.Application</param-name>
             <param-value>sven.phd.iot.api.RestController</param-value>
         </init-param>

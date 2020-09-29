@@ -10,7 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 
 public class EventTrigger extends Trigger {
-    private String identifier;
+    public EventTrigger(String id, String title) {
+        super(id, title);
+    }
+
+    @Override
+    public boolean isTriggeredBy(HashMap<String, HassioState> hassioStates, HassioChange hassioChange) {
+        return false;
+    }
+
+    @Override
+    public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
+        return null;
+    }
+   /* private String identifier;
     private Event.ACTION action;
 
     public EventTrigger(String ruleIdentifier, String identifier, Event.ACTION action) {
@@ -52,6 +65,6 @@ public class EventTrigger extends Trigger {
     @Override
     public List<HassioContext> verifyCondition(HashMap<String, HassioState> hassioStates) {
         return null;
-    }
+    } */
 
 }

@@ -111,8 +111,7 @@ public class StateResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Future getAlternativeFuture(SimulationRequest simulationRequest)  {
-        ContextManager contextManager = ContextManager.getInstance();
-        return contextManager.simulateAlternativeFuture(simulationRequest.enabledRules, simulationRequest.hassioStates);
+        return ContextManager.getInstance().getPredictionEngine().whatIf(simulationRequest);
     }
 
     /**

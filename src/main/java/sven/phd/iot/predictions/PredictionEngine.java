@@ -1,23 +1,22 @@
 package sven.phd.iot.predictions;
 
+import sven.phd.iot.ContextManager;
+import sven.phd.iot.api.request.SimulationRequest;
 import sven.phd.iot.conflicts.Conflict;
-import sven.phd.iot.conflicts.OverridesManager;
+import sven.phd.iot.overrides.OverridesManager;
 import sven.phd.iot.conflicts.ConflictVerificationManager;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.rules.ActionExecution;
-import sven.phd.iot.rules.RuleExecution;
-import sven.phd.iot.rules.RulesManager;
-import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.students.mathias.states.SnoozedAction;
+import sven.phd.iot.overrides.SnoozedAction;
+import sven.phd.iot.rules.*;
 
 import java.util.*;
 
 public class PredictionEngine {
+    private final ContextManager contextManager;
     private final RulesManager rulesManager;
     private final HassioDeviceManager deviceManager;
-    private final OverridesManager overridesManager;
     private final ConflictVerificationManager conflictVerificationManager;
     private Future future;
     private Boolean predicting;
@@ -25,13 +24,12 @@ public class PredictionEngine {
     private long predictionWindow = 1 * 24 * 60; // 1 day in minutes
     private Date lastLoggedDate = null;
 
-    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager deviceManager, OverridesManager overridesManager, ConflictVerificationManager conflictVerificationManager) {
-        this.rulesManager = rulesManager;
-        this.deviceManager = deviceManager;
-        this.overridesManager = overridesManager;
-        this.conflictVerificationManager = conflictVerificationManager;
+    public PredictionEngine(ContextManager contextManager) {
+        this.contextManager = contextManager;
+        this.rulesManager = contextManager.getRulesManager();
+        this.deviceManager = contextManager.getHassioDeviceManager();
+        this.conflictVerificationManager = contextManager.getConflictVerificationManager();
         this.future = new Future(new HashMap<>());
-        this.future.setSnoozedActions(overridesManager.getSnoozedActions());
         this.predicting = false;
     }
 
@@ -43,17 +41,17 @@ public class PredictionEngine {
      * Predict the future with the latest information we have
      */
     public void updateFuturePredictions() {
-        this.future = predictFuture(new HashMap<>(), new ArrayList<>());
+        this.future = predictFuture(contextManager.gatherPredictionInput());
     }
 
     /**
      * Predict an alternative future with simulated input
-     *
-     * @param simulatedRulesEnabled a hashmap that holds a boolean (enabled) for every rule
-     * @param simulatedStates       a list of additional states
      */
-    public Future whatIf(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
-        return predictFuture(simulatedRulesEnabled, simulatedStates);
+    public Future whatIf(SimulationRequest simulationRequest) {
+        PredictionInput predictionInput = contextManager.gatherPredictionInput();
+        predictionInput.mergeSimulationRequest(simulationRequest);
+
+        return predictFuture(predictionInput);
     }
 
     /**
@@ -61,14 +59,13 @@ public class PredictionEngine {
      *
      * @post: Each HassioDevice and Each Rule will have a cached version of the outcome
      */
-    private Future predictFuture(HashMap<String, Boolean> simulatedRulesEnabled, List<HassioState> simulatedStates) {
+    private Future predictFuture(PredictionInput predictionInput) {
         // Initialise the queue with changes we already know
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
 
         Future future = new Future(deviceManager.getCurrentStates());
         queue.addAll(deviceManager.predictFutureStates());
-        queue.addAll(simulatedStates);
-        queue.addAll(overridesManager.getScheduledStates());
+        queue.addAll(predictionInput.getHassioStates());
 
         Date lastFrameDate = new Date(); // Prediction start
         Date predictionEnd = new Date(new Date().getTime() + getPredictionWindow() * 60L * 1000L); // Convert prediction window from minutes to milliseconds
@@ -82,7 +79,7 @@ public class PredictionEngine {
                 nextTickDate = queue.peek().getLastChanged();
             }
 
-            lastFrameDate = this.tick(nextTickDate, queue, future, simulatedRulesEnabled);
+            lastFrameDate = this.tick(nextTickDate, queue, future, predictionInput);
 
             // TODO: When a solution is applied, and the future is reverted, lastFrameDate could be later
             // TODO: The queue should be restored as well
@@ -91,7 +88,7 @@ public class PredictionEngine {
         // Finish predicting the rest of the queue (within the prediction window)
         while (!queue.isEmpty()) {
             if (queue.peek().getLastChanged().getTime() < predictionEnd.getTime()) {
-                this.tick(queue.peek().getLastChanged(), queue, future, simulatedRulesEnabled);
+                this.tick(queue.peek().getLastChanged(), queue, future, predictionInput);
             } else {
                 queue.poll();
             }
@@ -108,11 +105,11 @@ public class PredictionEngine {
      * @param newDate
      * @param globalQueue
      * @param future
-     * @param simulatedRulesEnabled
+     * @param predictionInput
      * @return the most recent completed tick (when a solution is applied and something needs to be reverted, the last untouched date should be returned)
      */
-    private Date tick(Date newDate, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
-        List<SnoozedAction> snoozedActions = new ArrayList<>();
+    private Date tick(Date newDate, PriorityQueue<HassioState> globalQueue, Future future, PredictionInput predictionInput) {
+
         List<HassioState> firstLayer = new ArrayList<>(); // Never changes, because no rules are executed yet
 
         // IMPLICIT Let the devices predict their state, only once a tick, based on the past states (e.g. temperature)
@@ -127,7 +124,7 @@ public class PredictionEngine {
             firstLayer.add(newState);
         }
 
-        this.deduceTick(newDate, firstLayer, simulatedRulesEnabled, snoozedActions, future);
+        this.deduceTick(newDate, firstLayer, future, predictionInput);
 
         return newDate; // TODO: Revert if needed
     }
@@ -137,11 +134,9 @@ public class PredictionEngine {
      *
      * @param newDate
      * @param lastLayer
-     * @param simulatedRulesEnabled
-     * @param snoozedActions
      * @return
      */
-    private void deduceTick(Date newDate, List<HassioState> lastLayer, HashMap<String, Boolean> simulatedRulesEnabled, List<SnoozedAction> snoozedActions, Future future) {
+    private void deduceTick(Date newDate, List<HassioState> lastLayer, Future future, PredictionInput predictionInput) {
         // Determine future (could contain inconsistencies and loops)
         while (!lastLayer.isEmpty()) {
             List<Conflict> conflicts = this.submitStatesToFuture(newDate, future, lastLayer);
@@ -158,7 +153,7 @@ public class PredictionEngine {
             }
 
             if(this.isPredicting()) {
-                lastLayer = deduceLayer(newDate, lastLayer, future, simulatedRulesEnabled, snoozedActions, new ArrayList<>()/*, causalityMapping */);
+                lastLayer = deduceLayer(newDate, lastLayer, future, predictionInput);
             } else {
                 lastLayer.clear();
             }
@@ -169,12 +164,9 @@ public class PredictionEngine {
     /**
      * Determine which new states would occur (in a new layer) based on the new states from the previous layer)
      * @param newDate
-     * @param simulatedRulesEnabled
-     * @param snoozedActions the actions which are snoozed (e.g. by conflict solutions)
-     * @param conflicts
      * @return
      */
-    private List<HassioState> deduceLayer(Date newDate, List<HassioState> previousLayer, Future future, HashMap<String, Boolean> simulatedRulesEnabled, List<SnoozedAction> snoozedActions, List<Conflict> conflicts) {
+    private List<HassioState> deduceLayer(Date newDate, List<HassioState> previousLayer, Future future, PredictionInput predictionInput) {
         // Build the states for this layer
         List<HassioState> newLayer = new ArrayList<>();
 
@@ -190,7 +182,7 @@ public class PredictionEngine {
         }
 
         // Pass the stateChange to the set of rules and to the implicit behavior
-        newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, future, simulatedRulesEnabled, snoozedActions));
+        newLayer.addAll(this.verifyExplicitRules(newDate, newChanges, future, predictionInput));
         newLayer.addAll(deviceManager.predictLayerFutureStates(newDate, future));
 
         return newLayer;
@@ -201,42 +193,37 @@ public class PredictionEngine {
      * @param date
      * @param newChanges
      * @param future
-     * @param simulatedRulesEnabled
-     * @param snoozedActions the actions which are snoozed (e.g. by conflict solutions)
+
      * @return
      */
-    private List<HassioState> verifyExplicitRules(Date date, List<HassioChange> newChanges, Future future, HashMap<String, Boolean> simulatedRulesEnabled, List<SnoozedAction> snoozedActions /*, HashMap<HassioState, List<HassioState>> causalityMapping */) {
+    private List<HassioState> verifyExplicitRules(Date date, List<HassioChange> newChanges, Future future, PredictionInput predictionInput) {
         List<HassioState> result = new ArrayList<>();
 
         HashMap<String, HassioState> states = future.getLastStates();
 
-        List<RuleExecution> triggerEvents = this.rulesManager.verifyTriggers(date, states, newChanges, simulatedRulesEnabled);
+        List<RuleExecution> triggerEvents = this.rulesManager.verifyTriggers(date, states, newChanges, predictionInput.getEnabledRules());
         List<RuleExecution> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
 
         for(RuleExecution ruleExecution : conditionTrueEvents) {
             // TODO: Find which actions should be snoozed for this rule
-           List<String> ruleSpecificSnoozedActions = new ArrayList<>();
-           /*  for(ConflictingAction conflictingAction : snoozedActions) {
-                if(conflictingAction.rule_id.equals(potentialExecutionEvent.getTrigger().id)) ruleSpecificSnoozedActions.add(conflictingAction.action_id);
-            } */
-
+            String triggerEntityID = ruleExecution.triggerEntity;
             Trigger rule = rulesManager.getRule(ruleExecution.ruleID);
+            HashMap<String, Action> ruleActions = rule.getActions();
 
-            HashMap<String, List<HassioState>> proposedActionState = rule.simulate(ruleExecution, states, ruleSpecificSnoozedActions);
+            for(String potentialActionID : ruleActions.keySet()) {
+                Action action = ruleActions.get(potentialActionID);
 
-            // For every proposed action, add it to the queue
-            List<HassioState> newStates = new ArrayList<>();
-            for(String actionID : proposedActionState.keySet()) {
-                for(HassioState proposedState : proposedActionState.get(actionID)) {
-                    //proposedState.setActionExecutionEvent(potentialRuleExecution.execution_id);
-                    newStates.add(proposedState);
+                // CHECK IF THE ACTION IS SNOOZED OR NOT
+                boolean snoozed = predictionInput.isSnoozed(potentialActionID, triggerEntityID, ruleExecution.datetime);
+
+                if(!snoozed) {
+                    List<HassioState> resultingStates = action.simulate(ruleExecution.datetime, states);
+                    ruleExecution.addActionExecution(new ActionExecution(date, potentialActionID, resultingStates));
+                    result.addAll(resultingStates);
+                } else {
+                    // Also add action Executions for actions that were snoozed, so they can be re enabled later
+                    ruleExecution.addActionExecution(new ActionExecution(date, potentialActionID, true));
                 }
-            }
-            result.addAll(newStates);
-
-            // Add the context of the simulated actions as a result in the potentialTriggerEvent
-            for(String actionID : proposedActionState.keySet()) {
-                ruleExecution.addActionExecution(new ActionExecution(date, actionID, proposedActionState.get(actionID)));
             }
 
             future.addExecutionEvent(ruleExecution);

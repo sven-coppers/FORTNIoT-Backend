@@ -26,23 +26,19 @@ public class RulesManager {
      * @param date
      * @param hassioStates
      * @param hassioChanges
-     * @param simulatedRulesEnabled
+     * @param enabledRules
      * @return
      */
-    public List<RuleExecution> verifyTriggers(Date date, HashMap<String, HassioState> hassioStates, List<HassioChange> hassioChanges, HashMap<String, Boolean> simulatedRulesEnabled) {
+    public List<RuleExecution> verifyTriggers(Date date, HashMap<String, HassioState> hassioStates, List<HassioChange> hassioChanges, HashMap<String, Boolean> enabledRules) {
         List<RuleExecution> triggerEvents = new ArrayList<>();
 
         // Find all unique rules that will be triggered
         for(HassioChange hassioChange : hassioChanges) {
-            for(String triggerName : this.rules.keySet()) {
-                boolean enabled = this.rules.get(triggerName).isEnabled();
+            for(String ruleName : this.rules.keySet()) {
+                boolean enabled = enabledRules.get(ruleName);
 
-                if(simulatedRulesEnabled.containsKey(triggerName)) {
-                    enabled = simulatedRulesEnabled.get(triggerName);
-                }
-
-                if(enabled && this.rules.get(triggerName).isTriggeredBy(hassioStates, hassioChange)) {
-                    triggerEvents.add(new RuleExecution(date, triggerName, hassioChange.hassioChangeData.newState.context));
+                if(enabled && this.rules.get(ruleName).isTriggeredBy(hassioStates, hassioChange)) {
+                    triggerEvents.add(new RuleExecution(date, ruleName, hassioChange.hassioChangeData.newState.entity_id, hassioChange.hassioChangeData.newState.context));
                 }
             }
         }
@@ -159,11 +155,17 @@ public class RulesManager {
         }
     }
 
-    public void addImplicitPrediction(RuleExecution ruleRuleExecution) {
-       // rules.get(RULE_IMPLICIT_BEHAVIOR).
+    public HashMap<String, Boolean> getAllRulesEnabled() {
+        HashMap<String, Boolean> result = new HashMap<>();
+
+        for(String deviceID : this.rules.keySet()) {
+            result.put(deviceID, rules.get(deviceID).isEnabled());
+        }
+
+        return result;
     }
 
-    public Map<String, Action> getAllActions() {
+   /* public Map<String, Action> getAllActions() {
         Map<String, Action> result = new HashMap<>();
         for (Trigger rule: rules.values()) {
             List<Action> actions = rule.actions;
@@ -172,5 +174,5 @@ public class RulesManager {
             }
         }
         return result;
-    }
+    } */
 }

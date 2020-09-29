@@ -21,7 +21,7 @@ public class RuleService {
             Trigger rule = ContextManager.getInstance().getRuleById(eventId);
 
 
-            Action action = rule.getActionOnDevice(deviceId);
+            Action action = null; //rule.getActionOnDevice(deviceId);
             if(action == null) {
                 return  null;
             }

@@ -5,10 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import sven.phd.iot.hassio.states.HassioContext;
 import sven.phd.iot.rules.ActionExecution;
 import sven.phd.iot.rules.RuleExecution;
-import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.students.mathias.states.SnoozedAction;
+import sven.phd.iot.overrides.SnoozedAction;
 
 import java.util.*;
 

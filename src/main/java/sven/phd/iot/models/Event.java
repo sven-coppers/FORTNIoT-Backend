@@ -7,12 +7,12 @@ import java.util.Date;
 import java.util.List;
 
 public class Event {
-    public enum ACTION {PRESSED, SUN_SET, SUN_RISE};
+   // public enum ACTION {PRESSED, SUN_SET, SUN_RISE};
     public enum CLIENT {WEB_CLIENT, HASSIO, SYSTEM, PHYSICAL, EXTERNAL}
     public enum USER {USER, SYSTEM}
 
     public String identifier;
-    public ACTION action;
+  //  public ACTION action;
     public CLIENT client;
     public USER user;
     public List<String> contexts;

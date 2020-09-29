@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.scenarios.StateSet;
@@ -19,7 +18,7 @@ public class LightStates extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
 
     }
 }

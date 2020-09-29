@@ -1,9 +1,9 @@
 package sven.phd.iot.scenarios;
 
 import sven.phd.iot.ContextManager;
+import sven.phd.iot.conflicts.OverridesManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.scenarios.cases.*;
 
@@ -11,7 +11,7 @@ import java.util.*;
 
 public class ScenarioManager {
     private final HassioDeviceManager deviceManager;
-    private final HassioStateScheduler stateScheduler;
+    private final OverridesManager overridesManager;
     private final RulesManager rulesManager;
     private ContextManager contextManager;
 
@@ -29,7 +29,7 @@ public class ScenarioManager {
         System.out.println("StudyManager - Initiating...");
         this.contextManager = contextManager;
         this.deviceManager = contextManager.getHassioDeviceManager();
-        this.stateScheduler = deviceManager.getStateScheduler();
+        this.overridesManager = contextManager.getOverridesManager();
         this.rulesManager = contextManager.getRulesManager();
 
         this.activeRuleSets = new ArrayList<>();
@@ -237,14 +237,15 @@ public class ScenarioManager {
                 continue;
             }
 
-            this.ruleSets.get(rulSet).createRules(this.rulesManager, null);
+            this.ruleSets.get(rulSet).createRules(this.rulesManager);
         }
     }
 
     public void setStateSet(List<String> stateSets) {
         this.deviceManager.clearLogs();
-        this.stateScheduler.clearScheduledStates();
+        this.overridesManager.cleanSolutions();
         this.activeStateSets.clear();
+        this.deviceManager.clearScheduledStates();
 
         Calendar relativeTime = Calendar.getInstance();
         Date startDate = new Date();
@@ -264,7 +265,7 @@ public class ScenarioManager {
 
             relativeTime.setTime(startDate);
 
-            this.stateSets.get(stateSet).scheduleFutureStates(this.stateScheduler, relativeTime);
+            this.stateSets.get(stateSet).scheduleFutureStates(this.deviceManager, relativeTime);
         }
 
     }

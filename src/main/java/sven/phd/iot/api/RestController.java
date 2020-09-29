@@ -6,7 +6,6 @@ import sven.phd.iot.api.resources.*;
 import sven.phd.iot.students.bram.resources.*;
 
 import sven.phd.iot.students.mathias.resources.MathiasResource;
-import sven.phd.iot.students.mathias.resources.MathiasSolutionResource;
 
 import java.util.Set;
 
@@ -31,13 +30,12 @@ public class RestController extends ResourceConfig {
         resources.add(RuleResource.class);
         resources.add(ConfigResource.class);
         resources.add(StudyResource.class);
-        resources.add(SolutionResource.class);
         resources.add(FutureResource.class);
         resources.add(ConflictResource.class);
+        resources.add(OverrideResource.class);
 
         // Resources Mathias
         resources.add(MathiasResource.class);
-        resources.add(MathiasSolutionResource.class);
 
         //Resources Bram
         resources.add(BramResource.class);

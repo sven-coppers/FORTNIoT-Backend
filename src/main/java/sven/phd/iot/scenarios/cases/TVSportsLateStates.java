@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.tv.HassioTVAttributes;
 import sven.phd.iot.hassio.tv.HassioTVGuideAttributes;
@@ -18,10 +17,10 @@ public class TVSportsLateStates extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
         relativeTime.add(Calendar.HOUR, 8);
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Superbowl", relativeTime.getTime(), new HassioTVGuideAttributes("sports")));
+        DM.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Superbowl", relativeTime.getTime(), new HassioTVGuideAttributes("sports")));
         relativeTime.add(Calendar.MINUTE, 240);
-        SS.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
+        DM.scheduleState(new HassioState(TVDevices.LIVING_TV_GUIDE, "Friends Marathon", relativeTime.getTime(), new HassioTVGuideAttributes("serie")));
     }
 }

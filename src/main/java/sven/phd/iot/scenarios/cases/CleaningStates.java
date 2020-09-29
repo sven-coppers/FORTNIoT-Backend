@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.cleaning.HassioCleanerAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.scenarios.StateSet;
@@ -20,7 +19,7 @@ public class CleaningStates extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
 
     }
 }

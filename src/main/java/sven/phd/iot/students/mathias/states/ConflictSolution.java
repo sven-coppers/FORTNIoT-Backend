@@ -11,16 +11,15 @@ import java.util.List;
 
 public class ConflictSolution {
     @JsonProperty("entity_id") public String entity_id;
-    @JsonProperty("conflicting_actions") public List<ConflictingAction> conflictingActions; // The actions that cause the conflict, used for detecting when the solution should be applied
-    @JsonProperty("snoozed_actions") public List<ConflictingAction> snoozedActions;
-    @JsonProperty("active_actions") public List<ConflictingAction> activeActions;
+    @JsonProperty("conflicting_actions") public List<SnoozedAction> snoozedActions; // The actions that cause the conflict, used for detecting when the solution should be applied
+    @JsonProperty("active_actions") public List<SnoozedAction> activeActions;
     @JsonProperty("custom_actions") public List<Action> customActions; // Optional
     @JsonProperty("solution_id") public String solutionID;
 
     // For deserialization
     public ConflictSolution(){
         this.entity_id = null;
-        this.conflictingActions = new ArrayList<>();
+        this.snoozedActions = new ArrayList<>();
         this.snoozedActions = new ArrayList<>();
         this.activeActions = new ArrayList<>();
         this.customActions = new ArrayList<>();
@@ -29,7 +28,7 @@ public class ConflictSolution {
 
     public ConflictSolution(String entityID){
         this.entity_id = entityID;
-        this.conflictingActions = new ArrayList<>();
+        this.snoozedActions = new ArrayList<>();
         this.snoozedActions = new ArrayList<>();
         this.activeActions = new ArrayList<>();
         this.customActions = new ArrayList<>();
@@ -39,18 +38,18 @@ public class ConflictSolution {
     private void updateSolutionID() {
         this.solutionID = this.entity_id;
 
-        for(ConflictingAction action : this.conflictingActions) {
-            this.solutionID += "_" + action.action_id;
+        for(SnoozedAction action : this.snoozedActions) {
+            this.solutionID += "_" + action.actionID;
         }
     }
 
-    public void setConflictingActions(List<ConflictingAction> conflictingActions) {
-        this.conflictingActions = conflictingActions;
+    public void setConflictingActions(List<SnoozedAction> snoozedActions) {
+        this.snoozedActions = snoozedActions;
         this.updateSolutionID();
     }
 
-    public void addConflictingAction(ConflictingAction action) {
-        this.conflictingActions.add(action);
+    public void addConflictingAction(SnoozedAction action) {
+        this.snoozedActions.add(action);
         this.updateSolutionID();
     }
 
@@ -58,7 +57,7 @@ public class ConflictSolution {
         this.customActions.add(action);
     }
 
-    public void snoozeAction(ConflictingAction action, boolean snoozed) {
+    public void snoozeAction(SnoozedAction action, boolean snoozed) {
         if(snoozed) {
             this.snoozedActions.add(action);
         } else {
@@ -66,11 +65,11 @@ public class ConflictSolution {
         }
     }
 
-    public void setSnoozedActions(List<ConflictingAction> snoozedActions) {
+    public void setSnoozedActions(List<SnoozedAction> snoozedActions) {
         this.snoozedActions = snoozedActions;
     }
 
-    public void setActiveActions(List<ConflictingAction> activeActions) {
+    public void setActiveActions(List<SnoozedAction> activeActions) {
         this.activeActions = activeActions;
     }
 
@@ -78,19 +77,19 @@ public class ConflictSolution {
         this.customActions = customActions;
     }
 
-    public List<ConflictingAction> getConflictingActions() {
-        return this.conflictingActions;
+    public List<SnoozedAction> getConflictingActions() {
+        return this.snoozedActions;
     }
 
-    public List<ConflictingAction> getSnoozedActions() {
+    public List<SnoozedAction> getSnoozedActions() {
         return snoozedActions;
     }
 
-    public List<ConflictingAction> getActiveActions() {
+    public List<SnoozedAction> getActiveActions() {
         return activeActions;
     }
 
-    public boolean isSnoozed(ConflictingAction action) {
+    public boolean isSnoozed(SnoozedAction action) {
         return this.snoozedActions.contains(action);
     }
 
@@ -112,9 +111,9 @@ public class ConflictSolution {
 
     @JsonIgnore
     public boolean isRedundancySolution() {
-        Action comparingAction = ContextManager.getInstance().getActionById(conflictingActions.get(0).action_id);
-        for (ConflictingAction conflictingAction : conflictingActions) {
-            Action action = ContextManager.getInstance().getActionById(conflictingAction.action_id);
+        Action comparingAction = ContextManager.getInstance().getActionById(snoozedActions.get(0).actionID);
+        for (SnoozedAction snoozedAction : this.snoozedActions) {
+            Action action = ContextManager.getInstance().getActionById(snoozedAction.actionID);
             if (!action.equals(comparingAction) && !action.isSimilar(comparingAction)) {
                 return false;
             }

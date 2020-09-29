@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.sun.HassioSunAttributes;
@@ -33,10 +32,10 @@ public class TeaserStates extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
         relativeTime.add(Calendar.HOUR, 8);
-        SS.scheduleState(new HassioState(SmokeDevices.SENSOR_LIVING_SMOKE, "smoke detected", relativeTime.getTime(), null));
+        DM.scheduleState(new HassioState(SmokeDevices.SENSOR_LIVING_SMOKE, "smoke detected", relativeTime.getTime(), null));
         relativeTime.add(Calendar.HOUR, 6);
-        SS.scheduleState(new HassioState(SmokeDevices.SENSOR_LIVING_SMOKE, "idle", relativeTime.getTime(), null));
+        DM.scheduleState(new HassioState(SmokeDevices.SENSOR_LIVING_SMOKE, "idle", relativeTime.getTime(), null));
     }
 }

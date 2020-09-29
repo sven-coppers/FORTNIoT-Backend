@@ -8,11 +8,10 @@ import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
-import sven.phd.iot.students.mathias.ActionExecutions;
 
 public class LoopyRules1 extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
+    public void createRules(RulesManager rulesManager) {
         // Rule 1
         Trigger sunRiseTrigger = new StateTrigger("rule.sun_rise", "sun.sun", "above_horizon", "sun rises");
         sunRiseTrigger.addAction(new LightOffAction("turn off living spots", LoopyDevices.LIVING_SPOTS));

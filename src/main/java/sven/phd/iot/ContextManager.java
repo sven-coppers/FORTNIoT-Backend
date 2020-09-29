@@ -3,13 +3,11 @@ package sven.phd.iot;
 import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.conflicts.ConflictVerificationManager;
 import sven.phd.iot.rules.*;
-import sven.phd.iot.conflicts.ConflictSolutionManager;
+import sven.phd.iot.conflicts.OverridesManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.students.mathias.ActionExecutions;
 import sven.phd.iot.students.mathias.StudyManagerMathias;
-import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.scenarios.ScenarioManager;
@@ -27,21 +25,15 @@ public class ContextManager {
     private ScenarioManager scenarioManager;
     //private StudyManager studyManager;
     private StudyManagerMathias studyManager;
-    private ConflictSolutionManager conflictSolutionManager;
+    private OverridesManager overridesManager;
     private ConflictVerificationManager conflictVerificationManager;
 
-    // MATHIAS
-    private ActionExecutions actionExecutions;
-
     private ContextManager() {
-        // MATHIAS
-        this.actionExecutions = new ActionExecutions();
-
         this.rulesManager = new RulesManager();
         this.hassioDeviceManager = new HassioDeviceManager(this);
-        this.conflictSolutionManager = new ConflictSolutionManager();
+        this.overridesManager = new OverridesManager(this);
         this.conflictVerificationManager = new ConflictVerificationManager();
-        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.conflictSolutionManager, this.conflictVerificationManager);
+        this.predictionEngine = new PredictionEngine(rulesManager, this.hassioDeviceManager, this.overridesManager, this.conflictVerificationManager);
         this.scenarioManager = new ScenarioManager(this);
         //this.studyManager = new StudyManager();
         this.studyManager = new StudyManagerMathias();
@@ -64,6 +56,8 @@ public class ContextManager {
     public HassioDeviceManager getHassioDeviceManager() {
         return this.hassioDeviceManager;
     }
+
+    public OverridesManager getOverridesManager() { return this.overridesManager; }
 
     /**
      * Get the past rule executions
@@ -181,7 +175,7 @@ public class ContextManager {
 
             // Apply changes as result of the rules as the new state
             for(String actionID : resultingActions.keySet()) {
-                conditionTrueEvent.addActionExecution(new ActionExecution(actionID, resultingActions.get(actionID)));
+                conditionTrueEvent.addActionExecution(new ActionExecution(new Date(), actionID, resultingActions.get(actionID)));
             }
 
             rule.logHassioRuleExecutionEvent(conditionTrueEvent);
@@ -249,24 +243,6 @@ public class ContextManager {
         return this.predictionEngine.getFuture().getFutureConflicts(id);
     }
 
-    /**
-     * Get the cached version of the future conflict solutions
-     * @return
-     */
-    public List<ConflictSolution> getFutureConflictSolutions() {
-        return this.predictionEngine.getFuture().getFutureConflictSolutions();
-    }
-
-    /**
-     * Get the cached version of the future conflicts of a single device
-     * @param id
-     * @return
-     */
-    public List<ConflictSolution> getFutureConflictSolutions(String id) {
-        return this.predictionEngine.getFuture().getFutureConflictSolutions(id);
-    }
-
-
     public List<Action> getAllActionsOnDevice(String id){
         List<Action> result = new ArrayList<>();
         HassioDevice device = this.hassioDeviceManager.getDevice(id);
@@ -279,47 +255,15 @@ public class ContextManager {
 
     }
 
-    public void addConflictSolution(ConflictSolution solution) {
-        conflictSolutionManager.addSolution(solution);
-        this.updateFuturePredictions();
-    }
-
-    public ActionExecutions getActionExecutions() { return this.actionExecutions; }
-
     public Action getActionById(String id) {
         Map<String, Action> allActions = rulesManager.getAllActions();
-        allActions.putAll(actionExecutions.getAllActions());
+       // allActions.putAll(actionExecutions.getAllActions());
         for (String actionID : allActions.keySet()) {
             if (actionID.equals(id)) {
                 return allActions.get(actionID);
             }
         }
         return null;
-    }
-
-    public Map<String, Action> getActions() {
-        Map<String, Action> allActions = rulesManager.getAllActions();
-        conflictSolutionManager.getSolutionActions();
-        //allActions.putAll(actionExecutions.getAllActions());
-        return allActions;
-    }
-
-    public ConflictSolutionManager getConflictSolutionManager() {
-        return this.conflictSolutionManager;
-    }
-
-   /* public void updateConflictSolution(ConflictSolution conflictSolutionRequest) {
-        Conflict conflict = new Conflict();
-        conflict.conflictingEntities.add(conflictSolutionRequest.entity_id);
-        conflict.setConflictingActions(conflictSolutionRequest.getConflictingActions());
-        conflictSolutionManager.removeSolution(conflict);
-        conflictSolutionManager.addSolution(conflictSolutionRequest);
-        this.updateFuturePredictions();
-    } */
-
-    public void cleanSolutions() {
-        conflictSolutionManager.cleanSolutions();
-        this.updateFuturePredictions();
     }
 
     public ConflictVerificationManager getConflictVerificationManager() {

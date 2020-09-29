@@ -87,7 +87,7 @@ public class HassioIndoorTempSensor extends HassioSensor {
         resultingStates.add(newTempState);
 
         // Add event to future
-        tempUpdateEvent.addActionExecution(new ActionExecution("update_temp", newTempState.context));
+        tempUpdateEvent.addActionExecution(new ActionExecution(newDate, "update_temp", newTempState.context));
         future.addExecutionEvent(tempUpdateEvent);
 
         return resultingStates;

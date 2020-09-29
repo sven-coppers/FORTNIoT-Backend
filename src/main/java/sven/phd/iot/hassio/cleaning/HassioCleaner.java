@@ -67,7 +67,7 @@ public class HassioCleaner extends HassioDevice {
         newStates.add(newBatteryState);
 
         // Add event to future
-        event.addActionExecution(new ActionExecution("battery_update", hassioStates.get(this.batteryID).context));
+        event.addActionExecution(new ActionExecution(newDate, "battery_update", hassioStates.get(this.batteryID).context));
         future.addExecutionEvent(event);
 
         return newStates;

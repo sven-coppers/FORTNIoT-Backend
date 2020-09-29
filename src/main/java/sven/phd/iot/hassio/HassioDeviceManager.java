@@ -46,7 +46,6 @@ public class HassioDeviceManager implements EventListener {
     private Client client;
     private WebTarget target;
     private EventSource eventSource;
-    private HassioStateScheduler stateScheduler;
 
     public HassioDeviceManager(ContextManager contextManager) {
         System.out.println("HassioDeviceManager - Initiating...");
@@ -56,7 +55,6 @@ public class HassioDeviceManager implements EventListener {
         this.HASSIO_URL = null;
 
         this.contextManager = contextManager;
-        this.stateScheduler = new HassioStateScheduler(this);
     }
 
     public void addDevice(HassioDevice device) {
@@ -466,8 +464,12 @@ public class HassioDeviceManager implements EventListener {
         }
     }
 
-    public HassioStateScheduler getStateScheduler() {
-        return this.stateScheduler;
+    public void scheduleState(HassioState hassioState) {
+        if(this.hassioDeviceMap.containsKey(hassioState.entity_id)) {
+            this.hassioDeviceMap.get(hassioState.entity_id).scheduleState(hassioState);
+        } else {
+            System.err.println("Could not schedule state' " + hassioState.state + "' for device '" + hassioState.entity_id + "'");
+        }
     }
 
     public void clearLogs() {
@@ -479,6 +481,12 @@ public class HassioDeviceManager implements EventListener {
     public void setAllDevicesEnabled(boolean enabled) {
         for(String deviceID : this.hassioDeviceMap.keySet()) {
             hassioDeviceMap.get(deviceID).setEnabled(enabled);
+        }
+    }
+
+    public void clearScheduledStates() {
+        for(String deviceID : this.hassioDeviceMap.keySet()) {
+            hassioDeviceMap.get(deviceID).clearScheduledStates();
         }
     }
 }

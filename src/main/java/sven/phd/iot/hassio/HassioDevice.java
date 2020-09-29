@@ -21,6 +21,7 @@ import java.util.*;
 
 abstract public class HassioDevice {
     protected List<HassioState> hassioStateHistory;
+    protected List<HassioState> scheduledStates;
     @JsonProperty("entity_id") protected String entityID;
     @JsonProperty("friendly_name") protected String friendlyName;
     @JsonProperty("enabled") private boolean enabled;
@@ -30,6 +31,7 @@ abstract public class HassioDevice {
 
     public HassioDevice(String entityID, String friendlyName) {
         this.hassioStateHistory = new ArrayList<>();
+        this.scheduledStates = new ArrayList<>();
         this.entityID = entityID;
         this.friendlyName = friendlyName;
         this.setEnabled(true);
@@ -55,6 +57,10 @@ abstract public class HassioDevice {
         return new ArrayList<>();
     }
 
+    public void scheduleState(HassioState hassioState) {
+        this.scheduledStates.add(hassioState);
+    }
+
     /**
      * Get the last known state of this device
      * @return
@@ -66,6 +72,10 @@ abstract public class HassioDevice {
         } else {
             return this.hassioStateHistory.get(this.hassioStateHistory.size() - 1);
         }
+    }
+
+    public List<Action> getSupportedActions() {
+        return new ArrayList<>();
     }
 
     /**
@@ -96,11 +106,11 @@ abstract public class HassioDevice {
 
     /**
      * Let the device predict its own future states (without external influences)
-     * This function is called ONCE EVERY SIMULATION, AT THE VERY BEGINNING
+     * This function is called ONCE EVERY SIMULATION, AT THE VERY BEGINNING (This includes "hard coded states" from the use cases
      * @return
      */
     protected List<HassioState> predictInitialFutureStates() {
-        return new ArrayList<>();
+        return this.scheduledStates;
     }
 
     /**
@@ -231,5 +241,9 @@ abstract public class HassioDevice {
 
     public void setRedundancyBad(boolean redundancyBad) {
         this.redundancyBad = redundancyBad;
+    }
+
+    public void clearScheduledStates() {
+        this.scheduledStates.clear();
     }
 }

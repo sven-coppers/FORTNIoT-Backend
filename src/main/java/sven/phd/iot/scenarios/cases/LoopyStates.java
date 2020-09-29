@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.blinds.HassioBlindAttributes;
 import sven.phd.iot.hassio.cleaning.HassioCleanerAttributes;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
@@ -44,8 +43,8 @@ public class LoopyStates extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
         relativeTime.add(Calendar.HOUR, 12);
-        SS.scheduleState(new HassioState(LoopyDevices.PEOPLE_MICHAEL, "home", relativeTime.getTime(), new HassioPersonAttributes()));
+        DM.scheduleState(new HassioState(LoopyDevices.PEOPLE_MICHAEL, "home", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 }

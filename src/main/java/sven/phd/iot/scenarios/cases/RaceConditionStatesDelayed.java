@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
 import sven.phd.iot.hassio.person.HassioPersonAttributes;
 import sven.phd.iot.hassio.states.HassioState;
@@ -37,8 +36,8 @@ public class RaceConditionStatesDelayed extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
         relativeTime.add(Calendar.MINUTE, 122); // 2 minutes extra
-        SS.scheduleState(new HassioState(RaceConditionDevices.PEOPLE_MATHIAS, "away", relativeTime.getTime(), new HassioPersonAttributes()));
+        DM.scheduleState(new HassioState(RaceConditionDevices.PEOPLE_MATHIAS, "away", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 }

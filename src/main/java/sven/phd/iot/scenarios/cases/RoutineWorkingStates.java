@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.person.HassioPersonAttributes;
 import sven.phd.iot.hassio.routine.HassioRoutineAttributes;
 import sven.phd.iot.hassio.states.HassioState;
@@ -19,20 +18,20 @@ public class RoutineWorkingStates extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
         relativeTime.add(Calendar.MINUTE, 50);
-        SS.scheduleState(new HassioState(RoutineDevices.PEOPLE_DAD, "home", relativeTime.getTime(), new HassioPersonAttributes()));
+        DM.scheduleState(new HassioState(RoutineDevices.PEOPLE_DAD, "home", relativeTime.getTime(), new HassioPersonAttributes()));
         relativeTime.add(Calendar.MINUTE, 20);
-        SS.scheduleState(new HassioState(RoutineDevices.PEOPLE_MOM, "home", relativeTime.getTime(), new HassioPersonAttributes()));
+        DM.scheduleState(new HassioState(RoutineDevices.PEOPLE_MOM, "home", relativeTime.getTime(), new HassioPersonAttributes()));
         relativeTime.add(Calendar.MINUTE, 40);
-        SS.scheduleState(new HassioState(RoutineDevices.ROUTINE, "evening", relativeTime.getTime(), new HassioRoutineAttributes()));
+        DM.scheduleState(new HassioState(RoutineDevices.ROUTINE, "evening", relativeTime.getTime(), new HassioRoutineAttributes()));
         relativeTime.add(Calendar.MINUTE, 240);
-        SS.scheduleState(new HassioState(RoutineDevices.ROUTINE, "sleeping", relativeTime.getTime(), new HassioRoutineAttributes()));
+        DM.scheduleState(new HassioState(RoutineDevices.ROUTINE, "sleeping", relativeTime.getTime(), new HassioRoutineAttributes()));
         relativeTime.add(Calendar.MINUTE, 7 * 60);
-        SS.scheduleState(new HassioState(RoutineDevices.ROUTINE, "morning", relativeTime.getTime(), new HassioRoutineAttributes()));
+        DM.scheduleState(new HassioState(RoutineDevices.ROUTINE, "morning", relativeTime.getTime(), new HassioRoutineAttributes()));
         relativeTime.add(Calendar.MINUTE, 90);
-        SS.scheduleState(new HassioState(RoutineDevices.PEOPLE_DAD, "away", relativeTime.getTime(), new HassioPersonAttributes()));
+        DM.scheduleState(new HassioState(RoutineDevices.PEOPLE_DAD, "away", relativeTime.getTime(), new HassioPersonAttributes()));
         relativeTime.add(Calendar.MINUTE, 20);
-        SS.scheduleState(new HassioState(RoutineDevices.PEOPLE_MOM, "away", relativeTime.getTime(), new HassioPersonAttributes()));
+        DM.scheduleState(new HassioState(RoutineDevices.PEOPLE_MOM, "away", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 }

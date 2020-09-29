@@ -2,7 +2,6 @@ package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
 import sven.phd.iot.hassio.person.HassioPersonAttributes;
 import sven.phd.iot.hassio.states.HassioContext;
@@ -30,12 +29,12 @@ public class BramStateSet_1 extends StateSet {
 
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
         // Bram leaves
         Date bramLeaves = relativeTime.getTime();
         bramLeaves.setTime(getTime(20,07));
         relativeTime.add(Calendar.MINUTE, 100);
-        SS.scheduleState(new HassioState(BramDeviceSet_1.PERSON, "away", relativeTime.getTime(), PersonAttributes()));
+        DM.scheduleState(new HassioState(BramDeviceSet_1.PERSON, "away", relativeTime.getTime(), PersonAttributes()));
     }
 
     private static HassioSunAttributes SunAttributes() {

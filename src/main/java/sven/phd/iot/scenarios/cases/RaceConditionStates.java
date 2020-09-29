@@ -1,10 +1,8 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
 import sven.phd.iot.hassio.person.HassioPersonAttributes;
-import sven.phd.iot.hassio.routine.HassioRoutineAttributes;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.hassio.sun.HassioSunAttributes;
 import sven.phd.iot.scenarios.StateSet;
@@ -38,8 +36,8 @@ public class RaceConditionStates extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
         relativeTime.add(Calendar.MINUTE, 120);
-        SS.scheduleState(new HassioState(RaceConditionDevices.PEOPLE_MATHIAS, "away", relativeTime.getTime(), new HassioPersonAttributes()));
+        DM.scheduleState(new HassioState(RaceConditionDevices.PEOPLE_MATHIAS, "away", relativeTime.getTime(), new HassioPersonAttributes()));
     }
 }

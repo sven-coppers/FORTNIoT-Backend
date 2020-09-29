@@ -9,13 +9,12 @@ import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
-import sven.phd.iot.students.mathias.ActionExecutions;
 
 import java.awt.*;
 
 public class InconsistencyRules2 extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
+    public void createRules(RulesManager rulesManager) {
         // Rule 1
         Trigger somebodyHomeTrigger = new PeopleHomeTrigger("rule.somebody_home_routine", true);
         somebodyHomeTrigger.addAction(new StateAction("unlock the front door", InconsistencyDevices.FRONT_DOOR, "unlocked"));

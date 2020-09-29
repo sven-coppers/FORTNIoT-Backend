@@ -6,13 +6,12 @@ import sven.phd.iot.rules.actions.LightOffAction;
 import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
-import sven.phd.iot.students.mathias.ActionExecutions;
 
 import java.awt.*;
 
 public class LightSimpleRules extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
+    public void createRules(RulesManager rulesManager) {
         Trigger sunRiseTrigger = new StateTrigger("rule.sun_rise_lights", "sun.sun", "above_horizon", "sun rises");
         sunRiseTrigger.addAction(new LightOffAction("turn off the living spots", LightSimpleDevices.LIVING_SPOTS));
         rulesManager.addRule(sunRiseTrigger);

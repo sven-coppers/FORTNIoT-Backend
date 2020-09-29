@@ -12,23 +12,10 @@ import java.util.List;
 
 @Path("mathias/")
 public class MathiasResource {
-    private static MathiasResource mathiasResource;
-
     public MathiasResource() {
-        mathiasResource = this;
+
     }
 
-    /**
-     * Singleton
-     * @return the single instance of this class
-     */
-    public static MathiasResource getInstance() {
-        if (mathiasResource == null) {
-            mathiasResource = new MathiasResource();
-        }
-
-        return mathiasResource;
-    }
 
     @GET
     @Produces(MediaType.TEXT_HTML)
@@ -70,16 +57,5 @@ public class MathiasResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Action getAction(@PathParam("id") String id) {
         return ContextManager.getInstance().getActionById(id);
-    }
-
-    /**
-     * Get the actions.
-     * @return Get the actions.
-     */
-    @Path("actions/")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<Action> getActions() {
-        return new ArrayList<>(ContextManager.getInstance().getActions().values());
     }
 }

@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.climate.HassioCoolerAttributes;
 import sven.phd.iot.hassio.climate.HassioHeaterAttributes;
 import sven.phd.iot.hassio.sensor.HassioSensorAttributes;
@@ -28,7 +27,7 @@ public class BedroomTempStatesSummer extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
 
     }
 }

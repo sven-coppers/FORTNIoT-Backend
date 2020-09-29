@@ -1,25 +1,23 @@
 package sven.phd.iot.predictions;
 
 import sven.phd.iot.conflicts.Conflict;
-import sven.phd.iot.conflicts.ConflictSolutionManager;
+import sven.phd.iot.conflicts.OverridesManager;
 import sven.phd.iot.conflicts.ConflictVerificationManager;
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.rules.ActionExecution;
 import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.students.mathias.states.ConflictingAction;
+import sven.phd.iot.students.mathias.states.SnoozedAction;
 
 import java.util.*;
 
 public class PredictionEngine {
-    private final HassioStateScheduler stateScheduler;
     private final RulesManager rulesManager;
     private final HassioDeviceManager deviceManager;
-    private final ConflictSolutionManager solutionManager;
+    private final OverridesManager overridesManager;
     private final ConflictVerificationManager conflictVerificationManager;
     private Future future;
     private Boolean predicting;
@@ -27,14 +25,13 @@ public class PredictionEngine {
     private long predictionWindow = 1 * 24 * 60; // 1 day in minutes
     private Date lastLoggedDate = null;
 
-    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager deviceManager, ConflictSolutionManager solutionManager, ConflictVerificationManager conflictVerificationManager) {
+    public PredictionEngine(RulesManager rulesManager, HassioDeviceManager deviceManager, OverridesManager overridesManager, ConflictVerificationManager conflictVerificationManager) {
         this.rulesManager = rulesManager;
         this.deviceManager = deviceManager;
-        this.stateScheduler = deviceManager.getStateScheduler();
-        this.solutionManager = solutionManager;
+        this.overridesManager = overridesManager;
         this.conflictVerificationManager = conflictVerificationManager;
         this.future = new Future(new HashMap<>());
-        this.future.setFutureConflictSolutions(solutionManager.getSolutions());
+        this.future.setSnoozedActions(overridesManager.getSnoozedActions());
         this.predicting = false;
     }
 
@@ -71,7 +68,7 @@ public class PredictionEngine {
         Future future = new Future(deviceManager.getCurrentStates());
         queue.addAll(deviceManager.predictFutureStates());
         queue.addAll(simulatedStates);
-        queue.addAll(stateScheduler.getScheduledStates());
+        queue.addAll(overridesManager.getScheduledStates());
 
         Date lastFrameDate = new Date(); // Prediction start
         Date predictionEnd = new Date(new Date().getTime() + getPredictionWindow() * 60L * 1000L); // Convert prediction window from minutes to milliseconds
@@ -115,7 +112,7 @@ public class PredictionEngine {
      * @return the most recent completed tick (when a solution is applied and something needs to be reverted, the last untouched date should be returned)
      */
     private Date tick(Date newDate, PriorityQueue<HassioState> globalQueue, Future future, HashMap<String, Boolean> simulatedRulesEnabled) {
-        List<ConflictingAction> snoozedActions = new ArrayList<>();
+        List<SnoozedAction> snoozedActions = new ArrayList<>();
         List<HassioState> firstLayer = new ArrayList<>(); // Never changes, because no rules are executed yet
 
         // IMPLICIT Let the devices predict their state, only once a tick, based on the past states (e.g. temperature)
@@ -144,7 +141,7 @@ public class PredictionEngine {
      * @param snoozedActions
      * @return
      */
-    private void deduceTick(Date newDate, List<HassioState> lastLayer, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions, Future future) {
+    private void deduceTick(Date newDate, List<HassioState> lastLayer, HashMap<String, Boolean> simulatedRulesEnabled, List<SnoozedAction> snoozedActions, Future future) {
         // Determine future (could contain inconsistencies and loops)
         while (!lastLayer.isEmpty()) {
             List<Conflict> conflicts = this.submitStatesToFuture(newDate, future, lastLayer);
@@ -177,7 +174,7 @@ public class PredictionEngine {
      * @param conflicts
      * @return
      */
-    private List<HassioState> deduceLayer(Date newDate, List<HassioState> previousLayer, Future future, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions, List<Conflict> conflicts) {
+    private List<HassioState> deduceLayer(Date newDate, List<HassioState> previousLayer, Future future, HashMap<String, Boolean> simulatedRulesEnabled, List<SnoozedAction> snoozedActions, List<Conflict> conflicts) {
         // Build the states for this layer
         List<HassioState> newLayer = new ArrayList<>();
 
@@ -208,7 +205,7 @@ public class PredictionEngine {
      * @param snoozedActions the actions which are snoozed (e.g. by conflict solutions)
      * @return
      */
-    private List<HassioState> verifyExplicitRules(Date date, List<HassioChange> newChanges, Future future, HashMap<String, Boolean> simulatedRulesEnabled, List<ConflictingAction> snoozedActions /*, HashMap<HassioState, List<HassioState>> causalityMapping */) {
+    private List<HassioState> verifyExplicitRules(Date date, List<HassioChange> newChanges, Future future, HashMap<String, Boolean> simulatedRulesEnabled, List<SnoozedAction> snoozedActions /*, HashMap<HassioState, List<HassioState>> causalityMapping */) {
         List<HassioState> result = new ArrayList<>();
 
         HashMap<String, HassioState> states = future.getLastStates();
@@ -239,7 +236,7 @@ public class PredictionEngine {
 
             // Add the context of the simulated actions as a result in the potentialTriggerEvent
             for(String actionID : proposedActionState.keySet()) {
-                ruleExecution.addActionExecution(new ActionExecution(actionID, proposedActionState.get(actionID)));
+                ruleExecution.addActionExecution(new ActionExecution(date, actionID, proposedActionState.get(actionID)));
             }
 
             future.addExecutionEvent(ruleExecution);

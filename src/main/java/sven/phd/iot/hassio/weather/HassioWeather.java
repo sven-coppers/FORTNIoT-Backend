@@ -24,6 +24,7 @@ public class HassioWeather extends HassioDevice {
     @Override
     public List<HassioState> predictInitialFutureStates() {
         List<HassioState> result = new ArrayList<>();
+        result.addAll(this.scheduledStates);
         HassioState state = this.getLastState();
 
         if(state != null) {

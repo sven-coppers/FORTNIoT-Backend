@@ -1,7 +1,6 @@
 package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.hassio.HassioDeviceManager;
-import sven.phd.iot.hassio.HassioStateScheduler;
 import sven.phd.iot.hassio.blinds.HassioBlindAttributes;
 import sven.phd.iot.hassio.cleaning.HassioCleanerAttributes;
 import sven.phd.iot.hassio.light.HassioLightAttributes;
@@ -47,9 +46,9 @@ public class InconsistencyStates1 extends StateSet {
     }
 
     @Override
-    public void scheduleFutureStates(HassioStateScheduler SS, Calendar relativeTime) {
+    public void scheduleFutureStates(HassioDeviceManager DM, Calendar relativeTime) {
         relativeTime.add(Calendar.MINUTE, 120);
-        SS.scheduleState(new HassioState(InconsistencyDevices.PEOPLE_MICHAEL, "home", relativeTime.getTime(), new HassioPersonAttributes()));
-        SS.scheduleState(new HassioState(InconsistencyDevices.ROUTINE, "visitors", relativeTime.getTime(), new HassioRoutineAttributes()));
+        DM.scheduleState(new HassioState(InconsistencyDevices.PEOPLE_MICHAEL, "home", relativeTime.getTime(), new HassioPersonAttributes()));
+        DM.scheduleState(new HassioState(InconsistencyDevices.ROUTINE, "visitors", relativeTime.getTime(), new HassioRoutineAttributes()));
     }
 }

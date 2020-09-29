@@ -7,14 +7,13 @@ import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
 import sven.phd.iot.scenarios.RuleSet;
-import sven.phd.iot.students.mathias.ActionExecutions;
 
 public class LivingTempRules extends RuleSet {
     public static final String LIVING_TARGET_HIGHER = "system_rule.living_target_temp_higher";
     public static final String LIVING_TARGET_REACHED = "system_rule.living_target_temp_reached";
 
     @Override
-    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
+    public void createRules(RulesManager rulesManager) {
         Trigger nobodyHomeTrigger = new PeopleHomeTrigger("rule.nobody_home_living", false);
         nobodyHomeTrigger.addAction(new ThermostatStateAction(LivingTempDevices.LIVING_THERMOSTAT, "living target temperature", 15.0));
         rulesManager.addRule(nobodyHomeTrigger);

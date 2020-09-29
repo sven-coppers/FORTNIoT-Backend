@@ -50,16 +50,6 @@ public final class EventResource {
         return EventHistory.getInstance().getHistory();
     }
 
-    /**
-     * Get the predicted events.
-     * @return Get the predicted events.
-     */
-    @Path("future/")
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioChange> previewChanges() {
-        return null; // TODO: Return the future events queue
-    }
 
     /**
      * Get the new SSE events stream channel.
@@ -101,7 +91,7 @@ public final class EventResource {
 /*    @Path("future/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioEvent> getEventeFuture() {
+    public List<HassioEvent> getEventFuture() {
         List<HassioChange> hassioChanges = HassioClient.getInstance().getFutureStates();
         List<HassioState> hassioStateList = new ArrayList<HassioState>();
 

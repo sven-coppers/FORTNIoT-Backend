@@ -8,13 +8,12 @@ import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
-import sven.phd.iot.students.mathias.ActionExecutions;
 
 import java.awt.*;
 
 public class LightSimpleRulesInconsistency extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
+    public void createRules(RulesManager rulesManager) {
         ANDTrigger sunSetTrigger = new ANDTrigger("rule.sun_set_lights");
         sunSetTrigger.addTrigger(new StateTrigger("", "sun.sun", "below_horizon", "sun sets"));
         sunSetTrigger.addTrigger(new StateTrigger("", RoutineDevices.ROUTINE, "leisure", "routine = leisure"));

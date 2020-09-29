@@ -43,6 +43,11 @@
     <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/future">future/</a> Get ALL information about the future</li>
     </ul>
+    <ul>
+      <li><span class="method">GET</span> <a class="uri" href="api/overrides/snoozed_actions">overrides/snoozed_actions</a> Get all snoozed actions</li>
+      <li><span class="method">POST</span> <a class="uri" href="api/overrides/snoozed_actions">overrides/snoozed_actions</a> Add a snoozed action</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/overrides/custom_states">overrides/custom_states</a> Get all custom states</li>
+    </ul>
     <p>Do you want to perform the <a class="button" href="study/">study</a>?</p>
   </div>
   <div class="block">

@@ -24,6 +24,7 @@ public class HassioCalendar extends HassioDevice {
     @Override
     public List<HassioState> predictInitialFutureStates() {
         List<HassioState> result = new ArrayList<>();
+        result.addAll(this.scheduledStates);
         HassioState hassioCalendarState = this.getLastState();
         HassioCalendarAttributes attributes = (HassioCalendarAttributes) hassioCalendarState.attributes;
 

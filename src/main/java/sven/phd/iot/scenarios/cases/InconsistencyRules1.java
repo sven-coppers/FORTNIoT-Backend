@@ -2,20 +2,15 @@ package sven.phd.iot.scenarios.cases;
 
 import sven.phd.iot.rules.RulesManager;
 import sven.phd.iot.rules.Trigger;
-import sven.phd.iot.rules.actions.LightOffAction;
-import sven.phd.iot.rules.actions.LightOnAction;
 import sven.phd.iot.rules.actions.StateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
 import sven.phd.iot.students.bram.rules.triggers.ANDTrigger;
-import sven.phd.iot.students.mathias.ActionExecutions;
-
-import java.awt.*;
 
 public class InconsistencyRules1 extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
+    public void createRules(RulesManager rulesManager) {
         // Rule 1
         ANDTrigger sunRiseAndNobodyHomeTrigger = new ANDTrigger("rule.sun_rise_and_nobody_home");
         sunRiseAndNobodyHomeTrigger.addTrigger(new StateTrigger("", "sun.sun", "above_horizon", "sun rises"));

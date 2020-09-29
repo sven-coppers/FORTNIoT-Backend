@@ -6,11 +6,10 @@ import sven.phd.iot.rules.actions.ThermostatStateAction;
 import sven.phd.iot.rules.triggers.PeopleHomeTrigger;
 import sven.phd.iot.rules.triggers.StateTrigger;
 import sven.phd.iot.scenarios.RuleSet;
-import sven.phd.iot.students.mathias.ActionExecutions;
 
 public class ParentTempRules extends RuleSet {
     @Override
-    public void createRules(RulesManager rulesManager, ActionExecutions actionsManager) {
+    public void createRules(RulesManager rulesManager) {
         Trigger nobodyHomeTrigger = new PeopleHomeTrigger("rule.nobody_home_parents", false);
         nobodyHomeTrigger.addAction(new ThermostatStateAction(ParentTempDevices.BEDROOM_MASTER_THERMOSTAT, "master bedroom thermostat", 15.0));
         rulesManager.addRule(nobodyHomeTrigger);

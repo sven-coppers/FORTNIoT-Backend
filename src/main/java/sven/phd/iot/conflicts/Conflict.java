@@ -37,27 +37,6 @@ public class Conflict {
         this.conflictTime = date;
     }
 
-    /*public Conflict(List<String> conflictingEntities, List<HassioState> conflictingChanges) {
-        this.conflictingEntities = conflictingEntities;
-        this.conflictingActions = new ArrayList<>();
-
-        for (HassioState node : conflictingChanges) {
-            if (node.getExecutionEvent() == null) {
-                System.err.println("The conflicting state did not have an execution event for " + node.entity_id + " = " + node.state);
-                continue;
-            }
-
-            // TODO: FIX
-            /*String causingAction = node.getExecutionEvent().getResponsibleAction(node.context);
-
-            if (causingAction == null) {
-                // The state is not caused by a rule
-                System.err.println("The conflicting state is not caused by a rule");
-            }
-this.addAction(new ConflictingAction(causingAction, node.getExecutionEvent().entity_id));
-        }
-    }*/
-
     public void addConflictState(HassioState hassioState) {
         this.conflictingStates.add(hassioState);
     }

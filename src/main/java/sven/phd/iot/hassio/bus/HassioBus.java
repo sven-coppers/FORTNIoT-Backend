@@ -62,6 +62,7 @@ public class HassioBus extends HassioDevice {
     @Override
     public List<HassioState> predictInitialFutureStates() {
         List<HassioState> result = new ArrayList<>();
+        result.addAll(this.scheduledStates);
 
         for(String uniqueBus : this.uniqueBusses.keySet()) {
             HassioBusPassage passage = this.uniqueBusses.get(uniqueBus);

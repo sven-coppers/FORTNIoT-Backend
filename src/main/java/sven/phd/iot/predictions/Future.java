@@ -8,6 +8,7 @@ import sven.phd.iot.rules.RuleExecution;
 import sven.phd.iot.students.mathias.states.ConflictSolution;
 import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
+import sven.phd.iot.students.mathias.states.SnoozedAction;
 
 import java.util.*;
 
@@ -16,7 +17,8 @@ public class Future {
     @JsonProperty("states_causal_map") private HashMap<String, Stack<HassioState>> entityStateStackMap;
     @JsonProperty("executions") public Stack<RuleExecution> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
-    @JsonProperty("conflict_solutions") public List<ConflictSolution> futureConflictSolutions;
+    @JsonProperty("snoozed_actions") public List<SnoozedAction> snoozedActions;
+    @JsonProperty("custom_states") public List<HassioState> customStates;
     @JsonProperty("last_generated") public Date lastGenerated;
 
     /**
@@ -26,7 +28,7 @@ public class Future {
     public Future(HashMap<String, HassioState> initialStates) {
         this.futureExecutions = new Stack<>();
         this.futureConflicts = new ArrayList<>();
-        this.futureConflictSolutions = new ArrayList<>();
+        this.snoozedActions = new ArrayList<>();
         this.lastGenerated = new Date();
         this.entityStateStackMap = new HashMap<>();
 
@@ -218,38 +220,15 @@ public class Future {
     /**
      * Get a cached version of the future conflict solutions
      */
-    public List<ConflictSolution> getFutureConflictSolutions() {
-        return this.futureConflictSolutions;
-    }
-
-    /**
-     * Get a cached version of the future conflict solutions for a single device
-     */
-    public List<ConflictSolution> getFutureConflictSolutions(String deviceID) {
-        List<ConflictSolution> result = new ArrayList<>();
-
-        for(ConflictSolution hassioSolution : this.futureConflictSolutions) {
-            if(hassioSolution.entity_id.equals(deviceID)) {
-                result.add(hassioSolution);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Add a future conflict solution to the list
-     * @param newConflictSolution
-     */
-    public void addFutureConflictSolution(ConflictSolution newConflictSolution) {
-        this.futureConflictSolutions.add(newConflictSolution);
+    public List<SnoozedAction> getSnoozedActions() {
+        return this.snoozedActions;
     }
 
     /**
      * Set future conflict solutions
      * @param newConflictSolutions
      */
-    public void setFutureConflictSolutions(List<ConflictSolution> newConflictSolutions) {this.futureConflictSolutions = newConflictSolutions; }
+    public void setSnoozedActions(List<SnoozedAction> newConflictSolutions) {this.snoozedActions = newConflictSolutions; }
 
     /**
      * For each entity, get the most up-to-date prediction

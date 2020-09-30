@@ -214,15 +214,15 @@ public class PredictionEngine {
                 Action action = ruleActions.get(potentialActionID);
 
                 // CHECK IF THE ACTION IS SNOOZED OR NOT
-                boolean snoozed = predictionInput.isSnoozed(potentialActionID, triggerEntityID, ruleExecution.datetime);
+                SnoozedAction snoozedAction = predictionInput.isSnoozed(potentialActionID, triggerEntityID, ruleExecution.datetime);
 
-                if(!snoozed) {
+                if(snoozedAction == null) {
                     List<HassioState> resultingStates = action.simulate(ruleExecution.datetime, states);
                     ruleExecution.addActionExecution(new ActionExecution(date, potentialActionID, resultingStates));
                     result.addAll(resultingStates);
                 } else {
                     // Also add action Executions for actions that were snoozed, so they can be re enabled later
-                    ruleExecution.addActionExecution(new ActionExecution(date, potentialActionID, true));
+                    ruleExecution.addActionExecution(new ActionExecution(date, potentialActionID, snoozedAction.snoozedActionID));
                 }
             }
 

@@ -228,7 +228,12 @@
           </dependency>
 
           <dependency> <groupId>org.reflections</groupId> <artifactId>reflections</artifactId> <version>0.9.9-RC1</version> </dependency>
-      </dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.10</version>
+        </dependency>
+    </dependencies>
       <properties>
           <jersey.version>2.32</jersey.version> <!-- Last working version -->
         <jackson.version>2.10.2</jackson.version>

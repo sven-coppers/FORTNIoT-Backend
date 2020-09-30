@@ -10,24 +10,6 @@ import java.util.List;
 
 @Path("overrides/")
 public class OverrideResource {
-    private static OverrideResource overrideResource;
-
-    public OverrideResource() {
-        overrideResource = this;
-    }
-
-    /**
-     * Singleton
-     * @return the single instance of this class
-     */
-    public static OverrideResource getInstance() {
-        if (overrideResource == null) {
-            overrideResource = new OverrideResource();
-        }
-
-        return overrideResource;
-    }
-
     /**
      * Get snoozed actions
      * @return Get all snoozed actions
@@ -37,6 +19,27 @@ public class OverrideResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<SnoozedAction> getSnoozedActions() {
         return ContextManager.getInstance().getOverridesManager().getSnoozedActions();
+    }
+
+    /**
+     * Get a single snoozed action
+     * @return the action
+     */
+    @Path("snoozed_actions/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public SnoozedAction getSnoozedAction(@PathParam("id") String id) {
+        return ContextManager.getInstance().getOverridesManager().getSnoozedAction(id);
+    }
+
+    /**
+     * Remove snoozed actions
+     */
+    @Path("snoozed_actions/{id}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public void deleteSnoozedAction(@PathParam("id") String id) {
+        ContextManager.getInstance().getOverridesManager().removeSnoozedAction(id);
     }
 
     /**

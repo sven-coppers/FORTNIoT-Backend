@@ -6,6 +6,7 @@ import sven.phd.iot.hassio.states.HassioState;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class OverridesManager {
@@ -19,7 +20,7 @@ public class OverridesManager {
         this.customStates = new ArrayList<>();
         this.contextManager = contextManager;
 
-        this.snoozedActions.add(new SnoozedAction("action1", new Date(), 1000, "sun.sun"));
+       // this.snoozedActions.add(new SnoozedAction("action1", new Date(), 1000, "sun.sun"));
     }
 
     public void addCustomState(HassioState hassioState) {
@@ -32,8 +33,16 @@ public class OverridesManager {
         this.contextManager.updateFuturePredictions();
     }
 
-    public void removeSnoozedAction(SnoozedAction snoozedAction) {
-        // TODO:
+    public void removeSnoozedAction(String snoozedActionID) {
+        Iterator<SnoozedAction> iterator = this.snoozedActions.iterator();
+        while(iterator.hasNext()){
+            SnoozedAction snoozedAction = iterator.next();
+            if(snoozedAction.snoozedActionID.equals(snoozedActionID)){
+                iterator.remove();
+            }
+        }
+
+        this.contextManager.updateFuturePredictions();
     }
 
     public List<SnoozedAction> getSnoozedActions() {
@@ -48,5 +57,15 @@ public class OverridesManager {
         this.customStates.clear();
         this.snoozedActions.clear();
         this.contextManager.updateFuturePredictions();
+    }
+
+    public SnoozedAction getSnoozedAction(String snoozedActionID) {
+        for(SnoozedAction snoozedAction : this.snoozedActions) {
+            if(snoozedAction.snoozedActionID.equals(snoozedActionID)) {
+                return snoozedAction;
+            }
+        }
+
+        return null;
     }
 }

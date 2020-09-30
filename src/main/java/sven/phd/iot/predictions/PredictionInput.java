@@ -63,11 +63,18 @@ public class PredictionInput {
         this.snoozedActions = snoozedActions;
     }
 
-    public boolean isSnoozed(String actionID, String triggerEntityID, Date executionTime) {
+    /**
+     * Return the snoozedAction that snoozes this item, if any, null otherwise
+     * @param actionID
+     * @param triggerEntityID
+     * @param executionTime
+     * @return
+     */
+    public SnoozedAction isSnoozed(String actionID, String triggerEntityID, Date executionTime) {
         for(SnoozedAction snoozedAction : this.snoozedActions) {
-            if(snoozedAction.matches(actionID, triggerEntityID, executionTime)) return true;
+            if(snoozedAction.matches(actionID, triggerEntityID, executionTime)) return snoozedAction;
         }
 
-        return false;
+        return null;
     }
 }

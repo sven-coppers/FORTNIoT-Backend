@@ -152,12 +152,7 @@ public class ContextManager {
         this.executeRules(hassioChange);
 
         // Update all predictions
-        this.updateFuturePredictions();
-    }
-
-    public void updateFuturePredictions() {
         this.predictionEngine.updateFuturePredictions();
-        StateResource.getInstance().broadcastRefresh();
     }
 
     /**
@@ -207,7 +202,7 @@ public class ContextManager {
     public void updateRule(String id, boolean enabled, boolean available) {
         this.getRule(id).setEnabled(enabled);
         this.getRule(id).setAvailable(available);
-        ContextManager.getInstance().updateFuturePredictions();
+        this.predictionEngine.updateFuturePredictions();
     }
 
     public ScenarioManager getScenarioManager() {

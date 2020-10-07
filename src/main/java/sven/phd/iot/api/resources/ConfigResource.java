@@ -59,7 +59,6 @@ public class ConfigResource {
 
         // If we should listen, but aren't
         if(!predictionEngine.isPredicting() && config.predictions) predictionEngine.startFuturePredictions();
-        StateResource.getInstance().broadcastRefresh();
 
         if(config.window != -1l) {
             predictionEngine.setPredictionWindow(config.window);
@@ -74,7 +73,6 @@ public class ConfigResource {
     @Path("predictions/update")
     public void updatePredictions() {
         ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();
-        StateResource.getInstance().broadcastRefresh();
     }
 
     @GET

@@ -38,7 +38,8 @@ public class Conflict {
     }
 
     public void addConflictState(HassioState hassioState) {
-        this.conflictingStates.add(hassioState);
+        if(!this.containsState(hassioState)) this.conflictingStates.add(hassioState);
+
     }
 
     public List<HassioState> getConflictingStates() {
@@ -46,7 +47,27 @@ public class Conflict {
     }
 
     public void addConflictingStates(List<HassioState> conflictingStates) {
-        this.conflictingStates.addAll(conflictingStates);
+        for(HassioState newConflictingState : conflictingStates) {
+            this.addConflictState(newConflictingState);
+        }
+    }
+
+    public boolean hasOverlappingStates(Conflict otherConflict) {
+        for(HassioState otherConflictState : otherConflict.conflictingStates) {
+            if (this.containsState(otherConflictState)) return true;
+        }
+
+        return false;
+    }
+
+    public boolean containsState(HassioState otherConflictState) {
+        for(HassioState existingConflictState : this.conflictingStates) {
+            if(existingConflictState.context.id.equals(otherConflictState.context.id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
   /*  public boolean updateConflict(List<HassioState> conflictingChanges) {

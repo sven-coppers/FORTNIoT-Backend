@@ -295,4 +295,31 @@ public class Future {
 
         return null;
     }
+
+    /**
+     * Try to combine conflicts where possible
+     */
+    public void simplifyConflicts() {
+        List<Conflict> simplifiedConflicts = new ArrayList<>();
+
+        // Check if each state is already in a new conflict
+        for(Conflict existingConflict : this.futureConflicts) {
+            boolean merged = false;
+
+            for(Conflict simplifiedConflict : simplifiedConflicts) {
+               if(simplifiedConflict.hasOverlappingStates(existingConflict)) {
+                   simplifiedConflict.addConflictingStates(existingConflict.conflictingStates);
+                   simplifiedConflict.conflictType = "Conflict";
+                   merged = true;
+                   continue;
+               }
+            }
+
+            if(!merged) {
+                simplifiedConflicts.add(existingConflict);
+            }
+        }
+
+        this.futureConflicts = simplifiedConflicts;
+    }
 }

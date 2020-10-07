@@ -26,7 +26,7 @@ public class RedundancyVerifier extends ConflictVerifier {
         for(int i = entityStateStack.size() - 1; i >= 0; --i) {
             HassioState pastState = entityStateStack.get(i);
 
-            // If we are to far back in the past
+            // If we are too far back in the past
             if(newstate.getLastChanged().getTime() - device.getChangeCoolDown() > pastState.getLastChanged().getTime()) {
                 break;
             }

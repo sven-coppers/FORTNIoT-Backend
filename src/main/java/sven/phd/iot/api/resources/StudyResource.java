@@ -55,9 +55,8 @@ public class StudyResource {
             scenarioManager.setActivePreset(useCaseRequest.preset);
         }
 
+        StateResource.getInstance().broadcastRefresh("Scenario Changed");
         ContextManager.getInstance().getPredictionEngine().updateFuturePredictions();
-
-        StateResource.getInstance().broadcastRefresh();
     }
 
     @PUT

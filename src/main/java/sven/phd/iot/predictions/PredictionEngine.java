@@ -2,8 +2,8 @@ package sven.phd.iot.predictions;
 
 import sven.phd.iot.ContextManager;
 import sven.phd.iot.api.request.SimulationRequest;
+import sven.phd.iot.api.resources.StateResource;
 import sven.phd.iot.conflicts.Conflict;
-import sven.phd.iot.overrides.OverridesManager;
 import sven.phd.iot.conflicts.ConflictVerificationManager;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
@@ -42,6 +42,7 @@ public class PredictionEngine {
      */
     public void updateFuturePredictions() {
         this.future = predictFuture(contextManager.gatherPredictionInput());
+        StateResource.getInstance().broadcastRefresh("Predictions updated");
     }
 
     /**
@@ -94,7 +95,13 @@ public class PredictionEngine {
             }
         }
 
-        System.out.println("Finished deducing " + future.getNumDeducedPredictions() + " predictions from " + future.getNumSelfSustainingPredictions() + " self-sustaining predictions, with " + future.getFutureConflicts().size() + " conflicts.");
+        int oldNumConflicts = future.getFutureConflicts().size();
+
+        future.simplifyConflicts();
+
+        System.out.println("Finished deducing " + future.getNumDeducedPredictions() + " predictions from " + future.getNumSelfSustainingPredictions() + " self-sustaining predictions. Reduced " + oldNumConflicts + " to " + future.getFutureConflicts().size() + " conflicts.");
+
+        future.simplifyConflicts();
 
         return future;
     }

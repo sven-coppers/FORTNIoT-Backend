@@ -153,21 +153,23 @@ public class StateResource {
      * @param hassioState
      */
     public void broadcastState(HassioState hassioState) {
-        final OutboundEvent event = new OutboundEvent.Builder()
+        // Deprecated
+
+       /* final OutboundEvent event = new OutboundEvent.Builder()
                 .mediaType(MediaType.APPLICATION_JSON_TYPE)
                 .data(HassioState.class, hassioState)
                 .build();
 
-        stateBroadcaster.broadcast(event);
+        stateBroadcaster.broadcast(event); */
     }
 
     /**
      * Broadcast a message to this channel
      */
-    public void broadcastRefresh() {
+    public void broadcastRefresh(String message) {
         final OutboundEvent event = new OutboundEvent.Builder()
                 .mediaType(MediaType.APPLICATION_JSON_TYPE)
-                .data(String.class, "refresh needed")
+                .data(String.class, message)
                 .build();
 
         stateBroadcaster.broadcast(event);

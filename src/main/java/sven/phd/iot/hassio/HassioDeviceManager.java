@@ -48,8 +48,6 @@ public class HassioDeviceManager implements EventListener {
     private EventSource eventSource;
 
     public HassioDeviceManager(ContextManager contextManager) {
-        System.out.println("HassioDeviceManager - Initiating...");
-
         this.hassioDeviceMap = new HashMap<>();
         this.eventSource = null;
         this.HASSIO_URL = null;

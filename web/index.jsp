@@ -7,6 +7,10 @@
   <div class="block">
     <h1>Endpoints Sven</h1>
     <ul>
+      <li><span class="method">GET</span> <a class="uri" href="api/devices">devices</a> Get the id and friendly name of all the devices</li>
+      <li><span class="method">GET</span> <a class="uri" href="api/devices/light.living_standing_lamp">devices/{id}</a> Get the id and friendly name of a particular device</li>
+    </ul>
+    <ul>
       <li><span class="method">GET</span> <a class="uri" href="api/states/">states/</a> Get the current state of all devices</li>
       <li><span class="method">GET</span> <a class="uri" href="api/states/stream">states/stream</a> Get live state updates state of all devices</li>
       <li><span class="method">GET</span> <a class="uri" href="api/states/history">states/history</a> Get the historical state of all devices</li>
@@ -53,29 +57,15 @@
   <div class="block">
     <h1>Endpoints Bram</h1>
     <ul>
-      <li><span class="method">GET</span> <a class="uri" href="api/bram/">bram/</a> Hello, world</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/bram/devices">bram/devices</a> Get the id and friendly name of all the devices</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/bram/devices/light.living_standing_lamp">bram/devices/{id}</a> Get the id and friendly name of a particular device</li>
       <li><span class="method">GET</span> <a class="uri" href="api/bram/why/light.hue_color_lamp_2">bram/why/{id}</a> Get the reason of the state of a entity</li>
     </ul>
   </div>
-
   <div class="block">
     <h1>Endpoints Mathias</h1>
     <ul>
-      <li><span class="method">GET</span> <a class="uri" href="api/mathias/">mathias/</a> Hello, world</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/mathias/future/">mathias/future/</a> Get the future</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/actions/">mathias/actions/</a> Get all actions</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/actions/actionId1">mathias/actions/{id}</a> Get the action with {id}, e.g. 'actionId1'</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/mathias/rules/rule.sun_rise_lights">mathias/rules/{id}</a> Get the rule with {id}, e.g. 'rule.sun_rise_lights'</li>
       <li><span class="method">GET</span> <a class="uri" href="api/mathias/devices/actions/light.living_standing_lamp">mathias/devices/actions/{id}</a> Get the actions for the device with {id}, e.g. 'light.living_standing_lamp'</li>
-
-      <li><span class="method">GET</span> <a class="uri" href="api/mathias/solutions/future">mathias/solutions/future</a> Get the future conflict solutions</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/mathias/solutions/future/light.hue_color_spot_2">mathias/solutions/future/{id}</a> Get the future conflict solutions for the device with {id}, e.g. 'light.hue_color_spot_2'</li>
-      <li><span class="method">POST</span> <a class="uri" href="api/mathias/solutions">mathias/solutions</a> Set solution for conflicts</li>
-      <li><span class="method">POST</span> <a class="uri" href="api/mathias/solutions/remove">mathias/solutions/remove</a> Remove solution for conflicts</li>
-      <li><span class="method">POST</span> <a class="uri" href="api/mathias/solutions/update">mathias/solutions/update</a> Update solution for conflicts</li>
-      <li><span class="method">GET</span> <a class="uri" href="api/mathias/solutions/clean">mathias/solutions/clean</a> Clean solutions</li>
     </ul>
     </div>
   </body>

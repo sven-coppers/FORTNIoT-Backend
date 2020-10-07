@@ -15,7 +15,8 @@ public class ConflictVerificationManager {
         this.conflictVerifiers.put("redundancies", new RedundancyVerifier());
         this.conflictVerifiers.put("loops", new LoopVerifier());
         this.conflictVerifiers.put("inconsistencies", new InconsistencyVerifier());
-        this.conflictVerifiers.put("udc_bedroom_temperature", new TemperatureConflictVerifier(BedroomTempDevices.BEDROOM_TEMPERATURE, Arrays.asList(BedroomTempDevices.BEDROOM_HEATING), Arrays.asList(BedroomTempDevices.BEDROOM_AIRCO)));
+        this.conflictVerifiers.put("no_effect", new NoEffectVerifier());
+        this.conflictVerifiers.put("udc_bedroom_temp", new TemperatureConflictVerifier(BedroomTempDevices.BEDROOM_TEMPERATURE, Arrays.asList(BedroomTempDevices.BEDROOM_HEATING), Arrays.asList(BedroomTempDevices.BEDROOM_AIRCO)));
     }
 
     /**
@@ -45,9 +46,9 @@ public class ConflictVerificationManager {
     }
 
 
-    public void disableAllVerifiers() {
+    public void setAllVerifiersEnabled(boolean enabled) {
         for(String verifierID : this.conflictVerifiers.keySet()) {
-            this.conflictVerifiers.get(verifierID).setEnabled(false);
+            this.conflictVerifiers.get(verifierID).setEnabled(enabled);
         }
     }
 
@@ -68,7 +69,7 @@ public class ConflictVerificationManager {
     }
 
     public void setActiveVerifiers(List<String> newActiveVerifiers) {
-        this.disableAllVerifiers();
+        this.setAllVerifiersEnabled(false);
 
         for(String key : newActiveVerifiers) {
             if(this.conflictVerifiers.containsKey(key)) {

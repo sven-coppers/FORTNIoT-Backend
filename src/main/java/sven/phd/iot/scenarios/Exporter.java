@@ -1,15 +1,5 @@
 package sven.phd.iot.scenarios;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import sven.phd.iot.ContextManager;
-import sven.phd.iot.api.request.PredictionsRequest;
-import sven.phd.iot.predictions.PredictionEngine;
-import sven.phd.iot.students.bram.resources.DeviceResource;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 public class Exporter {
     /*public static void export(String question) {
         ObjectMapper objectMapper = new ObjectMapper();

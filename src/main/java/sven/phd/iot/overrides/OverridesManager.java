@@ -25,12 +25,12 @@ public class OverridesManager {
 
     public void addCustomState(HassioState hassioState) {
         this.customStates.add(hassioState);
-        this.contextManager.updateFuturePredictions();
+        this.contextManager.getPredictionEngine().updateFuturePredictions();
     }
 
     public void addSnoozedAction(SnoozedAction snoozedAction) {
         this.snoozedActions.add(snoozedAction);
-        this.contextManager.updateFuturePredictions();
+        this.contextManager.getPredictionEngine().updateFuturePredictions();
     }
 
     public void removeSnoozedAction(String snoozedActionID) {
@@ -42,7 +42,7 @@ public class OverridesManager {
             }
         }
 
-        this.contextManager.updateFuturePredictions();
+        this.contextManager.getPredictionEngine().updateFuturePredictions();
     }
 
     public List<SnoozedAction> getSnoozedActions() {
@@ -56,7 +56,6 @@ public class OverridesManager {
     public void cleanSolutions() {
         this.customStates.clear();
         this.snoozedActions.clear();
-        this.contextManager.updateFuturePredictions();
     }
 
     public SnoozedAction getSnoozedAction(String snoozedActionID) {

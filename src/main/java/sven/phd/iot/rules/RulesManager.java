@@ -14,7 +14,6 @@ public class RulesManager {
     private Map<String, Trigger> rules;
 
     public RulesManager() {
-        System.out.println("RulesManager - Initiating...");
         this.rules = new HashMap<>();
 
         // Implicit behavior needs to be collected, but should remain hidden

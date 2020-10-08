@@ -78,4 +78,8 @@ public class ConflictVerificationManager {
         }
 
     }
+
+    public void setVerifierEnabled(String verifierID, Boolean enabled) {
+        this.conflictVerifiers.get(verifierID).setEnabled(enabled);
+    }
 }

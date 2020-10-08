@@ -35,7 +35,6 @@
                 <td>Rules</td>
                 <td>Devices</td>
                 <td>States</td>
-                <td>Conflict Verifiers</td>
                 <td>Preset</td>
             </tr>
             </thead>
@@ -47,8 +46,6 @@
                 </td>
                 <td id="state_sets">
                 </td>
-                <td id="conflict_verifier_sets">
-                </td>
                 <td>
                     <select id="preset" size="40"></select>
                 </td>
@@ -57,6 +54,10 @@
         </table>
         <button id="apply">Apply</button>
         <button id="export">Export</button>
+    </div>
+    <div class="block">
+        <h2>Conflict Detection</h2>
+        <div id="conflict_verifier_sets"></div>
     </div>
     <div class="block">
         <h2>Predictions</h2>

@@ -20,7 +20,7 @@ public class StudyResource {
     @Produces(MediaType.APPLICATION_JSON)
     public UseCaseRequest getConfig() {
         ScenarioManager scenarioManager = ContextManager.getInstance().getScenarioManager();
-        ConflictVerificationManager conflictVerificationManager = ContextManager.getInstance().getConflictVerificationManager();
+     //   ConflictVerificationManager conflictVerificationManager = ContextManager.getInstance().getConflictVerificationManager();
 
         UseCaseRequest useCaseRequest = new UseCaseRequest();
 
@@ -28,13 +28,13 @@ public class StudyResource {
         useCaseRequest.ruleSet = scenarioManager.getRuleSet();
         useCaseRequest.stateSet = scenarioManager.getStateSet();
         useCaseRequest.preset = scenarioManager.getActivePreset();
-        useCaseRequest.activeConflictVerifiers = conflictVerificationManager.getActiveVerifiers();
+      //  useCaseRequest.activeConflictVerifiers = conflictVerificationManager.getActiveVerifiers();
 
         useCaseRequest.deviceSetOptions = scenarioManager.getDeviceSetOptions();
         useCaseRequest.ruleSetOptions = scenarioManager.getRuleSetOptions();
         useCaseRequest.stateSetOptions = scenarioManager.getStateSetOptions();
         useCaseRequest.presetOptions = scenarioManager.getPresets();
-        useCaseRequest.conflictVerifyOptions = conflictVerificationManager.getAllVerifiers();
+       // useCaseRequest.conflictVerifyOptions = conflictVerificationManager.getAllVerifiers();
 
         return useCaseRequest;
     }
@@ -44,12 +44,12 @@ public class StudyResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public void setConfig(UseCaseRequest useCaseRequest) {
         ScenarioManager scenarioManager = ContextManager.getInstance().getScenarioManager();
-        ConflictVerificationManager conflictVerificationManager = ContextManager.getInstance().getConflictVerificationManager();
+       // ConflictVerificationManager conflictVerificationManager = ContextManager.getInstance().getConflictVerificationManager();
 
         scenarioManager.setDeviceSet(useCaseRequest.deviceSet);
         scenarioManager.setRuleSet(useCaseRequest.ruleSet);
         scenarioManager.setStateSet(useCaseRequest.stateSet);
-        conflictVerificationManager.setActiveVerifiers(useCaseRequest.activeConflictVerifiers);
+     //   conflictVerificationManager.setActiveVerifiers(useCaseRequest.activeConflictVerifiers);
 
         if(useCaseRequest.preset != null) {
             scenarioManager.setActivePreset(useCaseRequest.preset);

@@ -106,14 +106,6 @@ public class StateResource {
         return ContextManager.getInstance().getStateFuture(id);
     }
 
-    @Path("future/simulate/")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Future getAlternativeFuture(SimulationRequest simulationRequest)  {
-        return ContextManager.getInstance().getPredictionEngine().whatIf(simulationRequest);
-    }
-
     /**
      * Get the new SSE change stream channel.
      * @return new SSE change stream channel.

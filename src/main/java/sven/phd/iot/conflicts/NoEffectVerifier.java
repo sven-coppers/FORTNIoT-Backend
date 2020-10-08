@@ -1,7 +1,5 @@
 package sven.phd.iot.conflicts;
 
-import sven.phd.iot.ContextManager;
-import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.predictions.Future;
 
@@ -25,7 +23,7 @@ public class NoEffectVerifier extends ConflictVerifier {
 
             if(newstate.state.equals(lastState.state)) {
                 conflict.addConflictState(newstate);
-                conflict.addConflictState(lastState);
+            //    conflict.addConflictState(lastState);
                 conflicts.add(conflict);
             }
         }

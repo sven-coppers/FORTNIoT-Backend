@@ -70,6 +70,7 @@ function refresh() {
     this.refreshUseCases();
     this.refreshPredictions();
     this.refreshStudy();
+    this.refreshConflictVerifiers();
 }
 
 $("#start_listening").click(function() { applyConfig(true); });
@@ -82,7 +83,6 @@ function applyUseCase() {
         rule_set: [],
         device_set: [],
         state_set: [],
-        active_conflict_verifiers: [],
         preset: null
     };
 
@@ -104,13 +104,17 @@ function applyUseCase() {
         }
     });
 
+    applyUseCaseSettings(useCase);
+}
+
+function applyConflictVerifiers() {
+    let conflictVerifierMap = {};
+
     $.each($("#conflict_verifier_sets input"), function () {
-        if($(this).prop('checked')) {
-            useCase.active_conflict_verifiers.push($(this).attr("id").replace("conflict_verifier_", ""));
-        }
+        conflictVerifierMap[$(this).attr("id").replace("conflict_verifier_", "")] = $(this).prop('checked');
     });
 
-    applyUseCaseSettings(useCase);
+    this.commitConflictVerifiers(conflictVerifierMap);
 }
 
 function applyPreset() {
@@ -130,6 +134,18 @@ function applyUseCaseSettings(settings) {
         url:            "/intelligibleIoT/api/study/case/",
         type:           "PUT",
         data: JSON.stringify(settings),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+    }).done(function (data) {
+        refresh();
+    });
+}
+
+function commitConflictVerifiers(conflictVerifiers) {
+    $.ajax({
+        url:            "/intelligibleIoT/api/conflicts/verifiers/",
+        type:           "PUT",
+        data: JSON.stringify(conflictVerifiers),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
     }).done(function (data) {
@@ -161,8 +177,8 @@ function refreshRules() {
 
             setRuleProperties(HTMLID, rule["enabled"], rule["available"]);
 
-            for(let action of rule["actions"]) {
-                $("#" + HTMLID + "_actions").append(action["description"] + "<br />");
+            for(let actionID in rule["actions"]) {
+                $("#" + HTMLID + "_actions").append(rule["actions"][actionID]["description"] + "<br />");
             }
         }
     });
@@ -198,7 +214,7 @@ function refreshStates() {
 
 function refreshDevices() {
     $.ajax({
-        url:            "/intelligibleIoT/api/bram/devices/",
+        url:            "/intelligibleIoT/api/devices/",
         type:           "GET",
         headers: {
             Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
@@ -206,14 +222,15 @@ function refreshDevices() {
     }).done(function (data) {
         $("#table_body_devices").empty();
 
-        for (let device of data) {
+        for (let deviceID in data) {
+            let device = data[deviceID];
             if(device == null) continue;
-            let HTMLID = deviceIDtoHTMLID(device["id"]);
+            let HTMLID = deviceIDtoHTMLID(deviceID);
 
             $("#table_body_devices").append('<tr>\n' +
                 '    <td class="checkbox_cell"><input type="checkbox" name="device_enabled" id="' + HTMLID + '_enabled" value="' + HTMLID + '_enabled"></td>\n' +
                 '    <td class="checkbox_cell"><input type="checkbox" name="device_available" id="' + HTMLID + '_available" value="' + HTMLID + '_available"></td>\n' +
-                '    <td>' + device["id"] + '</td>\n' +
+                '    <td>' + deviceID + '</td>\n' +
                 '    <td>' + device["friendly_name"] + '</td>\n' +
             '</tr>');
 
@@ -312,7 +329,6 @@ function refreshUseCases() {
         $("#rule_sets").empty();
         $("#device_sets").empty();
         $("#state_sets").empty();
-        $("#conflict_verifier_sets").empty();
         $("select#preset").empty();
 
         // Populate
@@ -328,9 +344,6 @@ function refreshUseCases() {
             $("#state_sets").append('<div class="checkbox_option"><input type="checkbox" id="state_set_' + stateSetOption + '" value="state_set_' + stateSetOption + '"><label for="state_set_' + stateSetOption + '">' + stateSetOption + '</label></div>');
         }
 
-        for(let conflictVerifierOption of data["conflict_verify_options"].sort()) {
-            $("#conflict_verifier_sets").append('<div class="checkbox_option"><input type="checkbox" id="conflict_verifier_' + conflictVerifierOption + '" value="conflict_verifier_' + conflictVerifierOption + '"><label for="conflict_verifier_' + conflictVerifierOption + '">' + conflictVerifierOption + '</label></div>');
-        }
 
         for(let presetOption of data["preset_options"].sort()) {
             $("select#preset").append('<option>' + presetOption + '</option>');
@@ -340,8 +353,31 @@ function refreshUseCases() {
         selectRules(data["rule_set"]);
         selectDevices(data["device_set"]);
         selectStates(data["state_set"]);
-        selectConflictVerifiers(data["active_conflict_verifiers"]);
         document.getElementById("preset").value = data["preset"];
+    });
+}
+
+function refreshConflictVerifiers() {
+    let oThis = this;
+    $.ajax({
+        url:            "/intelligibleIoT/api/conflicts/verifiers/",
+        type:           "GET",
+        headers: {
+            Accept: "application/json; charset=utf-8" // FORCE THE JSON VERSION
+        }
+    }).done(function (data) {
+        $("#conflict_verifier_sets").empty();
+
+        for(let conflictVerifierOption in data) {
+            let checked = data[conflictVerifierOption] ? "checked=checked" : "";
+            //console.log(conflictVerifierOption);
+
+            $("#conflict_verifier_sets").append('<div class="checkbox_option"><input type="checkbox" class="conflict_verifier" id="conflict_verifier_' + conflictVerifierOption + '" value="conflict_verifier_' + conflictVerifierOption + '" ' + checked + '><label for="conflict_verifier_' + conflictVerifierOption + '">' + conflictVerifierOption + '</label></div>');
+        }
+
+        $(".conflict_verifier").change(function() {
+            oThis.applyConflictVerifiers();
+        });
     });
 }
 

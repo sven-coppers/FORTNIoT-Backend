@@ -10,11 +10,11 @@ public class UseCaseRequest {
     @JsonProperty("rule_set") public List<String> ruleSet;
     @JsonProperty("device_set") public List<String> deviceSet;
     @JsonProperty("state_set") public List<String> stateSet;
-    @JsonProperty("active_conflict_verifiers") public List<String> activeConflictVerifiers;
+    //@JsonProperty("active_conflict_verifiers") public List<String> activeConflictVerifiers;
     @JsonProperty("preset") public String preset;
     @JsonProperty("rule_set_options") public List<String> ruleSetOptions;
     @JsonProperty("device_set_options") public List<String> deviceSetOptions;
     @JsonProperty("state_set_options") public List<String> stateSetOptions;
-    @JsonProperty("conflict_verify_options") public List<String> conflictVerifyOptions;
+   // @JsonProperty("conflict_verify_options") public List<String> conflictVerifyOptions;
     @JsonProperty("preset_options") public List<String> presetOptions;
 }

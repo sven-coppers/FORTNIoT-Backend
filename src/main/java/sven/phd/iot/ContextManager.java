@@ -114,7 +114,7 @@ public class ContextManager {
      * Get the history of all device states
      * @return
      */
-    public List<HassioState> getStateHistory() {
+    public HashMap<String, List<HassioState>> getStateHistory() {
         return this.hassioDeviceManager.getStateHistory();
     }
 
@@ -126,21 +126,6 @@ public class ContextManager {
         return this.hassioDeviceManager.getStateHistory(id);
     }
 
-    /**
-     * Get the cached version of the future states of each device
-     * @return
-     */
-    public List<HassioState> getStateFuture() {
-        return this.predictionEngine.getFuture().getFutureStates();
-    }
-
-    /**
-     * Get the future of a single device
-     * @return
-     */
-    public List<HassioState> getStateFuture(String id) {
-        return this.predictionEngine.getFuture().getFutureStates(id);
-    }
 
     /**
      * Check what needs to happen when the state of a device has changed

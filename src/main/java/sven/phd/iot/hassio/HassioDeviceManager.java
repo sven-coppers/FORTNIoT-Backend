@@ -374,14 +374,13 @@ public class HassioDeviceManager implements EventListener {
      * Get the history of all device states
      * @return
      */
-    public List<HassioState> getStateHistory() {
-        List<HassioState> hassioStates = new ArrayList<>();
+    public HashMap<String, List<HassioState>> getStateHistory() {
+        HashMap<String, List<HassioState>> hassioStates = new HashMap<>();
 
         for(String entityID : hassioDeviceMap.keySet()) {
-            hassioStates.addAll(hassioDeviceMap.get(entityID).getPastStates());
+            hassioStates.put(entityID, hassioDeviceMap.get(entityID).getPastStates());
         }
 
-        Collections.sort(hassioStates);
 
         return hassioStates;
     }

@@ -13,7 +13,7 @@ import java.util.*;
 
 public class Future {
     /** For convenience in conflict detection algorithms, the first state of every entity is the CURRENT state */
-    @JsonProperty("states_causal_map") private HashMap<String, Stack<HassioState>> entityStateStackMap;
+    @JsonProperty("states") private HashMap<String, Stack<HassioState>> entityStateStackMap;
     @JsonProperty("executions") public Stack<RuleExecution> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
     @JsonProperty("snoozed_actions") public List<SnoozedAction> snoozedActions;
@@ -51,11 +51,11 @@ public class Future {
     /**
      * Get the future executions of this rule
      */
-    public List<RuleExecution> getExecutionFuture(String entityID) {
+    public List<RuleExecution> getExecutionFuture(String ruleID) {
         List<RuleExecution> result = new ArrayList<>();
 
         for(RuleExecution ruleExecution : this.futureExecutions) {
-            if(ruleExecution.ruleID.equals(entityID)) {
+            if(ruleExecution.ruleID.equals(ruleID)) {
                 result.add(ruleExecution);
             }
         }
@@ -111,7 +111,7 @@ public class Future {
      * Get a sorted list (from old to new) of ALL future states
      * The first state for each entity is the current state, and should be filtered out
      */
-    public List<HassioState> getFutureStates() {
+/*    public List<HassioState> getFutureStates() {
         List<HassioState> result = new ArrayList<>();
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
 
@@ -133,7 +133,7 @@ public class Future {
         }
 
         return result;
-    }
+    } */
 
     /**
      * Get a sorted list (from old to new) of the future states for a single entity
@@ -262,12 +262,27 @@ public class Future {
     }
 
     /**
+     * Get the number of deduced predictions (states WITH an execution event)
+     * @return
+     */
+    @JsonIgnore
+    public int getNumFutureStates() {
+        int result = 0;
+
+        for(String deviceID : this.entityStateStackMap.keySet()) {
+            result += this.entityStateStackMap.get(deviceID).size();
+        }
+
+        return result;
+    }
+
+    /**
      * Get the number of self-sustaining predictions (states WITHOUT an execution event)
      * @return
      */
     @JsonIgnore
     public int getNumSelfSustainingPredictions() {
-        return this.getFutureStates().size() - this.getNumDeducedPredictions();
+        return this.getNumFutureStates() - this.getNumDeducedPredictions();
     }
 
     public Stack<HassioState> getEntityStateStack(String entity_id) {

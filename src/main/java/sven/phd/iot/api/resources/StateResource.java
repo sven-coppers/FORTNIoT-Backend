@@ -56,7 +56,7 @@ public class StateResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public HassioState getDevice(@PathParam("id") String id) {
-        return ContextManager.getInstance().getHassioState(id);
+        return ContextManager.getInstance().getHassioDeviceManager().getCurrentState(id);
     }
 
     /**
@@ -66,10 +66,9 @@ public class StateResource {
     @Path("history/")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioState> getStateHistory() {
+    public HashMap<String, List<HassioState>> getStateHistory() {
         return ContextManager.getInstance().getStateHistory();
     }
-
 
     /**
      * Get the history of this specific device
@@ -81,29 +80,6 @@ public class StateResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<HassioState> getDeviceHistory(@PathParam("id") String id) {
         return ContextManager.getInstance().getStateHistory(id);
-    }
-
-    /**
-     * Get the future of changes.
-     * @return Get the future of changes.
-     */
-    @Path("future/")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioState> getStateFuture() {
-        return ContextManager.getInstance().getStateFuture();
-    }
-
-    /**
-     * Get the history of this specific device
-     * @param id
-     * @return
-     */
-    @Path("future/{id}")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<HassioState> getDeviceFuture(@PathParam("id") String id) {
-        return ContextManager.getInstance().getStateFuture(id);
     }
 
     /**

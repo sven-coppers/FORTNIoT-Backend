@@ -6,10 +6,7 @@ import sven.phd.iot.overrides.SnoozedAction;
 import sven.phd.iot.rules.Action;
 import sven.phd.iot.rules.Trigger;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class PredictionInput {
     private List<HassioState> hassioStates;
@@ -23,11 +20,23 @@ public class PredictionInput {
     }
 
     public void mergeSimulationRequest(SimulationRequest simulationRequest) {
-        // TODO: Add snoozed actions and custom states from API to what we already have
+        // Add snoozed actions and custom states from API to what we already have
         this.snoozedActions.addAll(simulationRequest.snoozedActions);
 
 
-        // TODO: subtract unsnoozed actions and custom states from API from what we already have
+        // Subtract unsnoozed actions and custom states from API from what we already have
+        for(String reEnabledAction : simulationRequest.reEnabledActions) {
+            Iterator<SnoozedAction> itr = this.snoozedActions.iterator();
+
+            while (itr.hasNext()) {
+                SnoozedAction snoozedAction = itr.next();
+
+                if (snoozedAction.equals(reEnabledAction)) {
+                    this.snoozedActions.remove(snoozedAction);
+                }
+            }
+        }
+
 
         // Remove an action from the list of snoozed actions when it should be reenabled
       /*  for(SnoozedAction snoozedAction : this.snoozedActions) {

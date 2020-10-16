@@ -13,7 +13,7 @@ import java.util.*;
 
 public class Future {
     /** For convenience in conflict detection algorithms, the first state of every entity is the CURRENT state */
-    @JsonProperty("states") private HashMap<String, Stack<HassioState>> entityStateStackMap;
+    private HashMap<String, Stack<HassioState>> entityStateStackMap;
     @JsonProperty("executions") public Stack<RuleExecution> futureExecutions;
     @JsonProperty("conflicts") public List<Conflict> futureConflicts;
     @JsonProperty("snoozed_actions") public List<SnoozedAction> snoozedActions;
@@ -139,12 +139,14 @@ public class Future {
      * Get a sorted list (from old to new) of the future states for a single entity
      * The first state for each entity is the current state, and should be filtered out
      */
-    public List<HassioState> getFutureStates(String entityID) {
-        List<HassioState> result = new ArrayList<>();
+    public HashMap<String, List<HassioState>> getStates() {
+        HashMap<String, List<HassioState>> result = new HashMap<>();
 
-        if(this.entityStateStackMap.containsKey(entityID)) {
+        for(String entityID : this.entityStateStackMap.keySet()) {
+            result.put(entityID, new ArrayList<>());
+
             for(int i = 1; i < this.entityStateStackMap.get(entityID).size(); ++i) { // Skip the first item!
-                result.add(this.entityStateStackMap.get(entityID).get(i));
+                result.get(entityID).add(this.entityStateStackMap.get(entityID).get(i));
             }
         }
 

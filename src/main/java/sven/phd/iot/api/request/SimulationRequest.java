@@ -14,7 +14,7 @@ public class SimulationRequest {
     @JsonProperty("suppressed_state_contexts") public List<HassioContext> suppressedStateContexts;
 
     @JsonProperty("snoozed_actions") public List<SnoozedAction> snoozedActions;
-    @JsonProperty("re_enabled_actions") public List<SnoozedAction> reEnabledActions;
+    @JsonProperty("re_enabled_actions") public List<String> reEnabledActions;
 
     public SimulationRequest() {
         extraStates = new ArrayList<>();

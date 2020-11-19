@@ -101,8 +101,6 @@ public class PredictionEngine {
 
         System.out.println("Finished deducing " + future.getNumDeducedPredictions() + " predictions from " + future.getNumSelfSustainingPredictions() + " self-sustaining predictions. Reduced " + oldNumConflicts + " to " + future.getFutureConflicts().size() + " conflicts.");
 
-        future.simplifyConflicts();
-
         return future;
     }
 

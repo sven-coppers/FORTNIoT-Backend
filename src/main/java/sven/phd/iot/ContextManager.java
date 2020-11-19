@@ -255,9 +255,10 @@ public class ContextManager {
     public PredictionInput gatherPredictionInput() {
         PredictionInput predictionInput = new PredictionInput();
 
-        predictionInput.setHassioStates(this.overridesManager.customStates);
-        predictionInput.setSnoozedActions(this.overridesManager.getSnoozedActions());
-        predictionInput.setEnabledRules(this.rulesManager.getAllRulesEnabled());
+        // Make a deeper copy (copy the arrays, but not the objects themselves
+        predictionInput.setHassioStates(new ArrayList<>(this.overridesManager.customStates));
+        predictionInput.setSnoozedActions(new ArrayList<>(this.overridesManager.getSnoozedActions()));
+        predictionInput.setEnabledRules(new HashMap<>(this.rulesManager.getAllRulesEnabled()));
 
         return predictionInput;
     }

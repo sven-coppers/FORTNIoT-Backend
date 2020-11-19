@@ -43,12 +43,12 @@
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
-            <version>2.27</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
-            <version>2.27</version>
+            <version>${jersey.version}</version>
         </dependency>
 
 
@@ -68,11 +68,17 @@
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
         </dependency>
-      <!--  <dependency>
+        <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
             <version>${jersey.version}</version>
-        </dependency> -->
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+
 
 
 <!--        <dependency>
@@ -80,10 +86,7 @@
             <artifactId>jersey-container-servlet-core</artifactId>
         </dependency> -->
 
-        <!--      <dependency>
-                 <groupId>org.glassfish.jersey.containers</groupId>
-                 <artifactId>jersey-container-servlet</artifactId>
-             </dependency>
+        <!--
 
              <dependency>
                  <groupId>org.glassfish.jersey.core</groupId>

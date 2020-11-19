@@ -81,9 +81,6 @@ public class PredictionEngine {
             }
 
             lastFrameDate = this.tick(nextTickDate, queue, future, predictionInput);
-
-            // TODO: When a solution is applied, and the future is reverted, lastFrameDate could be later
-            // TODO: The queue should be restored as well
         }
 
         // Finish predicting the rest of the queue (within the prediction window)
@@ -148,13 +145,6 @@ public class PredictionEngine {
 
             if (!conflicts.isEmpty()) {
                 future.addFutureConflicts(conflicts);
-                // TODO: Try to solve them
-
-                // If conflicts are found, find solution and apply it. Rerun everything!
-                //    if (runRequired) { -> Revert to a specific moment in time, set the mainloop to that moment in time
-                // TODO: What was in the queue at that time? -> OR restart everything???
-                // TODO:           applySolution(newDate, conflictsMapping, lastStates, firstLayer, snoozedActions, future, flags);
-                // TODO: solveRedundancyConflict(conflict);
             }
 
             if(this.isPredicting()) {
@@ -163,7 +153,6 @@ public class PredictionEngine {
                 lastLayer.clear();
             }
         }
-        // TODO: Solving a solution means deleting it from the future. (because you backtrack to the beginning of the conflict)
     }
 
     /**

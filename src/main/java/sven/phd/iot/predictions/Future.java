@@ -108,34 +108,6 @@ public class Future {
     }
 
     /**
-     * Get a sorted list (from old to new) of ALL future states
-     * The first state for each entity is the current state, and should be filtered out
-     */
-/*    public List<HassioState> getFutureStates() {
-        List<HassioState> result = new ArrayList<>();
-        PriorityQueue<HassioState> queue = new PriorityQueue<>();
-
-        if(this.entityStateStackMap.isEmpty()) return result;
-
-        // Insert all states in an ordered queue, which will automatically sort all states regardless of their entity
-        for(String entityID : this.entityStateStackMap.keySet()) {
-            for(int i = 1; i < this.entityStateStackMap.get(entityID).size(); ++i) { // Skip the first item!
-                queue.add(this.entityStateStackMap.get(entityID).get(i));
-                //System.out.println("\t" + this.causalNodeListMap.get(entityID).get(i).getState().getLastUpdated() + " " + this.causalNodeListMap.get(entityID).get(i).getState().state);
-            }
-        }
-
-        // maintain the sorted order after the conversion to an arraylist
-        while (!queue.isEmpty()) {
-            HassioState state = queue.poll();
-            //System.out.println("\tQueue:" + state.getLastUpdated() + " " + state.state);
-            result.add(state);
-        }
-
-        return result;
-    } */
-
-    /**
      * Get a sorted list (from old to new) of the future states for a single entity
      * The first state for each entity is the current state, and should be filtered out
      */
@@ -174,6 +146,14 @@ public class Future {
      */
     public void addFutureState(HassioState newState) {
         if(this.entityStateStackMap.containsKey(newState.entity_id)) {
+            // Check if the new state will be new
+
+            HassioState lastState = this.entityStateStackMap.get(newState.entity_id).peek();
+
+            if(lastState == null || newState.isNewComparedTo(lastState)) {
+                newState.setIsNew(true);
+            }
+
             this.entityStateStackMap.get(newState.entity_id).push(newState);
         } else {
             System.err.println("Could not add state = " + newState.state + " to entity " + newState.entity_id + " because the entity could not be found");

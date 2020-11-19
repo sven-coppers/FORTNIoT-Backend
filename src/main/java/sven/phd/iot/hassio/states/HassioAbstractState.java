@@ -12,6 +12,7 @@ import java.util.Date;
 abstract public class HassioAbstractState implements Comparable<HassioAbstractState> {
     @JsonProperty("entity_id") public String entity_id;
     @JsonProperty("context") public HassioContext context;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY) public boolean is_new;
 
     @JsonDeserialize(using = HassioDateDeserializer.class)
     @JsonSerialize(using = HassioDateSerializer.class)
@@ -97,5 +98,18 @@ abstract public class HassioAbstractState implements Comparable<HassioAbstractSt
             System.out.println();
         }
         return this.last_updated.compareTo(hassioAbstractState.last_updated);
+    }
+
+    public void setIsNew(boolean isNew) {
+        this.is_new = isNew;
+    }
+
+    /**
+     * Assumes the last state is from the same entity
+     * @param lastState
+     * @return
+     */
+    public boolean isNewComparedTo(HassioState lastState) {
+        return !this.state.equals(lastState.state);
     }
 }

@@ -26,13 +26,14 @@ public class PredictionInput {
 
         // Subtract unsnoozed actions and custom states from API from what we already have
         for(String reEnabledAction : simulationRequest.reEnabledActions) {
-            Iterator<SnoozedAction> itr = this.snoozedActions.iterator();
+            ListIterator<SnoozedAction> itr = this.snoozedActions.listIterator();
 
             while (itr.hasNext()) {
                 SnoozedAction snoozedAction = itr.next();
 
-                if (snoozedAction.equals(reEnabledAction)) {
+                if (snoozedAction.snoozedActionID.equals(reEnabledAction)) {
                     this.snoozedActions.remove(snoozedAction);
+                    break;
                 }
             }
         }

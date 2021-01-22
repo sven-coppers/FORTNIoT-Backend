@@ -128,7 +128,7 @@ public class PredictionEngine {
 
         this.deduceTick(newDate, firstLayer, future, predictionInput);
 
-        return newDate; // TODO: Revert if needed
+        return newDate;
     }
 
     /**
@@ -199,7 +199,6 @@ public class PredictionEngine {
         List<RuleExecution> conditionTrueEvents = this.rulesManager.verifyConditions(states, triggerEvents);
 
         for(RuleExecution ruleExecution : conditionTrueEvents) {
-            // TODO: Find which actions should be snoozed for this rule
             String triggerEntityID = ruleExecution.triggerEntity;
             Trigger rule = rulesManager.getRule(ruleExecution.ruleID);
             HashMap<String, Action> ruleActions = rule.getActions();

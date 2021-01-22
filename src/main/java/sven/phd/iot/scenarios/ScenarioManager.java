@@ -58,6 +58,8 @@ public class ScenarioManager {
         this.ruleSets.put("redundancy_uc2", new RedundancyRules2());
         this.ruleSets.put("bedroom_temp_conflict", new BedroomTempRulesConflict());
         this.ruleSets.put("tv_rules_inconsistency", new TVRulesInconsistency());
+        this.ruleSets.put("light_home_rules", new LightsHomeRules());
+        this.ruleSets.put("tv_news_loop", new TVRulesNewsLoop());
 
         this.activeDeviceSets = new ArrayList<>();
         this.deviceSets = new HashMap<>();
@@ -174,6 +176,7 @@ public class ScenarioManager {
         this.presets.put("conflict_instant_inconsistency", new Preset(Arrays.asList("sun", "routine_devices", "light_simple"), Arrays.asList("routine_weekend", "sun_day_night_day", "light_simple"), Arrays.asList("light_simple_conflict"), Arrays.asList("inconsistencies", "no_effect")));
         this.presets.put("conflict_incidental_inconsistency", new Preset(Arrays.asList("routine_devices", "tv_devices", "light_simple"), Arrays.asList("routine_weekday_late", "tv_news","light_simple"), Arrays.asList("tv_rules_inconsistency"), Arrays.asList("inconsistencies", "no_effect")));
         this.presets.put("conflict_incidental_redundancy", new Preset(Arrays.asList("routine_devices", "tv_devices", "light_simple"), Arrays.asList("routine_weekday_late", "tv_news","light_simple"), Arrays.asList("tv_rules_inconsistency"), Arrays.asList("redundancies", "no_effect")));
+        this.presets.put("conflict_loop", new Preset(Arrays.asList("routine_devices", "tv_devices", "light_simple"), Arrays.asList("routine_workday", "tv_news","light_simple"), Arrays.asList("tv_news_loop"), Arrays.asList("loops")));
     }
 
     public List<String> getRuleSet() {
@@ -290,7 +293,7 @@ public class ScenarioManager {
             setRuleSet(preset.getNewRuleSets());
             setStateSet(preset.getNewStateSets());
             setConflictVerifiers(preset.getConflictVerifiers());
-            ContextManager.getInstance().getConflictVerificationManager().setAllVerifiersEnabled(true);
+            //ContextManager.getInstance().getConflictVerificationManager().setAllVerifiersEnabled(true);
         } else {
             System.err.println("unknwon preset: " + activePreset);
             this.activePreset = null;

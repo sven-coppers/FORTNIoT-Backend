@@ -126,7 +126,7 @@ public class Future {
     }
 
     /**
-     * Get the second last state for an entity, useful when creating hassioChanges where
+     * Get the second last state for an entity, useful when creating hassioChanges
      * @param entityID
      * @return
      */

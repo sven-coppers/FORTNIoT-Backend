@@ -20,19 +20,24 @@ public class Conflict {
     @JsonSerialize(using = HassioDateSerializer.class)
     @JsonProperty("conflict_time") protected Date conflictTime;
 
+    @JsonProperty("detrimental") protected boolean detrimental;
+
     public Conflict() {
         // Default constructor
         this.conflictingStates = new ArrayList<>();
+        this.detrimental = false;
     }
 
     public Conflict(String conflictType, Date date) {
         this.conflictingStates = new ArrayList<>();
+        this.detrimental = false;
         this.conflictType = conflictType;
         this.conflictTime = date;
     }
 
     public Conflict(String conflictType, Date date, List<HassioState> conflictingStates) {
         this.conflictingStates = conflictingStates;
+        this.detrimental = false;
         this.conflictType = conflictType;
         this.conflictTime = date;
     }
@@ -70,72 +75,13 @@ public class Conflict {
         return false;
     }
 
-  /*  public boolean updateConflict(List<HassioState> conflictingChanges) {
-        boolean actionAdded = false;
-        for (HassioState node : conflictingChanges) {
-            if (node.getExecutionEvent() == null) {
-                System.err.println("The conflicting state did not have an execution event for " + node.entity_id + " = " + node.state);
-                continue;
-            }
+    public void setDetrimental(boolean detrimental) {
+        this.detrimental = detrimental;
+    }
 
-            // TODO: FIX
-            /* String causingAction = node.getExecutionEvent().getResponsibleAction(node.context);
-
-            if (causingAction == null) {
-                // The state is not caused by a rule
-                System.err.println("The conflicting state is not caused by a rule");
-            }
-
-            ConflictingAction action = new ConflictingAction(causingAction, node.getExecutionEvent().entity_id);
-            // Check if action isn't already part of conflict
-            if (!this.conflictingActions.contains(action)) {
-                this.addAction(action);
-                actionAdded = true;
-            }
-        }
-        return actionAdded;
-    } */
-
-  /*  public boolean containsSameActions(List<HassioState> conflictingChanges) {
-        for (HassioState conflictChange : conflictingChanges) {
-            for (ConflictingAction conflictingAction : conflictingActions) {
-                // TODO FIX
-              //  if (conflictChange.getExecutionEvent().actionContexts.containsKey(conflictingAction.action_id)) {
-                    return true;
-              //  }
-            }
-        }
-
-        return false;
-    } */
-
-  /*  @JsonIgnore
-    public boolean isLoop() {
-        List<String> devices = new ArrayList<>();
-        for (ConflictingAction conflictAction : conflictingActions) {
-            Action actionType = ContextManager.getInstance().getActionById(conflictAction.action_id);
-
-            if(actionType != null) {
-                String deviceID = actionType.getDeviceID();
-                if (devices.isEmpty()) {
-                    devices.add(deviceID);
-                } else if (!devices.contains(deviceID)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    } */
-
-    /*@JsonIgnore
-    public boolean isRedundancy() {
-        for (int i = 0, j = 1; j < conflictingActions.size(); ++i, ++j) {
-            if (!ContextManager.getInstance().getActionById(conflictingActions.get(i).action_id).isSimilar(ContextManager.getInstance().getActionById(conflictingActions.get(j).action_id))) {
-                return false;
-            }
-        }
-        return true;
-    } */
+    public boolean isDetrimental() {
+        return this.detrimental;
+    }
 
     public void print() {
         System.out.print("\t" + this.conflictType + ": ");

@@ -293,6 +293,19 @@ public class Future {
         return null;
     }
 
+    public HassioState getFutureStateByContext(HassioContext context, String entityID) {
+        if(this.entityStateStackMap.containsKey(entityID)) {
+            for(HassioState state : entityStateStackMap.get(entityID)) {
+                if(state.context.equals(context)) {
+                    return state;
+                }
+            }
+        }
+
+        return null;
+
+    }
+
     /**
      * Try to combine conflicts where possible
      */

@@ -43,4 +43,10 @@ abstract public class ConflictVerifier {
     public boolean isEnabled() {
         return enabled;
     }
+
+    /**
+     * Get a String that encodes the conflict type
+     * @return
+     */
+    public abstract String getConflictType();
 }

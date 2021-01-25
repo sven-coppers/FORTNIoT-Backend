@@ -1,5 +1,6 @@
 package sven.phd.iot.conflicts;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -21,24 +22,18 @@ public class Conflict {
     @JsonProperty("conflict_time") protected Date conflictTime;
 
     @JsonProperty("detrimental") protected boolean detrimental;
+    @JsonIgnore
+    private ConflictVerifier conflictVerifier;
 
-    public Conflict() {
-        // Default constructor
-        this.conflictingStates = new ArrayList<>();
-        this.detrimental = false;
+    public Conflict(ConflictVerifier conflictVerifier, Date date) {
+        this(conflictVerifier, date, new ArrayList<>());
     }
 
-    public Conflict(String conflictType, Date date) {
-        this.conflictingStates = new ArrayList<>();
-        this.detrimental = false;
-        this.conflictType = conflictType;
-        this.conflictTime = date;
-    }
-
-    public Conflict(String conflictType, Date date, List<HassioState> conflictingStates) {
+    public Conflict(ConflictVerifier conflictVerifier, Date date, List<HassioState> conflictingStates) {
+        this.conflictVerifier = conflictVerifier;
         this.conflictingStates = conflictingStates;
         this.detrimental = false;
-        this.conflictType = conflictType;
+        this.conflictType = conflictVerifier.getConflictType();
         this.conflictTime = date;
     }
 
@@ -91,5 +86,9 @@ public class Conflict {
         }
 
         System.out.println();
+    }
+
+    public ConflictVerifier getConflictVerifier() {
+        return conflictVerifier;
     }
 }

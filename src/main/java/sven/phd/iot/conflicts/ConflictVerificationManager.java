@@ -32,7 +32,7 @@ public class ConflictVerificationManager {
         for(String verifierID : this.conflictVerifiers.keySet()) {
             ConflictVerifier verifier = this.conflictVerifiers.get(verifierID);
 
-            if(verifier.isInterestedIn(newState) && verifier.isEnabled()) {
+            if(verifier.isInterestedIn(newState)) {
                 List<Conflict> newConflicts = this.conflictVerifiers.get(verifierID).verifyConflicts(simulationTime, future, newState);
 
                 for(Conflict newConflict : newConflicts) {

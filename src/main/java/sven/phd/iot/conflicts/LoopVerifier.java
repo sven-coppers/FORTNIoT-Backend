@@ -18,7 +18,7 @@ public class LoopVerifier extends ConflictVerifier {
         List<Conflict> conflicts = new ArrayList<>();
         HassioDevice device = ContextManager.getInstance().getHassioDeviceManager().getDevice(newstate.entity_id);
 
-        Conflict conflict = new Conflict("Loop", simulationTime);
+        Conflict conflict = new Conflict(this, simulationTime);
         conflict.addConflictState(newstate);
         conflict.setDetrimental(true);
 
@@ -42,5 +42,10 @@ public class LoopVerifier extends ConflictVerifier {
         }
 
         return conflicts;
+    }
+
+    @Override
+    public String getConflictType() {
+        return "Loop";
     }
 }

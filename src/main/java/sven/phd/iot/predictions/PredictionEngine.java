@@ -265,24 +265,30 @@ public class PredictionEngine {
      * @return
      */
     private List<Conflict> submitStatesToFuture(Date newDate, Future future, List<HassioState> newLayer) {
-        List<Conflict> conflicts = new ArrayList<>();
+        List<Conflict> layerConflicts = new ArrayList<>();
 
         this.printLayer(newDate, newLayer);
 
         for(HassioState newState : newLayer) {
-            List<Conflict> additionalConflicts = this.conflictVerificationManager.verifyConflicts(newDate, future, newState);
+            // Find all conflicts, because we need to know the detrimental ones
+            List<Conflict> stateConflicts = this.conflictVerificationManager.verifyConflicts(newDate, future, newState);
 
             // If the newState did not cause any detrimental conflicts --> add it to the future.
-            if(!hasDetrimentalConflict(additionalConflicts)) {
+            if(!hasDetrimentalConflict(stateConflicts)) {
                 future.addFutureState(newState);
             } else {
                 System.out.println("Detrimental conflict detected");
             }
 
-            conflicts.addAll(additionalConflicts);
+            // Filter the conflict output, so we can choose which types of conflicts to show
+            for(Conflict conflict : stateConflicts) {
+                if(conflict.getConflictVerifier().isEnabled()) {
+                    layerConflicts.add(conflict);
+                }
+            }
         }
 
-        return conflicts;
+        return layerConflicts;
     }
 
     private void printLayer(Date date, List<HassioState> HassioStates) {

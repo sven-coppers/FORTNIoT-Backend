@@ -63,12 +63,17 @@ public class TemperatureConflictVerifier extends ConflictVerifier {
 
         // If there is at least one heater and at least one cooler turned on at the same time, throw conflict
         if(activeHeaterStates.size() > 0 && activeCoolerStates.size() > 0) {
-            Conflict conflict = new Conflict("user_defined_conflict_bedroom_temperature", simulationTime);
+            Conflict conflict = new Conflict(this, simulationTime);
             conflict.addConflictingStates(activeHeaterStates);
             conflict.addConflictingStates(activeCoolerStates);
             conflicts.add(conflict);
         }
 
         return conflicts;
+    }
+
+    @Override
+    public String getConflictType() {
+        return "user_defined_conflict_bedroom_temperature";
     }
 }

@@ -20,7 +20,7 @@ public class RedundancyVerifier extends ConflictVerifier {
         Stack<HassioState> entityStateStack = future.getEntityStateStack(newstate.entity_id);
         HassioDevice device = ContextManager.getInstance().getHassioDeviceManager().getDevice(newstate.entity_id);
 
-        Conflict conflict = new Conflict("Redundancy", simulationTime);
+        Conflict conflict = new Conflict(this, simulationTime);
         conflict.addConflictState(newstate);
 
         for(int i = entityStateStack.size() - 1; i >= 0; --i) {
@@ -49,5 +49,10 @@ public class RedundancyVerifier extends ConflictVerifier {
         }
 
         return conflicts;
+    }
+
+    @Override
+    public String getConflictType() {
+        return "Redundancy";
     }
 }

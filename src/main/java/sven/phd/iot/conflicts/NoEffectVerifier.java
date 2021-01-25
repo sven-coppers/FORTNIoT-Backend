@@ -16,7 +16,7 @@ public class NoEffectVerifier extends ConflictVerifier {
 
         Stack<HassioState> entityStateStack = future.getEntityStateStack(newstate.entity_id);
 
-        Conflict conflict = new Conflict("No effect", simulationTime);
+        Conflict conflict = new Conflict(this, simulationTime);
 
         if(entityStateStack.size() > 0){
             HassioState lastState = entityStateStack.get(entityStateStack.size() - 1);
@@ -29,5 +29,10 @@ public class NoEffectVerifier extends ConflictVerifier {
         }
 
         return conflicts;
+    }
+
+    @Override
+    public String getConflictType() {
+        return "No effect";
     }
 }

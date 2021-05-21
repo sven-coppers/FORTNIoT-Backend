@@ -1,21 +1,18 @@
 package sven.phd.iot;
 
-import sven.phd.iot.api.resources.StateResource;
+import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.conflicts.ConflictVerificationManager;
-import sven.phd.iot.overrides.SnoozedAction;
-import sven.phd.iot.predictions.PredictionInput;
-import sven.phd.iot.rules.*;
-import sven.phd.iot.overrides.OverridesManager;
 import sven.phd.iot.hassio.HassioDevice;
 import sven.phd.iot.hassio.HassioDeviceManager;
 import sven.phd.iot.hassio.change.HassioChange;
-import sven.phd.iot.students.mathias.StudyManagerMathias;
-import sven.phd.iot.conflicts.Conflict;
 import sven.phd.iot.hassio.states.HassioState;
-import sven.phd.iot.scenarios.ScenarioManager;
-import sven.phd.iot.study.StudyManager;
+import sven.phd.iot.overrides.OverridesManager;
 import sven.phd.iot.predictions.Future;
 import sven.phd.iot.predictions.PredictionEngine;
+import sven.phd.iot.predictions.PredictionInput;
+import sven.phd.iot.rules.*;
+import sven.phd.iot.scenarios.ScenarioManager;
+import sven.phd.iot.study.StudyManager;
 
 import java.util.*;
 
@@ -26,7 +23,7 @@ public class ContextManager {
     private PredictionEngine predictionEngine;
     private ScenarioManager scenarioManager;
     //private StudyManager studyManager;
-    private StudyManagerMathias studyManager;
+    private StudyManager studyManager;
     private OverridesManager overridesManager;
     private ConflictVerificationManager conflictVerificationManager;
 
@@ -37,8 +34,8 @@ public class ContextManager {
         this.conflictVerificationManager = new ConflictVerificationManager();
         this.predictionEngine = new PredictionEngine(this);
         this.scenarioManager = new ScenarioManager(this);
-        //this.studyManager = new StudyManager();
-        this.studyManager = new StudyManagerMathias();
+        this.studyManager = new StudyManager();
+       // this.studyManager = new StudyManagerMathias();
 
         // NEVER EVER START PREDICTING WHEN LAUNCHING THIS SHIT
     }

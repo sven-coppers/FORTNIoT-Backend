@@ -31,6 +31,10 @@ public class ActionExecution {
         // Default constructor for deserialization
     }
 
+    public static void resetIdentifier() {
+        identifier = 0;
+    }
+
     public ActionExecution(Date datetime, String actionID, String snoozedBy) {
         this(datetime, actionID, new ArrayList<>());
         this.snoozed = true;

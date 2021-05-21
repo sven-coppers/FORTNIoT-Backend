@@ -294,6 +294,8 @@ public class ScenarioManager {
             setStateSet(preset.getNewStateSets());
             setConflictVerifiers(preset.getConflictVerifiers());
             //ContextManager.getInstance().getConflictVerificationManager().setAllVerifiersEnabled(true);
+
+
         } else {
             System.err.println("unknwon preset: " + activePreset);
             this.activePreset = null;

@@ -10,6 +10,7 @@ import sven.phd.iot.hassio.change.HassioChange;
 import sven.phd.iot.hassio.states.HassioState;
 import sven.phd.iot.overrides.SnoozedAction;
 import sven.phd.iot.rules.*;
+import sven.phd.iot.scenarios.Exporter;
 
 import java.util.*;
 
@@ -34,7 +35,7 @@ public class PredictionEngine {
     }
 
     public Future getFuture() {
-        return future;
+        return this.future;
     }
 
     /**
@@ -43,6 +44,7 @@ public class PredictionEngine {
     public void updateFuturePredictions() {
         this.future = predictFuture(contextManager.gatherPredictionInput());
         StateResource.getInstance().broadcastRefresh("Predictions updated");
+        Exporter.export();
     }
 
     /**
@@ -63,6 +65,7 @@ public class PredictionEngine {
     private Future predictFuture(PredictionInput predictionInput) {
         // Initialise the queue with changes we already know
         PriorityQueue<HassioState> queue = new PriorityQueue<>();
+        ActionExecution.resetIdentifier();
 
         Future future = new Future(deviceManager.getCurrentStates());
         queue.addAll(deviceManager.predictFutureStates());

@@ -15,7 +15,7 @@ public class SnoozedAction {
     @JsonProperty("conflict_time_window") public long window; // in seconds
     @JsonProperty("trigger_entity_id") public String triggerEntityID;
 
-    @JsonDeserialize(using = HassioDateDeserializer.class)
+   // @JsonDeserialize(using = HassioDateDeserializer.class) // No longer needed since we recalculate dates client side
     @JsonSerialize(using = HassioDateSerializer.class)
 
     @JsonProperty("conflict_time") public Date conflictTime;

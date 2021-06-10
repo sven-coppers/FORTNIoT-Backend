@@ -14,6 +14,6 @@ public class SmokeRules extends RuleSet {
         Trigger smokeTrigger = new StateTrigger("system_rule.smoke_lights", SmokeDevices.SENSOR_LIVING_SMOKE, "smoke detected", "smoke detected");
         smokeTrigger.addAction(new LightOnAction("turn on living spots", LightSimpleDevices.LIVING_SPOTS, Color.YELLOW, false));
         rulesManager.addRule(smokeTrigger);
-        smokeTrigger.setTitle("IF smoke detected THEN turn on the living spots");
+        smokeTrigger.setTitle("smoke detected THEN turn on the living spots");
     }
 }

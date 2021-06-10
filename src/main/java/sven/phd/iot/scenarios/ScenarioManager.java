@@ -250,7 +250,7 @@ public class ScenarioManager {
         this.deviceManager.clearScheduledStates();
 
         Calendar relativeTime = Calendar.getInstance();
-        Date startDate = new Date();
+        Date startDate = new Date(0);
 
         for(String stateSet: stateSets) {
             this.activeStateSets.add(stateSet);

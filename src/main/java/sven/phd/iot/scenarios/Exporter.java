@@ -118,9 +118,9 @@ public class Exporter {
         }
 
         try {
-            System.out.println(" - Alternative future ...");
+            System.out.println(" - Alternative future ..." + outputFolderName + filename + ".json");
             PrintWriter deviceFutureWriter = new PrintWriter(outputFolderName + filename + ".json", "UTF-8");
-            deviceFutureWriter.write(objectMapper.writeValueAsString(cm.getFuture()));
+            deviceFutureWriter.write(objectMapper.writeValueAsString(alternativeFuture));
             deviceFutureWriter.close();
         } catch (IOException e) {
             e.printStackTrace();

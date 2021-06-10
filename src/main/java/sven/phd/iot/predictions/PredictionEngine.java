@@ -71,8 +71,8 @@ public class PredictionEngine {
         queue.addAll(deviceManager.predictFutureStates());
         queue.addAll(predictionInput.getHassioStates());
 
-        Date lastFrameDate = new Date(); // Prediction start
-        Date predictionEnd = new Date(new Date().getTime() + getPredictionWindow() * 60L * 1000L); // Convert prediction window from minutes to milliseconds
+        Date lastFrameDate = new Date(0); // Prediction start
+        Date predictionEnd = new Date(lastFrameDate.getTime() + getPredictionWindow() * 60L * 1000L); // Convert prediction window from minutes to milliseconds
 
         // Predict the first day with high precision
         while (lastFrameDate.getTime() < predictionEnd.getTime()) {

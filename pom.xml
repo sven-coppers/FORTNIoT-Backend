@@ -234,11 +234,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.12.6.1</version>
+            <version>2.12.7.1</version>
         </dependency>
     </dependencies>
       <properties>
           <jersey.version>2.32</jersey.version> <!-- Last working version -->
-        <jackson.version>2.12.6.1</jackson.version>
+        <jackson.version>2.12.7.1</jackson.version>
     </properties>
 </project>
